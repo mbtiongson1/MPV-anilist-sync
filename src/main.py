@@ -110,15 +110,18 @@ class TrackerAgent:
         self.watcher.disconnect()
 
 if __name__ == "__main__":
+    from src.ui import TrackerUI
+    
     agent = TrackerAgent()
+    ui = TrackerUI(agent)
     
-    if not agent.anilist.is_authenticated():
-        print("Error: No valid AniList token found in config.json. Please add your token.")
-        exit(1)
+    # Run Agent in background thread
+    agent_thread = threading.Thread(target=agent.start, daemon=True)
+    agent_thread.start()
     
-    # Run Agent synchronously in the main thread (blocks forever)
+    # Run UI in main thread
     try:
-        agent.start()
+        ui.run()
     except KeyboardInterrupt:
         print("\nStopping Tracker Agent...")
-        agent.stop()
+        ui.quit_app()
