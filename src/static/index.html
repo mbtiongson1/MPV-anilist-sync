@@ -27,6 +27,24 @@
 
             <div class="content-wrapper">
                 <h1 id="anime-title" class="title-error">Waiting for video...</h1>
+                
+                <div id="progress-container" class="progress-section" style="display: none;">
+                    <div class="progress-label">Current Progress</div>
+                    <div class="progress-controls">
+                        <button id="btn-minus" class="icon-btn" aria-label="Decrease Episode">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </button>
+                        <div id="progress-text" class="progress-text">E1 / 12</div>
+                        <button id="btn-plus" class="icon-btn" aria-label="Increase Episode">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </button>
+                    </div>
+                    <button id="btn-sync" class="sync-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l5.83-2.06"/></svg>
+                        Sync Now
+                    </button>
+                </div>
+
                 <p id="suggestion-text" class="suggestion">Open an .mkv or video file in MPV to get started tracking automatically.</p>
             </div>
         </main>
@@ -34,6 +52,8 @@
         <footer>
             <div class="links">
                 <a href="https://anilist.co/home" target="_blank" rel="noopener noreferrer">Open AniList</a>
+                <span class="separator">•</span>
+                <a href="https://mpv.io" target="_blank" rel="noopener noreferrer">Open mpv.io</a>
             </div>
         </footer>
     </div>

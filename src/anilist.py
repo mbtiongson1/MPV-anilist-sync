@@ -7,6 +7,9 @@ import urllib.parse
 import threading
 from typing import Optional, Dict, Any
 
+class AnilistHTTPServer(http.server.HTTPServer):
+    token: Optional[str] = None
+
 class AnilistAuthHandler(http.server.BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         pass
@@ -77,11 +80,13 @@ class AnilistClient:
 
     def save_token(self, token: str):
         self.token = token
-        config = {}
+        config: Dict[str, Any] = {}
         if os.path.exists(self.token_file):
             try:
                 with open(self.token_file, 'r') as f:
-                    config = json.load(f)
+                    loaded = json.load(f)
+                    if isinstance(loaded, dict):
+                        config.update(loaded)
             except:
                 pass
         config['access_token'] = token
@@ -94,7 +99,7 @@ class AnilistClient:
     def authenticate(self) -> bool:
         client_id = 37267
 
-        server = http.server.HTTPServer(('localhost', 54321), AnilistAuthHandler)
+        server = AnilistHTTPServer(('localhost', 54321), AnilistAuthHandler)
         server.token = None
         
         # Anilist requires the redirect URI to be exact, so we set it up in the Dev Console as http://localhost:54321/auth
@@ -106,8 +111,9 @@ class AnilistClient:
         # Block until the local server receives the token and shuts down
         server.serve_forever()
         
-        if server.token:
-            self.save_token(server.token)
+        token = server.token
+        if token:
+            self.save_token(token)
             self.user_id = None # reset user id to fetch it again
             print("Successfully authenticated and saved token.")
             return True
@@ -123,8 +129,8 @@ class AnilistClient:
             headers['Authorization'] = f'Bearer {self.token}'
         return headers
 
-    def _execute_query(self, query: str, variables: Dict[str, Any] = None) -> Dict[str, Any]:
-        data = {'query': query}
+    def _execute_query(self, query: str, variables: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        data: Dict[str, Any] = {'query': query}
         if variables:
             data['variables'] = variables
             
@@ -216,7 +222,7 @@ class AnilistClient:
 
         # Check existing entry
         entry = self.get_list_entry(media_id)
-        if entry and entry.get('progress') >= episode:
+        if entry and (entry.get('progress') or 0) >= episode:
             print(f"Anilist already at or past episode {episode} (Current: {entry.get('progress')})")
             return True
 
@@ -229,7 +235,7 @@ class AnilistClient:
             }
         }
         '''
-        variables = {
+        variables: Dict[str, Any] = {
             'mediaId': media_id,
             'progress': episode
         }

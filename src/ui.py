@@ -1,9 +1,13 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 import threading
 from src.main import TrackerAgent
 
 class TrackerUI:
+    status_var: tk.StringVar
+    log_text: tk.Text
+
     def __init__(self, agent: TrackerAgent):
         self.agent = agent
         
@@ -71,7 +75,7 @@ class TrackerUI:
             if success:
                 self.log("Successfully authenticated with AniList!")
                 self.root.after(0, self.status_var.set, "Status: Authenticated with AniList!")
-                self.root.after(0, lambda: messagebox.showinfo("Authentication Successful", "The app is now running with AniList tracking enabled.\n\nThe background launch script will ensure the app stays running automatically."))
+                self.root.after(0, lambda: messagebox.showinfo("Authentication Successful", "The app is now running with AniList tracking enabled.\n\nThe background launch script will ensure the app stays running automatically."))  # type: ignore
             else:
                 self.log("Authentication failed. (Check config.json for client_id)")
                 
