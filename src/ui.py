@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+import tkinter.messagebox as messagebox
 import threading
 from src.main import TrackerAgent
 
@@ -13,6 +14,8 @@ class TrackerUI:
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         
         self.setup_ui()
+        if self.agent.anilist.is_authenticated():
+            self.log("App is running with existing AniList token. Tracking is active.")
         self.update_log()
 
     def setup_ui(self):
@@ -69,6 +72,7 @@ class TrackerUI:
             if success:
                 self.log("Successfully authenticated with AniList!")
                 self.root.after(0, self.status_var.set, "Status: Authenticated with AniList!")
+                self.root.after(0, lambda: messagebox.showinfo("Authentication Successful", "The app is now running with AniList tracking enabled.\n\nThe background launch script will ensure the app stays running automatically."))
             else:
                 self.log("Authentication failed. (Check config.json for client_id)")
                 
