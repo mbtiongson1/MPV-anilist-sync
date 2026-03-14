@@ -1,6 +1,10 @@
 import time
 import os
+import sys
 import threading
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from src.anilist import AnilistClient
 from src.parser import AnimeParser
 from src.mpv_watcher import MPVWatcher
@@ -106,73 +110,15 @@ class TrackerAgent:
         self.watcher.disconnect()
 
 if __name__ == "__main__":
-    import threading
-    import pystray
-    from PIL import Image, ImageDraw
-    from src.ui import TrackerUI
-
-    def create_image():
-        image = Image.new('RGB', (64, 64), color=(73, 109, 137))
-        d = ImageDraw.Draw(image)
-        try:
-            d.text((10, 20), "MPV", fill=(255, 255, 0))
-        except:
-            pass
-        return image
-
     agent = TrackerAgent()
     
     if not agent.anilist.is_authenticated():
-        import webbrowser
-        import tkinter as tk
-        from tkinter import simpledialog
-        
-        print("Opening browser for Anilist authentication...")
-        webbrowser.open("https://anilist.co/settings/developer")
-        
-        auth_root = tk.Tk()
-        auth_root.title("Anilist Login")
-        auth_root.withdraw()
-        auth_root.lift()
-        auth_root.attributes('-topmost', True)
-        
-        token = simpledialog.askstring("Anilist Authentication", 
-            "Your browser has been opened to Anilist Developer Settings.\n\nPlease create a 'Personal Access Token' and paste it here:",
-            parent=auth_root)
-            
-        if token:
-            agent.anilist.save_token(token.strip())
-            print("Token saved.")
-        else:
-            print("Authentication cancelled. Exiting.")
-            exit(1)
-        auth_root.destroy()
+        print("Error: No valid AniList token found in config.json. Please add your token.")
+        exit(1)
     
-    # Run Agent in background
-    agent_thread = threading.Thread(target=agent.start, daemon=True)
-    agent_thread.start()
-
-    # Create UI
-    ui = TrackerUI(agent)
-    
-    # Because macOS is tricky with multiple GUI loops, we attempt to run pystray in a detached thread
-    icon = pystray.Icon("mpv_tracker", create_image(), "MPV Anilist Tracker", 
-                        menu=pystray.Menu(
-                            pystray.MenuItem("Show Tracker", lambda icon, item: ui.show_window()),
-                            pystray.MenuItem("Quit", lambda icon, item: ui.quit_app(icon, item))
-                        ))
-                        
-    # Start tray icon
-    icon_thread = threading.Thread(target=icon.run, daemon=True)
-    icon_thread.start()
-    
-    # Hide window initially
-    ui.hide_window()
-
+    # Run Agent synchronously in the main thread (blocks forever)
     try:
-        # Tkinter runs in main thread
-        ui.run()
+        agent.start()
     except KeyboardInterrupt:
         print("\nStopping Tracker Agent...")
         agent.stop()
-        icon.stop()
