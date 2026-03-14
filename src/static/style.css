@@ -266,3 +266,51 @@ footer {
 .sync-btn:hover svg {
     transform: rotate(180deg);
 }
+
+/* Segmented Progress Bar */
+.progress-bar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 150px;
+}
+
+.progress-text-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.progress-segments {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 200px;
+}
+
+.segment {
+    height: 8px;
+    width: 16px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.segment-watched {
+    background-color: var(--success); /* Green */
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.segment-current {
+    background-color: var(--error); /* Red */
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+    transform: scale(1.2);
+}
+
+.segment-unwatched {
+    background-color: rgba(255, 255, 255, 0.2); /* Grey */
+}
