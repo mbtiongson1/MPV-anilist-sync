@@ -3,64 +3,160 @@ import http.server
 import socketserver
 import threading
 import os
-from src.main import TrackerAgent
+import urllib.parse
+import glob
+from src.main import TrackerAgent  # type: ignore
+
+from typing import Optional
 
 class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
     agent: TrackerAgent = None
+    
+    # We store the manual override at the class level for simplicity the UI
+    manual_episode_override: Optional[int] = None
     
     def __init__(self, *args, **kwargs):
         # Serve files from the static directory by default
         super().__init__(*args, directory=os.path.join(os.path.dirname(__file__), 'static'), **kwargs)
 
+    def _set_cors_headers(self):
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self._set_cors_headers()
+        self.end_headers()
+
+    def _get_total_episodes(self, filename: str) -> int:
+        try:
+            dir_path = os.path.dirname(filename)
+            if not dir_path or not os.path.exists(dir_path):
+                return 0
+                
+            # Count common video files in the same directory
+            video_exts = ('*.mkv', '*.mp4', '*.avi')
+            count = 0
+            for ext in video_exts:
+                count += len(glob.glob(os.path.join(dir_path, ext)))
+            return count
+        except Exception:
+            return 0
+
     def do_GET(self):
         if self.path == '/api/status':
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*') # Allow cross-origin just in case
+            self._set_cors_headers()
             self.end_headers()
             
             # Prepare state
             is_running = False
             title = ""
+            base_title = ""
+            episode = 0
+            total_episodes = 0
             
             if self.agent and self.agent.watcher.is_connected:
                 filename = self.agent.watcher.get_current_filename()
                 if filename:
-                    from src.parser import AnimeParser
+                    total_episodes = self._get_total_episodes(filename)
+                    
+                    from src.parser import AnimeParser  # type: ignore
                     parsed = AnimeParser.parse_filename(filename)
                     if parsed and parsed.get('title'):
-                        title = parsed['title']
-                        episode = parsed.get('episode')
-                        if isinstance(episode, list):
-                            episode = episode[-1]
-                        if episode is not None:
-                            title += f" - E{episode}"
+                        base_title = parsed['title']
+                        ep_val = parsed.get('episode')
+                        if isinstance(ep_val, list):
+                            ep_val = ep_val[-1]
+                            
+                        # If we have a manual override, use it instead of parsed
+                        if TrackerStateHandler.manual_episode_override is not None:
+                            episode = TrackerStateHandler.manual_episode_override
+                        else:
+                            episode = ep_val if ep_val is not None else 1
+                            TrackerStateHandler.manual_episode_override = episode
+                            
+                        title = f"{base_title} - E{episode}"
                     else:
                         title = filename
+                        TrackerStateHandler.manual_episode_override = None
                         
                     is_running = True
+            else:
+                TrackerStateHandler.manual_episode_override = None
             
             response = {
                 "running": is_running,
-                "title": title
+                "title": title,
+                "base_title": base_title,
+                "watched_episodes": episode,
+                "total_episodes": total_episodes
             }
             self.wfile.write(json.dumps(response).encode('utf-8'))
         else:
             # Fallback to serving static files
             super().do_GET()
 
+    def do_POST(self):
+        if self.path == '/api/adjust_episode':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            change = data.get('change', 0)
+            if TrackerStateHandler.manual_episode_override is not None:
+                TrackerStateHandler.manual_episode_override = max(1, TrackerStateHandler.manual_episode_override + change)
+                
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": True, "new_episode": TrackerStateHandler.manual_episode_override}).encode('utf-8'))
+            
+        elif self.path == '/api/sync':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            
+            success = False
+            if self.agent and self.agent.watcher.is_connected:
+                filename = self.agent.watcher.get_current_filename()
+                if filename:
+                    # Sync with the manually overridden episode number
+                    # We inject it into the agent or let agent parse it normally?
+                    # Since agent calls AnimeParser, we might need a custom sync function or a hack.
+                    # Best way: Agent's sync_progress parses it again. Let's add an optional episode parameter to sync_progress.
+                    # For now, we will just call the method directly with the override.
+                    
+                    if hasattr(self.agent, 'sync_progress_manual') and TrackerStateHandler.manual_episode_override is not None:
+                        # We'll need to modify src/main.py to support manual episode overrides
+                        self.agent.sync_progress_manual(filename, TrackerStateHandler.manual_episode_override)
+                        success = True
+                    else:
+                        # Fallback to normal sync
+                        self.agent.sync_progress(filename)
+                        success = True
+                        
+            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+        else:
+            self.send_response(404)
+            self.end_headers()
+
     # Suppress logging to keep the terminal clean
     def log_message(self, format, *args):
         pass
+
+class ReusableTCPServer(socketserver.TCPServer):
+    allow_reuse_address = True
 
 def start_web_server(agent: TrackerAgent, port: int = 8080):
     TrackerStateHandler.agent = agent
     handler = TrackerStateHandler
     
-    # Allow port reuse
-    socketserver.TCPServer.allow_reuse_address = True
-    
-    with socketserver.TCPServer(("", port), handler) as httpd:
+    with ReusableTCPServer(("", port), handler) as httpd:
         print(f"UI Server started at http://localhost:{port}")
         httpd.serve_forever()
 

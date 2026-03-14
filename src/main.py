@@ -2,6 +2,7 @@ import time
 import os
 import sys
 import threading
+from typing import Optional, Dict, Any
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -16,8 +17,8 @@ class TrackerAgent:
         self.running = False
         
         # Track state so we don't spam the API
-        self.last_synced_filename = None
-        self.active_filename = None
+        self.last_synced_filename: Optional[str] = None
+        self.active_filename: Optional[str] = None
         
     def start(self):
         print("Starting MPV Anilist Tracker Agent...")
@@ -31,9 +32,10 @@ class TrackerAgent:
                 
             if not self.watcher.is_connected:
                 # Disconnected. Sync active file if it exists.
-                if self.active_filename:
-                    print(f"MPV disconnected/closed. Syncing latest file: {self.active_filename}")
-                    self.sync_progress(self.active_filename)
+                active_file = self.active_filename
+                if active_file:
+                    print(f"MPV disconnected/closed. Syncing latest file: {active_file}")
+                    self.sync_progress(active_file)
                     self.active_filename = None
                     
                 # Try to connect periodically
@@ -50,16 +52,18 @@ class TrackerAgent:
                 
                 if filename:
                     # File changed inside MPV without closing
-                    if self.active_filename and self.active_filename != filename:
-                        print(f"File changed. Syncing previous file: {self.active_filename}")
-                        self.sync_progress(self.active_filename)
+                    active_file = self.active_filename
+                    if active_file and active_file != filename:
+                        print(f"File changed. Syncing previous file: {active_file}")
+                        self.sync_progress(active_file)
                         
                     self.active_filename = filename
                 else:
                     # filename is None (e.g. video stopped but mpv still open)
-                    if self.active_filename:
-                        print(f"Playback stopped. Syncing previous file: {self.active_filename}")
-                        self.sync_progress(self.active_filename)
+                    active_file = self.active_filename
+                    if active_file:
+                        print(f"Playback stopped. Syncing previous file: {active_file}")
+                        self.sync_progress(active_file)
                         self.active_filename = None
                 
                 # Sleep a bit to prevent CPU spinning
@@ -101,6 +105,36 @@ class TrackerAgent:
         success = self.anilist.update_progress(media_id, episode)
         if success:
             print(f"Successfully synced {romaji_title} progress to episode {episode}")
+            self.last_synced_filename = filename
+        else:
+            print("Failed to sync progress to Anilist.")
+
+    def sync_progress_manual(self, filename: str, override_episode: int):
+        print(f"Manual sync requested for filename: {filename} at Episode {override_episode}")
+        parsed = AnimeParser.parse_filename(filename)
+        if not parsed or not parsed.get('title'):
+            print("Could not parse title from filename for manual sync.")
+            return
+
+        title = parsed['title']
+        print(f"Matched Anime: '{title}', Episode Override: {override_episode}")
+
+        # Search Anilist
+        print(f"Searching Anilist for '{title}'...")
+        result = self.anilist.search_anime(title)
+        if not result:
+            print("No matching anime found on Anilist.")
+            return
+
+        media_id = result['id']
+        romaji_title = result['title']['romaji']
+
+        print(f"Found on Anilist: {romaji_title} (ID: {media_id})")
+
+        # Update progress
+        success = self.anilist.update_progress(media_id, override_episode)
+        if success:
+            print(f"Successfully synced {romaji_title} progress manually to episode {override_episode}")
             self.last_synced_filename = filename
         else:
             print("Failed to sync progress to Anilist.")
