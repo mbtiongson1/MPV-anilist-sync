@@ -30,6 +30,7 @@ class TrackerUI:
         btn_frame = ttk.Frame(self.root)
         btn_frame.pack(pady=10)
         
+        ttk.Button(btn_frame, text="Authenticate", command=self.authenticate_anilist).pack(side=tk.LEFT, padx=5)
         ttk.Button(btn_frame, text="View Anilist", command=self.open_anilist).pack(side=tk.LEFT, padx=5)
         ttk.Button(btn_frame, text="Hide to Tray", command=self.hide_window).pack(side=tk.LEFT, padx=5)
 
@@ -60,6 +61,18 @@ class TrackerUI:
             self.status_var.set("Status: Waiting for MPV...")
             
         self.root.after(1000, self.update_log)
+
+    def authenticate_anilist(self):
+        def auth_thread():
+            self.log("Starting AniList authentication...")
+            success = self.agent.anilist.authenticate()
+            if success:
+                self.log("Successfully authenticated with AniList!")
+                self.root.after(0, self.status_var.set, "Status: Authenticated with AniList!")
+            else:
+                self.log("Authentication failed. (Check config.json for client_id)")
+                
+        threading.Thread(target=auth_thread, daemon=True).start()
 
     def open_anilist(self):
         import webbrowser

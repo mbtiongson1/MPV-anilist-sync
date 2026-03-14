@@ -31,8 +31,8 @@ pip install -r requirements.txt
 
 *(Note: `pystray` may require additional dependencies depending on your Python/macOS environment, but standard setups usually support it out of the box).*
 
-### 3. Running the Tracker
-Start the Python script:
+### 3. Running the Tracker manually
+Start the Python script from the terminal to set up your account on first launch:
 
 ```bash
 source venv/bin/activate
@@ -42,6 +42,14 @@ python src/main.py
 - **First Launch**: A pop-up browser and dialog window will ask you to generate and paste a **Personal Access Token** from your [Anilist Developer Settings](https://anilist.co/settings/developer). This is stored locally in a `config.json` file.
 - The tray icon will appear. Start watching an anime in MPV and it will show up as connected!
 
+
+### 4. Running Automatically in the Background
+To make the tracker run silently on startup without keeping a Terminal window open, an macOS Application wrapper `MPV Anilist Tracker.app` has been created for you in the `MPV` folder.
+
+1. Open **System Settings** -> **General** -> **Login Items**.
+2. Click the `+` button in the "Open at Login" list.
+3. Browse to `Documents/MPV/` and select **`MPV Anilist Tracker.app`**.
+*(Alternatively, you can just double-click the `.app` whenever you want to start the tracker without opening a terminal).*
 
 ## Project Structure
 - `src/main.py`: The core background tracker and synchronization loop execution.

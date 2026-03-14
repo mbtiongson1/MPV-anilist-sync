@@ -1,7 +1,61 @@
 import json
 import os
 import requests
+import webbrowser
+import http.server
+import urllib.parse
+import threading
 from typing import Optional, Dict, Any
+
+class AnilistAuthHandler(http.server.BaseHTTPRequestHandler):
+    def log_message(self, format, *args):
+        pass
+        
+    def do_GET(self):
+        if self.path == '/auth':
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            html = """
+            <html>
+            <body>
+            <script>
+                var hash = window.location.hash.substring(1);
+                if (hash) {
+                    var params = new URLSearchParams(hash);
+                    var token = params.get('access_token');
+                    if (token) {
+                        window.location.href = '/callback?token=' + token;
+                    } else {
+                        document.body.innerHTML = 'Authentication failed (no token).';
+                    }
+                } else {
+                    document.body.innerHTML = 'Please wait, authenticating...';
+                }
+            </script>
+            <p>Authenticating...</p>
+            </body>
+            </html>
+            """
+            self.wfile.write(html.encode('utf-8'))
+        elif self.path.startswith('/callback'):
+            query = urllib.parse.urlparse(self.path).query
+            params = urllib.parse.parse_qs(query)
+            token = params.get('token', [None])[0]
+            if token:
+                self.server.token = token
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(b"Authentication successful! You can close this tab and return to the application.")
+            else:
+                self.send_response(400)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(b"Authentication failed.")
+            
+            # Stop the server in a new thread to allow the response to complete
+            threading.Thread(target=self.server.shutdown).start()
 
 class AnilistClient:
     API_URL = "https://graphql.anilist.co"
@@ -36,6 +90,29 @@ class AnilistClient:
 
     def is_authenticated(self) -> bool:
         return self.token is not None
+
+    def authenticate(self) -> bool:
+        client_id = 37267
+
+        server = http.server.HTTPServer(('localhost', 54321), AnilistAuthHandler)
+        server.token = None
+        
+        # Anilist requires the redirect URI to be exact, so we set it up in the Dev Console as http://localhost:54321/auth
+        auth_url = f"https://anilist.co/api/v2/oauth/authorize?client_id={client_id}&response_type=token"
+        print(f"Opening browser for authentication: {auth_url}")
+        
+        webbrowser.open(auth_url)
+        
+        # Block until the local server receives the token and shuts down
+        server.serve_forever()
+        
+        if server.token:
+            self.save_token(server.token)
+            self.user_id = None # reset user id to fetch it again
+            print("Successfully authenticated and saved token.")
+            return True
+            
+        return False
 
     def _get_headers(self) -> Dict[str, str]:
         headers = {
