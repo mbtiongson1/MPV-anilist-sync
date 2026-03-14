@@ -1,0 +1,5 @@
+requests
+guessit
+python-mpv-jsonipc
+pystray
+Pillow
