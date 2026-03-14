@@ -223,3 +223,7 @@ Traceback (most recent call last):
   File "/Users/marcotiongson/Documents/MPV/src/main.py", line 4, in <module>
     from src.anilist import AnilistClient
 ModuleNotFoundError: No module named 'src'
+Traceback (most recent call last):
+  File "/Users/marcotiongson/Documents/MPV/src/main.py", line 4, in <module>
+    from src.anilist import AnilistClient
+ModuleNotFoundError: No module named 'src'
