@@ -1,0 +1,13 @@
+macOS 26 (2602) or later required, have instead 16 (1602) !
+macOS 26 (2602) or later required, have instead 16 (1602) !
+macOS 26 (2602) or later required, have instead 16 (1602) !
+macOS 26 (2602) or later required, have instead 16 (1602) !
+Traceback (most recent call last):
+  File "/Users/marcotiongson/Documents/MPV/src/main.py", line 113, in <module>
+    from src.ui import TrackerUI
+  File "/Users/marcotiongson/Documents/MPV/src/ui.py", line 1
+    ```python
+    ^
+SyntaxError: invalid syntax
+macOS 26 (2602) or later required, have instead 16 (1602) !
+macOS 26 (2602) or later required, have instead 16 (1602) !
