@@ -44,6 +44,21 @@ class MPVWatcher:
             self.current_filename = None
             self.percent_pos = 0.0
 
+    def check_connection(self) -> bool:
+        """Actively ping MPV to verify the socket hasn't silently died."""
+        if not self.is_connected or not self.mpv:
+            return False
+            
+        try:
+            # Ping a harmless property to see if it responds
+            # python-mpv-jsonipc caches some properties, but forcing a read on a changing or core 
+            # property like pid or core-idle usually triggers an active socket interaction
+            _ = self.mpv.core_idle
+            return True
+        except Exception:
+            self.disconnect()
+            return False
+
     def get_current_filename(self) -> Optional[str]:
         return self.current_filename
         
