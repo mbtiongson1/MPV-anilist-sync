@@ -32,7 +32,7 @@ class TrackerAgent:
                 time.sleep(2)
                 continue
                 
-            if not self.watcher.is_connected:
+            if not self.watcher.is_connected or not self.watcher.check_connection():
                 # Disconnected. Sync active file if it exists.
                 active_file = self.active_filename
                 if active_file:
@@ -49,7 +49,7 @@ class TrackerAgent:
                     continue
                     
             try:
-                # We are connected, check progress
+                # We are connected and alive, check progress
                 filename = self.watcher.get_current_filename()
                 
                 if filename:
