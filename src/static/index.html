@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPV AniList Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M10 8L16 12L10 16V8Z" fill="currentColor"/>
+                </svg>
+                <span>MPV Tracker</span>
+            </div>
+        </header>
+
+        <main class="status-card">
+            <div id="status-indicator" class="status-bubble offline">
+                <div class="pulse"></div>
+                <span id="status-text">Not Running</span>
+            </div>
+
+            <div class="content-wrapper">
+                <h1 id="anime-title" class="title-error">Waiting for video...</h1>
+                <p id="suggestion-text" class="suggestion">Open an .mkv or video file in MPV to get started tracking automatically.</p>
+            </div>
+        </main>
+        
+        <footer>
+            <div class="links">
+                <a href="https://anilist.co/home" target="_blank" rel="noopener noreferrer">Open AniList</a>
+            </div>
+        </footer>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
