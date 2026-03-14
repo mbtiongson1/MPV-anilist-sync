@@ -1,11 +1,11 @@
 import json
 import os
-import requests
+import requests  # type: ignore
 import webbrowser
 import http.server
 import urllib.parse
 import threading
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, cast
 
 class AnilistHTTPServer(http.server.HTTPServer):
     token: Optional[str] = None
@@ -46,7 +46,8 @@ class AnilistAuthHandler(http.server.BaseHTTPRequestHandler):
             params = urllib.parse.parse_qs(query)
             token = params.get('token', [None])[0]
             if token:
-                self.server.token = token
+                server = cast(AnilistHTTPServer, self.server)
+                server.token = token
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()

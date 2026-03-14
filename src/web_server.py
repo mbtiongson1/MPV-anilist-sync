@@ -57,11 +57,13 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             base_title = ""
             episode = 0
             total_episodes = 0
+            anilist_progress = 0
             
             if self.agent and self.agent.watcher.is_connected:
                 filename = self.agent.watcher.get_current_filename()
                 if filename:
                     total_episodes = self._get_total_episodes(filename)
+                    anilist_progress = getattr(self.agent, 'current_anilist_progress', 0)
                     
                     from src.parser import AnimeParser  # type: ignore
                     parsed = AnimeParser.parse_filename(filename)
@@ -92,7 +94,8 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                 "title": title,
                 "base_title": base_title,
                 "watched_episodes": episode,
-                "total_episodes": total_episodes
+                "total_episodes": total_episodes,
+                "anilist_progress": anilist_progress
             }
             self.wfile.write(json.dumps(response).encode('utf-8'))
         else:

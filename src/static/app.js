@@ -6,10 +6,31 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // New elements
     const progressContainer = document.getElementById('progress-container');
-    const progressText = document.getElementById('progress-text');
+    const textLabel = document.getElementById('progress-text-label');
+    const segmentsContainer = document.getElementById('progress-segments');
     const btnMinus = document.getElementById('btn-minus');
     const btnPlus = document.getElementById('btn-plus');
     const btnSync = document.getElementById('btn-sync');
+
+    function renderSegments(watched, total, anilistProgress) {
+        segmentsContainer.innerHTML = '';
+        const limit = total > 0 ? total : watched; // Fallback if folder total is 0
+        
+        for (let i = 1; i <= limit; i++) {
+            const el = document.createElement('div');
+            el.classList.add('segment');
+            
+            if (i === watched) {
+                el.classList.add('segment-current'); // Red
+            } else if (i <= anilistProgress) {
+                el.classList.add('segment-watched'); // Green
+            } else {
+                el.classList.add('segment-unwatched'); // Grey
+            }
+            
+            segmentsContainer.appendChild(el);
+        }
+    }
 
     async function checkStatus() {
         try {
@@ -28,7 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Show and update progress UI
                 progressContainer.style.display = 'flex';
                 let totalStr = data.total_episodes > 0 ? data.total_episodes : '?';
-                progressText.textContent = `E${data.watched_episodes} / ${totalStr}`;
+                textLabel.textContent = `E${data.watched_episodes} / ${totalStr}`;
+                renderSegments(data.watched_episodes, data.total_episodes, data.anilist_progress);
                 
             } else {
                 // MPV is not running or nothing is playing

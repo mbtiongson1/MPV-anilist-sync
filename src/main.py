@@ -19,6 +19,8 @@ class TrackerAgent:
         # Track state so we don't spam the API
         self.last_synced_filename: Optional[str] = None
         self.active_filename: Optional[str] = None
+        self.current_anilist_progress: int = 0
+        self.current_media_id: Optional[int] = None
         
     def start(self):
         print("Starting MPV Anilist Tracker Agent...")
@@ -57,7 +59,9 @@ class TrackerAgent:
                         print(f"File changed. Syncing previous file: {active_file}")
                         self.sync_progress(active_file)
                         
-                    self.active_filename = filename
+                    if self.active_filename != filename:
+                        self.active_filename = filename
+                        self._fetch_current_anilist_progress(filename)
                 else:
                     # filename is None (e.g. video stopped but mpv still open)
                     active_file = self.active_filename
@@ -106,8 +110,29 @@ class TrackerAgent:
         if success:
             print(f"Successfully synced {romaji_title} progress to episode {episode}")
             self.last_synced_filename = filename
+            # Update local cache so we don't need to refetch instantly
+            self.current_anilist_progress = episode
         else:
             print("Failed to sync progress to Anilist.")
+
+    def _fetch_current_anilist_progress(self, filename: str):
+        self.current_anilist_progress = 0
+        self.current_media_id = None
+        
+        parsed = AnimeParser.parse_filename(filename)
+        if not parsed or not parsed.get('title'):
+            return
+            
+        title = parsed['title']
+        result = self.anilist.search_anime(title)
+        if not result:
+            return
+            
+        media_id = result['id']
+        self.current_media_id = media_id
+        entry = self.anilist.get_list_entry(media_id)
+        if entry:
+            self.current_anilist_progress = entry.get('progress') or 0
 
     def sync_progress_manual(self, filename: str, override_episode: int):
         print(f"Manual sync requested for filename: {filename} at Episode {override_episode}")
@@ -136,6 +161,7 @@ class TrackerAgent:
         if success:
             print(f"Successfully synced {romaji_title} progress manually to episode {override_episode}")
             self.last_synced_filename = filename
+            self.current_anilist_progress = override_episode
         else:
             print("Failed to sync progress to Anilist.")
 
