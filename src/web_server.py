@@ -89,15 +89,33 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             else:
                 TrackerStateHandler.manual_episode_override = None
             
+            # Try to get the AniList total episode count for more accurate progress
+            anilist_total_episodes = getattr(self.agent, '_cached_anilist_episodes', None)
+            
             response = {
                 "running": is_running,
                 "title": title,
                 "base_title": base_title,
                 "watched_episodes": episode,
                 "total_episodes": total_episodes,
-                "anilist_progress": anilist_progress
+                "anilist_progress": anilist_progress,
+                "anilist_total_episodes": anilist_total_episodes
             }
             self.wfile.write(json.dumps(response).encode('utf-8'))
+        elif self.path == '/api/animelist':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            
+            entries = []
+            if self.agent and self.agent.anilist.is_authenticated():
+                try:
+                    entries = self.agent.anilist.get_user_anime_list(['CURRENT', 'PLANNING'])
+                except Exception as e:
+                    print(f"Error fetching anime list: {e}")
+            
+            self.wfile.write(json.dumps(entries).encode('utf-8'))
         else:
             # Fallback to serving static files
             super().do_GET()
