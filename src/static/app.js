@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const countCompleted = document.getElementById('count-completed');
     const btnRefreshList = document.getElementById('btn-refresh-list');
     const btnToggleView = document.getElementById('btn-toggle-view');
+    const btnReauthorize = document.getElementById('btn-reauthorize');
+    const btnFullRefresh = document.getElementById('btn-full-refresh');
     const detailsModal = document.getElementById('details-modal');
     const modalOverlay = document.getElementById('modal-overlay');
     const modalClose = document.getElementById('modal-close');
@@ -655,6 +657,43 @@ document.addEventListener('DOMContentLoaded', () => {
     btnRefreshList.addEventListener('click', () => {
         animeGrid.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Refreshing...</p></div>`;
         fetchAnimeList();
+    });
+
+    // ===== Reauthorize Button =====
+    btnReauthorize.addEventListener('click', async () => {
+        if (confirm('This will open your browser to reauthorize with AniList. Continue?')) {
+            try {
+                const response = await fetch('/api/reauthorize', { method: 'POST' });
+                if (response.ok) {
+                    alert('Reauthorization initiated. Check your browser.');
+                } else {
+                    alert('Failed to initiate reauthorization.');
+                }
+            } catch (error) {
+                console.error('Reauthorization error:', error);
+                alert('Network error during reauthorization.');
+            }
+        }
+    });
+
+    // ===== Full Refresh & Clear Cache Button =====
+    btnFullRefresh.addEventListener('click', async () => {
+        if (confirm('This will clear all cached data and refresh everything. Continue?')) {
+            try {
+                const response = await fetch('/api/full_refresh', { method: 'POST' });
+                if (response.ok) {
+                    // Clear local storage
+                    localStorage.clear();
+                    // Reload the page to reset everything
+                    window.location.reload();
+                } else {
+                    alert('Failed to perform full refresh.');
+                }
+            } catch (error) {
+                console.error('Full refresh error:', error);
+                alert('Network error during full refresh.');
+            }
+        }
     });
 
     // ===== View Toggle =====

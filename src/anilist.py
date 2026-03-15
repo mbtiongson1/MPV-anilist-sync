@@ -131,17 +131,41 @@ class AnilistClient:
         return headers
 
     def _execute_query(self, query: str, variables: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        import time
         data: Dict[str, Any] = {'query': query}
         if variables:
             data['variables'] = variables
-            
-        response = requests.post(
-            self.API_URL,
-            headers=self._get_headers(),
-            json=data
-        )
-        response.raise_for_status()
-        return response.json()
+
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                response = requests.post(
+                    self.API_URL,
+                    headers=self._get_headers(),
+                    json=data
+                )
+                response.raise_for_status()
+                return response.json()
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code == 429:  # Too Many Requests
+                    if attempt < max_retries - 1:
+                        wait_time = 2 ** attempt  # Exponential backoff: 1, 2, 4 seconds
+                        print(f"Rate limited (429). Retrying in {wait_time} seconds... (attempt {attempt + 1}/{max_retries})")
+                        time.sleep(wait_time)
+                        continue
+                    else:
+                        print(f"Rate limited (429). Max retries exceeded.")
+                        raise
+                else:
+                    raise
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    wait_time = 2 ** attempt
+                    print(f"Request failed: {e}. Retrying in {wait_time} seconds... (attempt {attempt + 1}/{max_retries})")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    raise
 
     def get_authenticated_user(self) -> Optional[int]:
         if not self.token:
