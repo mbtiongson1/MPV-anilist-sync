@@ -22,6 +22,55 @@ class TrackerAgent:
         self.current_anilist_progress: int = 0
         self.current_media_id: Optional[int] = None
         self._cached_anilist_episodes: Optional[int] = None
+
+    @staticmethod
+    def _resolve_episode_to_media(media: Dict[str, Any], global_episode: int) -> tuple[Dict[str, Any], int]:
+        """Resolve a global episode number into the correct AniList media and local episode.
+
+        Sometimes a filename includes a global episode count across multiple seasons (e.g.
+        season 1 has 10 eps, so "E16" actually refers to season 2 episode 6).
+
+        This function walks `media.relations.edges` looking for sequels and subtracts
+        known episode counts until the episode fits into a single media entry.
+        """
+        remaining = global_episode
+        visited = set()
+        current = media
+
+        while current and isinstance(current, dict):
+            media_id = current.get('id')
+            if media_id is None or media_id in visited:
+                break
+            visited.add(media_id)
+
+            episodes = current.get('episodes')
+            # If the media has an unknown episode count, assume the current media is the best match
+            if not episodes or episodes <= 0:
+                return current, remaining
+
+            # If the remaining episode fits within this media, we're done
+            if remaining <= episodes:
+                return current, remaining
+
+            # Otherwise, attempt to roll over into a sequel
+            relations = current.get('relations', {}).get('edges', []) or []
+            next_media = None
+            for edge in relations:
+                if edge.get('relationType') == 'SEQUEL' and isinstance(edge.get('node'), dict):
+                    node = edge.get('node')
+                    if node.get('id') not in visited:
+                        next_media = node
+                        break
+
+            if not next_media:
+                # No known sequel; clamp to the last episode of the current media
+                return current, episodes
+
+            remaining -= episodes
+            current = next_media
+
+        # Fallback: return original media
+        return media, min(global_episode, media.get('episodes') or global_episode)
         
     def start(self):
         print("Starting MPV Anilist Tracker Agent...")
@@ -100,19 +149,24 @@ class TrackerAgent:
         if not result:
             print("No matching anime found on Anilist.")
             return
-            
-        media_id = result['id']
-        romaji_title = result['title']['romaji']
-        
+
+        # If the parsed episode exceeds the first media's episode count, attempt to
+        # resolve to the correct sequel (e.g. "E16" in a 10-episode show should map to
+        # season 2 episode 6).
+        target_media, target_episode = self._resolve_episode_to_media(result, episode)
+        media_id = target_media.get('id')
+        romaji_title = target_media.get('title', {}).get('romaji') or title
+
         print(f"Found on Anilist: {romaji_title} (ID: {media_id})")
-        
+        print(f"Resolved to media ID {media_id} at episode {target_episode}")
+
         # Update progress
-        success = self.anilist.update_progress(media_id, episode)
+        success = self.anilist.update_progress(media_id, target_episode)
         if success:
-            print(f"Successfully synced {romaji_title} progress to episode {episode}")
+            print(f"Successfully synced {romaji_title} progress to episode {target_episode}")
             self.last_synced_filename = filename
             # Update local cache so we don't need to refetch instantly
-            self.current_anilist_progress = episode
+            self.current_anilist_progress = target_episode
         else:
             print("Failed to sync progress to Anilist.")
 
@@ -126,13 +180,18 @@ class TrackerAgent:
             return
             
         title = parsed['title']
+        episode = parsed.get('episode', 1)
+        if isinstance(episode, list):
+            episode = episode[-1]
+
         result = self.anilist.search_anime(title)
         if not result:
             return
-            
-        media_id = result['id']
+
+        target_media, _ = self._resolve_episode_to_media(result, episode)
+        media_id = target_media.get('id')
         self.current_media_id = media_id
-        self._cached_anilist_episodes = result.get('episodes')
+        self._cached_anilist_episodes = target_media.get('episodes')
         entry = self.anilist.get_list_entry(media_id)
         if entry:
             self.current_anilist_progress = entry.get('progress') or 0
@@ -154,17 +213,19 @@ class TrackerAgent:
             print("No matching anime found on Anilist.")
             return
 
-        media_id = result['id']
-        romaji_title = result['title']['romaji']
+        target_media, target_episode = self._resolve_episode_to_media(result, override_episode)
+        media_id = target_media.get('id')
+        romaji_title = target_media.get('title', {}).get('romaji') or title
 
         print(f"Found on Anilist: {romaji_title} (ID: {media_id})")
+        print(f"Resolved to media ID {media_id} at episode {target_episode}")
 
         # Update progress
-        success = self.anilist.update_progress(media_id, override_episode)
+        success = self.anilist.update_progress(media_id, target_episode)
         if success:
-            print(f"Successfully synced {romaji_title} progress manually to episode {override_episode}")
+            print(f"Successfully synced {romaji_title} progress manually to episode {target_episode}")
             self.last_synced_filename = filename
-            self.current_anilist_progress = override_episode
+            self.current_anilist_progress = target_episode
         else:
             print("Failed to sync progress to Anilist.")
 
