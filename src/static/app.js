@@ -41,9 +41,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let animeList = [];
     let activeTab = 'CURRENT';
     let lastNowPlayingTitle = null;
-    let viewMode = 'grid'; // 'grid' or 'list'
+    let viewMode = 'grid';
+    // persist view mode across reloads
+    const savedViewMode = localStorage.getItem('mpvViewMode');
+    if (savedViewMode && ['grid', 'list', 'details'].includes(savedViewMode)) {
+        viewMode = savedViewMode;
+    }
     let expandedCard = null; // mediaId of expanded card
-    let sortBy = ''; // 'popularity', 'score', 'title', 'progress'
+    let sortBy = ''; // 'popularity', 'score', 'title', 'progress', 'season', 'studio'
+    let sortDirection = 1; // 1 = asc, -1 = desc
 
     // ===== Fuzzy Search Helper =====
     function fuzzyMatch(query, text) {
@@ -379,21 +385,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Sort
         if (sortBy) {
+            const direction = sortDirection || 1;
             filtered.sort((a, b) => {
+                let cmp = 0;
                 switch (sortBy) {
                     case 'popularity':
-                        return (b.popularity || 0) - (a.popularity || 0);
+                        cmp = (a.popularity || 0) - (b.popularity || 0);
+                        break;
                     case 'score':
-                        return (b.averageScore || 0) - (a.averageScore || 0);
+                        cmp = (a.averageScore || 0) - (b.averageScore || 0);
+                        break;
                     case 'title':
                         const aTitle = (a.title?.romaji || a.title?.english || '').toLowerCase();
                         const bTitle = (b.title?.romaji || b.title?.english || '').toLowerCase();
-                        return aTitle.localeCompare(bTitle);
+                        cmp = aTitle.localeCompare(bTitle);
+                        break;
                     case 'progress':
-                        return (b.progress || 0) - (a.progress || 0);
+                        cmp = (a.progress || 0) - (b.progress || 0);
+                        break;
+                    case 'season':
+                        cmp = (a.seasonYear || 0) - (b.seasonYear || 0);
+                        if (cmp === 0) {
+                            cmp = (a.season || '').localeCompare(b.season || '');
+                        }
+                        break;
+                    case 'studio':
+                        cmp = (a.studio || '').localeCompare(b.studio || '');
+                        break;
                     default:
-                        return 0;
+                        cmp = 0;
                 }
+                return cmp * direction;
             });
         }
 
@@ -438,12 +460,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <table class="details-table">
                     <thead>
                         <tr>
-                            <th>Title</th>
-                            <th>Progress</th>
-                            <th>Score</th>
-                            <th>Popularity</th>
-                            <th>Season</th>
-                            <th>Studio</th>
+                            <th data-sort="title" data-label="Title">Title</th>
+                            <th data-sort="progress" data-label="Progress">Progress</th>
+                            <th data-sort="score" data-label="Score">Score</th>
+                            <th data-sort="popularity" data-label="Popularity">Popularity</th>
+                            <th data-sort="season" data-label="Season">Season</th>
+                            <th data-sort="studio" data-label="Studio">Studio</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -452,6 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </tbody>
                 </table>
             `;
+            attachDetailsHeaderSorting();
         } else {
             animeGrid.innerHTML = rowHtml;
         }
@@ -567,6 +590,39 @@ document.addEventListener('DOMContentLoaded', () => {
         return num.toString();
     }
 
+    function setSort(column) {
+        if (!column) return;
+        if (sortBy === column) {
+            sortDirection = -sortDirection;
+        } else {
+            sortBy = column;
+            sortDirection = 1;
+        }
+        if (filterSort) {
+            const optionExists = Array.from(filterSort.options).some(opt => opt.value === sortBy);
+            if (optionExists) {
+                filterSort.value = sortBy;
+            }
+        }
+        renderAnimeGrid();
+    }
+
+    function getSortIndicator(column) {
+        if (sortBy !== column) return '';
+        return sortDirection === 1 ? ' ▲' : ' ▼';
+    }
+
+    function attachDetailsHeaderSorting() {
+        const headers = document.querySelectorAll('.details-table th[data-sort]');
+        headers.forEach(th => {
+            const column = th.dataset.sort;
+            const label = th.dataset.label || th.textContent;
+            th.textContent = label + getSortIndicator(column);
+            th.style.cursor = 'pointer';
+            th.onclick = () => setSort(column);
+        });
+    }
+
     // ===== Tab Switching =====
     function setActiveTab(tab) {
         activeTab = tab;
@@ -585,7 +641,13 @@ document.addEventListener('DOMContentLoaded', () => {
     filterSeason.addEventListener('change', renderAnimeGrid);
     filterYear.addEventListener('input', renderAnimeGrid);
     filterSort.addEventListener('change', (e) => {
-        sortBy = e.target.value;
+        const newSort = e.target.value;
+        if (sortBy === newSort) {
+            sortDirection = -sortDirection;
+        } else {
+            sortBy = newSort;
+            sortDirection = 1;
+        }
         renderAnimeGrid();
     });
 
@@ -610,6 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (viewMode === 'grid') viewMode = 'list';
         else if (viewMode === 'list') viewMode = 'details';
         else viewMode = 'grid';
+        localStorage.setItem('mpvViewMode', viewMode);
         updateViewToggleButton();
         renderAnimeGrid();
     });
