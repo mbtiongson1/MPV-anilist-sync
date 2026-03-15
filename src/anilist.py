@@ -168,6 +168,8 @@ class AnilistClient:
         return None
 
     def search_anime(self, title: str) -> Optional[Dict[str, Any]]:
+        # This query includes relation edges so we can resolve season/series sequels when
+        # the parsed episode number exceeds the first entry's episode count.
         query = '''
         query ($search: String) {
             Media (search: $search, type: ANIME) {
@@ -179,6 +181,20 @@ class AnilistClient:
                 }
                 episodes
                 status
+                relations {
+                    edges {
+                        relationType
+                        node {
+                            id
+                            title {
+                                romaji
+                                english
+                                native
+                            }
+                            episodes
+                        }
+                    }
+                }
             }
         }
         '''
