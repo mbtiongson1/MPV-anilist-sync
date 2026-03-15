@@ -50,7 +50,7 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self._set_cors_headers()
             self.end_headers()
-            
+
             # Prepare state
             is_running = False
             title = ""
@@ -58,13 +58,17 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             episode = 0
             total_episodes = 0
             anilist_progress = 0
-            
+            anilist_total_episodes = None
+
+            selected_media = None
+            season_options = []
+            media_details = None
+
             if self.agent and self.agent.watcher.is_connected:
                 filename = self.agent.watcher.get_current_filename()
                 if filename:
                     total_episodes = self._get_total_episodes(filename)
-                    anilist_progress = getattr(self.agent, 'current_anilist_progress', 0)
-                    
+
                     from src.parser import AnimeParser  # type: ignore
                     parsed = AnimeParser.parse_filename(filename)
                     if parsed and parsed.get('title'):
@@ -72,26 +76,68 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                         ep_val = parsed.get('episode')
                         if isinstance(ep_val, list):
                             ep_val = ep_val[-1]
-                            
+
                         # If we have a manual override, use it instead of parsed
                         if TrackerStateHandler.manual_episode_override is not None:
                             episode = TrackerStateHandler.manual_episode_override
                         else:
                             episode = ep_val if ep_val is not None else 1
                             TrackerStateHandler.manual_episode_override = episode
-                            
+
                         title = f"{base_title} - E{episode}"
                     else:
                         title = filename
                         TrackerStateHandler.manual_episode_override = None
-                        
+
+                    # Build season options and find selected media
+                    if hasattr(self.agent, 'current_media_map'):
+                        season_options = []
+                        for mid, data in self.agent.current_media_map.items():
+                            season_options.append({
+                                'mediaId': mid,
+                                'title': data.get('title', {}).get('romaji') or data.get('title', {}).get('english') or '',
+                                'episodes': data.get('episodes'),
+                                'season': data.get('season'),
+                                'seasonYear': data.get('seasonYear'),
+                                'popularity': data.get('popularity'),
+                                'averageScore': data.get('averageScore'),
+                            })
+
+                        selected_id = getattr(self.agent, 'selected_media_id', None)
+                        if selected_id is None and season_options:
+                            selected_id = season_options[0]['mediaId']
+                        if selected_id:
+                            selected_media = self.agent.current_media_map.get(selected_id)
+
+                    if selected_media:
+                        media_details = {
+                            'mediaId': selected_media.get('id'),
+                            'title': selected_media.get('title', {}),
+                            'description': selected_media.get('description'),
+                            'episodes': selected_media.get('episodes'),
+                            'season': selected_media.get('season'),
+                            'seasonYear': selected_media.get('seasonYear'),
+                            'popularity': selected_media.get('popularity'),
+                            'averageScore': selected_media.get('averageScore'),
+                            'coverImage': selected_media.get('coverImage'),
+                            'bannerImage': selected_media.get('bannerImage'),
+                            'status': selected_media.get('status'),
+                        }
+
+                        # Use the AniList progress for the selected media
+                        anilist_progress = self.agent.get_progress_for_media(selected_id)
+                        self.agent.selected_media_id = selected_id
+
+                        # Use the selected media's episode count for progress bar
+                        anilist_total_episodes = selected_media.get('episodes')
+                    else:
+                        anilist_progress = getattr(self.agent, 'current_anilist_progress', 0)
+                        anilist_total_episodes = getattr(self.agent, '_cached_anilist_episodes', None)
+
                     is_running = True
             else:
                 TrackerStateHandler.manual_episode_override = None
-            
-            # Try to get the AniList total episode count for more accurate progress
-            anilist_total_episodes = getattr(self.agent, '_cached_anilist_episodes', None)
-            
+
             response = {
                 "running": is_running,
                 "title": title,
@@ -99,7 +145,10 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                 "watched_episodes": episode,
                 "total_episodes": total_episodes,
                 "anilist_progress": anilist_progress,
-                "anilist_total_episodes": anilist_total_episodes
+                "anilist_total_episodes": anilist_total_episodes,
+                "selected_media_id": getattr(self.agent, 'selected_media_id', None),
+                "season_options": season_options,
+                "media_details": media_details,
             }
             self.wfile.write(json.dumps(response).encode('utf-8'))
         elif self.path == '/api/animelist':
@@ -136,31 +185,56 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({"success": True, "new_episode": TrackerStateHandler.manual_episode_override}).encode('utf-8'))
             
+        elif self.path == '/api/select_season':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+
+            content_length = int(self.headers.get('Content-Length', 0))
+            data = json.loads(self.rfile.read(content_length).decode('utf-8')) if content_length else {}
+            media_id = data.get('mediaId')
+            if self.agent and hasattr(self.agent, 'set_selected_media'):
+                self.agent.set_selected_media(media_id)
+            self.wfile.write(json.dumps({"success": True, "selected_media_id": media_id}).encode('utf-8'))
+
+        elif self.path == '/api/update_progress':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+
+            content_length = int(self.headers.get('Content-Length', 0))
+            data = json.loads(self.rfile.read(content_length).decode('utf-8')) if content_length else {}
+            media_id = data.get('mediaId')
+            episode = data.get('episode')
+
+            success = False
+            if self.agent and media_id and episode is not None:
+                if hasattr(self.agent, 'sync_progress_by_media'):
+                    success = self.agent.sync_progress_by_media(media_id, int(episode))
+
+            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+
         elif self.path == '/api/sync':
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self._set_cors_headers()
             self.end_headers()
-            
+
             success = False
             if self.agent and self.agent.watcher.is_connected:
                 filename = self.agent.watcher.get_current_filename()
                 if filename:
-                    # Sync with the manually overridden episode number
-                    # We inject it into the agent or let agent parse it normally?
-                    # Since agent calls AnimeParser, we might need a custom sync function or a hack.
-                    # Best way: Agent's sync_progress parses it again. Let's add an optional episode parameter to sync_progress.
-                    # For now, we will just call the method directly with the override.
-                    
+                    # Sync with the manually overridden episode number if present
                     if hasattr(self.agent, 'sync_progress_manual') and TrackerStateHandler.manual_episode_override is not None:
-                        # We'll need to modify src/main.py to support manual episode overrides
-                        self.agent.sync_progress_manual(filename, TrackerStateHandler.manual_episode_override)
+                        self.agent.sync_progress_manual(filename, TrackerStateHandler.manual_episode_override, getattr(self.agent, 'selected_media_id', None))
                         success = True
                     else:
                         # Fallback to normal sync
                         self.agent.sync_progress(filename)
                         success = True
-                        
+
             self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
         else:
             self.send_response(404)

@@ -23,6 +23,11 @@ class TrackerAgent:
         self.current_media_id: Optional[int] = None
         self._cached_anilist_episodes: Optional[int] = None
 
+        # When multiple seasons exist, we store a map of media IDs -> media info
+        # and allow the UI to select which season to show/sync.
+        self.current_media_map: Dict[int, Dict[str, Any]] = {}
+        self.selected_media_id: Optional[int] = None
+
     @staticmethod
     def _resolve_episode_to_media(media: Dict[str, Any], global_episode: int) -> tuple[Dict[str, Any], int]:
         """Resolve a global episode number into the correct AniList media and local episode.
@@ -71,6 +76,49 @@ class TrackerAgent:
 
         # Fallback: return original media
         return media, min(global_episode, media.get('episodes') or global_episode)
+
+    @staticmethod
+    def _build_media_map(media: Dict[str, Any]) -> Dict[int, Dict[str, Any]]:
+        """Build a map of related media entries keyed by media ID (e.g., seasons)."""
+        media_map: Dict[int, Dict[str, Any]] = {}
+        queue = [media]
+        seen = set()
+
+        while queue:
+            current = queue.pop(0)
+            if not current or not isinstance(current, dict):
+                continue
+            media_id = current.get('id')
+            if not media_id or media_id in seen:
+                continue
+            seen.add(media_id)
+            media_map[media_id] = current
+
+            relations = current.get('relations', {}).get('edges', []) or []
+            for edge in relations:
+                if edge.get('relationType') == 'SEQUEL' and isinstance(edge.get('node'), dict):
+                    queue.append(edge['node'])
+
+        return media_map
+
+    def set_selected_media(self, media_id: Optional[int]):
+        """Set which media (season) is currently selected in the UI."""
+        if media_id is None:
+            self.selected_media_id = None
+            return
+
+        if media_id in self.current_media_map:
+            self.selected_media_id = media_id
+        else:
+            # If the selected media isn't in the current map, ignore.
+            print(f"Selected media {media_id} not in current media map")
+
+    def get_progress_for_media(self, media_id: int) -> int:
+        """Return the user's AniList progress for the provided media ID."""
+        entry = self.anilist.get_list_entry(media_id)
+        if entry:
+            return entry.get('progress') or 0
+        return 0
         
     def start(self):
         print("Starting MPV Anilist Tracker Agent...")
@@ -127,22 +175,39 @@ class TrackerAgent:
                 self.watcher.disconnect()
                 time.sleep(2)
 
+    def _sync_to_media(self, media_id: int, episode: int) -> bool:
+        """Update AniList progress for a specific media ID."""
+        romaji_title = None
+        if media_id in self.current_media_map:
+            romaji_title = self.current_media_map[media_id].get('title', {}).get('romaji')
+        if not romaji_title:
+            romaji_title = str(media_id)
+
+        print(f"Syncing to AniList: media {media_id} (" + romaji_title + ") episode {episode}")
+        success = self.anilist.update_progress(media_id, episode)
+        if success:
+            print(f"Successfully synced {romaji_title} progress to episode {episode}")
+            self.current_anilist_progress = episode
+            return True
+        print("Failed to sync progress to Anilist.")
+        return False
+
     def sync_progress(self, filename: str):
         print(f"Parsing filename: {filename}")
         parsed = AnimeParser.parse_filename(filename)
         if not parsed or not parsed.get('title'):
             print("Could not parse title from filename.")
             return
-            
+
         title = parsed['title']
-        episode = parsed.get('episode', 1) # Default to 1 if it can't be found (e.g. movies)
-        
+        episode = parsed.get('episode', 1)  # Default to 1 if it can't be found (e.g. movies)
+
         # In guessit, episode might be a list if it's a batch, we take the last one or the only one
         if isinstance(episode, list):
             episode = episode[-1]
-            
+
         print(f"Matched Anime: '{title}', Episode: {episode}")
-        
+
         # Search Anilist
         print(f"Searching Anilist for '{title}'...")
         result = self.anilist.search_anime(title)
@@ -155,30 +220,72 @@ class TrackerAgent:
         # season 2 episode 6).
         target_media, target_episode = self._resolve_episode_to_media(result, episode)
         media_id = target_media.get('id')
-        romaji_title = target_media.get('title', {}).get('romaji') or title
 
-        print(f"Found on Anilist: {romaji_title} (ID: {media_id})")
+        print(f"Found on Anilist: {target_media.get('title', {}).get('romaji')} (ID: {media_id})")
         print(f"Resolved to media ID {media_id} at episode {target_episode}")
 
-        # Update progress
-        success = self.anilist.update_progress(media_id, target_episode)
+        success = self._sync_to_media(media_id, target_episode)
         if success:
-            print(f"Successfully synced {romaji_title} progress to episode {target_episode}")
             self.last_synced_filename = filename
-            # Update local cache so we don't need to refetch instantly
-            self.current_anilist_progress = target_episode
-        else:
-            print("Failed to sync progress to Anilist.")
+
+    def sync_progress_by_media(self, media_id: int, episode: int):
+        """Sync a specific media ID to the given episode."""
+        print(f"Syncing media {media_id} to episode {episode}")
+        success = self._sync_to_media(media_id, episode)
+        if success:
+            self.last_synced_filename = None
+        return success
+
+    def sync_progress_manual(self, filename: Optional[str], override_episode: int, media_id: Optional[int] = None):
+        if filename:
+            print(f"Manual sync requested for filename: {filename} at Episode {override_episode}")
+            parsed = AnimeParser.parse_filename(filename)
+            if not parsed or not parsed.get('title'):
+                print("Could not parse title from filename for manual sync.")
+                return
+            title = parsed['title']
+            print(f"Matched Anime: '{title}', Episode Override: {override_episode}")
+
+            # If a media_id is supplied, use it directly; otherwise lookup via title.
+            target_media = None
+            if media_id and media_id in self.current_media_map:
+                target_media = self.current_media_map[media_id]
+            else:
+                print(f"Searching Anilist for '{title}'...")
+                result = self.anilist.search_anime(title)
+                if not result:
+                    print("No matching anime found on Anilist.")
+                    return
+                target_media, _ = self._resolve_episode_to_media(result, override_episode)
+
+            if not target_media:
+                print("Could not determine which media to sync to.")
+                return
+
+            media_id = target_media.get('id')
+            print(f"Found on Anilist: {target_media.get('title', {}).get('romaji')} (ID: {media_id})")
+            print(f"Resolved to media ID {media_id} at episode {override_episode}")
+
+        # If filename is None, assume caller provides correct media_id
+        if not media_id:
+            print("No media_id provided for manual sync.")
+            return
+
+        success = self._sync_to_media(media_id, override_episode)
+        if success:
+            self.last_synced_filename = filename
 
     def _fetch_current_anilist_progress(self, filename: str):
         self.current_anilist_progress = 0
         self.current_media_id = None
         self._cached_anilist_episodes = None
-        
+        self.current_media_map = {}
+        self.selected_media_id = None
+
         parsed = AnimeParser.parse_filename(filename)
         if not parsed or not parsed.get('title'):
             return
-            
+
         title = parsed['title']
         episode = parsed.get('episode', 1)
         if isinstance(episode, list):
@@ -188,10 +295,16 @@ class TrackerAgent:
         if not result:
             return
 
-        target_media, _ = self._resolve_episode_to_media(result, episode)
-        media_id = target_media.get('id')
+        # Build a map of related seasons/entries and choose the best media for the current episode.
+        self.current_media_map = self._build_media_map(result)
+
+        # Default selected media to what our filename maps to (for season rollover).
+        resolved_media, _ = self._resolve_episode_to_media(result, episode)
+        self.selected_media_id = resolved_media.get('id')
+
+        media_id = self.selected_media_id
         self.current_media_id = media_id
-        self._cached_anilist_episodes = target_media.get('episodes')
+        self._cached_anilist_episodes = resolved_media.get('episodes')
         entry = self.anilist.get_list_entry(media_id)
         if entry:
             self.current_anilist_progress = entry.get('progress') or 0

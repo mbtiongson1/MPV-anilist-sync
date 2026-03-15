@@ -8,6 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const npCover = document.getElementById('np-cover');
     const npTitle = document.getElementById('np-title');
     const npStudio = document.getElementById('np-studio');
+    const npSeason = document.getElementById('np-season');
+    const npStats = document.getElementById('np-stats');
+    const npSummary = document.getElementById('np-summary');
+    const npSummaryToggle = document.getElementById('np-summary-toggle');
+    const btnEditNowPlaying = document.getElementById('btn-edit-nowplaying');
     const npProgressLabel = document.getElementById('np-progress-label');
     const npProgressSegments = document.getElementById('np-progress-segments');
     const btnMinus = document.getElementById('btn-minus');
@@ -26,6 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const countCompleted = document.getElementById('count-completed');
     const btnRefreshList = document.getElementById('btn-refresh-list');
     const btnToggleView = document.getElementById('btn-toggle-view');
+    const detailsModal = document.getElementById('details-modal');
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modalClose = document.getElementById('modal-close');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+    const modalBody = document.getElementById('modal-body');
 
     // ===== State =====
     let animeList = [];
@@ -85,10 +95,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== Now Playing Status (2s poll) =====
+    let latestStatus = null;
+
     async function checkStatus() {
         try {
             const response = await fetch('/api/status');
             const data = await response.json();
+            latestStatus = data;
 
             if (data.running && data.title) {
                 statusBubble.className = 'status-bubble online';
@@ -96,13 +109,70 @@ document.addEventListener('DOMContentLoaded', () => {
                 nowPlaying.classList.remove('hidden');
                 idleState.classList.add('hidden');
 
-                npTitle.textContent = data.base_title || data.title;
+                // Prefer base title but keep full title for display
+                const displayTitle = data.base_title || data.title;
+
+                // Build link for title (AniList page)
+                const selectedMediaId = data.selected_media_id;
+                if (selectedMediaId) {
+                    npTitle.innerHTML = `<a href="https://anilist.co/anime/${selectedMediaId}" target="_blank" rel="noopener noreferrer">${escapeHtml(displayTitle)}</a>`;
+                } else {
+                    npTitle.textContent = displayTitle;
+                }
+
+                // Season selector
+                if (Array.isArray(data.season_options) && data.season_options.length > 0) {
+                    npSeason.innerHTML = data.season_options
+                        .sort((a, b) => (a.seasonYear || 0) - (b.seasonYear || 0))
+                        .map(opt => {
+                            const label = opt.title || `Season ${opt.season || ''} ${opt.seasonYear || ''}`;
+                            return `<option value="${opt.mediaId}" ${opt.mediaId === selectedMediaId ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+                        })
+                        .join('');
+                    npSeason.closest('.np-season-selector').style.display = 'flex';
+                } else {
+                    npSeason.closest('.np-season-selector').style.display = 'none';
+                }
+
+                // Stats
+                if (data.media_details) {
+                    const details = data.media_details;
+                    const stats = [];
+                    if (details.status) stats.push(`<span class="np-stat">${escapeHtml(details.status)}</span>`);
+                    if (details.season && details.seasonYear) stats.push(`<span class="np-stat">${escapeHtml(details.season)} ${details.seasonYear}</span>`);
+                    if (details.episodes) stats.push(`<span class="np-stat">${details.episodes} eps</span>`);
+                    if (details.averageScore) stats.push(`<span class="np-stat">★ ${details.averageScore}%</span>`);
+                    if (details.popularity) stats.push(`<span class="np-stat">♥ ${formatPopularity(details.popularity)}</span>`);
+                    npStats.innerHTML = stats.join(' ');
+
+                    // Summary
+                    const summary = details.description || '';
+                    npSummary.textContent = summary.replace(/<[^>]+>/g, '');
+                    npSummary.classList.remove('expanded');
+                    npSummaryToggle.textContent = 'See more';
+                } else {
+                    npStats.innerHTML = '';
+                    npSummary.textContent = '';
+                    npSummaryToggle.style.display = 'none';
+                }
+
+                // Cover and banner images
+                if (data.media_details) {
+                    const coverUrl = data.media_details.coverImage?.large || data.media_details.coverImage?.medium || '';
+                    const bannerUrl = data.media_details.bannerImage || coverUrl;
+                    npCover.src = coverUrl;
+                    npBanner.style.backgroundImage = bannerUrl ? `url(${bannerUrl})` : '';
+
+                    // Attach click targets
+                    npCover.style.cursor = coverUrl ? 'pointer' : 'default';
+                    npCover.onclick = () => { if (coverUrl) window.open(coverUrl, '_blank'); };
+                    npBanner.style.cursor = bannerUrl ? 'pointer' : 'default';
+                    npBanner.onclick = () => { if (bannerUrl) window.open(bannerUrl, '_blank'); };
+                }
 
                 // Determine total: prefer AniList episode count, then local folder count
                 const total = data.anilist_total_episodes || data.total_episodes || 0;
                 const watched = data.watched_episodes || 0;
-                const anilistProgress = data.anilist_progress || 0;
-
                 const totalStr = total > 0 ? total : '?';
                 npProgressLabel.textContent = `E${watched} / ${totalStr}`;
                 renderSegments(npProgressSegments, watched, total, true);
@@ -211,6 +281,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // ===== Now Playing Season Selection =====
+    npSeason.addEventListener('change', async () => {
+        const selectedId = parseInt(npSeason.value, 10);
+        if (!isNaN(selectedId)) {
+            await fetch('/api/select_season', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mediaId: selectedId })
+            });
+            checkStatus();
+        }
+    });
+
+    // ===== Summary Toggle =====
+    npSummaryToggle.addEventListener('click', () => {
+        const expanded = npSummary.classList.toggle('expanded');
+        npSummaryToggle.textContent = expanded ? 'See less' : 'See more';
+    });
+
+    // ===== Now Playing Details Modal =====
+    function openDetailsModal() {
+        if (!latestStatus || !latestStatus.media_details) return;
+        const details = latestStatus.media_details;
+        const rel = details.title?.romaji || details.title?.english || '';
+        modalBody.innerHTML = `
+            <h3>${escapeHtml(rel)}</h3>
+            <p><strong>Status:</strong> ${escapeHtml(details.status || 'N/A')}</p>
+            <p><strong>Season:</strong> ${escapeHtml(details.season || '')} ${details.seasonYear || ''}</p>
+            <p><strong>Episodes:</strong> ${details.episodes || 'N/A'}</p>
+            <p><strong>Score:</strong> ${details.averageScore || 'N/A'}</p>
+            <p><strong>Popularity:</strong> ${details.popularity || 'N/A'}</p>
+            <p><strong>Description:</strong></p>
+            <p>${escapeHtml(details.description || 'No description available.')}</p>
+        `;
+        detailsModal.classList.remove('hidden');
+    }
+
+    btnEditNowPlaying.addEventListener('click', openDetailsModal);
+    modalOverlay.addEventListener('click', () => detailsModal.classList.add('hidden'));
+    modalClose.addEventListener('click', () => detailsModal.classList.add('hidden'));
+    modalCloseBtn.addEventListener('click', () => detailsModal.classList.add('hidden'));
+
     // ===== Anime List Fetching =====
     async function fetchAnimeList() {
         try {
@@ -307,82 +419,42 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        animeGrid.innerHTML = filtered.map(anime => {
-            const title = anime.title || {};
-            const displayTitle = title.romaji || title.english || title.native || 'Unknown';
-            const subtitle = title.english && title.english !== title.romaji ? title.english : '';
-            const coverUrl = anime.coverImage?.large || anime.coverImage?.medium || '';
-            const progress = anime.progress || 0;
-            const totalEps = anime.episodes;
-            const progressText = totalEps ? `${progress} / ${totalEps} (${Math.round((progress / totalEps) * 100)}%)` : `${progress} / ?`;
+        const unwatched = filtered.filter(a => (a.progress || 0) === 0);
+        const watched = filtered.filter(a => (a.progress || 0) > 0);
 
-            // Build meta tags
-            let metaTags = '';
-            if (anime.averageScore) {
-                metaTags += `<span class="meta-tag score">★ ${anime.averageScore}%</span>`;
-            }
-            if (anime.popularity) {
-                metaTags += `<span class="meta-tag popularity">♥ ${formatPopularity(anime.popularity)}</span>`;
-            }
-            if (anime.studio) {
-                metaTags += `<span class="meta-tag studio">${escapeHtml(anime.studio)}</span>`;
-            }
-            if (anime.season && anime.seasonYear) {
-                const seasonLabel = capitalize(anime.season);
-                metaTags += `<span class="meta-tag season-tag">${seasonLabel} ${anime.seasonYear}</span>`;
-            }
+        const buildSection = (label, list) => {
+            const header = viewMode === 'details'
+                ? `<tr class="details-section-header"><td colspan="7">${escapeHtml(label)}</td></tr>`
+                : `<div class="section-header">${escapeHtml(label)}</div>`;
+            return `${header}${renderRows(list).join('')}`;
+        };
 
-            // Generate unique ID for segments container
-            const segId = `seg-${anime.mediaId}`;
+        const rowHtml = (activeTab === 'CURRENT' && unwatched.length > 0)
+            ? `${buildSection('Unwatched', unwatched)}${buildSection('Watching', watched)}`
+            : renderRows(filtered).join('');
 
-            const bannerUrl = anime.bannerImage || coverUrl;
-
-            if (viewMode === 'list') {
-                return `
-                    <div class="anime-list-item" title="${escapeHtml(anime.description || '')}">
-                        <a href="${bannerUrl}" target="_blank" class="anime-list-cover-link">
-                            <img class="anime-list-cover" src="${coverUrl}" alt="${escapeHtml(displayTitle)}" loading="lazy" />
-                        </a>
-                        <div class="anime-list-info">
-                            <a href="https://anilist.co/anime/${anime.mediaId}" target="_blank" class="anime-list-title">${escapeHtml(displayTitle)}</a>
-                            ${subtitle ? `<div class="anime-list-subtitle">${escapeHtml(subtitle)}</div>` : ''}
-                            <div class="anime-list-meta">${metaTags}</div>
-                            <div class="anime-list-progress">
-                                <div class="anime-list-progress-text">${progressText}</div>
-                                <div class="progress-segments" id="${segId}"></div>
-                            </div>
-                            <div class="anime-list-expanded" id="expand-${anime.mediaId}" style="display: ${expandedCard === anime.mediaId ? 'block' : 'none'};">
-                                <input type="number" class="edit-episode-input" value="${progress}" min="0" max="${totalEps || 999}" />
-                                <button class="save-btn" data-media-id="${anime.mediaId}">Save</button>
-                            </div>
-                        </div>
-                        <button class="edit-btn" data-media-id="${anime.mediaId}" title="Edit episode">Edit</button>
-                    </div>
-                `;
-            } else {
-                return `
-                    <div class="anime-card" title="${escapeHtml(anime.description || '')}">
-                        <a href="${bannerUrl}" target="_blank" class="anime-card-cover-link">
-                            <img class="anime-card-cover" src="${coverUrl}" alt="${escapeHtml(displayTitle)}" loading="lazy" />
-                        </a>
-                        <div class="anime-card-info">
-                            <a href="https://anilist.co/anime/${anime.mediaId}" target="_blank" class="anime-card-title">${escapeHtml(displayTitle)}</a>
-                            ${subtitle ? `<div class="anime-card-subtitle">${escapeHtml(subtitle)}</div>` : ''}
-                            <div class="anime-card-meta">${metaTags}</div>
-                            <div class="anime-card-progress">
-                                <div class="anime-card-progress-text">${progressText}</div>
-                                <div class="progress-segments" id="${segId}"></div>
-                            </div>
-                            <div class="anime-card-expanded" id="expand-${anime.mediaId}" style="display: ${expandedCard === anime.mediaId ? 'block' : 'none'};">
-                                <input type="number" class="edit-episode-input" value="${progress}" min="0" max="${totalEps || 999}" />
-                                <button class="save-btn" data-media-id="${anime.mediaId}">Save</button>
-                            </div>
-                            <button class="edit-btn" data-media-id="${anime.mediaId}" title="Edit episode">Edit</button>
-                        </div>
-                    </div>
-                `;
-            }
-        }).join('');
+        if (viewMode === 'details') {
+            animeGrid.innerHTML = `
+                <table class="details-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Progress</th>
+                            <th>Score</th>
+                            <th>Popularity</th>
+                            <th>Season</th>
+                            <th>Studio</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowHtml}
+                    </tbody>
+                </table>
+            `;
+        } else {
+            animeGrid.innerHTML = rowHtml;
+        }
 
         // Render segments after DOM update
         filtered.forEach(anime => {
@@ -397,26 +469,83 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const mediaId = btn.dataset.mediaId;
-                expandedCard = expandedCard === mediaId ? null : mediaId;
-                renderAnimeGrid();
+                const anime = animeList.find(a => a.mediaId == mediaId);
+                if (anime) {
+                    openAnimeDetailsModal(anime);
+                }
             });
         });
 
         // Add event listeners for save buttons
         document.querySelectorAll('.save-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 const mediaId = btn.dataset.mediaId;
                 const input = document.querySelector(`#expand-${mediaId} .edit-episode-input`);
                 if (input) {
                     const newProgress = parseInt(input.value);
-                    // TODO: Implement actual sync to AniList
-                    alert(`Would sync media ${mediaId} to episode ${newProgress}`);
-                    expandedCard = null;
-                    renderAnimeGrid();
+                    if (!Number.isFinite(newProgress) || newProgress < 0) return;
+                    const resp = await fetch('/api/update_progress', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mediaId: parseInt(mediaId, 10), episode: newProgress })
+                    });
+                    const result = await resp.json();
+                    if (result.success) {
+                        expandedCard = null;
+                        fetchAnimeList();
+                        checkStatus();
+                    } else {
+                        alert('Failed to update progress.');
+                    }
                 }
             });
         });
+
+        function openAnimeDetailsModal(anime) {
+            const title = anime.title?.romaji || anime.title?.english || anime.title?.native || 'Unknown';
+            const description = anime.description || 'No description available.';
+            const stats = [];
+            if (anime.status) stats.push(`<strong>Status:</strong> ${escapeHtml(anime.status)}`);
+            if (anime.season && anime.seasonYear) stats.push(`<strong>Season:</strong> ${escapeHtml(anime.season)} ${anime.seasonYear}`);
+            if (anime.episodes) stats.push(`<strong>Episodes:</strong> ${anime.episodes}`);
+            if (anime.averageScore) stats.push(`<strong>Score:</strong> ${anime.averageScore}%`);
+            if (anime.popularity) stats.push(`<strong>Popularity:</strong> ${formatPopularity(anime.popularity)}`);
+
+            modalBody.innerHTML = `
+                <h3>${escapeHtml(title)}</h3>
+                <div class="modal-meta">${stats.map(s => `<p>${s}</p>`).join('')}</div>
+                <p><strong>Description</strong></p>
+                <p>${escapeHtml(description)}</p>
+                <div class="modal-actions">
+                    <label>
+                        Set progress:
+                        <input type="number" id="modal-progress" value="${anime.progress || 0}" min="0" />
+                    </label>
+                    <button id="modal-save" class="primary-btn">Save</button>
+                </div>
+            `;
+
+            document.getElementById('modal-save').addEventListener('click', async () => {
+                const newProgress = parseInt(document.getElementById('modal-progress').value, 10);
+                if (!Number.isFinite(newProgress) || newProgress < 0) return;
+                const resp = await fetch('/api/update_progress', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mediaId: anime.mediaId, episode: newProgress })
+                });
+                const result = await resp.json();
+                if (result.success) {
+                    detailsModal.classList.add('hidden');
+                    fetchAnimeList();
+                    checkStatus();
+                } else {
+                    alert('Failed to update progress.');
+                }
+            });
+
+            detailsModal.classList.remove('hidden');
+        }
     }
 
     // ===== Helpers =====
@@ -467,10 +596,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ===== View Toggle =====
+    function updateViewToggleButton() {
+        const icons = {
+            grid: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+            list: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="18" r="1"/></svg>',
+            details: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M9 4v16"/><path d="M15 4v16"/></svg>'
+        };
+        btnToggleView.innerHTML = icons[viewMode] || icons.grid;
+        btnToggleView.title = `Switch to ${viewMode === 'grid' ? 'list' : viewMode === 'list' ? 'details' : 'grid'} view`;
+    }
+
     btnToggleView.addEventListener('click', () => {
-        viewMode = viewMode === 'grid' ? 'list' : 'grid';
+        if (viewMode === 'grid') viewMode = 'list';
+        else if (viewMode === 'list') viewMode = 'details';
+        else viewMode = 'grid';
+        updateViewToggleButton();
         renderAnimeGrid();
     });
+
+    updateViewToggleButton();
 
     // ===== Initial Load =====
     checkStatus();
