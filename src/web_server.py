@@ -111,7 +111,7 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             entries = []
             if self.agent and self.agent.anilist.is_authenticated():
                 try:
-                    entries = self.agent.anilist.get_user_anime_list(['CURRENT', 'PLANNING'])
+                    entries = self.agent.anilist.get_user_anime_list(['CURRENT', 'PLANNING', 'COMPLETED'])
                 except Exception as e:
                     print(f"Error fetching anime list: {e}")
             
