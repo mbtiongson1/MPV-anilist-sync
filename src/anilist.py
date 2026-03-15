@@ -1,6 +1,7 @@
 import json
 import os
 import requests  # type: ignore
+import time
 import webbrowser
 import http.server
 import urllib.parse
@@ -63,11 +64,18 @@ class AnilistAuthHandler(http.server.BaseHTTPRequestHandler):
 
 class AnilistClient:
     API_URL = "https://graphql.anilist.co"
+    OAUTH_CLIENT_ID = 37267
+    OAUTH_REDIRECT_URI = "http://localhost:54321/auth"
+    AUTH_CACHE_TTL_SECONDS = 10.0
 
     def __init__(self, token_file: str = "config.json"):
         self.token_file = token_file
         self.token = self._load_token()
         self.user_id = None
+        self._token_valid: Optional[bool] = None
+        self._token_error: Optional[str] = None
+        self._viewer_cache: Optional[Dict[str, Any]] = None
+        self._last_auth_check_ts: float = 0.0
 
     def _load_token(self) -> Optional[str]:
         if os.path.exists(self.token_file):
@@ -81,6 +89,11 @@ class AnilistClient:
 
     def save_token(self, token: str):
         self.token = token
+        self.user_id = None
+        self._token_valid = None
+        self._token_error = None
+        self._viewer_cache = None
+        self._last_auth_check_ts = 0.0
         config: Dict[str, Any] = {}
         if os.path.exists(self.token_file):
             try:
@@ -94,31 +107,170 @@ class AnilistClient:
         with open(self.token_file, 'w') as f:
             json.dump(config, f)
 
-    def is_authenticated(self) -> bool:
+    def has_token(self) -> bool:
         return self.token is not None
 
-    def authenticate(self) -> bool:
-        client_id = 37267
+    def get_auth_url(self) -> str:
+        params = {
+            "client_id": self.OAUTH_CLIENT_ID,
+            "redirect_uri": self.OAUTH_REDIRECT_URI,
+            "response_type": "token",
+        }
+        return "https://anilist.co/api/v2/oauth/authorize?" + urllib.parse.urlencode(params)
 
-        server = AnilistHTTPServer(('localhost', 54321), AnilistAuthHandler)
+    def is_authenticated(self) -> bool:
+        return self.get_auth_state().get("authenticated", False)
+
+    def get_auth_state(self, *, force_refresh: bool = False) -> Dict[str, Any]:
+        has_token = self.token is not None
+        if not has_token:
+            # No token: treat as unauthenticated without an error message.
+            self.user_id = None
+            self._token_valid = False
+            self._token_error = None
+            self._viewer_cache = None
+            self._last_auth_check_ts = time.time()
+            return {"has_token": False, "authenticated": False, "error": None, "viewer": None}
+
+        now = time.time()
+        if (
+            not force_refresh
+            and self._token_valid is not None
+            and (now - self._last_auth_check_ts) < self.AUTH_CACHE_TTL_SECONDS
+        ):
+            viewer = self._viewer_cache
+            if viewer is None and self._token_valid is True and self.user_id is not None:
+                viewer = {"id": self.user_id}
+            return {
+                "has_token": True,
+                "authenticated": self._token_valid is True,
+                "error": self._token_error,
+                "viewer": viewer,
+            }
+
+        self._last_auth_check_ts = now
+        query = """
+        query {
+            Viewer {
+                id
+                name
+            }
+        }
+        """
+        try:
+            result = self._execute_query(query)
+            errors = result.get("errors")
+            if errors:
+                # GraphQL-level errors sometimes come back with HTTP 200.
+                msg = None
+                if isinstance(errors, list) and errors:
+                    first = errors[0]
+                    if isinstance(first, dict):
+                        maybe = first.get("message")
+                        if isinstance(maybe, str) and maybe:
+                            msg = maybe
+                self.user_id = None
+                self._viewer_cache = None
+                self._token_valid = False
+                self._token_error = msg or "AniList API error."
+                return {
+                    "has_token": True,
+                    "authenticated": False,
+                    "error": self._token_error,
+                    "viewer": None,
+                }
+
+            viewer = result.get("data", {}).get("Viewer")
+            if isinstance(viewer, dict) and viewer.get("id"):
+                self.user_id = viewer.get("id")
+                self._viewer_cache = viewer
+                self._token_valid = True
+                self._token_error = None
+                return {
+                    "has_token": True,
+                    "authenticated": True,
+                    "error": None,
+                    "viewer": viewer,
+                }
+
+            self.user_id = None
+            self._viewer_cache = None
+            self._token_valid = False
+            self._token_error = "Unable to read AniList viewer information."
+            return {"has_token": True, "authenticated": False, "error": self._token_error, "viewer": None}
+        except requests.exceptions.HTTPError as e:
+            status = getattr(e.response, "status_code", None)
+            msg = self._extract_anilist_error_message(getattr(e, "response", None))
+            if status in (400, 401, 403):
+                self.user_id = None
+                self._viewer_cache = None
+                self._token_valid = False
+                self._token_error = msg or f"Invalid token (HTTP {status})."
+            else:
+                # Treat as a transient API error; keep auth state unknown.
+                self._token_valid = None
+                self._token_error = msg or f"AniList request failed (HTTP {status})."
+            return {"has_token": True, "authenticated": False, "error": self._token_error, "viewer": None}
+        except Exception as e:
+            self._token_valid = None
+            self._token_error = str(e)
+            return {"has_token": True, "authenticated": False, "error": self._token_error, "viewer": None}
+
+    def _extract_anilist_error_message(self, response: Any) -> Optional[str]:
+        if response is None:
+            return None
+        try:
+            payload = response.json()
+        except Exception:
+            text = getattr(response, "text", "")
+            if isinstance(text, str):
+                text = text.strip()
+                return text[:200] if text else None
+            return None
+
+        if isinstance(payload, dict):
+            errors = payload.get("errors")
+            if isinstance(errors, list) and errors:
+                first = errors[0]
+                if isinstance(first, dict):
+                    msg = first.get("message")
+                    if isinstance(msg, str) and msg:
+                        return msg
+            msg = payload.get("message")
+            if isinstance(msg, str) and msg:
+                return msg
+
+        return None
+
+    def authenticate(self, *, open_browser: bool = True) -> bool:
+        try:
+            server = AnilistHTTPServer(("localhost", 54321), AnilistAuthHandler)
+        except OSError as e:
+            self._token_valid = None
+            self._token_error = str(e)
+            print(f"Error starting local auth server on localhost:54321: {e}")
+            return False
+
         server.token = None
-        
-        # Anilist requires the redirect URI to be exact, so we set it up in the Dev Console as http://localhost:54321/auth
-        auth_url = f"https://anilist.co/api/v2/oauth/authorize?client_id={client_id}&response_type=token"
-        print(f"Opening browser for authentication: {auth_url}")
-        
-        webbrowser.open(auth_url)
-        
-        # Block until the local server receives the token and shuts down
+
+        auth_url = self.get_auth_url()
+        if open_browser:
+            print(f"Opening browser for authentication: {auth_url}")
+            webbrowser.open(auth_url)
+        else:
+            print(f"Authentication URL: {auth_url}")
+
+        # Block until the local server receives the token and shuts down.
         server.serve_forever()
-        
+
         token = server.token
         if token:
             self.save_token(token)
-            self.user_id = None # reset user id to fetch it again
             print("Successfully authenticated and saved token.")
             return True
-            
+
+        self._token_valid = False
+        self._token_error = "Authentication failed."
         return False
 
     def _get_headers(self) -> Dict[str, str]:
@@ -144,27 +296,15 @@ class AnilistClient:
         return response.json()
 
     def get_authenticated_user(self) -> Optional[int]:
-        if not self.token:
+        state = self.get_auth_state()
+        if not state.get("authenticated"):
             return None
+        viewer = state.get("viewer")
+        if isinstance(viewer, dict) and viewer.get("id"):
+            self.user_id = viewer.get("id")
+            return cast(int, self.user_id)
         if self.user_id:
-            return self.user_id
-
-        query = '''
-        query {
-            Viewer {
-                id
-                name
-            }
-        }
-        '''
-        try:
-            result = self._execute_query(query)
-            user = result.get('data', {}).get('Viewer')
-            if user:
-                self.user_id = user['id']
-                return self.user_id
-        except Exception as e:
-            print(f"Error getting authenticated user: {e}")
+            return cast(int, self.user_id)
         return None
 
     def search_anime(self, title: str) -> Optional[Dict[str, Any]]:
@@ -330,8 +470,11 @@ class AnilistClient:
             return []
 
     def update_progress(self, media_id: int, episode: int) -> bool:
-        if not self.is_authenticated():
+        if not self.has_token():
             print("Not authenticated.")
+            return False
+        if not self.is_authenticated():
+            print("Not authenticated (invalid or expired token).")
             return False
 
         # Check existing entry

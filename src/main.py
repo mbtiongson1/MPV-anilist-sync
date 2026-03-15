@@ -29,16 +29,13 @@ class TrackerAgent:
         print("Waiting for MPV to start on IPC socket: /tmp/mpvsocket")
         
         while self.running:
-            if not self.anilist.is_authenticated():
-                time.sleep(2)
-                continue
-                
             if not self.watcher.is_connected or not self.watcher.check_connection():
                 # Disconnected. Sync active file if it exists.
                 active_file = self.active_filename
                 if active_file:
                     print(f"MPV disconnected/closed. Syncing latest file: {active_file}")
-                    self.sync_progress(active_file)
+                    if self.anilist.is_authenticated():
+                        self.sync_progress(active_file)
                     self.active_filename = None
                     
                 # Try to connect periodically
@@ -48,7 +45,7 @@ class TrackerAgent:
                 else:
                     time.sleep(2)
                     continue
-                    
+                
             try:
                 # We are connected and alive, check progress
                 filename = self.watcher.get_current_filename()
@@ -58,17 +55,24 @@ class TrackerAgent:
                     active_file = self.active_filename
                     if active_file and active_file != filename:
                         print(f"File changed. Syncing previous file: {active_file}")
-                        self.sync_progress(active_file)
+                        if self.anilist.is_authenticated():
+                            self.sync_progress(active_file)
                         
                     if self.active_filename != filename:
                         self.active_filename = filename
-                        self._fetch_current_anilist_progress(filename)
+                        if self.anilist.is_authenticated():
+                            self._fetch_current_anilist_progress(filename)
+                        else:
+                            self.current_anilist_progress = 0
+                            self.current_media_id = None
+                            self._cached_anilist_episodes = None
                 else:
                     # filename is None (e.g. video stopped but mpv still open)
                     active_file = self.active_filename
                     if active_file:
                         print(f"Playback stopped. Syncing previous file: {active_file}")
-                        self.sync_progress(active_file)
+                        if self.anilist.is_authenticated():
+                            self.sync_progress(active_file)
                         self.active_filename = None
                 
                 # Sleep a bit to prevent CPU spinning
@@ -79,6 +83,9 @@ class TrackerAgent:
                 time.sleep(2)
 
     def sync_progress(self, filename: str):
+        if not self.anilist.is_authenticated():
+            print("AniList not authenticated; skipping sync.")
+            return
         print(f"Parsing filename: {filename}")
         parsed = AnimeParser.parse_filename(filename)
         if not parsed or not parsed.get('title'):
@@ -117,6 +124,11 @@ class TrackerAgent:
             print("Failed to sync progress to Anilist.")
 
     def _fetch_current_anilist_progress(self, filename: str):
+        if not self.anilist.is_authenticated():
+            self.current_anilist_progress = 0
+            self.current_media_id = None
+            self._cached_anilist_episodes = None
+            return
         self.current_anilist_progress = 0
         self.current_media_id = None
         self._cached_anilist_episodes = None
@@ -138,6 +150,9 @@ class TrackerAgent:
             self.current_anilist_progress = entry.get('progress') or 0
 
     def sync_progress_manual(self, filename: str, override_episode: int):
+        if not self.anilist.is_authenticated():
+            print("AniList not authenticated; skipping manual sync.")
+            return
         print(f"Manual sync requested for filename: {filename} at Episode {override_episode}")
         parsed = AnimeParser.parse_filename(filename)
         if not parsed or not parsed.get('title'):
@@ -176,10 +191,6 @@ if __name__ == "__main__":
     from src.web_server import run_server_in_background
     
     agent = TrackerAgent()
-    
-    if not agent.anilist.is_authenticated():
-        print("Error: No valid AniList token found in config.json. Please add your token.")
-        exit(1)
         
     # Start the web UI server on port 8080
     run_server_in_background(agent, 8080)

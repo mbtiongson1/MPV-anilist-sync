@@ -7,6 +7,7 @@ A lightweight, background Python agent for macOS that detects when an anime vide
 - **Auto-Sync**: Automatically updates your watch list when you close a playing file or stop playback.
 - **Smart Parsing**: Cleans up complicated filenames (e.g. `[SubsPlease] Sousou no Frieren - 01 (1080p).mkv`) accurately using `guessit`.
 - **System Tray Icon**: Resides quietly in your macOS menu bar with a minimalist graphical log.
+- **Web Dashboard**: View "Now Playing" and your AniList list at `http://localhost:8080`.
 - **Romaji & English Native**: Native support to successfully search and pair both naming conventions through Anilist GraphQL.
 
 ## Getting Started
@@ -39,8 +40,11 @@ source venv/bin/activate
 python src/main.py
 ```
 
-- **First Launch**: A pop-up browser and dialog window will ask you to generate and paste a **Personal Access Token** from your [Anilist Developer Settings](https://anilist.co/settings/developer). This is stored locally in a `config.json` file.
-- The tray icon will appear. Start watching an anime in MPV and it will show up as connected!
+- Open the dashboard at `http://localhost:8080`.
+- If you're not authenticated (or your token expired), click **Authenticate**. This opens AniList in your browser and stores a fresh token in `config.json`.
+- Start watching an anime in MPV and sync will happen automatically when playback stops or the file changes.
+
+If your list is empty but you have anime on AniList, your token is likely expired. Re-authenticate from the dashboard (or from the Tkinter UI's **Authenticate** button).
 
 
 ### 4. Running Automatically in the Background

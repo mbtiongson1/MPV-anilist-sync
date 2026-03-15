@@ -2,6 +2,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== Element References =====
     const statusBubble = document.getElementById('status-indicator');
     const statusText = document.getElementById('status-text');
+    const anilistBadge = document.getElementById('anilist-auth-badge');
+    const anilistAuthTitle = document.getElementById('anilist-auth-title');
+    const anilistAuthSubtitle = document.getElementById('anilist-auth-subtitle');
+    const btnAuth = document.getElementById('btn-auth');
     const nowPlaying = document.getElementById('now-playing');
     const idleState = document.getElementById('idle-state');
     const npBanner = document.getElementById('np-banner');
@@ -27,6 +31,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let animeList = [];
     let activeTab = 'CURRENT';
     let lastNowPlayingTitle = null;
+    let authState = {
+        hasToken: false,
+        authenticated: false,
+        error: null,
+        user: null,
+        authInProgress: false,
+        authLastError: null,
+    };
+    let authWaiting = false;
 
     // ===== Segment Renderer =====
     function renderSegments(container, progress, total, isCurrent) {
@@ -63,11 +76,104 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ===== AniList Auth UI =====
+    function updateAuthUI(data) {
+        const hasToken = !!data.anilist_has_token;
+        const authenticated = !!data.anilist_authenticated;
+        const error = data.anilist_error || null;
+        const user = data.anilist_user || null;
+        const authInProgress = !!data.anilist_auth_in_progress;
+        const authLastError = data.anilist_auth_last_error || null;
+
+        authState = { hasToken, authenticated, error, user, authInProgress, authLastError };
+        if (authWaiting && !authInProgress && !authenticated) authWaiting = false;
+
+        if (anilistBadge) {
+            anilistBadge.classList.remove('ok', 'bad');
+            if (authenticated) {
+                anilistBadge.classList.add('ok');
+            } else if (hasToken || error || authLastError) {
+                anilistBadge.classList.add('bad');
+            }
+        }
+
+        if (!anilistAuthTitle || !anilistAuthSubtitle || !btnAuth) return;
+
+        if (authenticated) {
+            const name = user && user.name ? user.name : null;
+            anilistAuthTitle.textContent = name ? `AniList connected as ${name}` : 'AniList connected';
+            anilistAuthSubtitle.textContent = 'Your list and sync controls are enabled.';
+            btnAuth.style.display = 'none';
+            authWaiting = false;
+            return;
+        }
+
+        const waiting = authWaiting || authInProgress;
+        btnAuth.style.display = 'inline-flex';
+        btnAuth.disabled = waiting;
+        btnAuth.textContent = waiting ? 'Waiting...' : (hasToken ? 'Re-authenticate' : 'Authenticate');
+
+        if (waiting) {
+            anilistAuthTitle.textContent = 'Awaiting AniList authorization...';
+            anilistAuthSubtitle.textContent = 'Complete the browser prompt to finish connecting.';
+            return;
+        }
+
+        if (!hasToken) {
+            anilistAuthTitle.textContent = 'AniList not connected';
+            anilistAuthSubtitle.textContent = 'Authenticate to load your list and enable sync.';
+            return;
+        }
+
+        anilistAuthTitle.textContent = 'AniList token invalid/expired';
+        anilistAuthSubtitle.textContent = error || authLastError || 'Authenticate again to refresh your token.';
+    }
+
+    async function startAuth() {
+        if (!btnAuth) return;
+        btnAuth.disabled = true;
+        btnAuth.textContent = 'Starting...';
+        try {
+            const response = await fetch('/api/auth/start', { method: 'POST' });
+            const data = await response.json();
+            if (
+                data
+                && data.started === false
+                && data.error
+                && data.error !== 'Authentication already in progress.'
+            ) {
+                alert(data.error);
+            }
+            if (data && data.auth_url) {
+                window.open(data.auth_url, '_blank', 'noopener');
+            }
+            authWaiting = true;
+            // Refresh status quickly so UI reflects "waiting" state.
+            setTimeout(checkStatus, 400);
+        } catch (error) {
+            authWaiting = false;
+            alert('Failed to start AniList authentication. Check tracker logs.');
+        } finally {
+            // UI text will be corrected by the next /api/status poll.
+            setTimeout(checkStatus, 400);
+        }
+    }
+
+    if (btnAuth) {
+        btnAuth.addEventListener('click', startAuth);
+    }
+
     // ===== Now Playing Status (2s poll) =====
     async function checkStatus() {
         try {
             const response = await fetch('/api/status');
             const data = await response.json();
+
+            const prevAuthed = authState.authenticated;
+            updateAuthUI(data);
+            if (!prevAuthed && authState.authenticated) {
+                fetchAnimeList();
+            }
 
             if (data.running && data.title) {
                 statusBubble.className = 'status-bubble online';
@@ -85,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const totalStr = total > 0 ? total : '?';
                 npProgressLabel.textContent = `E${watched} / ${totalStr}`;
                 renderSegments(npProgressSegments, watched, total, true);
+                btnSync.disabled = !authState.authenticated;
 
                 // Try to find matching anime in list for extra metadata
                 if (data.base_title !== lastNowPlayingTitle) {
@@ -97,6 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 nowPlaying.classList.add('hidden');
                 idleState.classList.remove('hidden');
                 lastNowPlayingTitle = null;
+                btnSync.disabled = true;
                 // Reset cover/banner
                 npBanner.style.backgroundImage = '';
                 npCover.src = '';
@@ -108,6 +216,10 @@ document.addEventListener('DOMContentLoaded', () => {
             statusText.textContent = 'Disconnected';
             nowPlaying.classList.add('hidden');
             idleState.classList.remove('hidden');
+            if (anilistBadge) anilistBadge.classList.remove('ok', 'bad');
+            if (anilistAuthTitle) anilistAuthTitle.textContent = 'Tracker disconnected';
+            if (anilistAuthSubtitle) anilistAuthSubtitle.textContent = 'Could not reach /api/status.';
+            if (btnAuth) btnAuth.disabled = true;
         }
     }
 
@@ -164,6 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== Sync Button =====
     btnSync.addEventListener('click', async () => {
+        if (!authState.authenticated) {
+            alert('AniList is not authenticated. Click Authenticate first.');
+            return;
+        }
         if (!confirm('Sync this progress to AniList?')) return;
         btnSync.disabled = true;
         btnSync.textContent = 'Syncing...';
@@ -245,6 +361,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== Rendering =====
     function renderAnimeGrid() {
+        if (animeList.length === 0 && !authState.authenticated) {
+            animeGrid.innerHTML = `
+                <div class="empty-state">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 18a4 4 0 0 1-8 0c0-2.2 4-2.5 4-4a2 2 0 1 0-4 0"/>
+                        <path d="M12 2a7 7 0 0 1 7 7c0 2.4-1 3.6-2 4.6S15 15 15 17"/>
+                        <path d="M12 22h.01"/>
+                    </svg>
+                    <p>Authenticate to load your anime list.</p>
+                    <button class="auth-btn" type="button" id="btn-auth-inline">Authenticate</button>
+                </div>
+            `;
+            const inlineBtn = document.getElementById('btn-auth-inline');
+            if (inlineBtn) inlineBtn.addEventListener('click', startAuth);
+            return;
+        }
+
         const filtered = getFilteredList();
 
         if (filtered.length === 0) {
@@ -354,8 +487,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ===== Initial Load =====
-    checkStatus();
-    fetchAnimeList();
+    (async () => {
+        await checkStatus();
+        await fetchAnimeList();
+    })();
 
     // Poll now-playing every 2 seconds
     setInterval(checkStatus, 2000);

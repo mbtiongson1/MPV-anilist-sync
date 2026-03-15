@@ -75,6 +75,118 @@ header {
     color: var(--accent);
 }
 
+/* ===== AniList Auth Banner ===== */
+.anilist-auth {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    background: rgba(26, 34, 53, 0.75);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(10px);
+}
+
+.anilist-auth-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.anilist-auth-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.6rem;
+    border-radius: 9999px;
+    border: 1px solid var(--border-light);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.anilist-auth-badge.ok {
+    background: var(--success-dim);
+    color: var(--success);
+    border-color: rgba(16, 185, 129, 0.25);
+}
+
+.anilist-auth-badge.bad {
+    background: var(--error-dim);
+    color: var(--error);
+    border-color: rgba(239, 68, 68, 0.25);
+}
+
+.anilist-auth-text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.anilist-auth-title {
+    font-size: 0.85rem;
+    font-weight: 750;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.anilist-auth-subtitle {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.anilist-auth-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.auth-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    background: rgba(99, 102, 241, 0.12);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    color: var(--accent-hover);
+    padding: 0.5rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.auth-btn:hover {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.55);
+    color: var(--text-primary);
+}
+
+.auth-btn:active {
+    transform: scale(0.98);
+}
+
+.auth-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
 /* ===== Status Bubble ===== */
 .status-bubble {
     display: inline-flex;
@@ -342,6 +454,19 @@ header {
 
 .sync-btn:hover svg {
     transform: rotate(180deg);
+}
+
+.sync-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+.sync-btn:disabled:hover {
+    background: var(--accent);
+    box-shadow: none;
+    transform: none;
 }
 
 /* ===== Progress Segments (shared) ===== */
@@ -737,6 +862,15 @@ footer {
 @media (max-width: 640px) {
     .app-container {
         padding: 1rem;
+    }
+
+    .anilist-auth {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .anilist-auth-right {
+        justify-content: flex-end;
     }
 
     .np-content {
