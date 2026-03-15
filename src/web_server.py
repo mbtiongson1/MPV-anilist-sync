@@ -260,6 +260,43 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
 
             self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
 
+        elif self.path == '/api/reauthorize':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+
+            success = False
+            if self.agent and hasattr(self.agent, 'anilist'):
+                try:
+                    success = self.agent.anilist.authenticate()
+                except Exception as e:
+                    print(f"Reauthorization failed: {e}")
+
+            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+
+        elif self.path == '/api/full_refresh':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+
+            # Clear agent caches
+            if self.agent:
+                self.agent.current_media_map = {}
+                self.agent.selected_media_id = None
+                self.agent.current_anilist_progress = 0
+                self.agent.current_media_id = None
+                self.agent._cached_anilist_episodes = None
+                self.agent.last_synced_filename = None
+                if hasattr(self.agent, 'anilist'):
+                    self.agent.anilist.user_id = None
+
+            # Reset manual override
+            TrackerStateHandler.manual_episode_override = None
+
+            self.wfile.write(json.dumps({"success": True}).encode('utf-8'))
+
         elif self.path == '/api/sync':
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
