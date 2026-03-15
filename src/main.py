@@ -21,6 +21,7 @@ class TrackerAgent:
         self.active_filename: Optional[str] = None
         self.current_anilist_progress: int = 0
         self.current_media_id: Optional[int] = None
+        self._cached_anilist_episodes: Optional[int] = None
         
     def start(self):
         print("Starting MPV Anilist Tracker Agent...")
@@ -118,6 +119,7 @@ class TrackerAgent:
     def _fetch_current_anilist_progress(self, filename: str):
         self.current_anilist_progress = 0
         self.current_media_id = None
+        self._cached_anilist_episodes = None
         
         parsed = AnimeParser.parse_filename(filename)
         if not parsed or not parsed.get('title'):
@@ -130,6 +132,7 @@ class TrackerAgent:
             
         media_id = result['id']
         self.current_media_id = media_id
+        self._cached_anilist_episodes = result.get('episodes')
         entry = self.anilist.get_list_entry(media_id)
         if entry:
             self.current_anilist_progress = entry.get('progress') or 0

@@ -216,6 +216,119 @@ class AnilistClient:
             print(f"Error fetching list entry: {e}")
         return None
 
+    def get_user_anime_list(self, statuses: list[str] | None = None) -> list[dict[str, Any]]:
+        """Fetch the authenticated user's anime list with full metadata.
+        
+        Args:
+            statuses: List of AniList MediaListStatus values to filter by.
+                      e.g. ['CURRENT', 'PLANNING']. If None, fetches all.
+        
+        Returns:
+            A flat list of dicts, each containing media metadata + list entry info.
+        """
+        user_id = self.get_authenticated_user()
+        if not user_id:
+            return []
+
+        query = '''
+        query ($userId: Int, $type: MediaType, $statusIn: [MediaListStatus]) {
+            MediaListCollection(userId: $userId, type: $type, status_in: $statusIn) {
+                lists {
+                    name
+                    status
+                    entries {
+                        id
+                        status
+                        progress
+                        score
+                        media {
+                            id
+                            title {
+                                romaji
+                                english
+                                native
+                            }
+                            episodes
+                            status
+                            season
+                            seasonYear
+                            description(asHtml: false)
+                            popularity
+                            averageScore
+                            genres
+                            format
+                            coverImage {
+                                large
+                                medium
+                            }
+                            bannerImage
+                            studios(isMain: true) {
+                                nodes {
+                                    name
+                                    isAnimationStudio
+                                }
+                            }
+                            nextAiringEpisode {
+                                episode
+                                airingAt
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        '''
+        variables: Dict[str, Any] = {
+            'userId': user_id,
+            'type': 'ANIME',
+        }
+        if statuses:
+            variables['statusIn'] = statuses
+
+        try:
+            result = self._execute_query(query, variables)
+            collection = result.get('data', {}).get('MediaListCollection', {})
+            lists = collection.get('lists', [])
+
+            flat_entries: list[dict[str, Any]] = []
+            for lst in lists:
+                list_status = lst.get('status', '')
+                for entry in lst.get('entries', []):
+                    media = entry.get('media', {})
+                    studios_nodes = media.get('studios', {}).get('nodes', [])
+                    studio_name = studios_nodes[0]['name'] if studios_nodes else None
+                    next_airing = media.get('nextAiringEpisode')
+
+                    flat_entries.append({
+                        'entryId': entry.get('id'),
+                        'listStatus': entry.get('status') or list_status,
+                        'progress': entry.get('progress', 0),
+                        'score': entry.get('score', 0),
+                        'mediaId': media.get('id'),
+                        'title': media.get('title', {}),
+                        'episodes': media.get('episodes'),
+                        'mediaStatus': media.get('status'),
+                        'season': media.get('season'),
+                        'seasonYear': media.get('seasonYear'),
+                        'description': media.get('description'),
+                        'popularity': media.get('popularity'),
+                        'averageScore': media.get('averageScore'),
+                        'genres': media.get('genres', []),
+                        'format': media.get('format'),
+                        'coverImage': media.get('coverImage', {}),
+                        'bannerImage': media.get('bannerImage'),
+                        'studio': studio_name,
+                        'nextAiringEpisode': {
+                            'episode': next_airing.get('episode'),
+                            'airingAt': next_airing.get('airingAt'),
+                        } if next_airing else None,
+                    })
+
+            return flat_entries
+        except Exception as e:
+            print(f"Error fetching user anime list: {e}")
+            return []
+
     def update_progress(self, media_id: int, episode: int) -> bool:
         if not self.is_authenticated():
             print("Not authenticated.")
