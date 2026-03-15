@@ -56,6 +56,7 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             title = ""
             base_title = ""
             episode = 0
+            display_episode = 0
             total_episodes = 0
             anilist_progress = 0
             anilist_total_episodes = None
@@ -77,6 +78,8 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                         if isinstance(ep_val, list):
                             ep_val = ep_val[-1]
 
+                        season_val = parsed.get('season')
+
                         # If we have a manual override, use it instead of parsed
                         if TrackerStateHandler.manual_episode_override is not None:
                             episode = TrackerStateHandler.manual_episode_override
@@ -84,9 +87,50 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                             episode = ep_val if ep_val is not None else 1
                             TrackerStateHandler.manual_episode_override = episode
 
-                        title = f"{base_title} - E{episode}"
+                        # Display correction: if the episode count is larger than the selected media
+                        # and we can find a season 1 episode count, show the difference.
+                        display_episode = episode
+                        if isinstance(episode, int) and episode > 0:
+                            # Determine selected media context
+                            selected_media = None
+                            if hasattr(self.agent, 'selected_media_id') and self.agent.selected_media_id:
+                                selected_media = self.agent.current_media_map.get(self.agent.selected_media_id)
+
+                            # Find season 1 in the current map
+                            season1_episodes = None
+                            if hasattr(self.agent, 'current_media_map'):
+                                for m in self.agent.current_media_map.values():
+                                    if m.get('season') == 1 and isinstance(m.get('episodes'), int):
+                                        season1_episodes = m.get('episodes')
+                                        break
+
+                            if (
+                                selected_media
+                                and isinstance(selected_media.get('episodes'), int)
+                                and season1_episodes
+                                and episode > selected_media.get('episodes')
+                                and episode > season1_episodes
+                            ):
+                                display_episode = episode - season1_episodes
+
+                        # Prefer to display season number when available (e.g. "S2 E6")
+                        season_label = None
+                        if selected_media and isinstance(selected_media.get('season'), int):
+                            season_label = f"S{selected_media.get('season')}"
+                        elif season_val is not None:
+                            try:
+                                season_int = int(season_val)
+                                season_label = f"S{season_int}"
+                            except Exception:
+                                season_label = None
+
+                        if season_label:
+                            title = f"{base_title} - {season_label} E{display_episode}"
+                        else:
+                            title = f"{base_title} - E{display_episode}"
                     else:
                         title = filename
+                        display_episode = episode
                         TrackerStateHandler.manual_episode_override = None
 
                     # Build season options and find selected media
@@ -142,7 +186,7 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                 "running": is_running,
                 "title": title,
                 "base_title": base_title,
-                "watched_episodes": episode,
+                "watched_episodes": display_episode,
                 "total_episodes": total_episodes,
                 "anilist_progress": anilist_progress,
                 "anilist_total_episodes": anilist_total_episodes,
