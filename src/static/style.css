@@ -493,6 +493,24 @@ header {
     width: 100px;
 }
 
+.view-toggle-btn {
+    padding: 0.55rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.view-toggle-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
 /* ===== Tabs ===== */
 .tabs {
     display: flex;
@@ -587,6 +605,11 @@ header {
     border-radius: var(--radius-sm);
     object-fit: cover;
     flex-shrink: 0;
+    transition: transform var(--transition);
+}
+
+.anime-card-cover-link:hover .anime-card-cover {
+    transform: scale(1.05);
 }
 
 .anime-card-info {
@@ -606,6 +629,12 @@ header {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
+.anime-card-title:hover {
+    color: var(--accent);
 }
 
 .anime-card-subtitle {
@@ -677,6 +706,157 @@ header {
     min-width: 5px;
     max-width: 14px;
     border-radius: 2px;
+}
+
+.edit-btn {
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.edit-btn:hover {
+    background: var(--accent-hover);
+}
+
+.anime-card-expanded, .anime-list-expanded {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.edit-episode-input {
+    padding: 0.25rem 0.5rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    width: 60px;
+}
+
+.save-btn {
+    padding: 0.25rem 0.5rem;
+    background: var(--success);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.save-btn:hover {
+    background: var(--success-dim);
+}
+
+/* ===== List View ===== */
+.anime-grid.list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.anime-list-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    transition: all var(--transition);
+    cursor: default;
+    overflow: hidden;
+}
+
+.anime-list-item:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-light);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-card);
+}
+
+.anime-list-cover {
+    width: 60px;
+    height: 85px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+    transition: transform var(--transition);
+}
+
+.anime-list-cover-link:hover .anime-list-cover {
+    transform: scale(1.05);
+}
+
+.anime-list-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.anime-list-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
+.anime-list-title:hover {
+    color: var(--accent);
+}
+
+.anime-list-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.anime-list-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.anime-list-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.anime-list-progress-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+
+.anime-list-item .progress-segments {
+    flex: 1;
+    max-width: 200px;
+}
+
+.anime-list-item .segment {
+    height: 6px;
+    min-width: 6px;
+    max-width: 16px;
+    border-radius: 3px;
 }
 
 /* ===== Loading & Empty States ===== */

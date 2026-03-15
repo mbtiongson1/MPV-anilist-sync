@@ -17,18 +17,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterName = document.getElementById('filter-name');
     const filterSeason = document.getElementById('filter-season');
     const filterYear = document.getElementById('filter-year');
+    const filterSort = document.getElementById('filter-sort');
     const tabCurrent = document.getElementById('tab-current');
     const tabPlanning = document.getElementById('tab-planning');
+    const tabCompleted = document.getElementById('tab-completed');
     const countCurrent = document.getElementById('count-current');
     const countPlanning = document.getElementById('count-planning');
+    const countCompleted = document.getElementById('count-completed');
     const btnRefreshList = document.getElementById('btn-refresh-list');
+    const btnToggleView = document.getElementById('btn-toggle-view');
 
     // ===== State =====
     let animeList = [];
     let activeTab = 'CURRENT';
     let lastNowPlayingTitle = null;
+    let viewMode = 'grid'; // 'grid' or 'list'
+    let expandedCard = null; // mediaId of expanded card
+    let sortBy = ''; // 'popularity', 'score', 'title', 'progress'
 
-    // ===== Segment Renderer =====
+    // ===== Fuzzy Search Helper =====
+    function fuzzyMatch(query, text) {
+        if (!query || !text) return false;
+        query = query.toLowerCase();
+        text = text.toLowerCase();
+        // Simple fuzzy: check if all query chars appear in order in text
+        let queryIndex = 0;
+        for (let char of text) {
+            if (char === query[queryIndex]) {
+                queryIndex++;
+                if (queryIndex === query.length) return true;
+            }
+        }
+        return false;
+    }
     function renderSegments(container, progress, total, isCurrent) {
         container.innerHTML = '';
         if (!total || total <= 0) {
@@ -210,8 +231,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateCounts() {
         const currentCount = animeList.filter(a => a.listStatus === 'CURRENT').length;
         const planningCount = animeList.filter(a => a.listStatus === 'PLANNING').length;
+        const completedCount = animeList.filter(a => a.listStatus === 'COMPLETED').length;
         countCurrent.textContent = currentCount;
         countPlanning.textContent = planningCount;
+        countCompleted.textContent = completedCount;
     }
 
     // ===== Filtering =====
@@ -220,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const seasonQuery = filterSeason.value;
         const yearQuery = filterYear.value ? parseInt(filterYear.value) : null;
 
-        return animeList.filter(a => {
+        let filtered = animeList.filter(a => {
             // Status tab filter
             if (a.listStatus !== activeTab) return false;
 
@@ -229,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const t = a.title || {};
                 const titleMatch = [t.romaji, t.english, t.native]
                     .filter(Boolean)
-                    .some(name => name.toLowerCase().includes(nameQuery));
+                    .some(name => fuzzyMatch(nameQuery, name) || name.toLowerCase().includes(nameQuery));
                 if (!titleMatch) return false;
             }
 
@@ -241,11 +264,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return true;
         });
+
+        // Sort
+        if (sortBy) {
+            filtered.sort((a, b) => {
+                switch (sortBy) {
+                    case 'popularity':
+                        return (b.popularity || 0) - (a.popularity || 0);
+                    case 'score':
+                        return (b.averageScore || 0) - (a.averageScore || 0);
+                    case 'title':
+                        const aTitle = (a.title?.romaji || a.title?.english || '').toLowerCase();
+                        const bTitle = (b.title?.romaji || b.title?.english || '').toLowerCase();
+                        return aTitle.localeCompare(bTitle);
+                    case 'progress':
+                        return (b.progress || 0) - (a.progress || 0);
+                    default:
+                        return 0;
+                }
+            });
+        }
+
+        return filtered;
     }
 
     // ===== Rendering =====
     function renderAnimeGrid() {
         const filtered = getFilteredList();
+
+        // Update grid class for view mode
+        animeGrid.className = `anime-grid ${viewMode}-view`;
 
         if (filtered.length === 0) {
             animeGrid.innerHTML = `
@@ -266,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const coverUrl = anime.coverImage?.large || anime.coverImage?.medium || '';
             const progress = anime.progress || 0;
             const totalEps = anime.episodes;
-            const progressText = totalEps ? `${progress} / ${totalEps}` : `${progress} / ?`;
+            const progressText = totalEps ? `${progress} / ${totalEps} (${Math.round((progress / totalEps) * 100)}%)` : `${progress} / ?`;
 
             // Build meta tags
             let metaTags = '';
@@ -287,20 +335,53 @@ document.addEventListener('DOMContentLoaded', () => {
             // Generate unique ID for segments container
             const segId = `seg-${anime.mediaId}`;
 
-            return `
-                <div class="anime-card" title="${escapeHtml(anime.description || '')}">
-                    <img class="anime-card-cover" src="${coverUrl}" alt="${escapeHtml(displayTitle)}" loading="lazy" />
-                    <div class="anime-card-info">
-                        <div class="anime-card-title">${escapeHtml(displayTitle)}</div>
-                        ${subtitle ? `<div class="anime-card-subtitle">${escapeHtml(subtitle)}</div>` : ''}
-                        <div class="anime-card-meta">${metaTags}</div>
-                        <div class="anime-card-progress">
-                            <div class="anime-card-progress-text">${progressText}</div>
-                            <div class="progress-segments" id="${segId}"></div>
+            const bannerUrl = anime.bannerImage || coverUrl;
+
+            if (viewMode === 'list') {
+                return `
+                    <div class="anime-list-item" title="${escapeHtml(anime.description || '')}">
+                        <a href="${bannerUrl}" target="_blank" class="anime-list-cover-link">
+                            <img class="anime-list-cover" src="${coverUrl}" alt="${escapeHtml(displayTitle)}" loading="lazy" />
+                        </a>
+                        <div class="anime-list-info">
+                            <a href="https://anilist.co/anime/${anime.mediaId}" target="_blank" class="anime-list-title">${escapeHtml(displayTitle)}</a>
+                            ${subtitle ? `<div class="anime-list-subtitle">${escapeHtml(subtitle)}</div>` : ''}
+                            <div class="anime-list-meta">${metaTags}</div>
+                            <div class="anime-list-progress">
+                                <div class="anime-list-progress-text">${progressText}</div>
+                                <div class="progress-segments" id="${segId}"></div>
+                            </div>
+                            <div class="anime-list-expanded" id="expand-${anime.mediaId}" style="display: ${expandedCard === anime.mediaId ? 'block' : 'none'};">
+                                <input type="number" class="edit-episode-input" value="${progress}" min="0" max="${totalEps || 999}" />
+                                <button class="save-btn" data-media-id="${anime.mediaId}">Save</button>
+                            </div>
+                        </div>
+                        <button class="edit-btn" data-media-id="${anime.mediaId}" title="Edit episode">Edit</button>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="anime-card" title="${escapeHtml(anime.description || '')}">
+                        <a href="${bannerUrl}" target="_blank" class="anime-card-cover-link">
+                            <img class="anime-card-cover" src="${coverUrl}" alt="${escapeHtml(displayTitle)}" loading="lazy" />
+                        </a>
+                        <div class="anime-card-info">
+                            <a href="https://anilist.co/anime/${anime.mediaId}" target="_blank" class="anime-card-title">${escapeHtml(displayTitle)}</a>
+                            ${subtitle ? `<div class="anime-card-subtitle">${escapeHtml(subtitle)}</div>` : ''}
+                            <div class="anime-card-meta">${metaTags}</div>
+                            <div class="anime-card-progress">
+                                <div class="anime-card-progress-text">${progressText}</div>
+                                <div class="progress-segments" id="${segId}"></div>
+                            </div>
+                            <div class="anime-card-expanded" id="expand-${anime.mediaId}" style="display: ${expandedCard === anime.mediaId ? 'block' : 'none'};">
+                                <input type="number" class="edit-episode-input" value="${progress}" min="0" max="${totalEps || 999}" />
+                                <button class="save-btn" data-media-id="${anime.mediaId}">Save</button>
+                            </div>
+                            <button class="edit-btn" data-media-id="${anime.mediaId}" title="Edit episode">Edit</button>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
         }).join('');
 
         // Render segments after DOM update
@@ -309,6 +390,32 @@ document.addEventListener('DOMContentLoaded', () => {
             if (container) {
                 renderSegments(container, anime.progress || 0, anime.episodes || 0, false);
             }
+        });
+
+        // Add event listeners for edit buttons
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const mediaId = btn.dataset.mediaId;
+                expandedCard = expandedCard === mediaId ? null : mediaId;
+                renderAnimeGrid();
+            });
+        });
+
+        // Add event listeners for save buttons
+        document.querySelectorAll('.save-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const mediaId = btn.dataset.mediaId;
+                const input = document.querySelector(`#expand-${mediaId} .edit-episode-input`);
+                if (input) {
+                    const newProgress = parseInt(input.value);
+                    // TODO: Implement actual sync to AniList
+                    alert(`Would sync media ${mediaId} to episode ${newProgress}`);
+                    expandedCard = null;
+                    renderAnimeGrid();
+                }
+            });
         });
     }
 
@@ -336,21 +443,33 @@ document.addEventListener('DOMContentLoaded', () => {
         activeTab = tab;
         tabCurrent.classList.toggle('active', tab === 'CURRENT');
         tabPlanning.classList.toggle('active', tab === 'PLANNING');
+        tabCompleted.classList.toggle('active', tab === 'COMPLETED');
         renderAnimeGrid();
     }
 
     tabCurrent.addEventListener('click', () => setActiveTab('CURRENT'));
     tabPlanning.addEventListener('click', () => setActiveTab('PLANNING'));
+    tabCompleted.addEventListener('click', () => setActiveTab('COMPLETED'));
 
     // ===== Filter Events =====
     filterName.addEventListener('input', renderAnimeGrid);
     filterSeason.addEventListener('change', renderAnimeGrid);
     filterYear.addEventListener('input', renderAnimeGrid);
+    filterSort.addEventListener('change', (e) => {
+        sortBy = e.target.value;
+        renderAnimeGrid();
+    });
 
     // ===== Refresh Button =====
     btnRefreshList.addEventListener('click', () => {
         animeGrid.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Refreshing...</p></div>`;
         fetchAnimeList();
+    });
+
+    // ===== View Toggle =====
+    btnToggleView.addEventListener('click', () => {
+        viewMode = viewMode === 'grid' ? 'list' : 'grid';
+        renderAnimeGrid();
     });
 
     // ===== Initial Load =====

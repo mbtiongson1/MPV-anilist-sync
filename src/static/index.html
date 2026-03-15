@@ -96,6 +96,16 @@
                     <option value="FALL">Fall</option>
                 </select>
                 <input type="number" id="filter-year" placeholder="Year" min="1970" max="2030" />
+                <select id="filter-sort">
+                    <option value="">Default</option>
+                    <option value="popularity">Popularity</option>
+                    <option value="score">Score</option>
+                    <option value="title">Title</option>
+                    <option value="progress">Progress</option>
+                </select>
+                <button id="btn-toggle-view" class="view-toggle-btn" title="Toggle view">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                </button>
             </div>
 
             <!-- Tabs -->
@@ -107,6 +117,10 @@
                 <button id="tab-planning" class="tab" data-status="PLANNING">
                     Planning
                     <span id="count-planning" class="tab-count">0</span>
+                </button>
+                <button id="tab-completed" class="tab" data-status="COMPLETED">
+                    Completed
+                    <span id="count-completed" class="tab-count">0</span>
                 </button>
             </div>
 
