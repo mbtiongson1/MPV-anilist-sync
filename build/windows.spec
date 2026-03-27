@@ -3,11 +3,11 @@
 block_cipher = None
 
 a = Analysis(
-    ['../src/main.py'],
-    pathex=['../src'],
+    ['src/main.py'],
+    pathex=['src'],
     binaries=[],
-    datas=[],
-    hiddenimports=['requests', 'guessit', 'mpv', 'pystray', 'PIL'],
+    datas=[('src/static', 'static')],
+    hiddenimports=['requests', 'guessit', 'python_mpv_jsonipc', 'pystray', 'PIL', 'tkinter'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -39,5 +39,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='app_icon.ico',
+    icon='build/app_icon.ico',
 )
