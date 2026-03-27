@@ -3,21 +3,34 @@ import platform
 import subprocess
 import shutil
 
+def get_version():
+    try:
+        with open("VERSION", "r") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        return "unknown"
+
+VERSION = get_version()
+
 def run_pyinstaller(spec_file):
     print(f"Running PyInstaller with {spec_file}...")
     subprocess.check_call(["python", "-m", "PyInstaller", spec_file, "--noconfirm", "--clean"])
 
 def build_windows():
-    print("Building for Windows...")
+    print(f"Building for Windows (v{VERSION})...")
     run_pyinstaller("build/windows.spec")
-    print("Windows build complete! Executable is in the 'dist' folder.")
+    
+    # Rename output for versioning if it's a single file or directory
+    # For now, we'll just print that it's complete. 
+    # Usually, we'd want to move/rename the final executable.
+    print(f"Windows build complete! Executable is in the 'dist' folder.")
 
 def build_macos():
-    print("Building for macOS...")
+    print(f"Building for macOS (v{VERSION})...")
     run_pyinstaller("build/macos.spec")
     
     app_path = "dist/MPV Anilist Tracker.app"
-    dmg_path = "dist/MPV_Anilist_Tracker.dmg"
+    dmg_path = f"dist/MPV_Anilist_Tracker_v{VERSION}.dmg"
     
     if os.path.exists(app_path):
         print("Creating DMG (Requires dmgbuild to be installed...)")

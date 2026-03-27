@@ -4,6 +4,16 @@ import sys
 import threading
 from typing import Optional, Dict, Any, List, cast
 
+def get_version():
+    version_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "VERSION")
+    try:
+        with open(version_path, "r") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        return "unknown"
+
+VERSION = get_version()
+
 # Ensure the project root is in sys.path so we can use package-style imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -147,7 +157,7 @@ class TrackerAgent:
         return 0
         
     def start(self):
-        print(f"Starting Multi-Player Anilist Tracker Agent on {sys.platform}...")
+        print(f"Starting Multi-Player Anilist Tracker Agent v{VERSION} on {sys.platform}...")
         self.running = True
         
         while self.running:
