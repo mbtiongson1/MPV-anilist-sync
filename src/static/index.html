@@ -22,6 +22,10 @@
                 </div>
             </div>
             <div class="header-right">
+                <button id="btn-settings" class="header-btn" title="Settings">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    Settings
+                </button>
                 <button id="btn-reauthorize" class="header-btn" title="Reauthorize with AniList">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     Reauthorize
@@ -142,6 +146,9 @@
                     Completed
                     <span id="count-completed" class="tab-count">0</span>
                 </button>
+                <button id="tab-torrents" class="tab" data-status="TORRENTS">
+                    Torrents
+                </button>
             </div>
 
             <!-- Anime Card Grid -->
@@ -166,6 +173,38 @@
                 </div>
                 <footer class="modal-footer">
                     <button id="modal-close-btn" class="secondary-btn">Close</button>
+                </footer>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+            <div class="modal-overlay" id="settings-modal-overlay"></div>
+            <div class="modal-content">
+                <header class="modal-header">
+                    <h2 id="settings-modal-title">Settings</h2>
+                    <button id="settings-modal-close" class="icon-btn" aria-label="Close modal">✕</button>
+                </header>
+                <div class="modal-body" id="settings-modal-body" style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="settings-group">
+                        <label for="setting-groups" style="display: block; font-weight: 500; margin-bottom: 5px;">Preferred Release Groups (comma-separated):</label>
+                        <input type="text" id="setting-groups" placeholder="e.g. ASW, SubsPlease" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; background: white; color: black;" />
+                    </div>
+                    <div class="settings-group">
+                        <label for="setting-resolution" style="display: block; font-weight: 500; margin-bottom: 5px;">Preferred Resolution:</label>
+                        <select id="setting-resolution" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; background: white; color: black;">
+                            <option value="1080p">1080p</option>
+                            <option value="720p">720p</option>
+                            <option value="480p">480p</option>
+                        </select>
+                    </div>
+                    <div class="settings-group">
+                        <label for="setting-download-dir" style="display: block; font-weight: 500; margin-bottom: 5px;">Default Download Directory (leave blank for OS default):</label>
+                        <input type="text" id="setting-download-dir" placeholder="e.g. C:\Downloads\Anime" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; background: white; color: black;" />
+                    </div>
+                </div>
+                <footer class="modal-footer">
+                    <button id="settings-save-btn" class="primary-btn">Save Settings</button>
                 </footer>
             </div>
         </div>

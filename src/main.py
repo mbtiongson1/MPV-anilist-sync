@@ -9,10 +9,14 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.anilist import AnilistClient
 from src.parser import AnimeParser
 from src.watchers import MPVWatcher, MPCHCWatcher, VLCWatcher, WindowTitleWatcher, BaseWatcher
+from src.settings import SettingsManager
+from src.nyaa import NyaaInterface
 
 class TrackerAgent:
     def __init__(self):
         self.anilist = AnilistClient()
+        self.settings = SettingsManager()
+        self.nyaa = NyaaInterface()
         
         # Prioritized list of watchers based on platform
         if sys.platform == "win32":
@@ -298,6 +302,9 @@ class TrackerAgent:
 
         media_id = self.selected_media_id
         self.current_media_id = media_id
+        if media_id:
+            self.settings.update_media_folder(media_id, os.path.dirname(os.path.abspath(filename)))
+            
         self._cached_anilist_episodes = resolved_media.get('episodes')
         entry = self.anilist.get_list_entry(media_id)
         if entry:

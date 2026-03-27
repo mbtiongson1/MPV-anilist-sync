@@ -39,6 +39,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalCloseBtn = document.getElementById('modal-close-btn');
     const modalBody = document.getElementById('modal-body');
 
+    // Settings Modal
+    const btnSettings = document.getElementById('btn-settings');
+    const settingsModal = document.getElementById('settings-modal');
+    const settingsModalOverlay = document.getElementById('settings-modal-overlay');
+    const settingsModalClose = document.getElementById('settings-modal-close');
+    const settingsSaveBtn = document.getElementById('settings-save-btn');
+    const inputSettingGroups = document.getElementById('setting-groups');
+    const inputSettingResolution = document.getElementById('setting-resolution');
+    const inputSettingDownloadDir = document.getElementById('setting-download-dir');
+    const tabTorrents = document.getElementById('tab-torrents');
+    
+    let userSettings = null;
+
     // ===== State =====
     let animeList = [];
     let activeTab = 'CURRENT';
@@ -431,6 +444,114 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update grid class for view mode
         animeGrid.className = `anime-grid ${viewMode}-view`;
 
+        if (activeTab === 'TORRENTS') {
+            animeGrid.className = 'anime-grid torrents-view';
+            animeGrid.innerHTML = `
+                <div class="torrents-header" style="margin-bottom: 20px; text-align: center;">
+                    <button id="btn-find-torrents" class="primary-btn" style="font-size: 16px; padding: 12px 24px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 8px; font-weight: 600;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Find available episodes
+                    </button>
+                    <p style="margin-top: 10px; color: #666; font-size: 14px;">Scans your "In Progress" list and finds torrents for the next episodes you need.</p>
+                </div>
+                <div id="torrents-results"></div>
+            `;
+            
+            document.getElementById('btn-find-torrents').addEventListener('click', async () => {
+                if (!userSettings || (!userSettings.preferred_groups && userSettings.default_download_dir === '')) {
+                    alert("Please configure your settings first.");
+                    openSettingsModal();
+                    return;
+                }
+                
+                const resultsContainer = document.getElementById('torrents-results');
+                resultsContainer.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Searching Nyaa...</p></div>';
+                
+                try {
+                    const resp = await fetch('/api/nyaa_batch_search');
+                    const results = await resp.json();
+                    
+                    if (results.length === 0) {
+                        resultsContainer.innerHTML = '<div class="empty-state"><p>No new episodes found.</p></div>';
+                        return;
+                    }
+                    
+                    let html = `
+                        <table class="details-table" style="width: 100%; text-align: left; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                            <thead style="background: #fdfaf6;">
+                                <tr>
+                                    <th>Anime</th>
+                                    <th>Ep</th>
+                                    <th>Group</th>
+                                    <th>Torrent Title</th>
+                                    <th>Size</th>
+                                    <th>Seeders</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    results.forEach(res => {
+                        const t = res.torrent;
+                        const shortGroup = t.group !== "Unknown" ? t.group : "";
+                        html += `
+                            <tr>
+                                <td><strong>${escapeHtml(res.animeTitle)}</strong></td>
+                                <td>${res.episode}</td>
+                                <td><span class="np-badge" style="background:#e0dcd3; color:#433422;">${escapeHtml(shortGroup)}</span></td>
+                                <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(t.title)}">${escapeHtml(t.title)}</td>
+                                <td>${escapeHtml(t.size)}</td>
+                                <td style="color: #4CAF50; font-weight: bold;">${t.seeders}</td>
+                                <td>
+                                    <button class="primary-btn btn-download-torrent" data-url="${escapeHtml(t.link)}" data-mediaid="${res.mediaId}" style="padding: 6px 12px; font-size: 12px; cursor: pointer;">Download</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += `</tbody></table>`;
+                    resultsContainer.innerHTML = html;
+                    
+                    document.querySelectorAll('.btn-download-torrent').forEach(btn => {
+                        btn.addEventListener('click', async (e) => {
+                            const btnEl = e.target;
+                            btnEl.disabled = true;
+                            btnEl.textContent = 'Downloading...';
+                            btnEl.style.opacity = '0.7';
+                            
+                            const url = btnEl.dataset.url;
+                            const mediaId = btnEl.dataset.mediaid;
+                            
+                            try {
+                                const resp = await fetch('/api/nyaa_download', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ url, mediaId })
+                                });
+                                const result = await resp.json();
+                                if (result.success) {
+                                    btnEl.textContent = 'Downloaded ✓';
+                                    btnEl.style.backgroundColor = '#4CAF50';
+                                    btnEl.style.color = '#fff';
+                                } else {
+                                    btnEl.textContent = 'Failed ✗';
+                                    btnEl.style.backgroundColor = '#f44336';
+                                    btnEl.style.color = '#fff';
+                                }
+                            } catch (err) {
+                                btnEl.textContent = 'Error';
+                            }
+                        });
+                    });
+                    
+                } catch (e) {
+                    resultsContainer.innerHTML = '<div class="empty-state"><p>Error searching torrents.</p></div>';
+                }
+            });
+            return;
+        }
+
         if (filtered.length === 0) {
             animeGrid.innerHTML = `
                 <div class="empty-state">
@@ -631,12 +752,18 @@ document.addEventListener('DOMContentLoaded', () => {
         tabCurrent.classList.toggle('active', tab === 'CURRENT');
         tabPlanning.classList.toggle('active', tab === 'PLANNING');
         tabCompleted.classList.toggle('active', tab === 'COMPLETED');
+        tabTorrents.classList.toggle('active', tab === 'TORRENTS');
+        const filterBar = document.querySelector('.filter-bar');
+        if (filterBar) {
+            filterBar.style.display = tab === 'TORRENTS' ? 'none' : 'flex';
+        }
         renderAnimeGrid();
     }
 
     tabCurrent.addEventListener('click', () => setActiveTab('CURRENT'));
     tabPlanning.addEventListener('click', () => setActiveTab('PLANNING'));
     tabCompleted.addEventListener('click', () => setActiveTab('COMPLETED'));
+    tabTorrents.addEventListener('click', () => setActiveTab('TORRENTS'));
 
     // ===== Filter Events =====
     filterName.addEventListener('input', renderAnimeGrid);
@@ -718,7 +845,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateViewToggleButton();
 
+    // ===== Settings Load/Save =====
+    async function loadSettings() {
+        try {
+            const resp = await fetch('/api/settings');
+            userSettings = await resp.json();
+        } catch (e) {
+            console.error("Failed to load settings:", e);
+        }
+    }
+
+    function openSettingsModal() {
+        if (userSettings) {
+            inputSettingGroups.value = userSettings.preferred_groups || '';
+            inputSettingResolution.value = userSettings.preferred_resolution || '1080p';
+            inputSettingDownloadDir.value = userSettings.default_download_dir || '';
+        }
+        settingsModal.classList.remove('hidden');
+    }
+
+    function closeSettingsModal() {
+        settingsModal.classList.add('hidden');
+    }
+
+    btnSettings.addEventListener('click', openSettingsModal);
+    settingsModalOverlay.addEventListener('click', closeSettingsModal);
+    settingsModalClose.addEventListener('click', closeSettingsModal);
+
+    settingsSaveBtn.addEventListener('click', async () => {
+        const payload = {
+            preferred_groups: inputSettingGroups.value,
+            preferred_resolution: inputSettingResolution.value,
+            default_download_dir: inputSettingDownloadDir.value
+        };
+
+        try {
+            settingsSaveBtn.textContent = 'Saving...';
+            const resp = await fetch('/api/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (resp.ok) {
+                await loadSettings();
+                closeSettingsModal();
+            } else {
+                alert('Failed to save settings.');
+            }
+        } catch (e) {
+            alert('Error saving settings.');
+        } finally {
+            settingsSaveBtn.textContent = 'Save Settings';
+        }
+    });
+
     // ===== Initial Load =====
+    loadSettings();
     checkStatus();
     fetchAnimeList();
 

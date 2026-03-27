@@ -209,6 +209,62 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                     print(f"Error fetching anime list: {e}")
             
             self.wfile.write(json.dumps(entries).encode('utf-8'))
+        elif self.path == '/api/settings':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            
+            settings = {}
+            if self.agent and hasattr(self.agent, 'settings'):
+                settings = {
+                    'preferred_groups': ", ".join(self.agent.settings.preferred_groups),
+                    'preferred_resolution': self.agent.settings.preferred_resolution,
+                    'default_download_dir': self.agent.settings.default_download_dir
+                }
+            self.wfile.write(json.dumps(settings).encode('utf-8'))
+
+        elif self.path.startswith('/api/nyaa_batch_search'):
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+
+            results = []
+            if self.agent and hasattr(self.agent, 'anilist') and hasattr(self.agent, 'nyaa'):
+                try:
+                    entries = self.agent.anilist.get_user_anime_list(['CURRENT'])
+                    for entry in entries:
+                        progress = entry.get('progress', 0)
+                        episodes = entry.get('episodes')
+                        if episodes and progress >= episodes:
+                            continue
+                            
+                        next_ep = progress + 1
+                        title = entry.get('title', {}).get('romaji') or entry.get('title', {}).get('english')
+                        if not title:
+                            continue
+                            
+                        search_res = self.agent.nyaa.search(
+                            title, 
+                            next_ep, 
+                            self.agent.settings.preferred_resolution, 
+                            self.agent.settings.preferred_groups
+                        )
+                        
+                        if search_res:
+                            # top result
+                            torrent = search_res[0]
+                            results.append({
+                                'mediaId': entry.get('mediaId'),
+                                'animeTitle': title,
+                                'episode': next_ep,
+                                'torrent': torrent
+                            })
+                except Exception as e:
+                    print(f"Error in nyaa_batch_search: {e}")
+
+            self.wfile.write(json.dumps(results).encode('utf-8'))
         else:
             # Fallback to serving static files
             super().do_GET()
@@ -316,6 +372,43 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                         self.agent.sync_progress(filename)
                         success = True
 
+            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+        elif self.path == '/api/settings':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+
+            content_length = int(self.headers.get('Content-Length', 0))
+            data = json.loads(self.rfile.read(content_length).decode('utf-8')) if content_length else {}
+            
+            if self.agent and hasattr(self.agent, 'settings'):
+                if 'preferred_groups' in data:
+                    self.agent.settings.preferred_groups = [g.strip() for g in data['preferred_groups'].split(',') if g.strip()]
+                if 'preferred_resolution' in data:
+                    self.agent.settings.preferred_resolution = data['preferred_resolution']
+                if 'default_download_dir' in data:
+                    self.agent.settings.default_download_dir = data['default_download_dir']
+            self.wfile.write(json.dumps({"success": True}).encode('utf-8'))
+
+        elif self.path == '/api/nyaa_download':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+
+            content_length = int(self.headers.get('Content-Length', 0))
+            data = json.loads(self.rfile.read(content_length).decode('utf-8')) if content_length else {}
+            
+            url = data.get('url')
+            media_id = data.get('mediaId')
+            
+            success = False
+            if self.agent and hasattr(self.agent, 'nyaa') and url and media_id:
+                download_dir = self.agent.settings.get_media_folder(int(media_id))
+                path = self.agent.nyaa.download_torrent(url, download_dir)
+                success = bool(path)
+                
             self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
         else:
             self.send_response(404)
