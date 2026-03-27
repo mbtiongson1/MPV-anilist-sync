@@ -277,9 +277,30 @@ class AnilistClient:
             print(f"Error searching anime '{title}': {e}")
             return None
 
+    def _load_list_cache(self, statuses: list[str] | None = None) -> list[dict[str, Any]]:
+        try:
+            if os.path.exists('list_cache.json'):
+                with open('list_cache.json', 'r', encoding='utf-8') as f:
+                    cached_entries = json.load(f)
+                    if statuses:
+                        return [entry for entry in cached_entries if entry.get('listStatus') in statuses]
+                    return cached_entries
+        except Exception as cache_err:
+            print(f"Error loading list cache: {cache_err}")
+        return []
+
     def get_list_entry(self, media_id: int) -> Optional[Dict[str, Any]]:
         user_id = self.get_authenticated_user()
         if not user_id:
+            # Fallback to cache
+            cached = self._load_list_cache()
+            for entry in cached:
+                if entry.get('mediaId') == media_id:
+                    return {
+                        'id': entry.get('entryId'),
+                        'status': entry.get('listStatus'),
+                        'progress': entry.get('progress')
+                    }
             return None
 
         query = '''
@@ -315,7 +336,7 @@ class AnilistClient:
         """
         user_id = self.get_authenticated_user()
         if not user_id:
-            return []
+            return self._load_list_cache(statuses)
 
         query = '''
         query ($userId: Int, $type: MediaType, $statusIn: [MediaListStatus]) {
@@ -411,10 +432,17 @@ class AnilistClient:
                         } if next_airing else None,
                     })
 
+            # Save the list to local cache
+            try:
+                with open('list_cache.json', 'w', encoding='utf-8') as f:
+                    json.dump(flat_entries, f, ensure_ascii=False, indent=2)
+            except Exception as e:
+                print(f"Error saving list cache: {e}")
+
             return flat_entries
         except Exception as e:
             print(f"Error fetching user anime list: {e}")
-            return []
+            return self._load_list_cache(statuses)
 
     def update_progress(self, media_id: int, episode: int) -> bool:
         if not self.is_authenticated():

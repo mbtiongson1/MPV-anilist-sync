@@ -202,7 +202,7 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             
             entries = []
-            if self.agent and self.agent.anilist.is_authenticated():
+            if self.agent:
                 try:
                     entries = self.agent.anilist.get_user_anime_list(['CURRENT', 'PLANNING', 'COMPLETED'])
                 except Exception as e:

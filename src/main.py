@@ -143,10 +143,6 @@ class TrackerAgent:
         self.running = True
         
         while self.running:
-            if not self.anilist.is_authenticated():
-                time.sleep(2)
-                continue
-                
             # Find an active watcher
             found_active = False
             
@@ -361,8 +357,7 @@ if __name__ == "__main__":
     agent = TrackerAgent()
     
     if not agent.anilist.is_authenticated():
-        print("Error: No valid AniList token found in config.json. Please add your token.")
-        exit(1)
+        print("Warning: No valid AniList token found. Running in local cache mode.")
         
     # Start the web UI server on port 8080
     run_server_in_background(agent, 8080)
