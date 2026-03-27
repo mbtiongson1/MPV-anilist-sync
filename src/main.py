@@ -4,13 +4,22 @@ import sys
 import threading
 from typing import Optional, Dict, Any, List, cast
 
+# Ensure the project root is in sys.path so we can use package-style imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.anilist import AnilistClient
-from src.parser import AnimeParser
-from src.watchers import MPVWatcher, MPCHCWatcher, VLCWatcher, WindowTitleWatcher, BaseWatcher
-from src.settings import SettingsManager
-from src.nyaa import NyaaInterface
+try:
+    from src.anilist import AnilistClient
+    from src.parser import AnimeParser
+    from src.watchers import MPVWatcher, MPCHCWatcher, VLCWatcher, WindowTitleWatcher, BaseWatcher
+    from src.settings import SettingsManager
+    from src.nyaa import NyaaInterface
+except ImportError:
+    # Fallback for if we're not running as a package
+    from anilist import AnilistClient
+    from parser import AnimeParser
+    from watchers import MPVWatcher, MPCHCWatcher, VLCWatcher, WindowTitleWatcher, BaseWatcher
+    from settings import SettingsManager
+    from nyaa import NyaaInterface
 
 class TrackerAgent:
     def __init__(self):
@@ -49,18 +58,12 @@ class TrackerAgent:
         self.selected_media_id: Optional[int] = None
 
     @staticmethod
+    @staticmethod
     def _resolve_episode_to_media(media: Dict[str, Any], global_episode: int) -> tuple[Dict[str, Any], int]:
-        """Resolve a global episode number into the correct AniList media and local episode.
-
-        Sometimes a filename includes a global episode count across multiple seasons (e.g.
-        season 1 has 10 eps, so "E16" actually refers to season 2 episode 6).
-
-        This function walks `media.relations.edges` looking for sequels and subtracts
-        known episode counts until the episode fits into a single media entry.
-        """
-        remaining = global_episode
+        """Resolve a global episode number into the correct AniList media and local episode."""
+        remaining: int = int(global_episode)
         visited = set()
-        current = media
+        current: Any = media
 
         while current and isinstance(current, dict):
             media_id = current.get('id')
@@ -68,16 +71,17 @@ class TrackerAgent:
                 break
             visited.add(media_id)
 
-            episodes = current.get('episodes')
-            # If the media has an unknown episode count, assume the current media is the best match
-            if episodes is None or not isinstance(episodes, int) or episodes <= 0:
-                return current, remaining
-
-            # If the remaining episode fits within this media, we're done
-            if int(remaining) <= int(cast(int, episodes)):
+            episodes_val = current.get('episodes')
+            if episodes_val is None or not str(episodes_val).isdigit():
+                return cast(Dict[str, Any], current), int(remaining)
+            
+            ep_count: int = int(episodes_val)
+            if ep_count <= 0:
                 return cast(Dict[str, Any], current), int(remaining)
 
-            # Otherwise, attempt to roll over into a sequel
+            if remaining <= ep_count:
+                return cast(Dict[str, Any], current), int(remaining)
+
             relations = current.get('relations', {}).get('edges', []) or []
             next_media = None
             for edge in relations:
@@ -88,16 +92,16 @@ class TrackerAgent:
                         break
 
             if not next_media:
-                # No known sequel; clamp to the last episode of the current media
-                return cast(Dict[str, Any], current), int(episodes) if isinstance(episodes, int) else int(remaining)
-
-            if isinstance(episodes, int):
-                remaining = int(remaining) - int(episodes)
+                return cast(Dict[str, Any], current), ep_count
+            
+            # Use a temporary variable to help linter with type inference
+            new_remaining: int = int(remaining) - int(ep_count)
+            remaining = new_remaining
             current = next_media
 
-        # Fallback: return original media
         fallback_episodes = media.get('episodes')
-        return media, min(int(global_episode), int(fallback_episodes) if isinstance(fallback_episodes, int) else int(global_episode))
+        f_ep = int(fallback_episodes) if fallback_episodes and str(fallback_episodes).isdigit() else int(global_episode)
+        return media, min(int(global_episode), f_ep)
 
     @staticmethod
     def _build_media_map(media: Dict[str, Any]) -> Dict[int, Dict[str, Any]]:
@@ -111,7 +115,7 @@ class TrackerAgent:
             if not current or not isinstance(current, dict):
                 continue
             media_id = current.get('id')
-            if not media_id or not isinstance(media_id, int) or media_id in seen:
+            if media_id is None or media_id == "" or media_id in seen:
                 continue
             seen.add(media_id)
             media_map[int(media_id)] = current
@@ -151,8 +155,8 @@ class TrackerAgent:
             found_active = False
             
             # 1. If we have an active watcher, check if it's still alive
-            if self.active_watcher:
-                active = self.active_watcher
+            active = self.active_watcher
+            if active is not None:
                 if active.is_connected and active.check_connection():
                     filename = active.get_current_filename()
                     if filename:

@@ -47,10 +47,17 @@ class NyaaInterface:
             if title_node is None or link_node is None:
                 continue
                 
-            t = title_node.text or ""
-            l = link_node.text or ""
-            s = size_node.text if size_node is not None and size_node.text else "Unknown"
-            seed = int(seeders_node.text) if seeders_node is not None and seeders_node.text and str(seeders_node.text).isdigit() else 0
+            t: str = str(title_node.text) if title_node.text is not None else ""
+            l: str = str(link_node.text) if link_node.text is not None else ""
+            s: str = str(size_node.text) if size_node is not None and size_node.text is not None else "Unknown"
+            
+            # Safe conversion of seeders to int
+            seed: int = 0
+            if seeders_node is not None and seeders_node.text is not None:
+                try:
+                    seed = int(str(seeders_node.text))
+                except (ValueError, TypeError):
+                    seed = 0
             
             # calculate a score based on preferred groups
             score = 0
@@ -108,11 +115,16 @@ class NyaaInterface:
                     f.write(chunk)
                     
             # Open the file
-            if os.name == 'nt':
+            if os.name == 'nt' and hasattr(os, 'startfile'):
                 os.startfile(output_path)
             else:
                 import subprocess
-                subprocess.call(('open', output_path))
+                if os.name == 'nt':
+                    os.startfile(output_path) # Fallback if hasattr failed but it IS nt
+                elif sys.platform == 'darwin':
+                    subprocess.call(('open', output_path))
+                else:
+                    subprocess.call(('xdg-open', output_path))
                 
             return output_path
         except Exception as e:

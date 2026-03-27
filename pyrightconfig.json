@@ -1,6 +1,7 @@
 {
   "extraPaths": [
-    "."
+    ".",
+    "src"
   ],
   "venvPath": ".",
   "venv": "venv"
