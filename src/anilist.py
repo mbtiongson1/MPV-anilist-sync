@@ -21,45 +21,84 @@ class AnilistAuthHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             html = """
             <html>
+            <head>
+                <title>Authenticating...</title>
+                <style>
+                    body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #fdfaf6; color: #433422; }
+                    .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: center; max-width: 400px; }
+                    .spinner { border: 3px solid rgba(0,0,0,0.1); border-top: 3px solid #6b5c40; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
+                    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+                </style>
+            </head>
             <body>
-            <script>
-                var hash = window.location.hash.substring(1);
-                if (hash) {
-                    var params = new URLSearchParams(hash);
-                    var token = params.get('access_token');
-                    if (token) {
-                        window.location.href = '/callback?token=' + token;
+            <div class="card">
+                <div class="spinner"></div>
+                <p id="status">Completing authentication...</p>
+                <script>
+                    var hash = window.location.hash.substring(1);
+                    if (hash) {
+                        var params = new URLSearchParams(hash);
+                        var token = params.get('access_token');
+                        if (token) {
+                            fetch('/callback', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ token: token })
+                            }).then(response => {
+                                if (response.ok) {
+                                    document.getElementById('status').innerText = 'Authentication successful! You can close this tab.';
+                                } else {
+                                    document.getElementById('status').innerText = 'Authentication failed.';
+                                }
+                            }).catch(err => {
+                                document.getElementById('status').innerText = 'Error during authentication: ' + err;
+                            });
+                        } else {
+                            document.getElementById('status').innerText = 'Authentication failed (no token).';
+                        }
                     } else {
-                        document.body.innerHTML = 'Authentication failed (no token).';
+                        document.getElementById('status').innerText = 'Waiting for token...';
                     }
-                } else {
-                    document.body.innerHTML = 'Please wait, authenticating...';
-                }
-            </script>
-            <p>Authenticating...</p>
+                </script>
+            </div>
             </body>
             </html>
             """
             self.wfile.write(html.encode('utf-8'))
-        elif self.path.startswith('/callback'):
-            query = urllib.parse.urlparse(self.path).query
-            params = urllib.parse.parse_qs(query)
-            token = params.get('token', [None])[0]
-            if token:
-                server = cast(AnilistHTTPServer, self.server)
-                server.token = token
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+    def do_POST(self):
+        if self.path == '/callback':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            try:
+                data = json.loads(post_data.decode('utf-8'))
+                token = data.get('token')
+                if token:
+                    server = cast(AnilistHTTPServer, self.server)
+                    server.token = token
+                    self.send_response(200)
+                    self.send_header('Content-type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": True}).encode('utf-8'))
+                    
+                    # Stop the server in a new thread
+                    threading.Thread(target=self.server.shutdown).start()
+                else:
+                    self.send_response(400)
+                    self.send_header('Content-type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": "No token provided"}).encode('utf-8'))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-type', 'application/json')
                 self.end_headers()
-                self.wfile.write(b"Authentication successful! You can close this tab and return to the application.")
-            else:
-                self.send_response(400)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(b"Authentication failed.")
-            
-            # Stop the server in a new thread to allow the response to complete
-            threading.Thread(target=self.server.shutdown).start()
+                self.wfile.write(json.dumps({"error": str(e)}).encode('utf-8'))
+        else:
+            self.send_response(404)
+            self.end_headers()
 
 class AnilistClient:
     API_URL = "https://graphql.anilist.co"
@@ -70,6 +109,11 @@ class AnilistClient:
         self.user_id = None
 
     def _load_token(self) -> Optional[str]:
+        # Check environment variable first for Docker/CI support
+        env_token = os.environ.get('ANILIST_TOKEN')
+        if env_token:
+            return env_token
+
         if os.path.exists(self.token_file):
             try:
                 with open(self.token_file, 'r') as f:
