@@ -1,30 +1,30 @@
-/* ===== Design Tokens ===== */
+/* ===== Design Tokens (Beige & Earth Tones) ===== */
 :root {
-    --bg-primary: #0B1120;
-    --bg-secondary: #141B2D;
-    --bg-card: #1A2235;
-    --bg-card-hover: #1F2A40;
-    --bg-input: #0F172A;
-    --text-primary: #F1F5F9;
-    --text-secondary: #94A3B8;
-    --text-muted: #64748B;
-    --accent: #6366F1;
-    --accent-hover: #818CF8;
-    --accent-glow: rgba(99, 102, 241, 0.25);
-    --success: #10B981;
-    --success-dim: rgba(16, 185, 129, 0.15);
-    --error: #EF4444;
-    --error-dim: rgba(239, 68, 68, 0.15);
-    --warning: #F59E0B;
-    --border: #1E293B;
-    --border-light: #334155;
-    --radius-sm: 0.5rem;
-    --radius-md: 0.75rem;
-    --radius-lg: 1rem;
-    --radius-xl: 1.25rem;
-    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
-    --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.08);
-    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    --bg-primary: #FAF9F6;
+    --bg-secondary: #F5F5DC;
+    --bg-card: #FFFFFF;
+    --bg-card-hover: #FCFAFA;
+    --bg-input: #FFFFFF;
+    --text-primary: #3C2317;
+    --text-secondary: #5C4033;
+    --text-muted: #8B7355;
+    --accent: #8B4513;
+    --accent-hover: #A0522D;
+    --accent-glow: rgba(139, 69, 19, 0.1);
+    --success: #556B2F;
+    --success-dim: rgba(85, 107, 47, 0.1);
+    --error: #963E3E;
+    --error-dim: rgba(150, 62, 62, 0.1);
+    --warning: #D2691E;
+    --border: #EADDCA;
+    --border-light: #F0EAD6;
+    --radius-sm: 0.6rem;
+    --radius-md: 1rem;
+    --radius-lg: 1.25rem;
+    --radius-xl: 1.5rem;
+    --shadow-card: 0 4px 20px rgba(60, 35, 23, 0.06);
+    --shadow-glow: 0 0 40px rgba(139, 69, 19, 0.04);
+    --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -34,13 +34,13 @@
 }
 
 body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
     background-color: var(--bg-primary);
     color: var(--text-primary);
     min-height: 100vh;
     background-image:
-        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.08), transparent),
-        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16, 185, 129, 0.04), transparent);
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 69, 19, 0.05), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(85, 107, 47, 0.03), transparent);
 }
 
 /* ===== App Container ===== */
@@ -414,9 +414,6 @@ header {
 
 .primary-btn:hover {
     background: var(--accent-hover);
-}
-
-    font-weight: 500;
 }
 
 /* Now Playing Progress */
@@ -825,6 +822,7 @@ header {
     line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-decoration: none;
