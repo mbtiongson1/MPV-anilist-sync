@@ -5,6 +5,7 @@ import threading
 import os
 import urllib.parse
 import glob
+import requests
 from src.main import TrackerAgent  # type: ignore
 
 from typing import Optional
@@ -65,8 +66,8 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             season_options = []
             media_details = None
 
-            if self.agent and self.agent.watcher.is_connected:
-                filename = self.agent.watcher.get_current_filename()
+            if self.agent and self.agent.active_watcher and self.agent.active_watcher.is_connected:
+                filename = self.agent.active_watcher.get_current_filename()
                 if filename:
                     total_episodes = self._get_total_episodes(filename)
 
@@ -179,11 +180,14 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                         anilist_total_episodes = getattr(self.agent, '_cached_anilist_episodes', None)
 
                     is_running = True
+                    watcher_name = self.agent.active_watcher.__class__.__name__.replace("Watcher", "")
             else:
                 TrackerStateHandler.manual_episode_override = None
+                watcher_name = None
 
             response = {
                 "running": is_running,
+                "watcher_name": watcher_name,
                 "title": title,
                 "base_title": base_title,
                 "watched_episodes": display_episode,
@@ -205,6 +209,11 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             if self.agent:
                 try:
                     entries = self.agent.anilist.get_user_anime_list(['CURRENT', 'PLANNING', 'COMPLETED'])
+                except requests.exceptions.HTTPError as e:
+                    if e.response.status_code in (400, 401, 403):
+                        self.wfile.write(json.dumps({"error": "auth_failed"}).encode('utf-8'))
+                        return
+                    print(f"Error fetching anime list: {e}")
                 except Exception as e:
                     print(f"Error fetching anime list: {e}")
             
@@ -360,8 +369,8 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
 
             success = False
-            if self.agent and self.agent.watcher.is_connected:
-                filename = self.agent.watcher.get_current_filename()
+            if self.agent and self.agent.active_watcher and self.agent.active_watcher.is_connected:
+                filename = self.agent.active_watcher.get_current_filename()
                 if filename:
                     # Sync with the manually overridden episode number if present
                     if hasattr(self.agent, 'sync_progress_manual') and TrackerStateHandler.manual_episode_override is not None:

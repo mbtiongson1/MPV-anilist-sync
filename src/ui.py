@@ -12,7 +12,7 @@ class TrackerUI:
         self.agent = agent
         
         self.root = tk.Tk()
-        self.root.title("MPV Anilist Tracker")
+        self.root.title("Anime Tracker")
         self.root.geometry("400x500")
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         
@@ -22,10 +22,10 @@ class TrackerUI:
         self.update_log()
 
     def setup_ui(self):
-        ttk.Label(self.root, text="MPV Anilist Tracker", font=("Helvetica", 16, "bold")).pack(pady=10)
+        ttk.Label(self.root, text="Anime Tracker", font=("Helvetica", 16, "bold")).pack(pady=10)
         
         self.status_var = tk.StringVar()
-        self.status_var.set("Status: Waiting for MPV...")
+        self.status_var.set("Status: Waiting for media player...")
         ttk.Label(self.root, textvariable=self.status_var).pack(pady=5)
         
         ttk.Label(self.root, text="Recent Syncs:", font=("Helvetica", 12)).pack(anchor="w", padx=20, pady=(10, 0))
@@ -56,15 +56,17 @@ class TrackerUI:
             pass
             
         # Update status
-        if self.agent.watcher.is_connected:
-            file = self.agent.watcher.get_current_filename()
+        active = getattr(self.agent, 'active_watcher', None)
+        if active and active.is_connected:
+            file = active.get_current_filename()
             if file:
-                prog = self.agent.watcher.get_percent_pos()
-                self.status_var.set(f"Playing: {file[:20]}... ({int(prog)}%)")
+                prog = active.get_percent_pos()
+                watcher_name = active.__class__.__name__.replace("Watcher", "")
+                self.status_var.set(f"[{watcher_name}] Playing: {file[:20]}... ({int(prog)}%)")
             else:
                 self.status_var.set("Status: Connected, idle")
         else:
-            self.status_var.set("Status: Waiting for MPV...")
+            self.status_var.set("Status: Waiting for media player...")
             
         self.root.after(1000, self.update_log)
 

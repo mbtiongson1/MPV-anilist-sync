@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MPV AniList Tracker</title>
-    <meta name="description" content="Track your anime progress from MPV and sync with AniList automatically.">
+    <title>Anime Tracker</title>
+    <meta name="description" content="Track your anime progress from media players and sync with AniList automatically.">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -18,7 +18,7 @@
                         <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M10 8L16 12L10 16V8Z" fill="currentColor"/>
                     </svg>
-                    <span>MPV Tracker</span>
+                    <span>Anime Tracker</span>
                 </div>
             </div>
             <div class="header-right">
@@ -47,7 +47,7 @@
             <div class="np-content">
                 <img id="np-cover" class="np-cover" src="" alt="Cover" />
                 <div class="np-info">
-                    <div class="np-badge">NOW PLAYING</div>
+                    <div class="np-badge" id="np-player-badge">NOW PLAYING</div>
                     <div class="np-header">
                         <h1 id="np-title" class="np-title">—</h1>
                         <button id="btn-edit-nowplaying" class="icon-btn" title="View details">
@@ -93,8 +93,8 @@
                     <path d="M10 9l4 2.5L10 14V9Z" fill="currentColor" opacity="0.5"/>
                 </svg>
             </div>
-            <h2>Waiting for MPV...</h2>
-            <p>Open a video file in MPV to start tracking automatically.</p>
+            <h2>Waiting for media player...</h2>
+            <p>Open a video file in MPV or MPC-HC to start tracking automatically.</p>
         </section>
 
         <!-- Anime List Section -->
@@ -214,7 +214,9 @@
             <div class="links">
                 <a href="https://anilist.co/home" target="_blank" rel="noopener noreferrer">Open AniList</a>
                 <span class="separator">•</span>
-                <a href="https://mpv.io" target="_blank" rel="noopener noreferrer">mpv.io</a>
+                <a href="https://mpv.io" target="_blank" rel="noopener noreferrer">mpv</a>
+                <span class="separator">•</span>
+                <a href="https://github.com/clsid2/mpc-hc" target="_blank" rel="noopener noreferrer">mpc-hc</a>
             </div>
         </footer>
     </div>

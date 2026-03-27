@@ -440,6 +440,11 @@ class AnilistClient:
                 print(f"Error saving list cache: {e}")
 
             return flat_entries
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code in (400, 401, 403):
+                raise
+            print(f"HTTP Error fetching user anime list: {e}")
+            return self._load_list_cache(statuses)
         except Exception as e:
             print(f"Error fetching user anime list: {e}")
             return self._load_list_cache(statuses)

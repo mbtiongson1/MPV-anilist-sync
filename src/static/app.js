@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputSettingGroups = document.getElementById('setting-groups');
     const inputSettingResolution = document.getElementById('setting-resolution');
     const inputSettingDownloadDir = document.getElementById('setting-download-dir');
+    const npPlayerBadge = document.getElementById('np-player-badge');
     const tabTorrents = document.getElementById('tab-torrents');
     
     let userSettings = null;
@@ -129,6 +130,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusText.textContent = 'Running';
                 nowPlaying.classList.remove('hidden');
                 idleState.classList.add('hidden');
+
+                // Update badge with watcher name if available
+                if (data.watcher_name) {
+                    npPlayerBadge.textContent = `NOW PLAYING (${data.watcher_name})`;
+                } else {
+                    npPlayerBadge.textContent = 'NOW PLAYING';
+                }
 
                 // Prefer base title but keep full title for display
                 const displayTitle = data.base_title || data.title;
@@ -348,7 +356,18 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchAnimeList() {
         try {
             const response = await fetch('/api/animelist');
-            animeList = await response.json();
+            const data = await response.json();
+            
+            if (data.error === 'auth_failed') {
+                animeGrid.innerHTML = `
+                    <div class="empty-state">
+                        <p>AniList authentication failed or expired.</p>
+                        <button class="primary-btn" onclick="document.getElementById('btn-reauthorize').click()">Reauthorize Now</button>
+                    </div>`;
+                return;
+            }
+            
+            animeList = data;
             updateCounts();
             renderAnimeGrid();
             // Also refresh now-playing metadata if applicable
@@ -566,6 +585,61 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const unwatched = filtered.filter(a => (a.progress || 0) === 0);
         const watched = filtered.filter(a => (a.progress || 0) > 0);
+
+        function renderRows(list) {
+            return list.map(anime => {
+                const title = anime.title?.romaji || anime.title?.english || anime.title?.native || 'Unknown';
+                const progress = anime.progress || 0;
+                const total = anime.episodes || '?';
+                const cover = anime.coverImage?.large || anime.coverImage?.medium || '';
+                const formatPop = formatPopularity(anime.popularity || 0);
+                const score = anime.averageScore ? anime.averageScore + '%' : '-';
+
+                if (viewMode === 'grid') {
+                    return `
+                        <div class="anime-card" data-media-id="${anime.mediaId}">
+                            <div class="anime-cover" style="background-image: url('${cover}')">
+                                <div class="anime-progress">
+                                    <div class="progress-bar" style="width: ${total !== '?' && total > 0 ? (progress/total)*100 : 0}%"></div>
+                                </div>
+                            </div>
+                            <div class="anime-info">
+                                <div class="anime-title" title="${escapeHtml(title)}">${escapeHtml(title)}</div>
+                                <div class="anime-meta">Ep ${progress} / ${total}</div>
+                            </div>
+                            <div class="card-overlay">
+                                <button class="small-btn edit-btn" data-media-id="${anime.mediaId}">Edit</button>
+                            </div>
+                        </div>
+                    `;
+                } else if (viewMode === 'list') {
+                    return `
+                        <div class="anime-list-item" data-media-id="${anime.mediaId}">
+                            <img src="${cover}" class="list-cover" alt="cover">
+                            <div class="list-info">
+                                <div class="list-title">${escapeHtml(title)}</div>
+                                <div class="list-meta">Progress: ${progress} / ${total} | Score: ${score}</div>
+                            </div>
+                            <button class="small-btn edit-btn" data-media-id="${anime.mediaId}">Edit</button>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <tr class="details-row" data-media-id="${anime.mediaId}">
+                            <td>${escapeHtml(title)}</td>
+                            <td>${progress} / ${total}</td>
+                            <td>${score}</td>
+                            <td>${formatPop}</td>
+                            <td>${anime.season || '-'} ${anime.seasonYear || ''}</td>
+                            <td>${escapeHtml(anime.studio || '-')}</td>
+                            <td>
+                                <button class="small-btn edit-btn" data-media-id="${anime.mediaId}">Edit</button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+        }
 
         const buildSection = (label, list) => {
             const header = viewMode === 'details'
