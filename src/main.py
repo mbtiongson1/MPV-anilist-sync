@@ -2,18 +2,34 @@ import time
 import os
 import sys
 import threading
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.anilist import AnilistClient
 from src.parser import AnimeParser
-from src.mpv_watcher import MPVWatcher
+from src.watchers import MPVWatcher, MPCHCWatcher, VLCWatcher, WindowTitleWatcher, BaseWatcher
 
 class TrackerAgent:
     def __init__(self):
         self.anilist = AnilistClient()
-        self.watcher = MPVWatcher()
+        
+        # Prioritized list of watchers based on platform
+        if sys.platform == "win32":
+            self.watchers: List[BaseWatcher] = [
+                MPCHCWatcher(),
+                VLCWatcher(),
+                MPVWatcher(),
+                WindowTitleWatcher()
+            ]
+        else:
+            self.watchers: List[BaseWatcher] = [
+                MPVWatcher(),
+                VLCWatcher(),
+                WindowTitleWatcher()
+            ]
+            
+        self.active_watcher: Optional[BaseWatcher] = None
         self.running = False
         
         # Track state so we don't spam the API
@@ -121,64 +137,75 @@ class TrackerAgent:
         return 0
         
     def start(self):
-        print("Starting MPV Anilist Tracker Agent...")
+        print(f"Starting Multi-Player Anilist Tracker Agent on {sys.platform}...")
         self.running = True
-        print("Waiting for MPV to start on IPC socket: /tmp/mpvsocket")
         
         while self.running:
             if not self.anilist.is_authenticated():
                 time.sleep(2)
                 continue
                 
-            if not self.watcher.is_connected or not self.watcher.check_connection():
-                # Disconnected. Sync active file if it exists.
-                active_file = self.active_filename
-                if active_file:
-                    print(f"MPV disconnected/closed. Syncing latest file: {active_file}")
-                    self.sync_progress(active_file)
-                    self.active_filename = None
-                    
-                # Try to connect periodically
-                connected = self.watcher.connect()
-                if connected:
-                    print("Connected to MPV IPC socket!")
-                else:
-                    time.sleep(2)
-                    continue
-                    
-            try:
-                # We are connected and alive, check progress
-                filename = self.watcher.get_current_filename()
-                
-                if filename:
-                    # File changed inside MPV without closing
-                    active_file = self.active_filename
-                    if active_file and active_file != filename:
-                        print(f"File changed. Syncing previous file: {active_file}")
-                        self.sync_progress(active_file)
+            # Find an active watcher
+            found_active = False
+            
+            # 1. If we have an active watcher, check if it's still alive
+            if self.active_watcher:
+                if self.active_watcher.is_connected and self.active_watcher.check_connection():
+                    filename = self.active_watcher.get_current_filename()
+                    if filename:
+                        found_active = True
+                        self._process_active_file(filename)
+                    else:
+                        # Connected but nothing playing
+                        if self.active_filename:
+                            print(f"Playback stopped on {self.active_watcher.__class__.__name__}. Syncing: {self.active_filename}")
+                            self.sync_progress(self.active_filename)
+                            self.active_filename = None
                         
-                    if self.active_filename != filename:
-                        self.active_filename = filename
-                        self._fetch_current_anilist_progress(filename)
+                        # We stay with this watcher for a bit or look for others?
+                        # Usually, if one is connected, we stick to it unless it dies.
+                        found_active = True 
                 else:
-                    # filename is None (e.g. video stopped but mpv still open)
-                    active_file = self.active_filename
-                    if active_file:
-                        print(f"Playback stopped. Syncing previous file: {active_file}")
-                        self.sync_progress(active_file)
+                    watcher_name = self.active_watcher.__class__.__name__
+                    print(f"Watcher {watcher_name} disconnected.")
+                    if self.active_filename:
+                        self.sync_progress(self.active_filename)
                         self.active_filename = None
-                
-                # Sleep a bit to prevent CPU spinning
-                time.sleep(1)
-            except Exception as e:
-                print(f"Error checking MPV state: {e}")
-                self.watcher.disconnect()
-                time.sleep(2)
+                    self.active_watcher = None
+
+            # 2. If no active watcher or it died, look for a new one
+            if not found_active:
+                for watcher in self.watchers:
+                    # Try to connect if not connected
+                    if not watcher.is_connected:
+                        watcher.connect()
+                    
+                    if watcher.is_connected and watcher.check_connection():
+                        filename = watcher.get_current_filename()
+                        if filename:
+                            print(f"Detected activity on {watcher.__class__.__name__}: {filename}")
+                            self.active_watcher = watcher
+                            self._process_active_file(filename)
+                            found_active = True
+                            break
+            
+            # Sleep a bit to prevent CPU spinning
+            time.sleep(2 if not found_active else 1)
+
+    def _process_active_file(self, filename: str):
+        """Internal helper to handle filename changes and progress fetching."""
+        if self.active_filename and self.active_filename != filename:
+            print(f"File changed. Syncing previous file: {self.active_filename}")
+            self.sync_progress(self.active_filename)
+            
+        if self.active_filename != filename:
+            self.active_filename = filename
+            self._fetch_current_anilist_progress(filename)
 
     def _sync_to_media(self, media_id: int, episode: int) -> bool:
         """Update AniList progress for a specific media ID."""
         romaji_title = None
-        if media_id in self.current_media_map:
+        if self.current_media_map and media_id in self.current_media_map:
             romaji_title = self.current_media_map[media_id].get('title', {}).get('romaji')
         if not romaji_title:
             romaji_title = str(media_id)
@@ -192,7 +219,9 @@ class TrackerAgent:
         print("Failed to sync progress to Anilist.")
         return False
 
-    def sync_progress(self, filename: str):
+    def sync_progress(self, filename: Optional[str]):
+        if not filename:
+             return
         print(f"Parsing filename: {filename}")
         parsed = AnimeParser.parse_filename(filename)
         if not parsed or not parsed.get('title'):
@@ -236,46 +265,9 @@ class TrackerAgent:
             self.last_synced_filename = None
         return success
 
-    def sync_progress_manual(self, filename: Optional[str], override_episode: int, media_id: Optional[int] = None):
-        if filename:
-            print(f"Manual sync requested for filename: {filename} at Episode {override_episode}")
-            parsed = AnimeParser.parse_filename(filename)
-            if not parsed or not parsed.get('title'):
-                print("Could not parse title from filename for manual sync.")
-                return
-            title = parsed['title']
-            print(f"Matched Anime: '{title}', Episode Override: {override_episode}")
-
-            # If a media_id is supplied, use it directly; otherwise lookup via title.
-            target_media = None
-            if media_id and media_id in self.current_media_map:
-                target_media = self.current_media_map[media_id]
-            else:
-                print(f"Searching Anilist for '{title}'...")
-                result = self.anilist.search_anime(title)
-                if not result:
-                    print("No matching anime found on Anilist.")
-                    return
-                target_media, _ = self._resolve_episode_to_media(result, override_episode)
-
-            if not target_media:
-                print("Could not determine which media to sync to.")
-                return
-
-            media_id = target_media.get('id')
-            print(f"Found on Anilist: {target_media.get('title', {}).get('romaji')} (ID: {media_id})")
-            print(f"Resolved to media ID {media_id} at episode {override_episode}")
-
-        # If filename is None, assume caller provides correct media_id
-        if not media_id:
-            print("No media_id provided for manual sync.")
+    def _fetch_current_anilist_progress(self, filename: Optional[str]):
+        if not filename:
             return
-
-        success = self._sync_to_media(media_id, override_episode)
-        if success:
-            self.last_synced_filename = filename
-
-    def _fetch_current_anilist_progress(self, filename: str):
         self.current_anilist_progress = 0
         self.current_media_id = None
         self._cached_anilist_episodes = None
@@ -309,42 +301,50 @@ class TrackerAgent:
         if entry:
             self.current_anilist_progress = entry.get('progress') or 0
 
-    def sync_progress_manual(self, filename: str, override_episode: int):
-        print(f"Manual sync requested for filename: {filename} at Episode {override_episode}")
-        parsed = AnimeParser.parse_filename(filename)
-        if not parsed or not parsed.get('title'):
-            print("Could not parse title from filename for manual sync.")
+    def sync_progress_manual(self, filename: Optional[str], override_episode: int, media_id: Optional[int] = None):
+        if filename:
+            print(f"Manual sync requested for filename: {filename} at Episode {override_episode}")
+            parsed = AnimeParser.parse_filename(filename)
+            if not parsed or not parsed.get('title'):
+                print("Could not parse title from filename for manual sync.")
+                return
+            title = parsed['title']
+            print(f"Matched Anime: '{title}', Episode Override: {override_episode}")
+
+            # If a media_id is supplied, use it directly; otherwise lookup via title.
+            target_media = None
+            if media_id and self.current_media_map and media_id in self.current_media_map:
+                target_media = self.current_media_map[media_id]
+            else:
+                print(f"Searching Anilist for '{title}'...")
+                result = self.anilist.search_anime(title)
+                if not result:
+                    print("No matching anime found on Anilist.")
+                    return
+                target_media, _ = self._resolve_episode_to_media(result, override_episode)
+
+            if not target_media:
+                print("Could not determine which media to sync to.")
+                return
+
+            media_id = target_media.get('id')
+            romaji_title = target_media.get('title', {}).get('romaji') or title
+            print(f"Found on Anilist: {romaji_title} (ID: {media_id})")
+            print(f"Resolved to media ID {media_id} at episode {override_episode}")
+
+        # If filename is None, assume caller provides correct media_id
+        if not media_id:
+            print("No media_id provided for manual sync.")
             return
 
-        title = parsed['title']
-        print(f"Matched Anime: '{title}', Episode Override: {override_episode}")
-
-        # Search Anilist
-        print(f"Searching Anilist for '{title}'...")
-        result = self.anilist.search_anime(title)
-        if not result:
-            print("No matching anime found on Anilist.")
-            return
-
-        target_media, target_episode = self._resolve_episode_to_media(result, override_episode)
-        media_id = target_media.get('id')
-        romaji_title = target_media.get('title', {}).get('romaji') or title
-
-        print(f"Found on Anilist: {romaji_title} (ID: {media_id})")
-        print(f"Resolved to media ID {media_id} at episode {target_episode}")
-
-        # Update progress
-        success = self.anilist.update_progress(media_id, target_episode)
+        success = self._sync_to_media(media_id, override_episode)
         if success:
-            print(f"Successfully synced {romaji_title} progress manually to episode {target_episode}")
             self.last_synced_filename = filename
-            self.current_anilist_progress = target_episode
-        else:
-            print("Failed to sync progress to Anilist.")
 
     def stop(self):
         self.running = False
-        self.watcher.disconnect()
+        for watcher in self.watchers:
+            watcher.disconnect()
 
 if __name__ == "__main__":
     from src.web_server import run_server_in_background
