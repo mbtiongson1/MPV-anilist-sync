@@ -2,7 +2,7 @@ import time
 import os
 import sys
 import threading
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, cast
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -66,12 +66,12 @@ class TrackerAgent:
 
             episodes = current.get('episodes')
             # If the media has an unknown episode count, assume the current media is the best match
-            if not episodes or episodes <= 0:
+            if episodes is None or not isinstance(episodes, int) or episodes <= 0:
                 return current, remaining
 
             # If the remaining episode fits within this media, we're done
-            if remaining <= episodes:
-                return current, remaining
+            if int(remaining) <= int(cast(int, episodes)):
+                return cast(Dict[str, Any], current), int(remaining)
 
             # Otherwise, attempt to roll over into a sequel
             relations = current.get('relations', {}).get('edges', []) or []
@@ -85,13 +85,15 @@ class TrackerAgent:
 
             if not next_media:
                 # No known sequel; clamp to the last episode of the current media
-                return current, episodes
+                return cast(Dict[str, Any], current), int(episodes) if isinstance(episodes, int) else int(remaining)
 
-            remaining -= episodes
+            if isinstance(episodes, int):
+                remaining = int(remaining) - int(episodes)
             current = next_media
 
         # Fallback: return original media
-        return media, min(global_episode, media.get('episodes') or global_episode)
+        fallback_episodes = media.get('episodes')
+        return media, min(int(global_episode), int(fallback_episodes) if isinstance(fallback_episodes, int) else int(global_episode))
 
     @staticmethod
     def _build_media_map(media: Dict[str, Any]) -> Dict[int, Dict[str, Any]]:
@@ -105,10 +107,10 @@ class TrackerAgent:
             if not current or not isinstance(current, dict):
                 continue
             media_id = current.get('id')
-            if not media_id or media_id in seen:
+            if not media_id or not isinstance(media_id, int) or media_id in seen:
                 continue
             seen.add(media_id)
-            media_map[media_id] = current
+            media_map[int(media_id)] = current
 
             relations = current.get('relations', {}).get('edges', []) or []
             for edge in relations:
@@ -150,15 +152,16 @@ class TrackerAgent:
             
             # 1. If we have an active watcher, check if it's still alive
             if self.active_watcher:
-                if self.active_watcher.is_connected and self.active_watcher.check_connection():
-                    filename = self.active_watcher.get_current_filename()
+                active = self.active_watcher
+                if active.is_connected and active.check_connection():
+                    filename = active.get_current_filename()
                     if filename:
                         found_active = True
                         self._process_active_file(filename)
                     else:
                         # Connected but nothing playing
                         if self.active_filename:
-                            print(f"Playback stopped on {self.active_watcher.__class__.__name__}. Syncing: {self.active_filename}")
+                            print(f"Playback stopped on {active.__class__.__name__}. Syncing: {self.active_filename}")
                             self.sync_progress(self.active_filename)
                             self.active_filename = None
                         
@@ -166,7 +169,7 @@ class TrackerAgent:
                         # Usually, if one is connected, we stick to it unless it dies.
                         found_active = True 
                 else:
-                    watcher_name = self.active_watcher.__class__.__name__
+                    watcher_name = active.__class__.__name__
                     print(f"Watcher {watcher_name} disconnected.")
                     if self.active_filename:
                         self.sync_progress(self.active_filename)
@@ -249,6 +252,9 @@ class TrackerAgent:
         # season 2 episode 6).
         target_media, target_episode = self._resolve_episode_to_media(result, episode)
         media_id = target_media.get('id')
+        if not isinstance(media_id, int):
+            print(f"Error: media_id {media_id} is not an integer.")
+            return
 
         print(f"Found on Anilist: {target_media.get('title', {}).get('romaji')} (ID: {media_id})")
         print(f"Resolved to media ID {media_id} at episode {target_episode}")
@@ -332,9 +338,8 @@ class TrackerAgent:
             print(f"Found on Anilist: {romaji_title} (ID: {media_id})")
             print(f"Resolved to media ID {media_id} at episode {override_episode}")
 
-        # If filename is None, assume caller provides correct media_id
-        if not media_id:
-            print("No media_id provided for manual sync.")
+        if not isinstance(media_id, int):
+            print("No valid media_id provided for manual sync.")
             return
 
         success = self._sync_to_media(media_id, override_episode)
@@ -347,7 +352,11 @@ class TrackerAgent:
             watcher.disconnect()
 
 if __name__ == "__main__":
-    from src.web_server import run_server_in_background
+    try:
+        from src.web_server import run_server_in_background
+    except ImportError:
+        # Fallback for if we're not running as a package
+        from web_server import run_server_in_background
     
     agent = TrackerAgent()
     

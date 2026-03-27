@@ -210,6 +210,9 @@ class AnilistClient:
                     continue
                 else:
                     raise
+        
+        # Fallback if the loop finishes without returning or raising
+        raise Exception("Failed to execute query after multiple retries.")
 
     def get_authenticated_user(self) -> Optional[int]:
         if not self.token:

@@ -1,0 +1,28 @@
+from abc import ABC, abstractmethod
+from typing import Optional
+
+class BaseWatcher(ABC):
+    @property
+    @abstractmethod
+    def is_connected(self) -> bool:
+        ...
+
+    @abstractmethod
+    def connect(self) -> bool:
+        ...
+
+    @abstractmethod
+    def disconnect(self):
+        ...
+
+    @abstractmethod
+    def check_connection(self) -> bool:
+        ...
+
+    @abstractmethod
+    def get_current_filename(self) -> Optional[str]:
+        ...
+
+    @abstractmethod
+    def get_percent_pos(self) -> float:
+        ...
