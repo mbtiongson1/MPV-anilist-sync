@@ -830,6 +830,18 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                 except Exception as e: print(f"Reauthorization failed: {e}")
             self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
 
+        elif self.path == '/api/user':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            
+            user = None
+            if self.agent and hasattr(self.agent, 'anilist'):
+                user = self.agent.anilist.get_authenticated_user()
+            
+            self.wfile.write(json.dumps(user).encode('utf-8'))
+
         elif self.path == '/api/full_refresh':
             self.send_response(200)
             self.send_header('Content-type', 'application/json')

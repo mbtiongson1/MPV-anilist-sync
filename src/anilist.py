@@ -214,29 +214,27 @@ class AnilistClient:
         # Fallback if the loop finishes without returning or raising
         raise Exception("Failed to execute query after multiple retries.")
 
-    def get_authenticated_user(self) -> Optional[int]:
+    def get_authenticated_user(self) -> Optional[Dict[str, Any]]:
         if not self.token:
             return None
-        if self.user_id:
-            return self.user_id
 
         query = '''
         query {
             Viewer {
                 id
                 name
+                avatar {
+                    large
+                }
             }
         }
         '''
         try:
             result = self._execute_query(query)
-            user = result.get('data', {}).get('Viewer')
-            if user:
-                self.user_id = user['id']
-                return self.user_id
+            return result.get('data', {}).get('Viewer')
         except Exception as e:
             print(f"Error getting authenticated user: {e}")
-        return None
+            return None
 
     def search_anime(self, title: str) -> list[Dict[str, Any]]:
         # Return a list of matches for manual search
@@ -294,8 +292,8 @@ class AnilistClient:
         return []
 
     def get_list_entry(self, media_id: int) -> Optional[Dict[str, Any]]:
-        user_id = self.get_authenticated_user()
-        if not user_id:
+        viewer = self.get_authenticated_user()
+        if not viewer:
             # Fallback to cache
             cached = self._load_list_cache()
             for entry in cached:
@@ -307,6 +305,7 @@ class AnilistClient:
                     }
             return None
 
+        user_id = viewer.get('id')
         query = '''
         query ($userId: Int, $mediaId: Int) {
             MediaList (userId: $userId, mediaId: $mediaId) {
@@ -330,26 +329,26 @@ class AnilistClient:
 
     def get_user_anime_list(self, statuses: list[str] | None = None) -> list[dict[str, Any]]:
         """Fetch the authenticated user's anime list with full metadata.
-        
+
         Args:
             statuses: List of AniList MediaListStatus values to filter by.
                       e.g. ['CURRENT', 'PLANNING']. If None, fetches all.
-        
+
         Returns:
             A flat list of dicts, each containing media metadata + list entry info.
         """
-        user_id = self.get_authenticated_user()
-        if not user_id:
+        viewer = self.get_authenticated_user()
+        if not viewer:
             return self._load_list_cache(statuses)
 
+        user_id = viewer.get('id')
         query = '''
         query ($userId: Int, $type: MediaType, $statusIn: [MediaListStatus]) {
             MediaListCollection(userId: $userId, type: $type, status_in: $statusIn) {
                 lists {
                     name
                     status
-                    entries {
-                        id
+                    entries {                        id
                         status
                         progress
                         score

@@ -72,6 +72,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnViewList = document.getElementById('btn-view-list');
     const btnViewTree = document.getElementById('btn-view-tree');
     
+    // Sidebar Elements
+    const appSidebar = document.getElementById('app-sidebar');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebarItems = document.querySelectorAll('.sidebar-item[data-tab]');
+    const sidebarSettings = document.getElementById('sidebar-settings');
+    const btnSettingsHeader = document.getElementById('btn-settings-header');
+    const genreFilterList = document.getElementById('genre-filter-list');
+    const filterFormat = document.getElementById('filter-format');
+    const filterYearSidebar = document.getElementById('filter-year-sidebar');
+    
     let userSettings = null;
     let libraryData = []; // Cached library scanner results
     let libraryExclusions = []; // List of excluded paths
@@ -81,6 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeTab = 'CURRENT';
     let lastNowPlayingTitle = null;
     let viewMode = 'details';
+    let selectedGenres = new Set(); // For sidebar genre filter
+    let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    if (sidebarCollapsed) appSidebar.classList.add('collapsed');
+    
     // persist view mode across reloads
     const savedViewMode = localStorage.getItem('mpvViewMode');
     if (savedViewMode && ['grid', 'list', 'details'].includes(savedViewMode)) {
@@ -90,6 +104,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let sortBy = 'progress'; // 'popularity', 'score', 'title', 'progress', 'season', 'studio'
     let sortDirection = -1; // 1 = asc, -1 = desc
     let activeSearchTerm = ""; // to pass search terms to torrents tab
+    let currentPage = 1;
+    let itemsPerPage = parseInt(localStorage.getItem('mpvItemsPerPage')) || 20;
+
+    // pagination elements
+    const paginationContainer = document.getElementById('pagination-container');
+    const paginationInfo = document.getElementById('pagination-info');
+    const btnPrevPage = document.getElementById('btn-prev-page');
+    const btnNextPage = document.getElementById('btn-next-page');
+    const itemsPerPageSelect = document.getElementById('items-per-page');
+    const paginationPages = document.getElementById('pagination-pages');
+
+    if (itemsPerPageSelect) {
+        itemsPerPageSelect.value = itemsPerPage;
+    }
 
     // ===== Torrent Filter State (persists within session) =====
     let torrentFilters = {
@@ -165,11 +193,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const now = Math.floor(Date.now() / 1000);
         const diff = now - timestamp;
         if (diff < 60) return 'just now';
-        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-        if (diff < 84000) return `${Math.floor(diff / 3600)}h ago`;
-        if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
-        const date = new Date(timestamp * 1000);
-        return date.toLocaleDateString();
+        
+        const minutes = Math.floor(diff / 60);
+        if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+        
+        const hours = Math.floor(diff / 3600);
+        if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+        
+        const days = Math.floor(diff / 86400);
+        if (days < 7) return `${days} day${days !== 1 ? 's' : ''} ago`;
+        
+        const weeks = Math.floor(diff / 604800);
+        if (weeks < 4) return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
+        
+        const months = Math.floor(diff / 2592000);
+        if (months < 12) return `${months} month${months !== 1 ? 's' : ''} ago`;
+        
+        const years = Math.floor(diff / 31536000);
+        return `${years} year${years !== 1 ? 's' : ''} ago`;
     }
 
     function renderSegments(container, progress, total, isCurrent, nextAiringEpisode, mediaId = null) {
@@ -246,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const baseColor = statusColors[status] || '#94a3b8';
             const tintColor = baseColor.startsWith('#') ? `${baseColor}15` : 'rgba(255,255,255,0.05)';
 
-            el.style.cssText = `display: flex; gap: 0.75rem; align-items: center; padding: 0.6rem; background: ${tintColor}; border-bottom: 1px solid var(--border-light); cursor: pointer; transition: all 0.2s ease; position: relative; border-left: 3px solid ${baseColor}; overflow: hidden;`;
+            el.style.cssText = `display: flex; gap: 0.75rem; align-items: center; padding: 0.75rem; background: ${tintColor}; border-bottom: 1px solid var(--border-light); cursor: pointer; transition: all 0.2s ease; position: relative;`;
             
             el.onmouseover = () => {
                 el.style.background = baseColor.startsWith('#') ? `${baseColor}25` : 'rgba(255,255,255,0.1)';
@@ -262,10 +303,11 @@ document.addEventListener('DOMContentLoaded', () => {
             content.innerHTML = `
                 <img src="${cover}" style="width: 32px; height: 48px; object-fit: cover; border-radius: 4px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1);">
                 <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
-                    <div style="font-size: 0.85rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary); margin-bottom: 0.1rem;" title="${escapeHtml(title)}">${escapeHtml(title)}</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.1rem; line-height: 1.2;" title="${escapeHtml(title)}">${escapeHtml(title)}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                         <span>Ep ${progress} / ${total}</span>
-                        <span style="opacity: 0.9; font-weight: 800; font-size: 0.6rem; letter-spacing: 0.02em; color: ${baseColor};">${status === 'CURRENT' ? 'IN PROGRESS' : status}</span>
+                        <span style="opacity: 0.9; font-weight: 800; font-size: 0.6rem; letter-spacing: 0.02em; color: ${baseColor}; white-space: nowrap;">${status === 'CURRENT' ? 'IN PROGRESS' : status}</span>
+                        ${anime.updatedAt ? `<span style="font-size: 0.65rem; opacity: 0.7; color: var(--text-muted);">• ${getRelativeTime(anime.updatedAt)}</span>` : ''}
                     </div>
                 </div>
             `;
@@ -437,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else {
                 statusBubble.className = 'status-bubble offline';
-                statusText.textContent = 'Not Running';
+                statusText.textContent = 'Nothing Playing';
                 nowPlaying.classList.add('hidden');
                 idleState.classList.remove('hidden');
                 lastNowPlayingTitle = null;
@@ -586,6 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             animeList = data;
+            renderGenreFilters(); // Populate sidebar genres
             renderRecentAnime();
             updateCounts();
             renderAnimeGrid();
@@ -614,7 +657,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function getFilteredList() {
         const nameQuery = filterName.value.toLowerCase().trim();
         const seasonQuery = filterSeason.value;
-        const yearQuery = filterYear.value ? parseInt(filterYear.value) : null;
+        const yearQuery = filterYear.value ? parseInt(filterYear.value) : (filterYearSidebar.value ? parseInt(filterYearSidebar.value) : null);
+        const formatQuery = filterFormat.value;
 
         let filtered = animeList.filter(a => {
             // Exclude Adult/Ecchi by default
@@ -638,6 +682,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Year filter
             if (yearQuery && a.seasonYear !== yearQuery) return false;
+            
+            // Format filter
+            if (formatQuery && a.format !== formatQuery) return false;
+            
+            // Genre filter
+            if (selectedGenres.size > 0) {
+                if (!a.genres || !Array.from(selectedGenres).every(g => a.genres.includes(g))) {
+                    return false;
+                }
+            }
 
             return true;
         });
@@ -694,8 +748,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== Rendering =====
     function renderAnimeGrid() {
-        if (activeTab === 'LIBRARY') return;
+        if (activeTab === 'LIBRARY') {
+            paginationContainer?.classList.add('hidden');
+            return;
+        }
+        
         const filtered = getFilteredList();
+        const totalItems = filtered.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+        // adjust current page if out of bounds
+        if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        // stats and torrents view usually don't need pagination or handle it differently
+        // but the requirement says "each tab", so let's apply it generally for anime lists
+        const isListTab = ['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED'].includes(activeTab);
+
+        if (!isListTab) {
+            paginationContainer?.classList.add('hidden');
+        } else {
+            if (totalItems > 0) {
+                paginationContainer?.classList.remove('hidden');
+                updatePaginationUI(totalItems, totalPages);
+            } else {
+                paginationContainer?.classList.add('hidden');
+            }
+        }
+
+        const startIdx = (currentPage - 1) * itemsPerPage;
+        const pagedList = isListTab ? filtered.slice(startIdx, startIdx + itemsPerPage) : filtered;
 
         // Update grid class for view mode
         animeGrid.className = `anime-grid ${viewMode}-view`;
@@ -1128,26 +1210,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             <option value="1080p">1080p</option>
                             <option value="720p">720p</option>
                             <option value="480p">480p</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Date</label>
-                        <select id="tf-date" class="filter-select">
-                            <option value="all">All Time</option>
-                            <option value="24h">Last 24h</option>
-                            <option value="48h">Last 48h</option>
-                            <option value="7d">Last 7d</option>
-                            <option value="30d">Last 30d</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Date</label>
-                        <select id="tf-date" class="filter-select">
-                            <option value="all">All Time</option>
-                            <option value="24h">Last 24h</option>
-                            <option value="48h">Last 48h</option>
-                            <option value="7d">Last 7d</option>
-                            <option value="30d">Last 30d</option>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -1828,7 +1890,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        const rowHtml = renderRows(filtered).join('');
+        const rowHtml = renderRows(pagedList).join('');
 
         if (viewMode === 'details') {
             animeGrid.innerHTML = `
@@ -1855,7 +1917,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Render segments after DOM update
-        filtered.forEach(anime => {
+        pagedList.forEach(anime => {
             const container = document.getElementById(`seg-${anime.mediaId}`);
             if (container) {
                 renderSegments(container, anime.progress || 0, anime.episodes || 0, false, anime.nextAiringEpisode, anime.mediaId);
@@ -2048,81 +2110,138 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
+    }
 
-        function openAnimeDetailsModal(anime) {
-            const title = anime.title?.romaji || anime.title?.english || anime.title?.native || 'Unknown';
-            const description = anime.description || 'No description available.';
-            const stats = [];
-            if (anime.status) stats.push(`<strong>Status:</strong> ${escapeHtml(anime.status)}`);
-            if (anime.season && anime.seasonYear) stats.push(`<strong>Season:</strong> ${escapeHtml(anime.season)} ${anime.seasonYear}`);
-            if (anime.episodes) stats.push(`<strong>Episodes:</strong> ${anime.episodes}`);
-            if (anime.averageScore) stats.push(`<strong>Score:</strong> ${anime.averageScore}%`);
-            if (anime.popularity) stats.push(`<strong>Popularity:</strong> ${formatPopularity(anime.popularity)}`);
+    function openAnimeDetailsModal(anime) {
+        const title = anime.title?.romaji || anime.title?.english || anime.title?.native || 'Unknown';
+        const description = anime.description || 'No description available.';
+        const stats = [];
+        if (anime.status) stats.push(`<strong>Status:</strong> ${escapeHtml(anime.status)}`);
+        if (anime.season && anime.seasonYear) stats.push(`<strong>Season:</strong> ${escapeHtml(anime.season)} ${anime.seasonYear}`);
+        if (anime.episodes) stats.push(`<strong>Episodes:</strong> ${anime.episodes}`);
+        if (anime.averageScore) stats.push(`<strong>Score:</strong> ${anime.averageScore}%`);
+        if (anime.popularity) stats.push(`<strong>Popularity:</strong> ${formatPopularity(anime.popularity)}`);
 
-            const currentOverride = (userSettings && userSettings.title_overrides) ? userSettings.title_overrides[anime.mediaId] || '' : '';
+        const currentOverride = (userSettings && userSettings.title_overrides) ? userSettings.title_overrides[anime.mediaId] || '' : '';
 
-            modalBody.innerHTML = `
-                <h3>${escapeHtml(title)}</h3>
-                <div class="modal-meta">${stats.map(s => `<p>${s}</p>`).join('')}</div>
-                <p><strong>Description</strong></p>
-                <p>${escapeHtml(description)}</p>
-                <div class="modal-actions" style="flex-direction: column; align-items: flex-start; gap: 1rem;">
-                    <div style="width: 100%;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 4px;">Local Name Override (folder name):</label>
-                        <input type="text" id="modal-name-override" value="${escapeHtml(currentOverride)}" class="filter-input" style="width: 100%; padding: 8px;" placeholder="e.g. My Folder Name" />
-                    </div>
-                    <div style="display: flex; gap: 1rem; align-items: center;">
-                        <label style="font-weight: 600;">
-                            Set progress:
-                            <input type="number" id="modal-progress" value="${anime.progress || 0}" min="0" style="width: 60px; padding: 4px;" />
-                        </label>
-                        <button id="modal-save" class="primary-btn">Save Changes</button>
-                    </div>
+        modalBody.innerHTML = `
+            <h3>${escapeHtml(title)}</h3>
+            <div class="modal-meta">${stats.map(s => `<p>${s}</p>`).join('')}</div>
+            <p><strong>Description</strong></p>
+            <p>${escapeHtml(description)}</p>
+            <div class="modal-actions" style="flex-direction: column; align-items: flex-start; gap: 1rem;">
+                <div style="width: 100%;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 4px;">Local Name Override (folder name):</label>
+                    <input type="text" id="modal-name-override" value="${escapeHtml(currentOverride)}" class="filter-input" style="width: 100%; padding: 8px;" placeholder="e.g. My Folder Name" />
                 </div>
-            `;
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <label style="font-weight: 600;">
+                        Set progress:
+                        <input type="number" id="modal-progress" value="${anime.progress || 0}" min="0" style="width: 60px; padding: 4px;" />
+                    </label>
+                    <button id="modal-save" class="primary-btn">Save Changes</button>
+                </div>
+            </div>
+        `;
 
-            document.getElementById('modal-save').addEventListener('click', async () => {
-                const newProgress = parseInt(document.getElementById('modal-progress').value, 10);
-                const newOverride = document.getElementById('modal-name-override').value.trim();
-                
-                if (!Number.isFinite(newProgress) || newProgress < 0) return;
-                
-                try {
-                    // 1. Save title override
-                    await fetch('/api/update_title_override', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ mediaId: anime.mediaId, customTitle: newOverride })
-                    });
+        document.getElementById('modal-save').addEventListener('click', async () => {
+            const newProgress = parseInt(document.getElementById('modal-progress').value, 10);
+            const newOverride = document.getElementById('modal-name-override').value.trim();
+            
+            if (!Number.isFinite(newProgress) || newProgress < 0) return;
+            
+            try {
+                // 1. Save title override
+                await fetch('/api/update_title_override', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mediaId: anime.mediaId, customTitle: newOverride })
+                });
 
-                    // 2. Save progress
-                    const resp = await fetch('/api/update_progress', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ mediaId: anime.mediaId, episode: newProgress })
-                    });
-                    
-                    const result = await resp.json();
-                    if (result.success) {
-                        detailsModal.classList.add('hidden');
-                        await loadSettings(); // reload to get new overrides
-                        fetchAnimeList();
-                        if (activeTab === 'LIBRARY') fetchLibrary(true);
-                        checkStatus();
-                    } else {
-                        alert('Failed to update progress.');
-                    }
-                } catch (err) {
-                    console.error('Error saving details:', err);
-                    alert('Network error.');
+                // 2. Save progress
+                const resp = await fetch('/api/update_progress', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mediaId: anime.mediaId, episode: newProgress })
+                });
+                
+                const result = await resp.json();
+                if (result.success) {
+                    detailsModal.classList.add('hidden');
+                    await loadSettings(); // reload to get new overrides
+                    fetchAnimeList();
+                    if (activeTab === 'LIBRARY') fetchLibrary(true);
+                    checkStatus();
+                } else {
+                    alert('Failed to update progress.');
                 }
-            });
+            } catch (err) {
+                console.error('Error saving details:', err);
+                alert('Network error.');
+            }
+        });
 
-            detailsModal.classList.remove('hidden');
+        detailsModal.classList.remove('hidden');
+    }
+
+    function updatePaginationUI(totalItems, totalPages) {
+        if (!paginationContainer) return;
+
+        paginationInfo.textContent = `Showing ${(currentPage - 1) * itemsPerPage + 1} - ${Math.min(currentPage * itemsPerPage, totalItems)} of ${totalItems}`;
+        
+        btnPrevPage.disabled = currentPage === 1;
+        btnNextPage.disabled = currentPage === totalPages || totalPages === 0;
+
+        // Generate page numbers
+        if (paginationPages) {
+            paginationPages.innerHTML = '';
+            
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const btn = document.createElement('button');
+                btn.className = `pagination-page-btn ${i === currentPage ? 'active' : ''}`;
+                btn.textContent = i;
+                btn.onclick = () => {
+                    currentPage = i;
+                    renderAnimeGrid();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
+                paginationPages.appendChild(btn);
+            }
         }
     }
 
-    // ===== Helpers =====
+    // Pagination Listeners
+    btnPrevPage?.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderAnimeGrid();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+
+    btnNextPage?.addEventListener('click', () => {
+        const filtered = getFilteredList();
+        const totalPages = Math.ceil(filtered.length / itemsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderAnimeGrid();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+
+    itemsPerPageSelect?.addEventListener('change', (e) => {
+        itemsPerPage = parseInt(e.target.value);
+        localStorage.setItem('mpvItemsPerPage', itemsPerPage);
+        currentPage = 1;
+        renderAnimeGrid();
+    });
     function escapeHtml(str) {
         if (!str) return '';
         const div = document.createElement('div');
@@ -2176,22 +2295,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setActiveTab(tab) {
         activeTab = tab;
+        currentPage = 1; // Reset to first page when changing tabs
         
+        // Sync Top Tabs
         const allTabs = [tabCurrent, tabPlanning, tabCompleted, tabDropped];
         allTabs.forEach(t => {
             if (!t) return;
             const status = t.getAttribute('data-status');
             t.classList.toggle('active', status === tab);
-            t.classList.remove('tab-CURRENT', 'tab-PLANNING', 'tab-COMPLETED', 'tab-DROPPED');
-            if (status === tab) {
-                t.classList.add(`tab-${status}`);
-            }
+            t.classList.add(`tab-${status}`);
         });
 
         tabTorrents.classList.toggle('active', tab === 'TORRENTS');
         if (tabLibrary) tabLibrary.classList.toggle('active', tab === 'LIBRARY');
         const tabStats = document.getElementById('tab-stats');
         if (tabStats) tabStats.classList.toggle('active', tab === 'STATS');
+        
+        // Sync Sidebar Items
+        const sidebarItems = document.querySelectorAll('.sidebar-item[data-tab]');
+        sidebarItems.forEach(item => {
+            item.classList.toggle('active', item.dataset.tab === tab);
+        });
         
         const filterBar = document.querySelector('.filter-bar');
         const viewToggles = document.querySelector('.view-toggle-group'); 
@@ -2231,6 +2355,102 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tabLibrary) tabLibrary.addEventListener('click', () => setActiveTab('LIBRARY'));
     const tabStats = document.getElementById('tab-stats');
     if (tabStats) tabStats.addEventListener('click', () => setActiveTab('STATS'));
+    
+    // Sidebar Nav Handlers
+    sidebarItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const tab = item.dataset.tab;
+            if (tab) setActiveTab(tab);
+        });
+    });
+
+    if (sidebarToggle && appSidebar) {
+        sidebarToggle.addEventListener('click', () => {
+            sidebarCollapsed = !sidebarCollapsed;
+            appSidebar.classList.toggle('collapsed', sidebarCollapsed);
+            const toggleIcon = document.getElementById('sidebar-toggle-icon');
+            if (toggleIcon) {
+                if (sidebarCollapsed) {
+                    toggleIcon.innerHTML = '<polyline points="13 17 18 12 13 7"></polyline><polyline points="6 17 11 12 6 7"></polyline>';
+                } else {
+                    toggleIcon.innerHTML = '<polyline points="11 17 6 12 11 7"></polyline><polyline points="18 17 13 12 18 7"></polyline>';
+                }
+            }
+            localStorage.setItem('sidebarCollapsed', sidebarCollapsed);
+        });
+    }
+
+    if (sidebarSettings) {
+        sidebarSettings.addEventListener('click', openSettingsModal);
+    }
+    
+    if (btnSettingsHeader) {
+        btnSettingsHeader.addEventListener('click', openSettingsModal);
+    }
+
+    const btnProfile = document.getElementById('btn-profile');
+    if (btnProfile) {
+        btnProfile.addEventListener('click', async () => {
+            try {
+                // We can use get_authenticated_user to find the ID, but the client already handles the token.
+                // For simplicity, we can fetch the user details from AniList or just redirect to anilist.co/home.
+                // However, users usually want their specific profile.
+                const resp = await fetch('/api/user');
+                const user = await resp.json();
+                if (user && user.name) {
+                    window.open(`https://anilist.co/user/${user.name}`, '_blank');
+                } else {
+                    window.open('https://anilist.co/home', '_blank');
+                }
+            } catch (err) {
+                window.open('https://anilist.co/home', '_blank');
+            }
+        });
+    }
+
+    // Sidebar Filter Handlers
+    if (filterFormat) {
+        filterFormat.addEventListener('change', () => renderAnimeGrid());
+    }
+
+    if (filterYearSidebar) {
+        filterYearSidebar.addEventListener('input', () => renderAnimeGrid());
+    }
+
+    function renderGenreFilters() {
+        if (!genreFilterList) return;
+        
+        // Get all unique genres from the current anime list
+        const genres = new Set();
+        animeList.forEach(a => {
+            if (a.genres) a.genres.forEach(g => genres.add(g));
+        });
+
+        // Filter out adult genres for the sidebar filter too
+        const ignored = ['Ecchi', 'Hentai', 'Adult'];
+        const sortedGenres = Array.from(genres)
+            .filter(g => !ignored.includes(g))
+            .sort();
+
+        genreFilterList.innerHTML = '';
+        sortedGenres.forEach(genre => {
+            const chip = document.createElement('div');
+            chip.className = 'genre-chip-sidebar';
+            if (selectedGenres.has(genre)) chip.classList.add('active');
+            chip.textContent = genre;
+            chip.onclick = () => {
+                if (selectedGenres.has(genre)) {
+                    selectedGenres.delete(genre);
+                    chip.classList.remove('active');
+                } else {
+                    selectedGenres.add(genre);
+                    chip.classList.add('active');
+                }
+                renderAnimeGrid();
+            };
+            genreFilterList.appendChild(chip);
+        });
+    }
     
     // ===== Library Header Actions =====
     let librarySearchTerm = '';
@@ -2428,7 +2648,7 @@ document.addEventListener('DOMContentLoaded', () => {
         settingsModal.classList.add('hidden');
     }
 
-    btnSettings.addEventListener('click', openSettingsModal);
+    if (btnSettings) btnSettings.addEventListener('click', openSettingsModal);
     settingsModalOverlay.addEventListener('click', closeSettingsModal);
     settingsModalClose.addEventListener('click', closeSettingsModal);
 
