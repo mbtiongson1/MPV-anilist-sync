@@ -602,6 +602,18 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                 self.agent.settings.add_library_exclusion(path)
             self.wfile.write(json.dumps({"success": True}).encode('utf-8'))
 
+        elif self.path == '/api/remove_exclusion':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            content_length = int(self.headers.get('Content-Length', 0))
+            data = json.loads(self.rfile.read(content_length).decode('utf-8')) if content_length else {}
+            path = data.get('path')
+            if path and self.agent and hasattr(self.agent, 'settings'):
+                self.agent.settings.remove_library_exclusion(path)
+            self.wfile.write(json.dumps({"success": True}).encode('utf-8'))
+
         elif self.path.startswith('/api/search_anime'):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')

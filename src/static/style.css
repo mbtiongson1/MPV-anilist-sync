@@ -1,5 +1,6 @@
-/* ===== Design Tokens (Dark Theme) ===== */
+/* ===== Design Tokens ===== */
 :root {
+    /* Dark Mode (Default) */
     --bg-primary: #0F1115;
     --bg-secondary: #17191E;
     --bg-card: #1C1F26;
@@ -34,21 +35,29 @@
     --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Light Mode (Beige Theme) */
+/* Light Mode (Sepia/Earthy Theme) */
 body.light-mode {
-    --bg-primary: #F5F5DC;      /* Beige */
-    --bg-secondary: #E9E9D0;    /* Darker Beige */
-    --bg-card: #FFFFFF;         /* White cards */
-    --bg-card-hover: #F0F0E0;   /* Light tint */
-    --bg-input: #FFFFFF;
-    --text-primary: #2C2C2C;    /* Dark gray text */
-    --text-secondary: #4A4A4A;
-    --text-muted: #717171;
-    --border: #D2D2B4;
-    --border-light: #E0E0C0;
-    --accent-glow: rgba(16, 185, 129, 0.1);
-    --shadow-card: 0 4px 15px rgba(0, 0, 0, 0.08);
-    --shadow-glow: 0 0 30px rgba(16, 185, 129, 0.05);
+    --bg-primary: #F4ECE1;      /* Soft warm cream */
+    --bg-secondary: #E8DCCF;    /* Earthy beige */
+    --bg-card: #FDFBF7;         /* Warm white paper */
+    --bg-card-hover: #F7F1E9;   /* Light sepia tint */
+    --bg-input: #EFE6DA;
+    --text-primary: #433422;    /* Deep earthy brown */
+    --text-secondary: #6B5A44;  /* Muted brown */
+    --text-muted: #A69076;      /* Sandy tan */
+    --accent: #8B5E34;          /* Rich wood brown */
+    --accent-hover: #A67B5B;
+    --accent-glow: rgba(139, 94, 52, 0.1);
+    --border: #D3C5A3;          /* Aged paper border */
+    --border-light: #E2D7C0;
+    --shadow-card: 0 4px 15px rgba(67, 52, 34, 0.08);
+    --shadow-glow: 0 0 30px rgba(139, 94, 52, 0.05);
+    
+    /* Adjust status colors for earthy theme */
+    --status-current: #606C38;   /* Earthy Olive */
+    --status-planning: #283618;  /* Forest Green */
+    --status-completed: #BC6C25; /* Burnt Orange */
+    --status-dropped: #9E2A2B;   /* Rust Red */
 }
 
 * {
@@ -77,8 +86,8 @@ body:not(.light-mode) {
 
 body.light-mode {
     background-image:
-        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.03), transparent),
-        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16, 185, 129, 0.02), transparent);
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 94, 52, 0.05), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(96, 108, 56, 0.04), transparent);
 }
 
 /* ===== App Layout ===== */
@@ -2774,6 +2783,104 @@ input:not(:placeholder-shown) + .clear-input-btn {
 
 .back-to-top:hover svg {
     transform: translateY(-2px);
+}
+
+/* ===== Apple Style Theme Toggle ===== */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+    margin-left: 0.5rem;
+}
+
+.apple-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+    cursor: pointer;
+}
+
+.apple-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.apple-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    transition: .4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6px;
+}
+
+.apple-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50%;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Icons inside slider */
+.sun-icon, .moon-icon {
+    z-index: 1;
+    transition: opacity 0.3s ease;
+}
+
+.sun-icon {
+    color: #FBBF24;
+    opacity: 1;
+}
+
+.moon-icon {
+    color: #94A3B8;
+    opacity: 0.2;
+}
+
+.apple-switch input:checked + .apple-slider {
+    background-color: #312E81; /* Dark indigo */
+    border-color: #4338CA;
+}
+
+.apple-switch input:checked + .apple-slider:before {
+    transform: translateX(22px);
+    background-color: #F1F5F9;
+}
+
+.apple-switch input:checked + .apple-slider .sun-icon {
+    opacity: 0.2;
+}
+
+.apple-switch input:checked + .apple-slider .moon-icon {
+    opacity: 1;
+    color: #E2E8F0;
+}
+
+/* Dark mode adjustments for slider when in dark mode (default) */
+body:not(.light-mode) .apple-slider {
+    background-color: #1E293B;
+}
+
+/* Light mode adjustments for slider */
+body.light-mode .apple-slider {
+    background-color: #EFE6DA;
+    border-color: #D3C5A3;
 }
 
 /* ===== Improved Details Modal ===== */

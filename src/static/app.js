@@ -31,6 +31,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const countPlanning = document.getElementById('count-planning');
     const countCompleted = document.getElementById('count-completed');
     const countDropped = document.getElementById('count-dropped');
+    const countCurrentSidebar = document.getElementById('count-current-sidebar');
+    const countPlanningSidebar = document.getElementById('count-planning-sidebar');
+    const countCompletedSidebar = document.getElementById('count-completed-sidebar');
+    const countDroppedSidebar = document.getElementById('count-dropped-sidebar');
 
     const statusColors = {
         'CURRENT': '#10b981',   // Emerald Green
@@ -60,11 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
         'Mahou Shoujo': '#f472b6',
         'Others': '#fb923c'
     };
-    const btnRefreshList = document.getElementById('btn-refresh-list');
     const lastSyncedTimeDisp = document.getElementById('last-synced-time');
     const btnToggleView = document.getElementById('btn-toggle-view');
     const btnReauthorize = document.getElementById('btn-reauthorize');
-    const btnFullRefresh = document.getElementById('btn-full-refresh');
     const btnClearCache = document.getElementById('btn-clear-cache');
     const btnRefreshHeader = document.getElementById('btn-refresh-header');
     const detailsModal = document.getElementById('details-modal');
@@ -101,10 +103,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarItems = document.querySelectorAll('.sidebar-item[data-tab]');
     const sidebarSettings = document.getElementById('sidebar-settings');
     const btnSettingsHeader = document.getElementById('btn-settings-header');
+    const seasonColors = {
+        'WINTER': '#38bdf8',
+        'SPRING': '#fb7185',
+        'SUMMER': '#facc15',
+        'FALL': '#fb923c'
+    };
+
     const genreFilterList = document.getElementById('genre-filter-list');
     const filterFormat = document.getElementById('filter-format');
     const filterYearSidebar = document.getElementById('filter-year-sidebar');
-    const filterSeasonSidebar = document.getElementById('filter-season-sidebar');
+    const seasonFilterList = document.getElementById('season-filter-list');
     
     let userSettings = null;
     let libraryData = []; // Cached library scanner results
@@ -116,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastNowPlayingTitle = null;
     let viewMode = 'details';
     let selectedGenres = new Set(); // For sidebar genre filter
+    let selectedSeasons = new Set(); // For sidebar season filter
     let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
     if (sidebarCollapsed) appSidebar.classList.add('collapsed');
     
@@ -414,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.running && data.title) {
                 statusBubble.className = 'status-bubble online';
-                statusText.textContent = 'Running';
+                statusText.textContent = 'Active';
                 if (npActiveContent) npActiveContent.classList.remove('hidden');
                 if (idleState) idleState.classList.add('hidden');
 
@@ -694,6 +704,39 @@ document.addEventListener('DOMContentLoaded', () => {
     modalClose.addEventListener('click', () => detailsModal.classList.add('hidden'));
     modalCloseBtn.addEventListener('click', () => detailsModal.classList.add('hidden'));
 
+    function renderSeasonFilters() {
+        if (!seasonFilterList) return;
+        const seasons = ['WINTER', 'SPRING', 'SUMMER', 'FALL'];
+
+        seasonFilterList.innerHTML = '';
+        seasons.forEach(s => {
+            const chip = document.createElement('div');
+            const color = seasonColors[s] || '#94a3b8';
+            chip.className = 'genre-chip-sidebar'; // Reuse genre chip style
+            chip.style.borderColor = color;
+            chip.style.color = color;
+            chip.style.background = color + '10';
+
+            if (selectedSeasons.has(s)) {
+                chip.classList.add('active');
+                chip.style.background = color;
+                chip.style.color = 'white';
+            }
+
+            chip.textContent = capitalize(s);
+            chip.onclick = () => {
+                if (selectedSeasons.has(s)) {
+                    selectedSeasons.delete(s);
+                } else {
+                    selectedSeasons.add(s);
+                }
+                renderSeasonFilters();
+                renderAnimeGrid();
+            };
+            seasonFilterList.appendChild(chip);
+        });
+    }
+
     // ===== Anime List Fetching =====
     async function fetchAnimeList() {
         try {
@@ -703,7 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Store sync time
             localStorage.setItem('lastAnilistSync', Date.now());
             updateLastSyncedDisplay();
-            
+
             if (data.error === 'auth_failed') {
                 animeGrid.innerHTML = `
                     <div class="empty-state">
@@ -712,8 +755,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>`;
                 return;
             }
-            
+
             animeList = data;
+            renderSeasonFilters(); // Populate sidebar seasons
             renderGenreFilters(); // Populate sidebar genres
             renderRecentAnime();
             updateCounts();
@@ -727,22 +771,27 @@ document.addEventListener('DOMContentLoaded', () => {
             animeGrid.innerHTML = `<div class="empty-state"><p>Could not load anime list.</p></div>`;
         }
     }
-
     function updateCounts() {
         const currentCount = animeList.filter(a => a.listStatus === 'CURRENT').length;
         const planningCount = animeList.filter(a => a.listStatus === 'PLANNING').length;
         const completedCount = animeList.filter(a => a.listStatus === 'COMPLETED').length;
         const droppedCount = animeList.filter(a => a.listStatus === 'DROPPED').length;
+        
         if (countCurrent) countCurrent.textContent = currentCount;
         if (countPlanning) countPlanning.textContent = planningCount;
         if (countCompleted) countCompleted.textContent = completedCount;
         if (countDropped) countDropped.textContent = droppedCount;
+
+        if (countCurrentSidebar) countCurrentSidebar.textContent = currentCount;
+        if (countPlanningSidebar) countPlanningSidebar.textContent = planningCount;
+        if (countCompletedSidebar) countCompletedSidebar.textContent = completedCount;
+        if (countDroppedSidebar) countDroppedSidebar.textContent = droppedCount;
     }
 
     // ===== Filtering =====
     function getFilteredList() {
         const nameQuery = filterName.value.toLowerCase().trim();
-        const seasonQuery = filterSeason.value || (filterSeasonSidebar ? filterSeasonSidebar.value : "");
+        const seasonQuery = filterSeason.value;
         const yearQuery = filterYear.value ? parseInt(filterYear.value) : (filterYearSidebar.value ? parseInt(filterYearSidebar.value) : null);
         const formatQuery = filterFormat.value;
 
@@ -765,6 +814,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Season filter
             if (seasonQuery && a.season !== seasonQuery) return false;
+            if (selectedSeasons.size > 0 && !selectedSeasons.has(a.season)) return false;
 
             // Year filter
             if (yearQuery && a.seasonYear !== yearQuery) return false;
@@ -2575,19 +2625,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== Theme Toggle =====
-    const btnThemeToggle = document.getElementById('btn-theme-toggle');
-    const themeIconDark = document.getElementById('theme-icon-dark');
-    const themeIconLight = document.getElementById('theme-icon-light');
-    
+    const themeToggleCheckbox = document.getElementById('theme-toggle-checkbox');
+
     function setTheme(theme) {
         if (theme === 'light') {
             document.body.classList.add('light-mode');
-            themeIconDark.classList.remove('hidden');
-            themeIconLight.classList.add('hidden');
+            if (themeToggleCheckbox) themeToggleCheckbox.checked = false;
         } else {
             document.body.classList.remove('light-mode');
-            themeIconDark.classList.add('hidden');
-            themeIconLight.classList.remove('hidden');
+            if (themeToggleCheckbox) themeToggleCheckbox.checked = true;
         }
         localStorage.setItem('theme', theme);
     }
@@ -2596,13 +2642,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     setTheme(savedTheme);
 
-    if (btnThemeToggle) {
-        btnThemeToggle.addEventListener('click', () => {
-            const currentTheme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
-            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    if (themeToggleCheckbox) {
+        themeToggleCheckbox.addEventListener('change', () => {
+            setTheme(themeToggleCheckbox.checked ? 'dark' : 'light');
         });
     }
-
     // ===== Now Playing & Continue Watching =====
     const npActiveContent = document.getElementById('np-active-content');
     const idleState = document.getElementById('idle-state');
@@ -2634,13 +2678,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function populateYearSidebar() {
+        if (!filterYearSidebar) return;
+        const currentYear = new Date().getFullYear();
+        for (let y = currentYear + 2; y >= 1970; y--) {
+            const opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            filterYearSidebar.appendChild(opt);
+        }
+        filterYearSidebar.value = currentYear;
+        if (filterYear) filterYear.value = currentYear;
+    }
+
     // Sidebar Filter Handlers
     if (filterFormat) {
         filterFormat.addEventListener('change', () => renderAnimeGrid());
     }
 
     if (filterYearSidebar && filterYear) {
-        filterYearSidebar.addEventListener('input', () => {
+        populateYearSidebar();
+        filterYearSidebar.addEventListener('change', () => {
             filterYear.value = filterYearSidebar.value;
             renderAnimeGrid();
         });
@@ -2679,7 +2737,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (selectedGenres.has(genre)) {
                 chip.classList.add('active');
                 chip.style.background = color;
-                chip.style.color = 'white';
+                chip.style.color = 'var(--bg-primary)'; // High contrast text against colored bg
             }
             chip.textContent = genre;
             chip.onclick = () => {
@@ -2786,31 +2844,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAnimeGrid();
     });
 
-    // ===== Refresh / Sync Button =====
-    btnRefreshList.addEventListener('click', () => {
-        const originalHtml = btnRefreshList.innerHTML;
-        btnRefreshList.disabled = true;
-        btnRefreshList.classList.add('syncing');
-
-        if (btnRefreshList.querySelector('span')) {
-            btnRefreshList.querySelector('span').textContent = 'Syncing...';
-        }
-
-        const restoreButton = () => {
-            btnRefreshList.disabled = false;
-            btnRefreshList.classList.remove('syncing');
-            btnRefreshList.innerHTML = originalHtml;
-        };
-
-        if (activeTab === 'LIBRARY') {
-            libraryContent.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Refreshing library...</p></div>`;
-            fetchLibrary(true).finally(restoreButton);
-        } else {
-            animeGrid.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Refreshing...</p></div>`;
-            fetchAnimeList().finally(restoreButton);
-        }
-    });
-
     if (btnRefreshHeader) {
         btnRefreshHeader.addEventListener('click', () => {
             if (activeTab === 'LIBRARY') {
@@ -2841,26 +2874,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ===== Full Refresh & Clear Cache Button =====
-    btnFullRefresh.addEventListener('click', async () => {
-        if (confirm('This will clear your current session and re-fetch your anime list. Continue?')) {
-            try {
-                const response = await fetch('/api/full_refresh', { method: 'POST' });
-                if (response.ok) {
-                    // Clear local storage
-                    localStorage.clear();
-                    // Reload the page to reset everything
-                    window.location.reload();
-                } else {
-                    alert('Failed to perform full refresh.');
-                }
-            } catch (error) {
-                console.error('Full refresh error:', error);
-                alert('Network error during full refresh.');
-            }
-        }
-    });
-
+    // ===== Clear Cache Button =====
     if (btnClearCache) {
         btnClearCache.addEventListener('click', async () => {
             if (confirm('This will clear the library and image cache. The next load will be slower as it re-scans your files. Continue?')) {
@@ -3547,7 +3561,65 @@ document.addEventListener('DOMContentLoaded', () => {
     const cleanupList = document.getElementById('cleanup-list');
     const btnMoveToTrash = document.getElementById('btn-move-to-trash');
     const btnOpenTrash = document.getElementById('btn-open-trash');
-    
+    const exclusionsSection = document.getElementById('exclusions-section');
+    const exclusionsList = document.getElementById('exclusions-list');
+    const linkManageExclusions = document.getElementById('link-manage-exclusions');
+    const btnCloseExclusions = document.getElementById('btn-close-exclusions');
+
+    async function renderExclusions() {
+        if (!exclusionsList) return;
+        try {
+            const resp = await fetch('/api/settings');
+            const settings = await resp.json();
+            const exclusions = settings.library_exclusions || [];
+            
+            exclusionsList.innerHTML = '';
+            if (exclusions.length === 0) {
+                exclusionsList.innerHTML = '<div style="font-size: 0.75rem; color: var(--text-muted); padding: 0.5rem;">No items excluded.</div>';
+            } else {
+                exclusions.forEach(path => {
+                    const row = document.createElement('div');
+                    row.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 0.25rem 0; border-bottom: 1px solid var(--border-light); gap: 1rem;';
+                    row.innerHTML = `
+                        <span style="font-size: 0.7rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;" title="${escapeHtml(path)}">${escapeHtml(path)}</span>
+                        <a href="#" class="tree-link remove-exclusion-link" data-path="${escapeHtml(path)}" style="font-size: 0.65rem;">Remove</a>
+                    `;
+                    exclusionsList.appendChild(row);
+                });
+
+                exclusionsList.querySelectorAll('.remove-exclusion-link').forEach(link => {
+                    link.onclick = async (e) => {
+                        e.preventDefault();
+                        const path = link.dataset.path;
+                        try {
+                            const delResp = await fetch('/api/remove_exclusion', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ path: path })
+                            });
+                            if (delResp.ok) {
+                                await renderExclusions();
+                                showToast('Removed from exclusions.');
+                            }
+                        } catch (err) { console.error(err); }
+                    };
+                });
+            }
+        } catch (err) { console.error(err); }
+    }
+
+    if (linkManageExclusions) {
+        linkManageExclusions.onclick = (e) => {
+            e.preventDefault();
+            exclusionsSection.classList.remove('hidden');
+            renderExclusions();
+        };
+    }
+
+    if (btnCloseExclusions) {
+        btnCloseExclusions.onclick = () => exclusionsSection.classList.add('hidden');
+    }
+
     function getCleanupItems(node, items = []) {
         if (!node) return items;
         
