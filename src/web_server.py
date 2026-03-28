@@ -217,6 +217,20 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                     print(f"Error fetching anime list: {e}")
             
             self.wfile.write(json.dumps(entries).encode('utf-8'))
+        elif self.path == '/api/upcoming':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            
+            entries = []
+            if self.agent and hasattr(self.agent, 'anilist'):
+                try:
+                    entries = self.agent.anilist.get_upcoming_anime()
+                except Exception as e:
+                    print(f"Error fetching upcoming anime: {e}")
+            
+            self.wfile.write(json.dumps(entries).encode('utf-8'))
         elif self.path == '/api/settings':
             self.send_response(200)
             self.send_header('Content-type', 'application/json')

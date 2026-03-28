@@ -519,3 +519,126 @@ class AnilistClient:
         except Exception as e:
             print(f"Error changing status: {e}")
             return False
+
+    def get_upcoming_anime(self) -> list[dict[str, Any]]:
+        """Fetch currently airing and next season's anime."""
+        from datetime import datetime
+        now = datetime.now()
+        month = now.month
+        year = now.year
+
+        seasons = ["WINTER", "SPRING", "SUMMER", "FALL"]
+        # AniList: WINTER(1,2,3), SPRING(4,5,6), SUMMER(7,8,9), FALL(10,11,12) approx
+        current_season_idx = (month - 1) // 3
+        current_season = seasons[current_season_idx]
+        
+        next_season_idx = (current_season_idx + 1) % 4
+        next_season = seasons[next_season_idx]
+        next_year = year + 1 if next_season_idx == 0 else year
+
+        query = '''
+        query ($season: MediaSeason, $year: Int, $nextSeason: MediaSeason, $nextYear: Int) {
+          airing: Page(perPage: 50) {
+            media(status: RELEASING, type: ANIME, sort: POPULARITY_DESC) {
+              ...mediaFields
+            }
+          }
+          upcoming: Page(perPage: 50) {
+            media(season: $nextSeason, seasonYear: $nextYear, type: ANIME, sort: POPULARITY_DESC) {
+              ...mediaFields
+            }
+          }
+        }
+
+        fragment mediaFields on Media {
+          id
+          title {
+            romaji
+            english
+            native
+          }
+          episodes
+          status
+          season
+          seasonYear
+          description(asHtml: false)
+          popularity
+          averageScore
+          genres
+          format
+          coverImage {
+            large
+            medium
+          }
+          bannerImage
+          studios(isMain: true) {
+            nodes {
+              name
+              isAnimationStudio
+            }
+          }
+          nextAiringEpisode {
+            episode
+            airingAt
+          }
+        }
+        '''
+        variables = {
+            'season': current_season,
+            'year': year,
+            'nextSeason': next_season,
+            'nextYear': next_year
+        }
+        
+        try:
+            result = self._execute_query(query, variables)
+            data = result.get('data', {})
+            airing = data.get('airing', {}).get('media', [])
+            upcoming = data.get('upcoming', {}).get('media', [])
+            
+            # Combine and deduplicate
+            seen_ids = set()
+            combined = []
+            
+            # Format combined list to match user list structure for frontend consistency
+            def format_media(media):
+                if media['id'] in seen_ids:
+                    return None
+                seen_ids.add(media['id'])
+                
+                studios_nodes = media.get('studios', {}).get('nodes', [])
+                studio_name = studios_nodes[0]['name'] if studios_nodes else None
+                next_airing = media.get('nextAiringEpisode')
+
+                return {
+                    'mediaId': media.get('id'),
+                    'title': media.get('title', {}),
+                    'episodes': media.get('episodes'),
+                    'mediaStatus': media.get('status'),
+                    'season': media.get('season'),
+                    'seasonYear': media.get('seasonYear'),
+                    'description': media.get('description'),
+                    'popularity': media.get('popularity'),
+                    'averageScore': media.get('averageScore'),
+                    'genres': media.get('genres', []),
+                    'format': media.get('format'),
+                    'coverImage': media.get('coverImage', {}),
+                    'bannerImage': media.get('bannerImage'),
+                    'studio': studio_name,
+                    'nextAiringEpisode': {
+                        'episode': next_airing.get('episode'),
+                        'airingAt': next_airing.get('airingAt'),
+                    } if next_airing else None,
+                }
+
+            for m in airing:
+                fmt = format_media(m)
+                if fmt: combined.append(fmt)
+            for m in upcoming:
+                fmt = format_media(m)
+                if fmt: combined.append(fmt)
+                
+            return combined
+        except Exception as e:
+            print(f"Error fetching upcoming anime: {e}")
+            return []

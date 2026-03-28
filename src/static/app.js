@@ -96,6 +96,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const libraryContent = document.getElementById('library-tree-container');
     const libraryWrapper = document.getElementById('library-content');
     const inputSettingBaseAnimeFolder = document.getElementById('setting-base-anime-folder');
+    const btnCleanupProgress = document.getElementById('btn-cleanup-progress');
+    const cleanupModal = document.getElementById('cleanup-modal');
+    const cleanupModalOverlay = document.getElementById('cleanup-modal-overlay');
+    const cleanupModalClose = document.getElementById('cleanup-modal-close');
+    const cleanupCancel = document.getElementById('cleanup-cancel');
+    const cleanupNext = document.getElementById('cleanup-next');
+    const cleanupConfirm = document.getElementById('cleanup-confirm');
+    const cleanupContainer = document.getElementById('cleanup-container');
+    const cleanupStep1 = document.getElementById('cleanup-step-1');
+    const cleanupStep2 = document.getElementById('cleanup-step-2');
+    const cleanupRetentionVal = document.getElementById('cleanup-retention-val');
+    const cleanupRetentionUnit = document.getElementById('cleanup-retention-unit');
+    const cleanupSelectAll = document.getElementById('cleanup-select-all');
+    const cleanupTierFilters = document.getElementById('cleanup-tier-filters');
     
     // View Buttons
     const btnViewGrid = document.getElementById('btn-view-grid');
@@ -123,6 +137,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const changelogContainer = document.getElementById('changelog-container');
     const btnChangelogCancel = document.getElementById('changelog-cancel');
     const btnChangelogConfirm = document.getElementById('changelog-confirm');
+
+    // Upcoming Elements
+    const btnShowUpcoming = document.getElementById('btn-show-upcoming');
+    const upcomingOverlay = document.getElementById('upcoming-overlay');
+    const btnCloseUpcoming = document.getElementById('btn-close-upcoming');
+    const btnRefreshUpcoming = document.getElementById('btn-refresh-upcoming');
+    const upcomingGrid = document.getElementById('upcoming-grid');
+    const upcomingLoading = document.getElementById('upcoming-loading');
 
     // Theme Toggle Initialization
     const currentTheme = localStorage.getItem('theme') || 'dark';
@@ -1066,6 +1088,175 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error fetching anime list:', error);
             animeGrid.innerHTML = `<div class="empty-state"><p>Could not load anime list.</p></div>`;
         }
+    }
+
+    async function fetchUpcomingAnime() {
+        if (!upcomingOverlay) return;
+        
+        const loading = document.getElementById('upcoming-loading');
+        if (loading) loading.classList.remove('hidden');
+
+        try {
+            const response = await fetch('/api/upcoming');
+            const data = await response.json();
+            renderUpcomingAnime(data);
+        } catch (err) {
+            console.error('Failed to fetch upcoming anime:', err);
+            showToast('Failed to fetch upcoming info', 'error');
+        } finally {
+            if (loading) loading.classList.add('hidden');
+        }
+    }
+
+    function renderUpcomingAnime(upcomingList) {
+        if (!upcomingGrid) return;
+        upcomingGrid.innerHTML = '';
+
+        if (!upcomingList || upcomingList.length === 0) {
+            upcomingGrid.innerHTML = '<div class="no-results">No upcoming anime found.</div>';
+            return;
+        }
+
+        upcomingList.forEach(anime => {
+            const mediaId = anime.mediaId;
+            const title = anime.title?.romaji || anime.title?.english || 'Unknown';
+            const cover = getCachedImageUrl(anime.coverImage?.large || anime.coverImage?.medium || '');
+            const description = anime.description || 'No description available.';
+            const studio = anime.studio || 'Unknown Studio';
+            const popularity = anime.popularity || 0;
+            const score = anime.averageScore || 0;
+            const season = anime.season || '';
+            const year = anime.seasonYear || '';
+            
+            // Check if anime is in current list
+            const localEntry = animeList.find(a => a.mediaId === mediaId);
+            let statusClass = 'status-not-in-list';
+            let statusText = 'Not in list';
+
+            if (localEntry) {
+                const status = localEntry.listStatus;
+                statusText = status === 'CURRENT' ? 'In Progress' : 
+                             status === 'PLANNING' ? 'Planning' : 
+                             status === 'COMPLETED' ? 'Completed' : 
+                             status === 'DROPPED' ? 'Dropped' : status;
+                statusClass = `status-${status.toLowerCase()}`;
+            }
+
+            const nextAiring = anime.nextAiringEpisode;
+            let airingInfo = '';
+            if (nextAiring) {
+                const now = Math.floor(Date.now() / 1000);
+                const diff = nextAiring.airingAt - now;
+                if (diff > 0) {
+                    const days = Math.floor(diff / 86400);
+                    const hours = Math.floor((diff % 8400) / 3600);
+                    if (days > 0) {
+                        airingInfo = `Ep ${nextAiring.episode} in ${days}d ${hours}h`;
+                    } else {
+                        airingInfo = `Ep ${nextAiring.episode} in ${hours}h`;
+                    }
+                }
+            }
+
+            const tile = document.createElement('div');
+            tile.className = 'upcoming-tile';
+            tile.innerHTML = `
+                <div class="upcoming-status-tag ${statusClass}">${statusText}</div>
+                <div class="upcoming-add-wrapper">
+                    <button class="btn-upcoming-add" data-media-id="${mediaId}" title="Add/Change in list">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                    <div class="add-dropdown" id="add-dropdown-${mediaId}">
+                        <div class="add-option" data-status="PLANNING" data-media-id="${mediaId}">Add to Planning</div>
+                        <div class="add-option" data-status="CURRENT" data-media-id="${mediaId}">Add to Watching</div>
+                    </div>
+                </div>
+                <div class="upcoming-tile-cover">
+                    <img src="${cover}" alt="${escapeHtml(title)}">
+                    ${airingInfo ? `<div class="upcoming-airing-info">${airingInfo}</div>` : ''}
+                </div>
+                <div class="upcoming-tile-content">
+                    <div class="upcoming-tile-header">
+                        <div class="upcoming-tile-title" title="${escapeHtml(title)}">${escapeHtml(title)}</div>
+                    </div>
+                    <div class="upcoming-tile-meta">
+                        <span class="upcoming-badge badge-season">${season} ${year}</span>
+                        <span class="upcoming-badge badge-studio">${escapeHtml(studio)}</span>
+                    </div>
+                    <div class="upcoming-description" id="desc-${mediaId}">${description}</div>
+                    <button class="btn-see-more" data-media-id="${mediaId}">See more</button>
+                    <div class="upcoming-stats">
+                        <div class="upcoming-stat-item" title="Popularity">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                            <span>${popularity.toLocaleString()}</span>
+                        </div>
+                        <div class="upcoming-stat-item" title="Score">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <span>${score}%</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            upcomingGrid.appendChild(tile);
+        });
+
+        // Add Listeners
+        upcomingGrid.querySelectorAll('.btn-see-more').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mediaId = btn.dataset.mediaId;
+                const desc = document.getElementById(`desc-${mediaId}`);
+                if (desc) {
+                    desc.classList.toggle('expanded');
+                    btn.textContent = desc.classList.contains('expanded') ? 'See less' : 'See more';
+                }
+            });
+        });
+
+        upcomingGrid.querySelectorAll('.btn-upcoming-add').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const mediaId = btn.dataset.mediaId;
+                const dropdown = document.getElementById(`add-dropdown-${mediaId}`);
+                
+                // Close other open dropdowns
+                document.querySelectorAll('.add-dropdown.show').forEach(d => {
+                    if (d !== dropdown) d.classList.remove('show');
+                });
+                
+                dropdown.classList.toggle('show');
+            });
+        });
+
+        upcomingGrid.querySelectorAll('.add-option').forEach(opt => {
+            opt.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const mediaId = parseInt(opt.dataset.mediaId);
+                const status = opt.dataset.status;
+                const dropdown = opt.closest('.add-dropdown');
+                dropdown.classList.remove('show');
+
+                try {
+                    const response = await fetch('/api/change_status', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mediaId, status })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        showToast(`Successfully moved to your ${status.toLowerCase()} list!`);
+                        // Refresh user list and upcoming view
+                        await fetchAnimeList(); 
+                        fetchUpcomingAnime(); 
+                    } else {
+                        showToast('Failed to update list entry', 'error');
+                    }
+                } catch (err) {
+                    console.error('Error updating list:', err);
+                    showToast('Error updating list', 'error');
+                }
+            });
+        });
     }
 
     function updateCounts() {
@@ -2918,6 +3109,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Show view toggles for main tabs
             if (viewToggles) viewToggles.classList.remove('hidden');
+
+            if (btnCleanupProgress) {
+                if (tab === 'CURRENT') {
+                    btnCleanupProgress.style.display = 'inline-flex';
+                } else {
+                    btnCleanupProgress.style.display = 'none';
+                }
+            }
             
             renderAnimeGrid();
         }
@@ -2982,6 +3181,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.open('https://anilist.co/home', '_blank');
             }
         });
+    }
+
+    // Upcoming Event Listeners
+    if (btnShowUpcoming) {
+        btnShowUpcoming.onclick = () => {
+            upcomingOverlay.classList.remove('hidden');
+            fetchUpcomingAnime();
+        };
+    }
+
+    if (btnCloseUpcoming) {
+        btnCloseUpcoming.onclick = () => {
+            upcomingOverlay.classList.add('hidden');
+        };
+    }
+
+    if (btnRefreshUpcoming) {
+        btnRefreshUpcoming.onclick = () => {
+            fetchUpcomingAnime();
+        };
     }
 
     // Sidebar Filter Handlers
@@ -3395,6 +3614,14 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.add('reduce-colors');
         } else {
             document.body.classList.remove('reduce-colors');
+        }
+        
+        if (btnCleanupProgress) {
+            if (activeTab === 'CURRENT') {
+                btnCleanupProgress.style.display = 'inline-flex';
+            } else {
+                btnCleanupProgress.style.display = 'none';
+            }
         }
     }
 
@@ -4099,4 +4326,225 @@ document.addEventListener('DOMContentLoaded', () => {
     if (changelogModalOverlay) changelogModalOverlay.addEventListener('click', () => changelogModal.classList.add('hidden'));
     if (btnChangelogCancel) btnChangelogCancel.addEventListener('click', () => changelogModal.classList.add('hidden'));
     if (btnChangelogConfirm) btnChangelogConfirm.addEventListener('click', performBulkSync);
+
+    // Cleanup Unwatched Anime Wizard Listeners
+    if (btnCleanupProgress) {
+        btnCleanupProgress.addEventListener('click', () => {
+            // Load saved preferences
+            loadCleanupPrefs();
+            // Reset to Step 1
+            cleanupStep1.classList.remove('hidden');
+            cleanupStep2.classList.add('hidden');
+            cleanupNext.classList.remove('hidden');
+            cleanupConfirm.classList.add('hidden');
+            cleanupModal.classList.remove('hidden');
+        });
+    }
+
+    if (cleanupTierFilters) {
+        cleanupTierFilters.addEventListener('click', (e) => {
+            const pill = e.target.closest('.tier-pill');
+            if (pill) {
+                pill.classList.toggle('active');
+                saveCleanupPrefs();
+            }
+        });
+    }
+
+    if (cleanupRetentionVal) cleanupRetentionVal.addEventListener('change', saveCleanupPrefs);
+    if (cleanupRetentionUnit) cleanupRetentionUnit.addEventListener('change', saveCleanupPrefs);
+
+    function saveCleanupPrefs() {
+        const activeTiers = Array.from(document.querySelectorAll('#cleanup-tier-filters .tier-pill.active')).map(p => p.dataset.tier);
+        const prefs = {
+            val: cleanupRetentionVal.value,
+            unit: cleanupRetentionUnit.value,
+            tiers: activeTiers
+        };
+        localStorage.setItem('cleanupPrefs', JSON.stringify(prefs));
+    }
+
+    function loadCleanupPrefs() {
+        const saved = localStorage.getItem('cleanupPrefs');
+        if (saved) {
+            try {
+                const prefs = JSON.parse(saved);
+                if (prefs.val) cleanupRetentionVal.value = prefs.val;
+                if (prefs.unit) cleanupRetentionUnit.value = prefs.unit;
+                if (prefs.tiers) {
+                    const pills = document.querySelectorAll('#cleanup-tier-filters .tier-pill');
+                    pills.forEach(p => {
+                        if (prefs.tiers.includes(p.dataset.tier)) {
+                            p.classList.add('active');
+                        } else {
+                            p.classList.remove('active');
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to load cleanup prefs", e);
+            }
+        }
+    }
+
+    if (cleanupSelectAll) {
+        cleanupSelectAll.addEventListener('change', () => {
+            const checkboxes = cleanupContainer.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = cleanupSelectAll.checked);
+        });
+    }
+
+    if (cleanupNext) {
+        cleanupNext.addEventListener('click', () => {
+            const val = parseInt(cleanupRetentionVal.value, 10) || 1;
+            const unit = cleanupRetentionUnit.value;
+            let retentionDays = val;
+            if (unit === 'months') retentionDays = val * 30;
+            if (unit === 'years') retentionDays = val * 365;
+
+            const now = Math.floor(Date.now() / 1000);
+            const cutoff = now - (retentionDays * 86400);
+
+            const activeTiers = Array.from(document.querySelectorAll('#cleanup-tier-filters .tier-pill.active')).map(p => p.dataset.tier);
+
+            const toDrop = animeList.filter(a => {
+                if (a.listStatus !== 'CURRENT') return false;
+                if (!a.updatedAt || a.updatedAt >= cutoff) return false;
+                
+                const prog = a.progress || 0;
+                if (activeTiers.length === 0) return true;
+                
+                let matchesTier = false;
+                if (activeTiers.includes('0') && prog === 0) matchesTier = true;
+                if (activeTiers.includes('1') && prog === 1) matchesTier = true;
+                if (activeTiers.includes('3') && (prog >= 2 && prog <= 3)) matchesTier = true;
+                if (activeTiers.includes('6') && (prog >= 4 && prog <= 6)) matchesTier = true;
+                if (activeTiers.includes('6+') && prog > 6) matchesTier = true;
+                
+                return matchesTier;
+            });
+
+            if (toDrop.length === 0) {
+                showToast(`No anime found matching your criteria.`);
+                return;
+            }
+
+            // Save current prefs before moving to next step
+            saveCleanupPrefs();
+
+            // Populate Step 2
+            cleanupContainer.innerHTML = '';
+            
+            // Stats summary (Years Count)
+            const yearsSet = new Set();
+            toDrop.forEach(a => { if (a.seasonYear) yearsSet.add(a.seasonYear); });
+            const yearArray = Array.from(yearsSet).sort((a, b) => a - b);
+            const yearRangeStr = yearArray.length > 0 ? `${yearArray[0]}${yearArray.length > 1 ? ' - ' + yearArray[yearArray.length-1] : ''}` : '';
+            
+            const statsHeader = document.createElement('div');
+            statsHeader.style.cssText = 'margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; font-size: 0.85rem; border: 1px solid var(--border);';
+            statsHeader.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--text-muted);">Total found:</span>
+                    <strong style="color: var(--accent);">${toDrop.length} anime</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                    <span style="color: var(--text-muted);">Years represented:</span>
+                    <strong style="color: var(--text-primary);">${yearArray.length} year(s) <span style="font-weight: 400; opacity: 0.7; font-size: 0.75rem;">(${yearRangeStr})</span></strong>
+                </div>
+            `;
+            cleanupContainer.appendChild(statsHeader);
+
+            toDrop.forEach(a => {
+                const title = a.title?.romaji || a.title?.english || 'Unknown';
+                const year = a.seasonYear ? ` (${a.seasonYear})` : '';
+                const relTime = getRelativeTime(a.updatedAt);
+                const item = document.createElement('div');
+                item.className = 'changelog-item';
+                item.style.display = 'flex';
+                item.style.alignItems = 'center';
+                item.style.gap = '10px';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = true;
+                checkbox.dataset.mediaId = a.mediaId;
+                checkbox.dataset.title = title;
+                checkbox.style.cursor = 'pointer';
+                
+                // Update Select All if item manually toggled
+                checkbox.addEventListener('change', () => {
+                    const allCurrent = cleanupContainer.querySelectorAll('input[type="checkbox"]:not(#cleanup-select-all)');
+                    const checkedCount = Array.from(allCurrent).filter(c => c.checked).length;
+                    if (cleanupSelectAll) {
+                        cleanupSelectAll.checked = (checkedCount === allCurrent.length);
+                        cleanupSelectAll.indeterminate = (checkedCount > 0 && checkedCount < allCurrent.length);
+                    }
+                });
+
+                const label = document.createElement('div');
+                label.style.flex = '1';
+                label.innerHTML = `<strong>${title}${year}</strong><br><span style="font-size: 0.8rem; color: var(--text-muted);">Inactive for ${relTime} • Watched: ${a.progress || 0} eps</span>`;
+
+                item.appendChild(checkbox);
+                item.appendChild(label);
+                cleanupContainer.appendChild(item);
+            });
+
+            // Reset Select All state
+            if (cleanupSelectAll) {
+                cleanupSelectAll.checked = true;
+                cleanupSelectAll.indeterminate = false;
+            }
+
+            // Switch to Step 2
+            cleanupStep1.classList.add('hidden');
+            cleanupStep2.classList.remove('hidden');
+            cleanupNext.classList.add('hidden');
+            cleanupConfirm.classList.remove('hidden');
+        });
+    }
+
+    if (cleanupModalClose) cleanupModalClose.addEventListener('click', () => cleanupModal.classList.add('hidden'));
+    if (cleanupModalOverlay) cleanupModalOverlay.addEventListener('click', () => cleanupModal.classList.add('hidden'));
+    if (cleanupCancel) cleanupCancel.addEventListener('click', () => cleanupModal.classList.add('hidden'));
+
+    if (cleanupConfirm) {
+        cleanupConfirm.addEventListener('click', () => {
+            const checkboxes = cleanupContainer.querySelectorAll('input[type="checkbox"]:checked');
+            if (checkboxes.length === 0) {
+                showToast("No anime selected.");
+                cleanupModal.classList.add('hidden');
+                return;
+            }
+
+            let count = 0;
+            checkboxes.forEach(cb => {
+                const mediaId = parseInt(cb.dataset.mediaId, 10);
+                const title = cb.dataset.title;
+                const anime = animeList.find(a => a.mediaId == mediaId);
+                
+                if (anime) {
+                    recordApiRequest('STATUS', mediaId, { status: 'DROPPED' }, `${title}: Auto-Drop (Inactive)`);
+                    anime.listStatus = 'DROPPED'; // Optimistic update
+                    count++;
+                }
+            });
+
+            if (count > 0) {
+                updateCounts();
+                if (activeTab === 'CURRENT') {
+                    renderAnimeGrid();
+                }
+                showToast(`Marked ${count} anime as Dropped (Pending)`);
+            }
+            
+            cleanupModal.classList.add('hidden');
+        });
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.add-dropdown.show').forEach(d => d.classList.remove('show'));
+    });
 });

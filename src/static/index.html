@@ -254,6 +254,10 @@
             <div class="section-header">
                 <div style="display: flex; gap: 1rem; align-items: center;">
                     <h2>My Anime List</h2>
+                    <button id="btn-show-upcoming" class="upcoming-btn" title="Show Airing & Upcoming Anime">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <span>Show Upcoming</span>
+                    </button>
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
                     <div id="pending-changes-info" class="pending-info hidden">
@@ -329,6 +333,9 @@
                     <option value="progress">Progress</option>
                 </select>
                 <div class="view-toggle-group" style="display: flex; gap: 0.25rem;">
+                    <button id="btn-cleanup-progress" class="view-toggle-btn" title="Cleanup unwatched anime" style="display: none; color: #ef4444; border-color: rgba(239, 68, 68, 0.2);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    </button>
                     <button id="btn-view-grid" class="view-toggle-btn active" title="Grid View">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                     </button>
@@ -427,6 +434,33 @@
             </div>
         </section>
 
+        <!-- Upcoming Overlay -->
+        <div id="upcoming-overlay" class="upcoming-overlay hidden">
+            <div class="upcoming-window">
+                <header class="upcoming-header">
+                    <div class="header-left">
+                        <button id="btn-close-upcoming" class="back-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                            <span>Back</span>
+                        </button>
+                        <h2>Airing & Upcoming</h2>
+                    </div>
+                    <div class="header-right">
+                        <div id="upcoming-loading" class="spinner-small hidden"></div>
+                        <button id="btn-refresh-upcoming" class="icon-btn" title="Refresh">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2.66 15.57a10 10 0 0 0 17.68-1.27M21.34 8.43a10 10 0 0 0-17.68 1.27"/></svg>
+                        </button>
+                    </div>
+                </header>
+                <div id="upcoming-grid" class="upcoming-grid">
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Fetching latest updates from AniList...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Modal for details -->
         <div id="details-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="details-modal-title">
             <div class="modal-overlay" id="modal-overlay"></div>
@@ -521,6 +555,70 @@
                 <footer class="modal-footer">
                     <button id="changelog-cancel" class="secondary-btn">Cancel</button>
                     <button id="changelog-confirm" class="primary-btn">Confirm and Sync</button>
+                </footer>
+            </div>
+        </div>
+
+        <!-- Cleanup Modal -->
+        <div id="cleanup-modal" class="modal hidden" role="dialog" aria-modal="true">
+            <div class="modal-overlay" id="cleanup-modal-overlay"></div>
+            <div class="modal-content">
+                <header class="modal-header">
+                    <h2 id="cleanup-modal-title">Cleanup Unwatched Anime</h2>
+                    <button id="cleanup-modal-close" class="icon-btn">✕</button>
+                </header>
+                <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Step 1: Strategy Selection -->
+                    <div id="cleanup-step-1">
+                        <p style="margin-bottom: 20px; color: var(--text-muted); line-height: 1.5;">
+                            Welcome to the unwatched anime cleanup tool! Use this to quickly identify series in your "In Progress" list that you haven't updated in a while.
+                        </p>
+                        <div class="settings-group">
+                            <label style="display: block; font-weight: 600; margin-bottom: 10px;">Select Retention Period:</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="number" id="cleanup-retention-val" min="1" value="3" style="width: 80px; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-main);" />
+                                <select id="cleanup-retention-unit" style="padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-main); flex: 1;">
+                                    <option value="days">Days</option>
+                                    <option value="months" selected>Months</option>
+                                    <option value="years">Years</option>
+                                </select>
+                            </div>
+                            <p style="margin-top: 10px; font-size: 0.85rem; color: var(--text-muted);">
+                                Anime with no updates for longer than this period will be suggested for move to "Dropped".
+                            </p>
+                        </div>
+                        <div class="settings-group" style="margin-top: 20px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 10px;">Filter by Progress (Watched Tiers):</label>
+                            <div class="tier-pills" id="cleanup-tier-filters" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <button class="tier-pill active" data-tier="0">0 ep</button>
+                                <button class="tier-pill active" data-tier="1">1 ep</button>
+                                <button class="tier-pill active" data-tier="3">3 eps</button>
+                                <button class="tier-pill active" data-tier="6">6 eps</button>
+                                <button class="tier-pill active" data-tier="6+">6+ eps</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Confirmation Checklist -->
+                    <div id="cleanup-step-2" class="hidden">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+                                The following anime match your filters. Uncheck any you wish to keep "In Progress".
+                            </p>
+                            <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; cursor: pointer; user-select: none;">
+                                <input type="checkbox" id="cleanup-select-all" checked style="cursor: pointer;" />
+                                <strong>Select All</strong>
+                            </label>
+                        </div>
+                        <div id="cleanup-container" class="changelog-container">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+                <footer class="modal-footer">
+                    <button id="cleanup-cancel" class="secondary-btn">Cancel</button>
+                    <button id="cleanup-next" class="primary-btn">Find Anime</button>
+                    <button id="cleanup-confirm" class="primary-btn hidden" style="background-color: var(--status-dropped); border-color: var(--status-dropped);">Drop Selected</button>
                 </footer>
             </div>
         </div>
