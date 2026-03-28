@@ -125,7 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const genreFilterList = document.getElementById('genre-filter-list');
     const filterFormat = document.getElementById('filter-format');
     const filterYearSidebar = document.getElementById('filter-year-sidebar');
-    const filterSeasonSidebar = document.getElementById('filter-season-sidebar');
 
     let libraryData = []; // Cached library scanner results
     let libraryExclusions = []; // List of excluded paths
@@ -138,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedGenres = new Set(); // For sidebar genre filter
     let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
     if (sidebarCollapsed) appSidebar.classList.add('collapsed');
+    let selectedSidebarSeason = ""; // "CURRENT", "WINTER", etc.
     
     // persist view mode across reloads
     const savedViewMode = localStorage.getItem('mpvViewMode');
@@ -724,7 +724,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== Filtering =====
     function getFilteredList() {
         const nameQuery = filterName.value.toLowerCase().trim();
-        const seasonQuery = filterSeason.value || (filterSeasonSidebar ? filterSeasonSidebar.value : "");
+        const seasonQuery = filterSeason.value || selectedSidebarSeason;
         const yearQuery = filterYear.value ? parseInt(filterYear.value) : (filterYearSidebar.value ? parseInt(filterYearSidebar.value) : null);
         const formatQuery = filterFormat.value;
 
@@ -746,7 +746,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Season filter
-            if (seasonQuery && a.season !== seasonQuery) return false;
+            if (seasonQuery) {
+                if (seasonQuery === 'CURRENT') {
+                    if (a.status !== 'RELEASING') return false;
+                } else if (a.season !== seasonQuery) {
+                    return false;
+                }
+            }
 
             // Year filter
             if (yearQuery && a.seasonYear !== yearQuery) return false;
@@ -2471,17 +2477,73 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (filterYearSidebar && filterYear) {
-        filterYearSidebar.addEventListener('input', () => {
+        filterYearSidebar.addEventListener('change', () => {
             filterYear.value = filterYearSidebar.value;
             renderAnimeGrid();
         });
+        // Initial sync if default is set
+        if (filterYearSidebar.value) {
+            filterYear.value = filterYearSidebar.value;
+        }
     }
 
-    if (filterSeasonSidebar && filterSeason) {
-        filterSeasonSidebar.addEventListener('change', () => {
-            filterSeason.value = filterSeasonSidebar.value;
-            renderAnimeGrid();
+    const seasonPillsContainer = document.getElementById('season-filter-pills');
+    if (seasonPillsContainer) {
+        const pills = seasonPillsContainer.querySelectorAll('.season-pill');
+        pills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                const season = pill.dataset.season;
+                if (selectedSidebarSeason === season) {
+                    selectedSidebarSeason = "";
+                    pill.classList.remove('active');
+                } else {
+                    selectedSidebarSeason = season;
+                    pills.forEach(p => p.classList.remove('active'));
+                    pill.classList.add('active');
+                }
+                renderAnimeGrid();
+            });
         });
+    }
+
+    // Clear Search Logic
+    const btnClearSearch = document.getElementById('btn-clear-search');
+    const updateClearSearchVisibility = () => {
+        if (btnClearSearch) {
+            if (filterName.value) btnClearSearch.classList.remove('hidden');
+            else btnClearSearch.classList.add('hidden');
+        }
+    };
+
+    if (btnClearSearch) {
+        btnClearSearch.addEventListener('click', () => {
+            filterName.value = '';
+            updateClearSearchVisibility();
+            if (activeTab === 'LIBRARY') renderLibraryView();
+            else renderAnimeGrid();
+            filterName.focus();
+        });
+        updateClearSearchVisibility();
+    }
+
+    const btnClearLibrarySearch = document.getElementById('btn-clear-library-search');
+    const librarySearchInput = document.getElementById('library-search-input');
+    const updateClearLibrarySearchVisibility = () => {
+        if (btnClearLibrarySearch && librarySearchInput) {
+            if (librarySearchInput.value) btnClearLibrarySearch.classList.remove('hidden');
+            else btnClearLibrarySearch.classList.add('hidden');
+        }
+    };
+
+    if (btnClearLibrarySearch && librarySearchInput) {
+        btnClearLibrarySearch.addEventListener('click', () => {
+            librarySearchInput.value = '';
+            librarySearchTerm = '';
+            updateClearLibrarySearchVisibility();
+            renderLibraryView();
+            librarySearchInput.focus();
+        });
+        updateClearLibrarySearchVisibility();
     }
 
     function renderGenreFilters() {
@@ -2541,10 +2603,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const librarySearchInput = document.getElementById('library-search-input');
     if (librarySearchInput) {
         librarySearchInput.addEventListener('input', (e) => {
             librarySearchTerm = e.target.value.toLowerCase();
+            updateClearLibrarySearchVisibility();
             renderLibraryView();
         });
     }
@@ -2595,6 +2657,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== Filter Events =====
     filterName.addEventListener('input', () => {
+        updateClearSearchVisibility();
         if (activeTab === 'LIBRARY') renderLibraryView();
         else renderAnimeGrid();
     });

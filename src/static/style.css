@@ -1872,6 +1872,69 @@ header {
     outline: none;
 }
 
+/* Season Pills */
+.season-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.season-pill {
+    padding: 0.3rem 0.65rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.season-pill:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+.season-pill.active {
+    color: white;
+    border-color: transparent;
+}
+
+.season-pill.current.active { background: #3b82f6; box-shadow: 0 0 12px rgba(59, 130, 246, 0.3); } /* Blue */
+.season-pill.winter.active { background: #0ea5e9; box-shadow: 0 0 12px rgba(14, 165, 233, 0.3); } /* Sky Blue */
+.season-pill.spring.active { background: #ec4899; box-shadow: 0 0 12px rgba(236, 72, 153, 0.3); } /* Pink */
+.season-pill.summer.active { background: #10b981; box-shadow: 0 0 12px rgba(16, 185, 129, 0.3); } /* Emerald */
+.season-pill.fall.active { background: #f59e0b; box-shadow: 0 0 12px rgba(245, 158, 11, 0.3); } /* Amber */
+
+/* Search Clear Button */
+.clear-search-btn {
+    position: absolute;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5;
+    transition: all var(--transition);
+}
+
+.clear-search-btn:hover {
+    opacity: 1;
+    color: var(--error);
+}
+
+.clear-search-btn.hidden {
+    display: none;
+}
+
 /* Genre Chips (Selectable items) */
 .genre-select-list {
     display: flex;

@@ -77,17 +77,27 @@
                         </div>
                         <div class="filter-group-sidebar">
                             <label for="filter-year-sidebar">Year</label>
-                            <input type="number" id="filter-year-sidebar" placeholder="e.g. 2024" min="1970" max="2030">
+                            <select id="filter-year-sidebar">
+                                <option value="">All Years</option>
+                                <option value="2027">2027</option>
+                                <option value="2026" selected>2026</option>
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                                <option value="2021">2021</option>
+                                <option value="2020">2020</option>
+                            </select>
                         </div>
                         <div class="filter-group-sidebar">
-                            <label for="filter-season-sidebar">Season</label>
-                            <select id="filter-season-sidebar">
-                                <option value="">All Seasons</option>
-                                <option value="WINTER">Winter</option>
-                                <option value="SPRING">Spring</option>
-                                <option value="SUMMER">Summer</option>
-                                <option value="FALL">Fall</option>
-                            </select>
+                            <label>Season</label>
+                            <div id="season-filter-pills" class="season-pills">
+                                <button class="season-pill current" data-season="CURRENT" title="Currently Airing">Current</button>
+                                <button class="season-pill winter" data-season="WINTER">Winter</button>
+                                <button class="season-pill spring" data-season="SPRING">Spring</button>
+                                <button class="season-pill summer" data-season="SUMMER">Summer</button>
+                                <button class="season-pill fall" data-season="FALL">Fall</button>
+                            </div>
                         </div>
                         <div class="filter-group-sidebar">
                             <label>Genres</label>
@@ -255,6 +265,7 @@
                 <div class="filter-search">
                     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="filter-name" placeholder="Search anime..." autocomplete="off" />
+                    <button id="btn-clear-search" class="clear-search-btn" title="Clear search">✕</button>
                 </div>
                 <select id="filter-season">
                     <option value="">All Seasons</option>
@@ -368,6 +379,7 @@
                     <div class="filter-search">
                         <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                         <input type="text" id="library-search-input" placeholder="Search files or folders..." style="width: 100%;">
+                        <button id="btn-clear-library-search" class="clear-search-btn" title="Clear search">✕</button>
                     </div>
                 </div>
                 <div id="library-tree-container"></div>
