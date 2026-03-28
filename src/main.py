@@ -381,7 +381,7 @@ if __name__ == "__main__":
         print("Warning: No valid AniList token found. Running in local cache mode.")
         
     # Start the web UI server on port 8080
-    run_server_in_background(agent, 8080)
+    run_server_in_background(agent, 8082)
     
     # Run Agent synchronously in the main thread (blocks forever)
     try:
