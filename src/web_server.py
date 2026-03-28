@@ -609,16 +609,25 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                     anime_title = item.get('animeTitle')
                     
                     if not url: continue
-                    
-                    # Target folder logic
+
+                    # Target folder logic — preserve punctuation like '.' in titles
+                    def _make_title_dir(title: str) -> str:
+                        safe = re.sub(r'[<>:"/\\|?*\x00-\x1f]', '', title).strip()
+                        return safe or 'Downloads'
+
                     if media_id:
-                        download_dir = self.agent.settings.get_media_folder(int(media_id))
+                        configured = self.agent.settings.get_media_folder(int(media_id))
+                        if configured != self.agent.settings.default_download_dir:
+                            download_dir = configured
+                        elif anime_title:
+                            download_dir = os.path.join(self.agent.settings.default_download_dir, _make_title_dir(anime_title))
+                        else:
+                            download_dir = self.agent.settings.default_download_dir
                     elif anime_title:
-                        title_safe = "".join([c for c in anime_title if c.isalnum() or c in (' ', '-', '_')]).strip()
-                        download_dir = os.path.join(self.agent.settings.default_download_dir, title_safe)
+                        download_dir = os.path.join(self.agent.settings.default_download_dir, _make_title_dir(anime_title))
                     else:
                         download_dir = self.agent.settings.default_download_dir
-                        
+
                     path = self.agent.nyaa.download_torrent(url, download_dir)
                     results.append({"url": url, "success": bool(path)})
                 

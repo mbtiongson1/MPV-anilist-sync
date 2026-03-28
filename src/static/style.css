@@ -1385,6 +1385,16 @@ footer {
     font-weight: 700;
 }
 
+.torrent-leechers {
+    color: #f87171;  /* red */
+    font-weight: 700;
+}
+
+.th-sortable:hover {
+    color: var(--accent);
+    background: rgba(255,255,255,0.04);
+}
+
 .torrent-icon-btn {
     padding: 0.4rem;
     border-radius: var(--radius-sm);

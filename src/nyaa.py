@@ -135,6 +135,8 @@ class NyaaInterface:
                 guid_node = item.find('guid')
                 size_node = item.find('{https://nyaa.si/xmlns/nyaa}size')
                 seeders_node = item.find('{https://nyaa.si/xmlns/nyaa}seeders')
+                leechers_node = item.find('{https://nyaa.si/xmlns/nyaa}leechers')
+                infohash_node = item.find('{https://nyaa.si/xmlns/nyaa}infoHash')
 
                 if title_node is None or link_node is None:
                     continue
@@ -153,6 +155,21 @@ class NyaaInterface:
                         seed = int(str(seeders_node.text))
                     except (ValueError, TypeError):
                         seed = 0
+
+                leech: int = 0
+                if leechers_node is not None and leechers_node.text is not None:
+                    try:
+                        leech = int(str(leechers_node.text))
+                    except (ValueError, TypeError):
+                        leech = 0
+
+                # Build magnet link from infoHash
+                magnet = ''
+                if infohash_node is not None and infohash_node.text:
+                    ih = infohash_node.text.strip()
+                    import urllib.parse as _up
+                    dn = _up.quote(t)
+                    magnet = f'magnet:?xt=urn:btih:{ih}&dn={dn}&tr=http%3A%2F%2Fnyaa.tracker.wf%3A7777%2Fannounce'
 
                 # Parse episode number and batch status from title
                 parsed_ep, is_batch = _parse_episode_from_title(t)
@@ -177,6 +194,8 @@ class NyaaInterface:
                     'view_link': view_link,
                     'size': s,
                     'seeders': seed,
+                    'leechers': leech,
+                    'magnet': magnet,
                     'group': group_match,
                     'score': score,
                     'episode': parsed_ep,
