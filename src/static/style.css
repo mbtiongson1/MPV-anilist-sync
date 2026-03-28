@@ -1021,109 +1021,141 @@ header {
     letter-spacing: 0.05em;
 }
 
-.selection-actions-left {
+/* Move To Button & Dropdown Styles */
+.move-to-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.move-to-btn {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-weight: 700;
+    background: transparent;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition);
 }
 
-.selection-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-left: auto;
+.move-to-btn:hover {
+    background: var(--accent-glow);
 }
 
-/* Fix dropdown display */
+.move-to-btn.active {
+    background: var(--accent);
+    color: white;
+}
+
+.move-to-btn .chevron-icon {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.move-to-btn.active .chevron-icon {
+    transform: rotate(180deg);
+}
+
 .move-to-dropdown {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 5px);
     right: 0;
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-card);
-    z-index: 1000; /* High z-index */
-    width: 180px;
-    margin-top: 5px;
+    border-radius: var(--radius-md);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 200px;
     padding: 0.5rem;
     display: none;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
+    backdrop-filter: blur(10px);
+    animation: dropdownFade 0.2s ease;
+}
+
+@keyframes dropdownFade {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .move-to-dropdown.show {
     display: flex !important;
 }
 
+.move-to-option {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.move-to-option:before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--status-color);
+    box-shadow: 0 0 8px var(--status-color);
+}
+
+.move-to-option:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    transform: translateX(4px);
+}
+
 /* Saturated Seasonal backgrounds for better selection visibility */
-.anime-card.selected.season-bg-winter, .anime-list-item.selected.season-bg-winter { background-color: rgba(14, 165, 233, 0.6) !important; color: white; }
-.anime-card.selected.season-bg-spring, .anime-list-item.selected.season-bg-spring { background-color: rgba(236, 72, 153, 0.6) !important; color: white; }
-.anime-card.selected.season-bg-summer, .anime-list-item.selected.season-bg-summer { background-color: rgba(16, 185, 129, 0.6) !important; color: white; }
-.anime-card.selected.season-bg-fall,   .anime-list-item.selected.season-bg-fall   { background-color: rgba(245, 158, 11, 0.6) !important; color: white; }
+.anime-card.selected.season-bg-winter, .anime-list-item.selected.season-bg-winter { background-color: #0ea5e9 !important; color: white; }
+.anime-card.selected.season-bg-spring, .anime-list-item.selected.season-bg-spring { background-color: #ec4899 !important; color: white; }
+.anime-card.selected.season-bg-summer, .anime-list-item.selected.season-bg-summer { background-color: #10b981 !important; color: white; }
+.anime-card.selected.season-bg-fall,   .anime-list-item.selected.season-bg-fall   { background-color: #f59e0b !important; color: white; }
+
+.anime-card.selected.season-bg-winter-spring, .anime-list-item.selected.season-bg-winter-spring { background: linear-gradient(135deg, #0ea5e9, #ec4899) !important; color: white; }
+.anime-card.selected.season-bg-spring-summer, .anime-list-item.selected.season-bg-spring-summer { background: linear-gradient(135deg, #ec4899, #10b981) !important; color: white; }
+.anime-card.selected.season-bg-summer-fall,   .anime-list-item.selected.season-bg-summer-fall   { background: linear-gradient(135deg, #10b981, #f59e0b) !important; color: white; }
+.anime-card.selected.season-bg-fall-winter,   .anime-list-item.selected.season-bg-fall-winter   { background: linear-gradient(135deg, #f59e0b, #0ea5e9) !important; color: white; }
 
 /* In selected state, ensure text remains readable */
 .anime-card.selected .anime-title, .anime-card.selected .anime-meta,
 .anime-list-item.selected .list-title, .anime-list-item.selected .list-meta span {
     color: white !important;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.anime-card.selected .card-live-indicator {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .anime-card.selected .anime-card-cover {
-    border-bottom: 1px solid rgba(255,255,255,0.2);
+    border-bottom: 1px solid rgba(255,255,255,0.3);
 }
 
-/* Gradients Selection - Saturated */
-.anime-card.selected.season-bg-winter-spring, .anime-list-item.selected.season-bg-winter-spring { 
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.45), rgba(236, 72, 153, 0.45)) !important; 
-}
-.anime-card.selected.season-bg-spring-summer, .anime-list-item.selected.season-bg-spring-summer { 
-    background: linear-gradient(135deg, rgba(236, 72, 153, 0.45), rgba(16, 185, 129, 0.45)) !important; 
-}
-.anime-card.selected.season-bg-summer-fall, .anime-list-item.selected.season-bg-summer-fall { 
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(245, 158, 11, 0.45)) !important; 
-}
-.anime-card.selected.season-bg-fall-winter, .anime-list-item.selected.season-bg-fall-winter { 
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.45), rgba(14, 165, 233, 0.45)) !important; 
+/* Fix details table alignment & details-row saturated colors */
+.details-row.selected.season-bg-winter { background-color: rgba(14, 165, 233, 0.4) !important; color: white; }
+.details-row.selected.season-bg-spring { background-color: rgba(236, 72, 153, 0.4) !important; color: white; }
+.details-row.selected.season-bg-summer { background-color: rgba(16, 185, 129, 0.4) !important; color: white; }
+.details-row.selected.season-bg-fall   { background-color: rgba(245, 158, 11, 0.4)   !important; color: white; }
+
+.details-row {
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
 }
 
-/* Details Table UI Sync - Seasonal Colors for Rows */
-.details-row.season-bg-winter { background-color: var(--season-winter-alpha); }
-.details-row.season-bg-spring { background-color: var(--season-spring-alpha); }
-.details-row.season-bg-summer { background-color: var(--season-summer-alpha); }
-.details-row.season-bg-fall   { background-color: var(--season-fall-alpha); }
-
-.details-row.season-bg-winter-spring { background: linear-gradient(90deg, var(--season-winter-alpha), var(--season-spring-alpha)); }
-.details-row.season-bg-spring-summer { background: linear-gradient(90deg, var(--season-spring-alpha), var(--season-summer-alpha)); }
-.details-row.season-bg-summer-fall   { background: linear-gradient(90deg, var(--season-summer-alpha), var(--season-fall-alpha)); }
-.details-row.season-bg-fall-winter   { background: linear-gradient(90deg, var(--season-fall-alpha), var(--season-winter-alpha)); }
-
-/* Details Table Alignment & Actions Fix */
-.details-table td {
-    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
-    vertical-align: middle;
+.details-row.selected td {
+    border-bottom-color: rgba(255, 255, 255, 0.2);
 }
 
-.details-table td:last-child {
-    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
-}
-
-.details-table tr:last-child td {
-    border-bottom: none;
-}
-
-/* Row selection saturated */
-.details-row.selected {
-    background-color: var(--accent-glow) !important;
-    box-shadow: inset 4px 0 0 var(--accent);
-}
-
-.details-row.selected.season-bg-winter { background-color: rgba(14, 165, 233, 0.2) !important; }
-.details-row.selected.season-bg-spring { background-color: rgba(236, 72, 153, 0.2) !important; }
-.details-row.selected.season-bg-summer { background-color: rgba(16, 185, 129, 0.2) !important; }
-.details-row.selected.season-bg-fall   { background-color: rgba(245, 158, 11, 0.2) !important; }
-
-/* ===== Anime Grid ===== */
+/* View Toggle Fix */
 .anime-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -1141,6 +1173,7 @@ header {
     transition: all var(--transition);
     cursor: default;
     overflow: hidden;
+    user-select: none;
 }
 
 .anime-card:hover {
@@ -1325,7 +1358,6 @@ header {
     flex-direction: column;
     gap: 0.25rem;
 }
-
 .anime-list-item {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -1337,6 +1369,8 @@ header {
     transition: all var(--transition);
     cursor: default;
     overflow: hidden;
+    user-select: none;
+}
     position: relative;
 }
 

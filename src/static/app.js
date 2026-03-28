@@ -952,8 +952,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             animeList = data;
-            selectedAnime.clear();
-            updateSelectionUI();
             renderGenreFilters(); // Populate sidebar genres
             renderRecentAnime();
             updateCounts();
@@ -2337,14 +2335,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!mediaId) return;
 
                 if (e.shiftKey && lastSelectedMediaId) {
+                    e.preventDefault();
                     // Range selection
                     const allIds = currentPagedList.map(a => a.mediaId.toString());
-                    const startIdx = allIds.indexOf(lastSelectedMediaId);
+                    let startIdx = allIds.indexOf(lastSelectedMediaId);
                     const endIdx = allIds.indexOf(mediaId);
                     
-                    if (startIdx !== -1 && endIdx !== -1) {
+                    // If last selection is not on current page, start from index 0
+                    if (startIdx === -1) startIdx = 0;
+
+                    if (endIdx !== -1) {
                         const min = Math.min(startIdx, endIdx);
                         const max = Math.max(startIdx, endIdx);
+                        
+                        // Usually shift-click means "select this range"
+                        // We use the state of the target item to decide
                         const isSelecting = !selectedAnime.has(mediaId);
                         
                         for (let i = min; i <= max; i++) {
@@ -2358,9 +2363,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         currentPagedList.forEach(a => {
                             const id = a.mediaId.toString();
                             const items = document.querySelectorAll(`[data-media-id="${id}"]`);
-                            items.forEach(item => {
-                                if (selectedAnime.has(id)) item.classList.add('selected');
-                                else item.classList.remove('selected');
+                            items.forEach(el => {
+                                if (selectedAnime.has(id)) el.classList.add('selected');
+                                else el.classList.remove('selected');
                             });
                         });
                         
@@ -3776,14 +3781,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnMoveTo) {
         btnMoveTo.addEventListener('click', (e) => {
             e.stopPropagation();
-            moveToDropdown.classList.toggle('show');
+            const isShowing = moveToDropdown.classList.toggle('show');
+            btnMoveTo.classList.toggle('active', isShowing);
         });
     }
 
     // Close dropdown on outside click
     document.addEventListener('click', (e) => {
-        if (moveToDropdown && !moveToDropdown.contains(e.target) && e.target !== btnMoveTo) {
+        if (moveToDropdown && !moveToDropdown.contains(e.target) && !btnMoveTo.contains(e.target)) {
             moveToDropdown.classList.remove('show');
+            btnMoveTo.classList.remove('active');
         }
     });
 
@@ -3793,6 +3800,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const status = opt.getAttribute('data-status');
             moveSelectedTo(status);
             moveToDropdown.classList.remove('show');
+            btnMoveTo.classList.remove('active');
         });
     });
 
