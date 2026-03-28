@@ -175,8 +175,8 @@ class TrackerAgent:
                     else:
                         # Connected but nothing playing
                         if self.active_filename:
-                            print(f"Playback stopped on {active.__class__.__name__}. Syncing: {self.active_filename}")
-                            self.sync_progress(self.active_filename)
+                            print(f"Playback stopped on {active.__class__.__name__}. Manual sync required: {self.active_filename}")
+                            # Auto-sync disabled as per user request
                             self.active_filename = None
                         
                         # We stay with this watcher for a bit or look for others?
@@ -186,7 +186,7 @@ class TrackerAgent:
                     watcher_name = active.__class__.__name__
                     print(f"Watcher {watcher_name} disconnected.")
                     if self.active_filename:
-                        self.sync_progress(self.active_filename)
+                        # Auto-sync disabled
                         self.active_filename = None
                     self.active_watcher = None
 
@@ -212,8 +212,8 @@ class TrackerAgent:
     def _process_active_file(self, filename: str):
         """Internal helper to handle filename changes and progress fetching."""
         if self.active_filename and self.active_filename != filename:
-            print(f"File changed. Syncing previous file: {self.active_filename}")
-            self.sync_progress(self.active_filename)
+            print(f"File changed from: {self.active_filename}")
+            # Auto-sync disabled
             
         if self.active_filename != filename:
             self.active_filename = filename

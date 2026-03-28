@@ -7,7 +7,7 @@ A lightweight, background Python agent for Windows and macOS that detects when a
 ## ✨ Features
 
 - **Multi-Player Support**: Detects playback in MPV, MPC-HC, VLC, and browser window titles on Windows.
-- **🚀 Auto-Sync**: Automatically updates your watch list when you close a playing file or stop playback.
+- **🚀 Manual Sync**: You have full control. Sync your progress to AniList manually with a single click when you're ready.
 - **🧠 Smart Parsing**: Cleans up complicated filenames (e.g. `[SubsPlease] Sousou no Frieren - 01 (1080p).mkv`) accurately using `guessit`.
 - **🌐 Web UI**: Modern beige/earth-toned browser interface to manage your watch list and track progress.
 - **🔍 Nyaa Integration**: Search for missing episodes directly from the Web UI using Nyaa.si.

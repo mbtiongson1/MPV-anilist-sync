@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Others': '#fb923c'
     };
     const btnRefreshList = document.getElementById('btn-refresh-list');
+    const btnPullAnilist = document.getElementById('btn-pull-anilist');
     const lastSyncedTimeDisp = document.getElementById('last-synced-time');
     const btnToggleView = document.getElementById('btn-toggle-view');
     const btnReauthorize = document.getElementById('btn-reauthorize');
@@ -83,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputSettingResolution = document.getElementById('setting-resolution');
     const inputSettingDownloadDir = document.getElementById('setting-download-dir');
     const inputSettingEnableDragDrop = document.getElementById('setting-enable-drag-drop');
+    const inputSettingReduceColors = document.getElementById('setting-reduce-colors');
     const npPlayerBadge = document.getElementById('np-player-badge');
     const tabTorrents = document.getElementById('tab-torrents');
     const tabLibrary = document.getElementById('tab-library');
@@ -143,6 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterFormat = document.getElementById('filter-format');
     const filterYearSidebar = document.getElementById('filter-year-sidebar');
     const seasonPillsContainer = document.getElementById('season-filter-pills');
+    const btnResetFilters = document.getElementById('btn-reset-filters');
 
     let libraryData = []; // Cached library scanner results
     let libraryExclusions = []; // List of excluded paths
@@ -159,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedGenres = new Set(); // For sidebar genre filter
     let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
     if (sidebarCollapsed) appSidebar.classList.add('collapsed');
-    let selectedSidebarSeason = ""; // "CURRENT", "WINTER", etc.
+    let selectedSidebarSeasons = new Set(['WINTER', 'SPRING', 'SUMMER', 'FALL']);
 
     const getCurrentSeason = () => {
         const month = new Date().getMonth(); // 0-11
@@ -167,6 +170,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (month >= 3 && month <= 5) return "SPRING"; // Apr-Jun
         if (month >= 6 && month <= 8) return "SUMMER"; // Jul-Sep
         return "FALL"; // Oct-Dec
+    };
+
+    const getSeasonIcon = (season) => {
+        switch (season?.toUpperCase()) {
+            case 'WINTER': return `<svg class="season-icon winter" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"></line><line x1="20" y1="7" x2="4" y2="17"></line><line x1="20" y1="17" x2="4" y2="7"></line><polyline points="9 16 12 19 15 16"></polyline><polyline points="15 8 12 5 9 8"></polyline><polyline points="19 11 20 14 17 16"></polyline><polyline points="5 13 4 10 7 8"></polyline><polyline points="7 16 4 14 5 11"></polyline><polyline points="17 8 20 10 19 13"></polyline></svg>`;
+            case 'SPRING': return `<svg class="season-icon spring" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4.97 0 9-4.03 9-9 0-4.97-9-13-9-13S3 8.03 3 13c0 4.97 4.03 9 9 9z"/></svg>`;
+            case 'SUMMER': return `<svg class="season-icon summer" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+            case 'FALL':   return `<svg class="season-icon fall" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.4 19 4c.2 2 .6 3.5-1.1 9.2A7 7 0 0 1 11 20Z"/><path d="M19 4l-5 5"/></svg>`;
+            default: return "";
+        }
     };
 
     const getSeasonEndDate = (season, year) => {
@@ -223,7 +236,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateSeasonPillLabels() {
         if (!seasonPillsContainer) return;
-        const selectedYear = parseInt(filterYearSidebar.value) || new Date().getFullYear();
+        const yearValue = filterYearSidebar.value;
+        const isAllYears = !yearValue;
+        const selectedYear = parseInt(yearValue) || new Date().getFullYear();
         const now = new Date();
         const currentSeason = getCurrentSeason(); // Logic based on current DATE
         const isCurrentYear = selectedYear === now.getFullYear();
@@ -231,9 +246,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const pills = seasonPillsContainer.querySelectorAll('.season-pill');
         pills.forEach(pill => {
             const season = pill.dataset.season;
+            const icon = getSeasonIcon(season);
             
-            // Text for the pill: "Season Year"
-            pill.innerHTML = `<span>${season.charAt(0) + season.slice(1).toLowerCase()} ${selectedYear}</span>`;
+            // Text for the pill: "Season Year" or just "Season"
+            const labelText = season.charAt(0) + season.slice(1).toLowerCase();
+            const yearDisplay = isAllYears ? "" : ` ${selectedYear}`;
+            pill.innerHTML = `${icon}<span>${labelText}${yearDisplay}</span>`;
             
             // Clean up any existing indicator/wrapper logic
             let container = pill.closest('.season-pill-wrapper');
@@ -980,7 +998,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== Filtering =====
     function getFilteredList() {
         const nameQuery = filterName.value.toLowerCase().trim();
-        const seasonQuery = filterSeason.value || selectedSidebarSeason;
+        const seasonQuery = filterSeason.value;
         const yearQuery = filterYear.value ? parseInt(filterYear.value) : (filterYearSidebar.value ? parseInt(filterYearSidebar.value) : null);
         const formatQuery = filterFormat.value;
 
@@ -1006,6 +1024,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (seasonQuery === 'CURRENT') {
                     if (a.status !== 'RELEASING') return false;
                 } else if (a.season !== seasonQuery) {
+                    return false;
+                }
+            } else if (selectedSidebarSeasons.size > 0 && selectedSidebarSeasons.size < 4) {
+                // Only filter by sidebar seasons if not all are selected
+                if (!a.season || !selectedSidebarSeasons.has(a.season)) {
                     return false;
                 }
             }
@@ -2142,10 +2165,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Seasonal BG Logic
                 const seasons = getAnimeSeasons(anime);
                 let seasonalClass = "";
-                if (seasons.length === 1) {
-                    seasonalClass = `season-bg-${seasons[0].toLowerCase()}`;
-                } else if (seasons.length >= 2) {
-                    seasonalClass = `season-bg-${seasons[0].toLowerCase()}-${seasons[1].toLowerCase()}`;
+                let seasonIconsHtml = "";
+                if (seasons.length > 0) {
+                    seasonalClass = `season-bg-${seasons.join('-').toLowerCase()}`;
+                    seasonIconsHtml = seasons.map(s => getSeasonIcon(s)).join('');
                 }
 
                 // Live Indicator Logic
@@ -2185,10 +2208,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 }
 
+                const seasonTag = seasonIconsHtml ? `<div class="card-season-tag">${seasonIconsHtml}</div>` : "";
+
                 if (viewMode === 'grid') {
                     return `
                         <div class="anime-card ${seasonalClass} ${selectedClass}" data-media-id="${anime.mediaId}" style="cursor: pointer;">
                             ${liveLabel}
+                            ${seasonTag}
                             <div class="anime-card-cover" style="background-image: url('${cover}')">
                                 <div class="anime-progress">
                                     <div id="seg-${anime.mediaId}" class="progress-segments"></div>
@@ -2211,7 +2237,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             <img src="${cover}" class="anime-list-cover" alt="cover">
                             ${liveLabel ? liveLabel.replace('card-live-indicator', 'card-live-indicator list-live-indicator') : ''}
                             <div class="list-info">
-                                <div class="list-title">${escapeHtml(title)}</div>
+                                <div class="list-title">
+                                    ${escapeHtml(title)}
+                                    ${seasonTag.replace('card-season-tag', 'card-season-tag list-season-tag')}
+                                </div>
                                 <div class="list-meta">
                                     <span>${progress} / ${total}</span>
                                     <span>★ ${score}</span>
@@ -2235,7 +2264,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             <td>${progress} / ${total} ${anime.mediaStatus === 'RELEASING' && anime.nextAiringEpisode ? `<span style="color:var(--accent); font-size: 0.7rem; font-weight: 700;">(+${Math.max(0, (anime.nextAiringEpisode.episode - 1) - progress)})</span>` : ''}</td>
                             <td>${score}</td>
                             <td>${formatPop}</td>
-                            <td>${anime.season || '-'} ${anime.seasonYear || ''}</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                    ${seasonTag.replace('card-season-tag', 'card-season-tag inline-season-tag')}
+                                    ${anime.season || '-'} ${anime.seasonYear || ''}
+                                </div>
+                            </td>
                             <td>${escapeHtml(anime.studio || '-')}</td>
                             <td style="text-align: right; display: flex; justify-content: flex-end; gap: 0.25rem;">
                                 ${actionButtons}
@@ -2446,19 +2480,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         tableBody.querySelectorAll('.btn-resume').forEach(btn => {
-            btn.onclick = (e) => {
+            btn.onclick = async (e) => {
                 e.stopPropagation();
                 const mediaId = btn.getAttribute('data-media-id');
-                if (confirm("Move this anime back to 'In Progress'?")) {
-                    fetch('/api/change_status', {
-                        method: 'POST',
-                        body: JSON.stringify({ mediaId: parseInt(mediaId), status: 'CURRENT' }),
-                        headers: { 'Content-Type': 'application/json' }
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) fetchAnimeList();
-                    });
+                const anime = animeList.find(a => a.mediaId == mediaId);
+                
+                if (anime && confirm(`Move "${anime.title?.romaji || 'this anime'}" back to 'In Progress'? (Progress will be set to ${Math.max(0, (anime.progress || 0) - 1)})`)) {
+                    const newProgress = Math.max(0, (anime.progress || 0) - 1);
+                    
+                    // Optimistic update
+                    anime.listStatus = 'CURRENT';
+                    anime.progress = newProgress;
+                    updateCounts();
+                    renderAnimeGrid();
+
+                    try {
+                        // 1. Sync Status
+                        await fetch('/api/change_status', {
+                            method: 'POST',
+                            body: JSON.stringify({ mediaId: parseInt(mediaId), status: 'CURRENT' }),
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+
+                        // 2. Sync Progress
+                        await fetch('/api/update_progress', {
+                            method: 'POST',
+                            body: JSON.stringify({ mediaId: parseInt(mediaId), episode: newProgress }),
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+
+                        showToast("Moved back to In Progress");
+                        fetchAnimeList(); // background confirm
+                    } catch (err) {
+                        console.error("Resume failed:", err);
+                        showToast("Failed to sync changes", "error");
+                    }
                 }
             };
         });
@@ -2505,6 +2561,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function openAnimeDetailsModal(anime) {
         const title = anime.title?.romaji || anime.title?.english || anime.title?.native || 'Unknown';
         const description = anime.description || 'No description available.';
+        const cover = getCachedImageUrl(anime.coverImage?.large || anime.coverImage?.medium || '');
         const stats = [];
         if (anime.status) stats.push(`<strong>Status:</strong> ${escapeHtml(anime.status)}`);
         if (anime.season && anime.seasonYear) stats.push(`<strong>Season:</strong> ${escapeHtml(anime.season)} ${anime.seasonYear}`);
@@ -2515,16 +2572,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentOverride = (userSettings && userSettings.title_overrides) ? userSettings.title_overrides[anime.mediaId] || '' : '';
 
         modalBody.innerHTML = `
-            <h3>${escapeHtml(title)}</h3>
-            <div class="modal-meta">${stats.map(s => `<p>${s}</p>`).join('')}</div>
-            <p><strong>Description</strong></p>
-            <p>${escapeHtml(description)}</p>
-            <div class="modal-actions" style="flex-direction: column; align-items: flex-start; gap: 1rem;">
+            <div class="details-modal-grid">
+                <div class="details-modal-left">
+                    <img src="${cover}" alt="cover" class="details-modal-cover" />
+                </div>
+                <div class="details-modal-right">
+                    <h3>${escapeHtml(title)}</h3>
+                    <div class="modal-meta">${stats.map(s => `<p>${s}</p>`).join('')}</div>
+                    <p><strong>Description</strong></p>
+                    <div class="modal-description">${description}</div>
+                </div>
+            </div>
+            <div class="modal-actions" style="flex-direction: column; align-items: flex-start; gap: 1rem; border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1rem;">
                 <div style="width: 100%;">
                     <label style="display: block; font-weight: 600; margin-bottom: 4px;">Local Name Override (folder name):</label>
                     <input type="text" id="modal-name-override" value="${escapeHtml(currentOverride)}" class="filter-input" style="width: 100%; padding: 8px;" placeholder="e.g. My Folder Name" />
                 </div>
-                <div style="display: flex; gap: 1rem; align-items: center;">
+                <div style="display: flex; gap: 1rem; align-items: center; width: 100%; justify-content: space-between;">
                     <label style="font-weight: 600;">
                         Set progress:
                         <input type="number" id="modal-progress" value="${anime.progress || 0}" min="0" style="width: 60px; padding: 4px;" />
@@ -2537,43 +2601,74 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-save').addEventListener('click', async () => {
             const newProgress = parseInt(document.getElementById('modal-progress').value, 10);
             const newOverride = document.getElementById('modal-name-override').value.trim();
-            
+
             if (!Number.isFinite(newProgress) || newProgress < 0) return;
-            
+
+            const saveBtn = document.getElementById('modal-save');
+            saveBtn.textContent = 'Saving...';
+            saveBtn.disabled = true;
+
             try {
-                // 1. Save title override
+                // 1. Update local cache immediately for speed
+                const localAnime = animeList.find(a => a.mediaId === anime.mediaId);
+                let targetStatus = anime.listStatus;
+
+                if (localAnime) {
+                    localAnime.progress = newProgress;
+                    // If progress < total and it was COMPLETED, move to CURRENT
+                    if (localAnime.episodes && newProgress < localAnime.episodes && localAnime.listStatus === 'COMPLETED') {
+                        targetStatus = 'CURRENT';
+                        localAnime.listStatus = 'CURRENT';
+                    }
+                    // Update visuals
+                    updateCounts();
+                    renderAnimeGrid();
+                }
+
+                // 2. Sync to AniList (Title Override)
                 await fetch('/api/update_title_override', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ mediaId: anime.mediaId, customTitle: newOverride })
                 });
 
-                // 2. Save progress
+                // 3. Sync Status change if needed
+                if (targetStatus !== anime.listStatus) {
+                    await fetch('/api/change_status', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mediaId: anime.mediaId, status: targetStatus })
+                    });
+                }
+
+                // 4. Sync Progress
                 const resp = await fetch('/api/update_progress', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ mediaId: anime.mediaId, episode: newProgress })
                 });
-                
+
                 const result = await resp.json();
                 if (result.success) {
                     detailsModal.classList.add('hidden');
-                    await loadSettings(); // reload to get new overrides
-                    fetchAnimeList();
+                    // Background refresh to ensure everything is perfect
+                    fetchAnimeList(); 
                     if (activeTab === 'LIBRARY') fetchLibrary(true);
                     checkStatus();
                 } else {
-                    alert('Failed to update progress.');
+                    alert('Failed to update progress on AniList.');
                 }
             } catch (err) {
                 console.error('Error saving details:', err);
-                alert('Network error.');
+                alert('Network error while saving.');
+            } finally {
+                saveBtn.textContent = 'Save Changes';
+                saveBtn.disabled = false;
             }
         });
 
         detailsModal.classList.remove('hidden');
     }
-
     function updatePaginationUI(totalItems, totalPages) {
         if (!paginationContainer) return;
 
@@ -2818,19 +2913,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (seasonPillsContainer) {
         const pills = seasonPillsContainer.querySelectorAll('.season-pill');
+        
+        // Initialize active state
+        pills.forEach(pill => {
+            const season = pill.dataset.season;
+            if (selectedSidebarSeasons.has(season)) {
+                pill.classList.add('active');
+            }
+        });
+
         pills.forEach(pill => {
             pill.addEventListener('click', () => {
                 const season = pill.dataset.season;
-                if (selectedSidebarSeason === season) {
-                    selectedSidebarSeason = "";
+                if (selectedSidebarSeasons.has(season)) {
+                    // Only remove if it's not the last one? 
+                    // Actually, allow empty selection, which getFilteredList handles as "All" if 0 or 4.
+                    selectedSidebarSeasons.delete(season);
                     pill.classList.remove('active');
                 } else {
-                    selectedSidebarSeason = season;
-                    pills.forEach(p => p.classList.remove('active'));
+                    selectedSidebarSeasons.add(season);
                     pill.classList.add('active');
                 }
                 renderAnimeGrid();
             });
+        });
+    }
+
+    if (btnResetFilters) {
+        btnResetFilters.addEventListener('click', () => {
+            // Reset all sidebar filters
+            if (filterFormat) filterFormat.value = "";
+            if (filterYearSidebar) filterYearSidebar.value = "";
+            if (filterYear) filterYear.value = "";
+            
+            selectedGenres.clear();
+            const genreCheckboxes = genreFilterList.querySelectorAll('input[type="checkbox"]');
+            genreCheckboxes.forEach(cb => cb.checked = false);
+
+            selectedSidebarSeasons = new Set(['WINTER', 'SPRING', 'SUMMER', 'FALL']);
+            const pills = seasonPillsContainer.querySelectorAll('.season-pill');
+            pills.forEach(pill => pill.classList.add('active'));
+
+            renderAnimeGrid();
+            showToast("Filters reset to default");
         });
     }
 
@@ -3008,14 +3133,41 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAnimeGrid();
     });
 
-    // ===== Refresh / Sync Button =====
-    btnRefreshList.addEventListener('click', () => {
+    // ===== Pull from AniList Button =====
+    if (btnPullAnilist) {
+        btnPullAnilist.addEventListener('click', async () => {
+            if (confirm("Download latest list from AniList? This will overwrite any unsynced local changes (dragged items, progress edits).")) {
+                const originalHtml = btnPullAnilist.innerHTML;
+                btnPullAnilist.disabled = true;
+                btnPullAnilist.classList.add('syncing');
+                if (btnPullAnilist.querySelector('span')) btnPullAnilist.querySelector('span').textContent = 'Pulling...';
+
+                try {
+                    animeGrid.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Pulling latest from AniList...</p></div>`;
+                    // Clear pending changes as we are overwriting
+                    pendingChanges = {};
+                    btnBulkSync.classList.remove('pulse-sync');
+                    await fetchAnimeList();
+                    showToast("Pulled latest list from AniList");
+                } finally {
+                    btnPullAnilist.disabled = false;
+                    btnPullAnilist.classList.remove('syncing');
+                    btnPullAnilist.innerHTML = originalHtml;
+                }
+            }
+        });
+    }
+
+    // ===== Update to AniList Button =====
+    btnRefreshList.addEventListener('click', async () => {
+        if (!confirm("Upload all local changes to AniList? This will sync your progress and status updates.")) return;
+
         const originalHtml = btnRefreshList.innerHTML;
         btnRefreshList.disabled = true;
         btnRefreshList.classList.add('syncing');
 
         if (btnRefreshList.querySelector('span')) {
-            btnRefreshList.querySelector('span').textContent = 'Syncing...';
+            btnRefreshList.querySelector('span').textContent = 'Updating...';
         }
 
         const restoreButton = () => {
@@ -3028,7 +3180,16 @@ document.addEventListener('DOMContentLoaded', () => {
             libraryContent.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Refreshing library...</p></div>`;
             fetchLibrary(true).finally(restoreButton);
         } else {
-            animeGrid.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Refreshing...</p></div>`;
+            // First perform any pending bulk changes
+            if (Object.keys(pendingChanges).length > 0) {
+                try {
+                    await performBulkSync();
+                } catch (e) {
+                    console.error("Bulk sync failed during global update:", e);
+                }
+            }
+            
+            animeGrid.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Syncing changes...</p></div>`;
             fetchAnimeList().finally(restoreButton);
         }
     });
@@ -3131,8 +3292,17 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const resp = await fetch('/api/settings');
             userSettings = await resp.json();
+            applySettingsToUI();
         } catch (e) {
             console.error("Failed to load settings:", e);
+        }
+    }
+
+    function applySettingsToUI() {
+        if (userSettings && userSettings.reduce_colors) {
+            document.body.classList.add('reduce-colors');
+        } else {
+            document.body.classList.remove('reduce-colors');
         }
     }
 
@@ -3143,6 +3313,7 @@ document.addEventListener('DOMContentLoaded', () => {
             inputSettingDownloadDir.value = userSettings.default_download_dir || '';
             if (inputSettingBaseAnimeFolder) inputSettingBaseAnimeFolder.value = userSettings.base_anime_folder || '';
             if (inputSettingEnableDragDrop) inputSettingEnableDragDrop.checked = userSettings.enable_drag_drop !== false;
+            if (inputSettingReduceColors) inputSettingReduceColors.checked = userSettings.reduce_colors === true;
         }
         settingsModal.classList.remove('hidden');
     }
@@ -3160,7 +3331,8 @@ document.addEventListener('DOMContentLoaded', () => {
             preferred_groups: inputSettingGroups.value,
             preferred_resolution: inputSettingResolution.value,
             default_download_dir: inputSettingDownloadDir.value,
-            enable_drag_drop: inputSettingEnableDragDrop ? inputSettingEnableDragDrop.checked : true
+            enable_drag_drop: inputSettingEnableDragDrop ? inputSettingEnableDragDrop.checked : true,
+            reduce_colors: inputSettingReduceColors ? inputSettingReduceColors.checked : false
         };
         if (inputSettingBaseAnimeFolder) payload.base_anime_folder = inputSettingBaseAnimeFolder.value;
 

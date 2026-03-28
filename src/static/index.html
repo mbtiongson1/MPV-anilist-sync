@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anime Tracker</title>
-    <meta name="description" content="Track your anime progress from media players and sync with AniList automatically.">
+    <meta name="description" content="Track your anime progress from media players and sync with AniList manually.">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -62,7 +62,12 @@
                 </div>
 
                 <div class="sidebar-section">
-                    <div class="sidebar-section-title">Filters</div>
+                    <div class="sidebar-section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Filters</span>
+                        <button id="btn-reset-filters" class="icon-btn reset-filters-btn" title="Reset Filters to Default">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                        </button>
+                    </div>
                     <div class="sidebar-filters">
                         <div class="filter-group-sidebar">
                             <label for="filter-format">Format</label>
@@ -78,9 +83,9 @@
                         <div class="filter-group-sidebar">
                             <label for="filter-year-sidebar">Year</label>
                             <select id="filter-year-sidebar">
-                                <option value="">All Years</option>
+                                <option value="" selected>All Years</option>
                                 <option value="2027">2027</option>
-                                <option value="2026" selected>2026</option>
+                                <option value="2026">2026</option>
                                 <option value="2025">2025</option>
                                 <option value="2024">2024</option>
                                 <option value="2023">2023</option>
@@ -252,9 +257,13 @@
                 </div>
                 <div style="display: flex; gap: 1rem; align-items: center;">
                     <span id="last-synced-time" class="last-synced-time"></span>
-                    <button id="btn-refresh-list" class="refresh-btn sync-btn-with-text" aria-label="Sync with AniList" title="Sync with AniList">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2.66 15.57a10 10 0 0 0 17.68-1.27M21.34 8.43a10 10 0 0 0-17.68 1.27"/></svg>
-                        <span>Sync to AniList</span>
+                    <button id="btn-pull-anilist" class="refresh-btn sync-btn-with-text" style="background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border);" aria-label="Pull from AniList" title="Download latest list from AniList (Overwrites local state)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span>Pull from AniList</span>
+                    </button>
+                    <button id="btn-refresh-list" class="refresh-btn sync-btn-with-text" aria-label="Update to AniList" title="Upload local changes to AniList">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12v-7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v7"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
+                        <span>Update to AniList</span>
                     </button>
                 </div>
             </div>
@@ -463,6 +472,13 @@
                             <span class="toggle-slider"></span>
                         </label>
                         <span style="font-weight: 500;">Enable Drag and Drop status changes</span>
+                    </div>
+                    <div class="settings-group" style="display: flex; align-items: center; gap: 10px;">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="setting-reduce-colors">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span style="font-weight: 500;">Reduce seasonal colors (use neutral background)</span>
                     </div>
                 </div>
                 <footer class="modal-footer">
