@@ -63,6 +63,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnRefreshList = document.getElementById('btn-refresh-list');
     const btnPullAnilist = document.getElementById('btn-pull-anilist');
     const lastSyncedTimeDisp = document.getElementById('last-synced-time');
+    const pendingChangesInfo = document.getElementById('pending-changes-info');
+    const pendingCountDisp = document.getElementById('pending-count');
+    const linkReviewChanges = document.getElementById('link-review-changes');
+    const linkResetChanges = document.getElementById('link-reset-changes');
+
     const btnToggleView = document.getElementById('btn-toggle-view');
     const btnReauthorize = document.getElementById('btn-reauthorize');
     const btnFullRefresh = document.getElementById('btn-full-refresh');
@@ -155,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPagedList = []; // Currently displayed items for range selection
     let selectedAnime = new Set(); // Set of mediaId
     let lastSelectedMediaId = null; // For shift-click range selection
-    let pendingChanges = {}; // mediaId -> { status: string, oldStatus: string }
+    let pendingApiRequests = []; // Array of { type: string, mediaId: int, data: obj, label: string }
     let activeTab = 'CURRENT';
     let lastNowPlayingTitle = null;
     let viewMode = 'details';
@@ -347,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
-    // ===== Multi-Select & Change Log Helpers =====
+    // ===== Multi-Select & Review Logic =====
     function toggleSelection(mediaId, skipUiUpdate = false) {
         const idStr = mediaId.toString();
         if (selectedAnime.has(idStr)) {
@@ -383,6 +388,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function recordApiRequest(type, mediaId, data, label) {
+        // Find existing request for same mediaId and type to merge/overwrite
+        const existingIdx = pendingApiRequests.findIndex(r => r.mediaId === mediaId && r.type === type);
+        const request = { type, mediaId, data, label, timestamp: Date.now() };
+        
+        if (existingIdx !== -1) {
+            pendingApiRequests[existingIdx] = request;
+        } else {
+            pendingApiRequests.push(request);
+        }
+        
+        updatePendingUI();
+    }
+
+    function updatePendingUI() {
+        const count = pendingApiRequests.length;
+        if (count > 0) {
+            pendingChangesInfo.classList.remove('hidden');
+            pendingCountDisp.textContent = count;
+            btnRefreshList.classList.add('pulse-sync');
+        } else {
+            pendingChangesInfo.classList.add('hidden');
+            btnRefreshList.classList.remove('pulse-sync');
+        }
+    }
+
     function moveSelectedTo(newStatus) {
         if (selectedAnime.size === 0) return;
         
@@ -390,11 +421,11 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedIds.forEach(mediaId => {
             const anime = animeList.find(a => a.mediaId == mediaId);
             if (anime && anime.listStatus !== newStatus) {
-                // Record the change
-                if (!pendingChanges[mediaId]) {
-                    pendingChanges[mediaId] = { oldStatus: anime.listStatus };
-                }
-                pendingChanges[mediaId].status = newStatus;
+                const idInt = parseInt(mediaId);
+                const title = anime.title?.romaji || anime.title?.english || 'Anime';
+                
+                // Record request
+                recordApiRequest('STATUS', idInt, { status: newStatus }, `${title}: Move to ${newStatus}`);
                 
                 // Optimistic UI update
                 anime.listStatus = newStatus;
@@ -404,65 +435,80 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedAnime.clear();
         updateSelectionUI();
         updateCounts();
-        renderAnimeGrid(); // This is still needed as items might move between tabs/filter views
-        showToast(`Moved ${Object.keys(pendingChanges).length} items (Pending Sync)`);
-        
-        // Ensure "Sync to AniList" button is visible or highlighted
-        btnBulkSync.classList.add('pulse-sync');
+        renderAnimeGrid(); 
+        showToast(`Recorded ${selectedIds.length} status changes (Pending Update)`);
     }
 
-    function showSyncChangelog() {
-        const changeIds = Object.keys(pendingChanges);
-        if (changeIds.length === 0) {
-            showToast("No pending changes to sync.");
+    function showReviewModal() {
+        if (pendingApiRequests.length === 0) {
+            showToast("No pending changes to review.");
             return;
         }
 
         changelogContainer.innerHTML = '';
-        changeIds.forEach(mediaId => {
-            const change = pendingChanges[mediaId];
-            const anime = animeList.find(a => a.mediaId == mediaId);
-            if (!anime) return;
-
+        pendingApiRequests.forEach((req, idx) => {
             const item = document.createElement('div');
             item.className = 'changelog-item';
             item.innerHTML = `
-                <div class="changelog-title">${escapeHtml(anime.title?.romaji || anime.title?.english || 'Unknown')}</div>
-                <div class="changelog-detail">
-                    Status: <span class="old">${change.oldStatus}</span> → <span class="new">${change.status}</span>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div class="changelog-title">${escapeHtml(req.label)}</div>
+                    <button class="icon-btn remove-request-btn" data-index="${idx}" title="Remove change">✕</button>
                 </div>
+                <div class="changelog-detail">Type: ${req.type}</div>
             `;
             changelogContainer.appendChild(item);
         });
 
+        // Add remove listeners
+        changelogContainer.querySelectorAll('.remove-request-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                const idx = parseInt(btn.dataset.index);
+                pendingApiRequests.splice(idx, 1);
+                updatePendingUI();
+                if (pendingApiRequests.length === 0) {
+                    changelogModal.classList.add('hidden');
+                } else {
+                    showReviewModal(); // re-render
+                }
+            };
+        });
+
+        const titleEl = document.getElementById('details-modal-title');
+        if (titleEl) titleEl.textContent = 'Review Pending Changes'; // Reuse details modal or changelog modal?
+        // Actually we have a specific changelog modal
         changelogModal.classList.remove('hidden');
     }
 
     async function performBulkSync() {
-        const changeIds = Object.keys(pendingChanges);
+        if (pendingApiRequests.length === 0) return;
+        
         btnChangelogConfirm.disabled = true;
         btnChangelogConfirm.textContent = 'Syncing...';
 
         try {
-            // Process changes one by one or in bulk if the API supported it
-            // For now, sequentially to match existing change_status API
-            for (const mediaId of changeIds) {
-                const change = pendingChanges[mediaId];
-                await fetch('/api/change_status', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mediaId: parseInt(mediaId), status: change.status })
-                });
+            for (const req of pendingApiRequests) {
+                let url = '';
+                if (req.type === 'STATUS') url = '/api/change_status';
+                else if (req.type === 'PROGRESS') url = '/api/update_progress';
+                else if (req.type === 'TITLE_OVERRIDE') url = '/api/update_title_override';
+
+                if (url) {
+                    await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mediaId: req.mediaId, ...req.data })
+                    });
+                }
             }
             
-            showToast(`Successfully synced ${changeIds.length} changes to AniList!`);
-            pendingChanges = {};
-            btnBulkSync.classList.remove('pulse-sync');
+            showToast(`Successfully pushed ${pendingApiRequests.length} changes to AniList!`);
+            pendingApiRequests = [];
+            updatePendingUI();
             changelogModal.classList.add('hidden');
-            fetchAnimeList(); // Full refresh to confirm
+            fetchAnimeList(); // Full refresh
         } catch (err) {
-            console.error('Bulk sync failed:', err);
-            showToast('Failed to sync some items. Check logs.', 'error');
+            console.error('Push failed:', err);
+            showToast('Failed to push some items. Check logs.', 'error');
         } finally {
             btnChangelogConfirm.disabled = false;
             btnChangelogConfirm.textContent = 'Confirm and Sync';
@@ -2460,18 +2506,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const anime = animeList.find(a => a.mediaId == mediaId);
                     if (anime && anime.listStatus !== targetStatus) {
-                        // Record pending change instead of immediate sync
-                        if (!pendingChanges[mediaId]) {
-                            pendingChanges[mediaId] = { oldStatus: anime.listStatus };
-                        }
-                        pendingChanges[mediaId].status = targetStatus;
+                        const idInt = parseInt(mediaId);
+                        const title = anime.title?.romaji || anime.title?.english || 'Anime';
+                        
+                        // Record request
+                        recordApiRequest('STATUS', idInt, { status: targetStatus }, `${title}: Move to ${targetStatus}`);
 
                         // Optimistic UI update
                         anime.listStatus = targetStatus;
                         updateCounts();
                         renderAnimeGrid(); 
-                        showToast(`Moved to ${targetStatus} (Pending Sync)`);
-                        btnBulkSync.classList.add('pulse-sync');
+                        showToast(`Recorded move to ${targetStatus} (Pending Update)`);
                     }
                 });
             });
@@ -2485,36 +2530,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 const mediaId = btn.getAttribute('data-media-id');
                 const anime = animeList.find(a => a.mediaId == mediaId);
                 
-                if (anime && confirm(`Move "${anime.title?.romaji || 'this anime'}" back to 'In Progress'? (Progress will be set to ${Math.max(0, (anime.progress || 0) - 1)})`)) {
+                if (anime) {
                     const newProgress = Math.max(0, (anime.progress || 0) - 1);
+                    const idInt = parseInt(mediaId);
+                    const title = anime.title?.romaji || anime.title?.english || 'Anime';
                     
+                    // Record requests
+                    recordApiRequest('STATUS', idInt, { status: 'CURRENT' }, `${title}: Move to CURRENT`);
+                    recordApiRequest('PROGRESS', idInt, { episode: newProgress }, `${title}: Set progress to ${newProgress}`);
+
                     // Optimistic update
                     anime.listStatus = 'CURRENT';
                     anime.progress = newProgress;
                     updateCounts();
                     renderAnimeGrid();
-
-                    try {
-                        // 1. Sync Status
-                        await fetch('/api/change_status', {
-                            method: 'POST',
-                            body: JSON.stringify({ mediaId: parseInt(mediaId), status: 'CURRENT' }),
-                            headers: { 'Content-Type': 'application/json' }
-                        });
-
-                        // 2. Sync Progress
-                        await fetch('/api/update_progress', {
-                            method: 'POST',
-                            body: JSON.stringify({ mediaId: parseInt(mediaId), episode: newProgress }),
-                            headers: { 'Content-Type': 'application/json' }
-                        });
-
-                        showToast("Moved back to In Progress");
-                        fetchAnimeList(); // background confirm
-                    } catch (err) {
-                        console.error("Resume failed:", err);
-                        showToast("Failed to sync changes", "error");
-                    }
+                    showToast("Resume recorded (Pending Update)");
                 }
             };
         });
@@ -2604,66 +2634,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!Number.isFinite(newProgress) || newProgress < 0) return;
 
-            const saveBtn = document.getElementById('modal-save');
-            saveBtn.textContent = 'Saving...';
-            saveBtn.disabled = true;
+            // Update local cache immediately for speed
+            const localAnime = animeList.find(a => a.mediaId === anime.mediaId);
+            const animeTitle = anime.title?.romaji || anime.title?.english || 'Anime';
+            let targetStatus = anime.listStatus;
 
-            try {
-                // 1. Update local cache immediately for speed
-                const localAnime = animeList.find(a => a.mediaId === anime.mediaId);
-                let targetStatus = anime.listStatus;
-
-                if (localAnime) {
-                    localAnime.progress = newProgress;
-                    // If progress < total and it was COMPLETED, move to CURRENT
-                    if (localAnime.episodes && newProgress < localAnime.episodes && localAnime.listStatus === 'COMPLETED') {
-                        targetStatus = 'CURRENT';
-                        localAnime.listStatus = 'CURRENT';
-                    }
-                    // Update visuals
-                    updateCounts();
-                    renderAnimeGrid();
+            if (localAnime) {
+                localAnime.progress = newProgress;
+                // If progress < total and it was COMPLETED, move to CURRENT
+                if (localAnime.episodes && newProgress < localAnime.episodes && localAnime.listStatus === 'COMPLETED') {
+                    targetStatus = 'CURRENT';
+                    localAnime.listStatus = 'CURRENT';
+                }
+                // Record Title Override if changed
+                const oldOverride = (userSettings && userSettings.title_overrides) ? userSettings.title_overrides[anime.mediaId] || '' : '';
+                if (newOverride !== oldOverride) {
+                    recordApiRequest('TITLE_OVERRIDE', anime.mediaId, { customTitle: newOverride }, `${animeTitle}: Set title override to "${newOverride}"`);
                 }
 
-                // 2. Sync to AniList (Title Override)
-                await fetch('/api/update_title_override', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mediaId: anime.mediaId, customTitle: newOverride })
-                });
-
-                // 3. Sync Status change if needed
+                // Record Status change if needed
                 if (targetStatus !== anime.listStatus) {
-                    await fetch('/api/change_status', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ mediaId: anime.mediaId, status: targetStatus })
-                    });
+                    recordApiRequest('STATUS', anime.mediaId, { status: targetStatus }, `${animeTitle}: Move to ${targetStatus}`);
                 }
 
-                // 4. Sync Progress
-                const resp = await fetch('/api/update_progress', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mediaId: anime.mediaId, episode: newProgress })
-                });
+                // Record Progress
+                recordApiRequest('PROGRESS', anime.mediaId, { episode: newProgress }, `${animeTitle}: Set progress to ${newProgress}`);
 
-                const result = await resp.json();
-                if (result.success) {
-                    detailsModal.classList.add('hidden');
-                    // Background refresh to ensure everything is perfect
-                    fetchAnimeList(); 
-                    if (activeTab === 'LIBRARY') fetchLibrary(true);
-                    checkStatus();
-                } else {
-                    alert('Failed to update progress on AniList.');
-                }
-            } catch (err) {
-                console.error('Error saving details:', err);
-                alert('Network error while saving.');
-            } finally {
-                saveBtn.textContent = 'Save Changes';
-                saveBtn.disabled = false;
+                // Update visuals
+                updateCounts();
+                renderAnimeGrid();
+                detailsModal.classList.add('hidden');
+                showToast("Changes recorded (Pending Update)");
             }
         });
 
@@ -3145,7 +3146,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     animeGrid.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Pulling latest from AniList...</p></div>`;
                     // Clear pending changes as we are overwriting
-                    pendingChanges = {};
+                    pendingApiRequests = [];
+                    updatePendingUI();
                     btnBulkSync.classList.remove('pulse-sync');
                     await fetchAnimeList();
                     showToast("Pulled latest list from AniList");
@@ -3181,7 +3183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchLibrary(true).finally(restoreButton);
         } else {
             // First perform any pending bulk changes
-            if (Object.keys(pendingChanges).length > 0) {
+            if (pendingApiRequests.length > 0) {
                 try {
                     await performBulkSync();
                 } catch (e) {
@@ -3979,7 +3981,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnBulkSync) {
         btnBulkSync.addEventListener('click', (e) => {
             e.stopPropagation();
-            showSyncChangelog();
+            showReviewModal();
+        });
+    }
+
+    if (linkReviewChanges) {
+        linkReviewChanges.addEventListener('click', (e) => {
+            e.preventDefault();
+            showReviewModal();
+        });
+    }
+
+    if (linkResetChanges) {
+        linkResetChanges.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (confirm("Reset all pending changes? This will clear your local edits and revert the UI to the last synced state.")) {
+                pendingApiRequests = [];
+                updatePendingUI();
+                fetchAnimeList(); // Full refresh to restore UI state
+                showToast("Pending changes cleared");
+            }
         });
     }
 

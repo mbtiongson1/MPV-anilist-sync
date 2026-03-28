@@ -255,16 +255,23 @@
                 <div style="display: flex; gap: 1rem; align-items: center;">
                     <h2>My Anime List</h2>
                 </div>
-                <div style="display: flex; gap: 1rem; align-items: center;">
-                    <span id="last-synced-time" class="last-synced-time"></span>
-                    <button id="btn-pull-anilist" class="refresh-btn sync-btn-with-text" style="background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border);" aria-label="Pull from AniList" title="Download latest list from AniList (Overwrites local state)">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        <span>Pull from AniList</span>
-                    </button>
-                    <button id="btn-refresh-list" class="refresh-btn sync-btn-with-text" aria-label="Update to AniList" title="Upload local changes to AniList">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12v-7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v7"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
-                        <span>Update to AniList</span>
-                    </button>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+                    <div id="pending-changes-info" class="pending-info hidden">
+                        <a href="#" id="link-reset-changes" class="pending-link">Reset</a>
+                        <span class="pending-separator">•</span>
+                        <a href="#" id="link-review-changes" class="pending-link">Review <span id="pending-count">0</span> Changes</a>
+                    </div>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <span id="last-synced-time" class="last-synced-time"></span>
+                        <button id="btn-pull-anilist" class="refresh-btn sync-btn-with-text" style="background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border);" aria-label="Pull from AniList" title="Download latest list from AniList (Overwrites local state)">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            <span>Pull from AniList</span>
+                        </button>
+                        <button id="btn-refresh-list" class="refresh-btn sync-btn-with-text" aria-label="Update to AniList" title="Upload local changes to AniList">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12v-7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v7"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
+                            <span>Update to AniList</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
