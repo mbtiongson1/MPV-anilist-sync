@@ -253,15 +253,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (details.popularity) stats.push(`<span class="np-stat">♥ ${formatPopularity(details.popularity)}</span>`);
                     npStats.innerHTML = stats.join(' ');
 
+                    // Studio
+                    npStudio.textContent = details.studio || '';
+
                     // Summary
                     const summary = details.description || '';
-                    npSummary.textContent = summary.replace(/<[^>]+>/g, '');
-                    npSummary.classList.remove('expanded');
-                    npSummaryToggle.textContent = 'See more';
+                    if (summary) {
+                        npSummary.textContent = summary.replace(/<[^>]+>/g, '');
+                        npSummary.classList.remove('expanded');
+                        npSummaryToggle.textContent = 'See more';
+                        npSummaryToggle.style.display = 'block';
+                    } else {
+                        npSummary.textContent = '';
+                        npSummaryToggle.style.display = 'none';
+                    }
                 } else {
                     npStats.innerHTML = '';
                     npSummary.textContent = '';
                     npSummaryToggle.style.display = 'none';
+                    npStudio.textContent = '';
                 }
 
                 // Cover and banner images

@@ -151,6 +151,7 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                             selected_media = self.agent.current_media_map.get(selected_id)
 
                     if selected_media:
+                        studios_nodes = selected_media.get('studios', {}).get('nodes', [])
                         media_details = {
                             'mediaId': selected_media.get('id'),
                             'title': selected_media.get('title', {}),
@@ -163,6 +164,8 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                             'coverImage': selected_media.get('coverImage'),
                             'bannerImage': selected_media.get('bannerImage'),
                             'status': selected_media.get('status'),
+                            'studio': studios_nodes[0]['name'] if studios_nodes else None,
+                            'nextAiringEpisode': selected_media.get('nextAiringEpisode'),
                         }
                         anilist_progress = self.agent.get_progress_for_media(selected_id)
                         self.agent.selected_media_id = selected_id

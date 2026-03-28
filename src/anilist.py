@@ -241,6 +241,7 @@ class AnilistClient:
     def search_anime(self, title: str) -> Optional[Dict[str, Any]]:
         # This query includes relation edges so we can resolve season/series sequels when
         # the parsed episode number exceeds the first entry's episode count.
+        # We also fetch full metadata (images, description) here for the Now Playing UI.
         query = '''
         query ($search: String) {
             Media (search: $search, type: ANIME) {
@@ -252,6 +253,22 @@ class AnilistClient:
                 }
                 episodes
                 status
+                season
+                seasonYear
+                description(asHtml: false)
+                popularity
+                averageScore
+                genres
+                coverImage {
+                    large
+                    medium
+                }
+                bannerImage
+                studios(isMain: true) {
+                    nodes {
+                        name
+                    }
+                }
                 relations {
                     edges {
                         relationType
@@ -263,6 +280,23 @@ class AnilistClient:
                                 native
                             }
                             episodes
+                            status
+                            season
+                            seasonYear
+                            description(asHtml: false)
+                            popularity
+                            averageScore
+                            genres
+                            coverImage {
+                                large
+                                medium
+                            }
+                            bannerImage
+                            studios(isMain: true) {
+                                nodes {
+                                    name
+                                }
+                            }
                         }
                     }
                 }
