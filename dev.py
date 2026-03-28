@@ -28,6 +28,7 @@ class ReloadHandler(FileSystemEventHandler):
                 self.process.wait(timeout=5)
             except subprocess.TimeoutExpired:
                 self.process.kill()
+            time.sleep(1) # Give OS time to release resources
         else:
             print("\n" + "="*40)
             print("Starting application in development mode...")
