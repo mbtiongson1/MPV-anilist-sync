@@ -125,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const genreFilterList = document.getElementById('genre-filter-list');
     const filterFormat = document.getElementById('filter-format');
     const filterYearSidebar = document.getElementById('filter-year-sidebar');
+    const seasonPillsContainer = document.getElementById('season-filter-pills');
 
     let libraryData = []; // Cached library scanner results
     let libraryExclusions = []; // List of excluded paths
@@ -138,6 +139,118 @@ document.addEventListener('DOMContentLoaded', () => {
     let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
     if (sidebarCollapsed) appSidebar.classList.add('collapsed');
     let selectedSidebarSeason = ""; // "CURRENT", "WINTER", etc.
+
+    const getCurrentSeason = () => {
+        const month = new Date().getMonth(); // 0-11
+        if (month >= 0 && month <= 2) return "WINTER"; // Jan-Mar
+        if (month >= 3 && month <= 5) return "SPRING"; // Apr-Jun
+        if (month >= 6 && month <= 8) return "SUMMER"; // Jul-Sep
+        return "FALL"; // Oct-Dec
+    };
+
+    const getSeasonEndDate = (season, year) => {
+        // WINTER: Jan-Mar (end March 31)
+        // SPRING: Apr-Jun (end June 30)
+        // SUMMER: Jul-Sep (end Sept 30)
+        // FALL:   Oct-Dec (end Dec 31)
+        if (season === "WINTER") return new Date(year, 2, 31, 23, 59, 59);
+        if (season === "SPRING") return new Date(year, 5, 30, 23, 59, 59);
+        if (season === "SUMMER") return new Date(year, 8, 30, 23, 59, 59);
+        return new Date(year, 11, 31, 23, 59, 59);
+    };
+
+    const getTimeRemaining = (endDate) => {
+        const now = new Date();
+        const diff = endDate - now;
+        if (diff <= 0) return null;
+        
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        if (days < 1) return "ends today";
+        if (days < 7) return `ends in ${days} day${days !== 1 ? 's' : ''}`;
+        
+        const weeks = Math.ceil(days / 7);
+        return `ends in ${weeks} week${weeks !== 1 ? 's' : ''}`;
+    };
+
+    /**
+     * Returns an array of seasons an anime spans based on its start season and episode count.
+     */
+    const getAnimeSeasons = (anime) => {
+        const startSeason = (anime.season || "").toUpperCase();
+        if (!["WINTER", "SPRING", "SUMMER", "FALL"].includes(startSeason)) return [];
+
+        const seasonsOrder = ["WINTER", "SPRING", "SUMMER", "FALL"];
+        const startIndex = seasonsOrder.indexOf(startSeason);
+        
+        // Basic heuristic: 1-13 episodes = 1 cour, 14-26 = 2 cours, etc.
+        // If episodes is unknown but it's RELEASING, assume at least 2 cours if it's already past the first.
+        let cours = 1;
+        const totalEps = anime.episodes || 0;
+        if (totalEps > 13) cours = 2;
+        if (totalEps > 26) cours = 3;
+        if (totalEps > 40) cours = 4;
+        
+        // Override for long running / releasing status if needed
+        if (anime.mediaStatus === 'RELEASING' && totalEps === 0) cours = 2;
+
+        const seasons = [];
+        for (let i = 0; i < cours; i++) {
+            seasons.push(seasonsOrder[(startIndex + i) % 4]);
+        }
+        return seasons;
+    };
+
+    function updateSeasonPillLabels() {
+        if (!seasonPillsContainer) return;
+        const selectedYear = parseInt(filterYearSidebar.value) || new Date().getFullYear();
+        const now = new Date();
+        const currentSeason = getCurrentSeason(); // Logic based on current DATE
+        const isCurrentYear = selectedYear === now.getFullYear();
+        
+        const pills = seasonPillsContainer.querySelectorAll('.season-pill');
+        pills.forEach(pill => {
+            const season = pill.dataset.season;
+            
+            // Text for the pill: "Season Year"
+            pill.innerHTML = `<span>${season.charAt(0) + season.slice(1).toLowerCase()} ${selectedYear}</span>`;
+            
+            // Clean up any existing indicator/wrapper logic
+            let container = pill.closest('.season-pill-wrapper');
+            if (!container) {
+                container = document.createElement('div');
+                container.className = 'season-pill-wrapper';
+                pill.parentNode.insertBefore(container, pill);
+                container.appendChild(pill);
+            }
+
+            // Remove any existing countdown text
+            const oldEndText = container.querySelector('.season-end-text');
+            if (oldEndText) oldEndText.remove();
+            
+            // Only add live indicator and countdown if:
+            // 1. It's the current season (WINTER if it's March)
+            // 2. The selected year matches the current year
+            if (season === currentSeason && isCurrentYear) {
+                // Add dot INSIDE the pill
+                const dot = document.createElement('div');
+                dot.className = 'live-dot';
+                dot.style.marginLeft = '0.4rem';
+                pill.appendChild(dot);
+
+                const endDate = getSeasonEndDate(season, now.getFullYear());
+                const remaining = getTimeRemaining(endDate);
+                if (remaining) {
+                    const endSpan = document.createElement('span');
+                    endSpan.className = 'season-end-text';
+                    endSpan.textContent = remaining;
+                    container.appendChild(endSpan);
+                }
+            }
+        });
+    }
+
+    // Initial labels
+    updateSeasonPillLabels();
     
     // persist view mode across reloads
     const savedViewMode = localStorage.getItem('mpvViewMode');
@@ -1881,6 +1994,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 const formatPop = formatPopularity(anime.popularity || 0);
                 const score = anime.averageScore ? anime.averageScore + '%' : '-';
 
+                // Seasonal BG Logic
+                const seasons = getAnimeSeasons(anime);
+                let seasonalClass = "";
+                if (seasons.length === 1) {
+                    seasonalClass = `season-bg-${seasons[0].toLowerCase()}`;
+                } else if (seasons.length >= 2) {
+                    seasonalClass = `season-bg-${seasons[0].toLowerCase()}-${seasons[1].toLowerCase()}`;
+                }
+
+                // Live Indicator Logic
+                let liveLabel = "";
+                if (anime.mediaStatus === 'RELEASING') {
+                    let availableBadge = "";
+                    if (anime.nextAiringEpisode && anime.nextAiringEpisode.episode) {
+                        const currentAired = anime.nextAiringEpisode.episode - 1;
+                        const available = currentAired - progress;
+                        if (available > 0) {
+                            availableBadge = `<span class="available-episodes-badge">+${available}</span>`;
+                        }
+                    }
+                    liveLabel = `
+                        <div class="card-live-indicator">
+                            <div class="card-live-dot"></div>
+                            ${availableBadge}
+                        </div>
+                    `;
+                }
+
                 const editIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"/></svg>`;
                 const folderIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>`;
                 const resumeIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`;
@@ -1901,7 +2042,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (viewMode === 'grid') {
                     return `
-                        <div class="anime-card" data-media-id="${anime.mediaId}" style="cursor: pointer;">
+                        <div class="anime-card ${seasonalClass}" data-media-id="${anime.mediaId}" style="cursor: pointer;">
+                            ${liveLabel}
                             <div class="anime-card-cover" style="background-image: url('${cover}')">
                                 <div class="anime-progress">
                                     <div id="seg-${anime.mediaId}" class="progress-segments"></div>
@@ -1920,8 +2062,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 } else if (viewMode === 'list') {
                     return `
-                        <div class="anime-list-item" data-media-id="${anime.mediaId}" style="cursor: pointer;">
+                        <div class="anime-list-item ${seasonalClass}" data-media-id="${anime.mediaId}" style="cursor: pointer;">
                             <img src="${cover}" class="anime-list-cover" alt="cover">
+                            ${liveLabel ? liveLabel.replace('card-live-indicator', 'card-live-indicator list-live-indicator') : ''}
                             <div class="list-info">
                                 <div class="list-title">${escapeHtml(title)}</div>
                                 <div class="list-meta">
@@ -1938,8 +2081,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     return `
                         <tr class="details-row" data-media-id="${anime.mediaId}" style="cursor: pointer;">
-                            <td>${escapeHtml(title)}</td>
-                            <td>${progress} / ${total}</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    ${liveLabel ? `<div class="card-live-dot" style="position: static; transform: scale(0.8);"></div>` : ''}
+                                    ${escapeHtml(title)}
+                                </div>
+                            </td>
+                            <td>${progress} / ${total} ${anime.mediaStatus === 'RELEASING' && anime.nextAiringEpisode ? `<span style="color:var(--accent); font-size: 0.7rem; font-weight: 700;">(+${Math.max(0, (anime.nextAiringEpisode.episode - 1) - progress)})</span>` : ''}</td>
                             <td>${score}</td>
                             <td>${formatPop}</td>
                             <td>${anime.season || '-'} ${anime.seasonYear || ''}</td>
@@ -2479,15 +2627,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (filterYearSidebar && filterYear) {
         filterYearSidebar.addEventListener('change', () => {
             filterYear.value = filterYearSidebar.value;
+            updateSeasonPillLabels(); // Update labels when year changes
             renderAnimeGrid();
         });
         // Initial sync if default is set
         if (filterYearSidebar.value) {
             filterYear.value = filterYearSidebar.value;
+            updateSeasonPillLabels();
         }
     }
 
-    const seasonPillsContainer = document.getElementById('season-filter-pills');
     if (seasonPillsContainer) {
         const pills = seasonPillsContainer.querySelectorAll('.season-pill');
         pills.forEach(pill => {

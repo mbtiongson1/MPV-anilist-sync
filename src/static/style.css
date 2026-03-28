@@ -1211,6 +1211,7 @@ header {
     transition: all var(--transition);
     cursor: default;
     overflow: hidden;
+    position: relative;
 }
 
 .anime-list-item:hover {
@@ -1875,8 +1876,15 @@ header {
 /* Season Pills */
 .season-pills {
     display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.season-pill-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
     flex-wrap: wrap;
-    gap: 0.4rem;
 }
 
 .season-pill {
@@ -1901,13 +1909,183 @@ header {
 .season-pill.active {
     color: white;
     border-color: transparent;
+    position: relative;
+    overflow: hidden;
 }
 
-.season-pill.current.active { background: #3b82f6; box-shadow: 0 0 12px rgba(59, 130, 246, 0.3); } /* Blue */
-.season-pill.winter.active { background: #0ea5e9; box-shadow: 0 0 12px rgba(14, 165, 233, 0.3); } /* Sky Blue */
-.season-pill.spring.active { background: #ec4899; box-shadow: 0 0 12px rgba(236, 72, 153, 0.3); } /* Pink */
-.season-pill.summer.active { background: #10b981; box-shadow: 0 0 12px rgba(16, 185, 129, 0.3); } /* Emerald */
-.season-pill.fall.active { background: #f59e0b; box-shadow: 0 0 12px rgba(245, 158, 11, 0.3); } /* Amber */
+/* Season-specific animated backgrounds */
+.season-pill.winter.active { 
+    background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+    box-shadow: 0 0 12px rgba(14, 165, 233, 0.3);
+}
+.season-pill.winter.active::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(white 1px, transparent 1px);
+    background-size: 8px 8px;
+    opacity: 0.2;
+    animation: drift 20s linear infinite;
+}
+
+.season-pill.spring.active { 
+    background: linear-gradient(135deg, #ec4899, #f472b6);
+    box-shadow: 0 0 12px rgba(236, 72, 153, 0.3);
+}
+.season-pill.spring.active::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(#fff 1.5px, transparent 1.5px);
+    background-size: 15px 15px;
+    opacity: 0.2;
+    animation: drift 15s linear infinite reverse;
+}
+
+.season-pill.summer.active { 
+    background: linear-gradient(135deg, #10b981, #34d399); 
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+.season-pill.summer.active::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    background-size: 50% 100%;
+    animation: shine 3s infinite;
+}
+
+.season-pill.fall.active { 
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+}
+.season-pill.fall.active::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(#78350f 1px, transparent 1px);
+    background-size: 12px 12px;
+    opacity: 0.15;
+    animation: drift 25s linear infinite;
+}
+
+@keyframes drift {
+    from { background-position: 0 0; }
+    to { background-position: 100px 100px; }
+}
+
+@keyframes shine {
+    0% { transform: translateX(-150%); }
+    100% { transform: translateX(150%); }
+}
+
+/* Live/Current Indicator */
+.season-live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.season-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.live-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #ef4444; /* red */
+    border-radius: 50%;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.live-dot::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: inherit;
+    animation: live-pulse 2s infinite ease-out;
+}
+
+@keyframes live-pulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(3); opacity: 0; }
+}
+
+.season-end-text {
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    opacity: 0.5;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+/* Seasonal Card Backgrounds */
+:root {
+    --season-winter-alpha: rgba(14, 165, 233, 0.08); /* Sky Blue */
+    --season-spring-alpha: rgba(236, 72, 153, 0.08); /* Pink */
+    --season-summer-alpha: rgba(16, 185, 129, 0.08); /* Emerald */
+    --season-fall-alpha: rgba(245, 158, 11, 0.08);   /* Amber */
+}
+
+/* Single Season */
+.season-bg-winter { background-color: var(--season-winter-alpha) !important; }
+.season-bg-spring { background-color: var(--season-spring-alpha) !important; }
+.season-bg-summer { background-color: var(--season-summer-alpha) !important; }
+.season-bg-fall   { background-color: var(--season-fall-alpha) !important; }
+
+/* Multi-Season Gradients */
+.season-bg-winter-spring { background: linear-gradient(135deg, var(--season-winter-alpha), var(--season-spring-alpha)) !important; }
+.season-bg-spring-summer { background: linear-gradient(135deg, var(--season-spring-alpha), var(--season-summer-alpha)) !important; }
+.season-bg-summer-fall   { background: linear-gradient(135deg, var(--season-summer-alpha), var(--season-fall-alpha)) !important; }
+.season-bg-fall-winter   { background: linear-gradient(135deg, var(--season-fall-alpha), var(--season-winter-alpha)) !important; }
+
+/* Anime List Item Adjustments */
+.anime-list-item.season-bg-winter, 
+.anime-list-item.season-bg-spring,
+.anime-list-item.season-bg-summer,
+.anime-list-item.season-bg-fall,
+.anime-list-item[class*="season-bg-"] {
+    border-left: 4px solid transparent;
+}
+.anime-list-item.season-bg-winter { border-left-color: #0ea5e9; }
+.anime-list-item.season-bg-spring { border-left-color: #ec4899; }
+.anime-list-item.season-bg-summer { border-left-color: #10b981; }
+.anime-list-item.season-bg-fall   { border-left-color: #f59e0b; }
+
+/* Live Airing Indicators on Cards */
+.card-live-indicator {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    padding: 0.25rem 0.5rem;
+    border-radius: 99px;
+    z-index: 10;
+    pointer-events: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-live-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    position: relative;
+}
+
+.card-live-dot::after {
+    content: ''; position: absolute; inset: 0; border-radius: 50%;
+    background: inherit; animation: live-pulse 2s infinite ease-out;
+}
+
+.available-episodes-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #ef4444;
+    letter-spacing: 0.02em;
+}
 
 /* Search Clear Button */
 .clear-search-btn {
