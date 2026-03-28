@@ -260,6 +260,32 @@
             </div>
 
             <!-- Filter Bar -->
+            <div class="selection-bar hidden" id="selection-bar">
+                <div class="selection-info">
+                    <span id="selection-count">0 items selected</span>
+                </div>
+                <div class="selection-actions">
+                    <button id="btn-select-all" class="secondary-btn">Select All</button>
+                    <button id="btn-select-none" class="secondary-btn">Select None</button>
+                    <div class="move-to-wrapper">
+                        <button id="btn-move-to" class="primary-btn move-to-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20m10-10H2"/></svg>
+                            Move To
+                        </button>
+                        <div class="move-to-dropdown" id="move-to-dropdown">
+                            <div class="move-to-option" data-status="CURRENT" style="--status-color: var(--status-current)">In Progress</div>
+                            <div class="move-to-option" data-status="PLANNING" style="--status-color: var(--status-planning)">Planning</div>
+                            <div class="move-to-option" data-status="COMPLETED" style="--status-color: var(--status-completed)">Completed</div>
+                            <div class="move-to-option" data-status="DROPPED" style="--status-color: var(--status-dropped)">Dropped</div>
+                        </div>
+                    </div>
+                    <button id="btn-bulk-sync" class="sync-btn" style="margin-left: 0.5rem;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l5.83-2.06"/></svg>
+                        Sync to AniList
+                    </button>
+                </div>
+            </div>
+
             <div class="filter-bar">
                 <div class="filter-search">
                     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -456,6 +482,26 @@
             </div>
         </footer>
         
+        <!-- Change Log Modal -->
+        <div id="changelog-modal" class="modal hidden" role="dialog" aria-modal="true">
+            <div class="modal-overlay" id="changelog-modal-overlay"></div>
+            <div class="modal-content">
+                <header class="modal-header">
+                    <h2>AniList Sync Change Log</h2>
+                    <button id="changelog-modal-close" class="icon-btn">✕</button>
+                </header>
+                <div class="modal-body">
+                    <div id="changelog-container" class="changelog-container">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+                <footer class="modal-footer">
+                    <button id="changelog-cancel" class="secondary-btn">Cancel</button>
+                    <button id="changelog-confirm" class="primary-btn">Confirm and Sync</button>
+                </footer>
+            </div>
+        </div>
+
         <!-- Back to Top Button -->
         <button id="btn-back-to-top" class="back-to-top" title="Go back to top">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">

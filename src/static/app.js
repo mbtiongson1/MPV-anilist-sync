@@ -100,6 +100,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarToggle = document.getElementById('sidebar-toggle');
     const themeToggle = document.getElementById('theme-toggle');
 
+    // Selection Bar Elements
+    const selectionBar = document.getElementById('selection-bar');
+    const selectionCount = document.getElementById('selection-count');
+    const btnSelectAll = document.getElementById('btn-select-all');
+    const btnSelectNone = document.getElementById('btn-select-none');
+    const btnMoveTo = document.getElementById('btn-move-to');
+    const moveToDropdown = document.getElementById('move-to-dropdown');
+    const btnBulkSync = document.getElementById('btn-bulk-sync');
+
+    // Change Log Modal Elements
+    const changelogModal = document.getElementById('changelog-modal');
+    const changelogModalOverlay = document.getElementById('changelog-modal-overlay');
+    const changelogModalClose = document.getElementById('changelog-modal-close');
+    const changelogContainer = document.getElementById('changelog-container');
+    const btnChangelogCancel = document.getElementById('changelog-cancel');
+    const btnChangelogConfirm = document.getElementById('changelog-confirm');
+
     // Theme Toggle Initialization
     const currentTheme = localStorage.getItem('theme') || 'dark';
     if (currentTheme === 'light') {
@@ -132,6 +149,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== State =====
     let animeList = [];
+    let selectedAnime = new Set(); // Set of mediaId
+    let pendingChanges = {}; // mediaId -> { status: string, oldStatus: string }
     let activeTab = 'CURRENT';
     let lastNowPlayingTitle = null;
     let viewMode = 'details';
@@ -306,6 +325,124 @@ document.addEventListener('DOMContentLoaded', () => {
             toast.classList.add('fade-out');
             setTimeout(() => toast.remove(), 500);
         }, 3000);
+    }
+
+    // ===== Multi-Select & Change Log Helpers =====
+    function toggleSelection(mediaId) {
+        const idStr = mediaId.toString();
+        if (selectedAnime.has(idStr)) {
+            selectedAnime.delete(idStr);
+        } else {
+            selectedAnime.add(idStr);
+        }
+        
+        // Update UI without full re-render for performance
+        const items = document.querySelectorAll(`[data-media-id="${idStr}"]`);
+        items.forEach(item => {
+            if (selectedAnime.has(idStr)) {
+                item.classList.add('selected');
+            } else {
+                item.classList.remove('selected');
+            }
+        });
+
+        updateSelectionUI();
+    }
+
+    function updateSelectionUI() {
+        const count = selectedAnime.size;
+        if (count > 0) {
+            selectionBar.classList.remove('hidden');
+            selectionCount.textContent = `${count} items selected`;
+        } else {
+            selectionBar.classList.add('hidden');
+        }
+    }
+
+    function moveSelectedTo(newStatus) {
+        if (selectedAnime.size === 0) return;
+        
+        const selectedIds = Array.from(selectedAnime);
+        selectedIds.forEach(mediaId => {
+            const anime = animeList.find(a => a.mediaId == mediaId);
+            if (anime && anime.listStatus !== newStatus) {
+                // Record the change
+                if (!pendingChanges[mediaId]) {
+                    pendingChanges[mediaId] = { oldStatus: anime.listStatus };
+                }
+                pendingChanges[mediaId].status = newStatus;
+                
+                // Optimistic UI update
+                anime.listStatus = newStatus;
+            }
+        });
+        
+        selectedAnime.clear();
+        updateSelectionUI();
+        updateCounts();
+        renderAnimeGrid(); // This is still needed as items might move between tabs/filter views
+        showToast(`Moved ${Object.keys(pendingChanges).length} items (Pending Sync)`);
+        
+        // Ensure "Sync to AniList" button is visible or highlighted
+        btnBulkSync.classList.add('pulse-sync');
+    }
+
+    function showSyncChangelog() {
+        const changeIds = Object.keys(pendingChanges);
+        if (changeIds.length === 0) {
+            showToast("No pending changes to sync.");
+            return;
+        }
+
+        changelogContainer.innerHTML = '';
+        changeIds.forEach(mediaId => {
+            const change = pendingChanges[mediaId];
+            const anime = animeList.find(a => a.mediaId == mediaId);
+            if (!anime) return;
+
+            const item = document.createElement('div');
+            item.className = 'changelog-item';
+            item.innerHTML = `
+                <div class="changelog-title">${escapeHtml(anime.title?.romaji || anime.title?.english || 'Unknown')}</div>
+                <div class="changelog-detail">
+                    Status: <span class="old">${change.oldStatus}</span> → <span class="new">${change.status}</span>
+                </div>
+            `;
+            changelogContainer.appendChild(item);
+        });
+
+        changelogModal.classList.remove('hidden');
+    }
+
+    async function performBulkSync() {
+        const changeIds = Object.keys(pendingChanges);
+        btnChangelogConfirm.disabled = true;
+        btnChangelogConfirm.textContent = 'Syncing...';
+
+        try {
+            // Process changes one by one or in bulk if the API supported it
+            // For now, sequentially to match existing change_status API
+            for (const mediaId of changeIds) {
+                const change = pendingChanges[mediaId];
+                await fetch('/api/change_status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mediaId: parseInt(mediaId), status: change.status })
+                });
+            }
+            
+            showToast(`Successfully synced ${changeIds.length} changes to AniList!`);
+            pendingChanges = {};
+            btnBulkSync.classList.remove('pulse-sync');
+            changelogModal.classList.add('hidden');
+            fetchAnimeList(); // Full refresh to confirm
+        } catch (err) {
+            console.error('Bulk sync failed:', err);
+            showToast('Failed to sync some items. Check logs.', 'error');
+        } finally {
+            btnChangelogConfirm.disabled = false;
+            btnChangelogConfirm.textContent = 'Confirm and Sync';
+        }
     }
 
     function getCachedImageUrl(url) {
@@ -809,6 +946,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             animeList = data;
+            selectedAnime.clear();
+            updateSelectionUI();
             renderGenreFilters(); // Populate sidebar genres
             renderRecentAnime();
             updateCounts();
@@ -1993,6 +2132,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cover = getCachedImageUrl(rawCover);
                 const formatPop = formatPopularity(anime.popularity || 0);
                 const score = anime.averageScore ? anime.averageScore + '%' : '-';
+                const selectedClass = selectedAnime.has(anime.mediaId.toString()) ? 'selected' : '';
 
                 // Seasonal BG Logic
                 const seasons = getAnimeSeasons(anime);
@@ -2042,7 +2182,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (viewMode === 'grid') {
                     return `
-                        <div class="anime-card ${seasonalClass}" data-media-id="${anime.mediaId}" style="cursor: pointer;">
+                        <div class="anime-card ${seasonalClass} ${selectedClass}" data-media-id="${anime.mediaId}" style="cursor: pointer;">
                             ${liveLabel}
                             <div class="anime-card-cover" style="background-image: url('${cover}')">
                                 <div class="anime-progress">
@@ -2062,7 +2202,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 } else if (viewMode === 'list') {
                     return `
-                        <div class="anime-list-item ${seasonalClass}" data-media-id="${anime.mediaId}" style="cursor: pointer;">
+                        <div class="anime-list-item ${seasonalClass} ${selectedClass}" data-media-id="${anime.mediaId}" style="cursor: pointer;">
                             <img src="${cover}" class="anime-list-cover" alt="cover">
                             ${liveLabel ? liveLabel.replace('card-live-indicator', 'card-live-indicator list-live-indicator') : ''}
                             <div class="list-info">
@@ -2080,7 +2220,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 } else {
                     return `
-                        <tr class="details-row" data-media-id="${anime.mediaId}" style="cursor: pointer;">
+                        <tr class="details-row ${selectedClass}" data-media-id="${anime.mediaId}" style="cursor: pointer;">
                             <td>
                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                                     ${liveLabel ? `<div class="card-live-dot" style="position: static; transform: scale(0.8);"></div>` : ''}
@@ -2181,6 +2321,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // Double click handlers for whole rows/cards
         const itemsToBind = tableBody.querySelectorAll('.anime-card, .anime-list-item, .details-row');
         itemsToBind.forEach(item => {
+            // Click to Select
+            item.addEventListener('click', (e) => {
+                // Ignore if clicking a button inside
+                if (e.target.closest('button') || e.target.closest('a')) return;
+                
+                const mediaId = item.getAttribute('data-media-id');
+                if (mediaId) {
+                    toggleSelection(mediaId);
+                }
+            });
+
             item.addEventListener('dblclick', (e) => {
                 e.stopPropagation();
                 const mediaId = item.getAttribute('data-media-id');
@@ -2210,7 +2361,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const tabs = document.querySelectorAll('.tab[data-status]');
             tabs.forEach(tab => {
                 const targetStatus = tab.getAttribute('data-status');
-                // Only these statuses make sense for dropping
                 if (!['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED'].includes(targetStatus)) return;
 
                 tab.addEventListener('dragover', (e) => {
@@ -2229,36 +2379,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     const mediaId = e.dataTransfer.getData('text/plain');
                     if (!mediaId) return;
 
-                    const animeIdx = animeList.findIndex(a => a.mediaId == mediaId);
-                    if (animeIdx >= 0 && animeList[animeIdx].listStatus !== targetStatus) {
-                        // Optimistic UI update
-                        const oldStatus = animeList[animeIdx].listStatus;
-                        animeList[animeIdx].listStatus = targetStatus;
-                        updateCounts();
-                        renderAnimeGrid(); // Immediately remove from view and update counts
-                        
-                        try {
-                            const resp = await fetch('/api/change_status', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ mediaId: parseInt(mediaId), status: targetStatus })
-                            });
-                            if (resp.ok) {
-                                showToast(`Moved to ${targetStatus}`);
-                                fetchAnimeList(); // background sync
-                            } else {
-                                // rollback on failure
-                                animeList[animeIdx].listStatus = oldStatus;
-                                updateCounts();
-                                renderAnimeGrid();
-                                showToast('Failed to change status', 'error');
-                            }
-                        } catch (err) {
-                            console.error('Drag drop failed:', err);
-                            animeList[animeIdx].listStatus = oldStatus;
-                            updateCounts();
-                            renderAnimeGrid();
+                    const anime = animeList.find(a => a.mediaId == mediaId);
+                    if (anime && anime.listStatus !== targetStatus) {
+                        // Record pending change instead of immediate sync
+                        if (!pendingChanges[mediaId]) {
+                            pendingChanges[mediaId] = { oldStatus: anime.listStatus };
                         }
+                        pendingChanges[mediaId].status = targetStatus;
+
+                        // Optimistic UI update
+                        anime.listStatus = targetStatus;
+                        updateCounts();
+                        renderAnimeGrid(); 
+                        showToast(`Moved to ${targetStatus} (Pending Sync)`);
+                        btnBulkSync.classList.add('pulse-sync');
                     }
                 });
             });
@@ -3580,4 +3714,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Refresh anime list every 60 seconds
     setInterval(fetchAnimeList, 60000);
+
+    // ===== Global Multi-Select Listeners =====
+    if (btnSelectAll) {
+        btnSelectAll.addEventListener('click', () => {
+            const list = getFilteredList();
+            list.forEach(a => selectedAnime.add(a.mediaId.toString()));
+            updateSelectionUI();
+            renderAnimeGrid();
+        });
+    }
+
+    if (btnSelectNone) {
+        btnSelectNone.addEventListener('click', () => {
+            selectedAnime.clear();
+            updateSelectionUI();
+            renderAnimeGrid();
+        });
+    }
+
+    if (btnMoveTo) {
+        btnMoveTo.addEventListener('click', (e) => {
+            e.stopPropagation();
+            moveToDropdown.classList.toggle('show');
+        });
+    }
+
+    // Close dropdown on outside click
+    document.addEventListener('click', (e) => {
+        if (moveToDropdown && !moveToDropdown.contains(e.target) && e.target !== btnMoveTo) {
+            moveToDropdown.classList.remove('show');
+        }
+    });
+
+    document.querySelectorAll('.move-to-option').forEach(opt => {
+        opt.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const status = opt.getAttribute('data-status');
+            moveSelectedTo(status);
+            moveToDropdown.classList.remove('show');
+        });
+    });
+
+    if (btnBulkSync) {
+        btnBulkSync.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showSyncChangelog();
+        });
+    }
+
+    // Change Log Modal Listeners
+    if (changelogModalClose) changelogModalClose.addEventListener('click', () => changelogModal.classList.add('hidden'));
+    if (changelogModalOverlay) changelogModalOverlay.addEventListener('click', () => changelogModal.classList.add('hidden'));
+    if (btnChangelogCancel) btnChangelogCancel.addEventListener('click', () => changelogModal.classList.add('hidden'));
+    if (btnChangelogConfirm) btnChangelogConfirm.addEventListener('click', performBulkSync);
 });
