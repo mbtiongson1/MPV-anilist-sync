@@ -34,3 +34,20 @@ Traceback (most recent call last):
     self.socket.bind(self.server_address)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
 OSError: [Errno 48] Address already in use
+Traceback (most recent call last):
+  File "/Users/marcotiongson/Documents/MPV/src/main.py", line 388, in <module>
+    agent.start()
+    ~~~~~~~~~~~^^
+  File "/Users/marcotiongson/Documents/MPV/src/main.py", line 205, in start
+    self._process_active_file(filename)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/marcotiongson/Documents/MPV/src/main.py", line 220, in _process_active_file
+    self._fetch_current_anilist_progress(filename)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/marcotiongson/Documents/MPV/src/main.py", line 314, in _fetch_current_anilist_progress
+    resolved_media, _ = self._resolve_episode_to_media(result, episode)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/marcotiongson/Documents/MPV/src/main.py", line 112, in _resolve_episode_to_media
+    fallback_episodes = media.get('episodes')
+                        ^^^^^^^^^
+AttributeError: 'list' object has no attribute 'get'

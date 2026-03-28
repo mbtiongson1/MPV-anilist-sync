@@ -6,6 +6,26 @@
     "type": "directory",
     "children": [
       {
+        "name": "Ameku Takao no Suiri Karte",
+        "path": "/Users/marcotiongson/Downloads/Ameku Takao no Suiri Karte",
+        "type": "directory",
+        "children": [
+          {
+            "name": "[ASW] Ameku Takao no Suiri Karte - 10 [1080p HEVC][B82A2DD0].mkv",
+            "path": "/Users/marcotiongson/Downloads/Ameku Takao no Suiri Karte/[ASW] Ameku Takao no Suiri Karte - 10 [1080p HEVC][B82A2DD0].mkv",
+            "type": "file",
+            "mtime": 1774687388.2262046,
+            "size": 164233216,
+            "episode": 10
+          }
+        ],
+        "has_video": true,
+        "size": 164233216,
+        "mediaId": 176642,
+        "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx176642-lgDtPlodCMRm.jpg",
+        "listStatus": "CURRENT"
+      },
+      {
         "name": "Champignon no Majo",
         "path": "/Users/marcotiongson/Downloads/Champignon no Majo",
         "type": "directory",
@@ -44,31 +64,6 @@
         "mediaId": 180746,
         "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx180746-eqDiHbzoHMFh.jpg",
         "listStatus": "CURRENT"
-      },
-      {
-        "name": "Still Shining",
-        "path": "/Users/marcotiongson/Downloads/Still Shining",
-        "type": "directory",
-        "children": [
-          {
-            "name": "Still.Shining.S01E05.1080p.NF.WEB-DL.AAC2.0.H.264-MrHulk.mkv",
-            "path": "/Users/marcotiongson/Downloads/Still Shining/Still.Shining.S01E05.1080p.NF.WEB-DL.AAC2.0.H.264-MrHulk.mkv",
-            "type": "file",
-            "mtime": 1774186544.4904084,
-            "size": 2842414198,
-            "episode": 5
-          },
-          {
-            "name": "Still.Shining.S01E06.1080p.NF.WEB-DL.AAC2.0.H.264-MrHulk.mkv",
-            "path": "/Users/marcotiongson/Downloads/Still Shining/Still.Shining.S01E06.1080p.NF.WEB-DL.AAC2.0.H.264-MrHulk.mkv",
-            "type": "file",
-            "mtime": 1774186538.4437635,
-            "size": 2869496579,
-            "episode": 6
-          }
-        ],
-        "has_video": true,
-        "size": 5711910777
       },
       {
         "name": "Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita",
@@ -118,17 +113,9 @@
         ],
         "has_video": true,
         "size": 1969161272
-      },
-      {
-        "name": "[ASW] Ameku Takao no Suiri Karte - 10 [1080p HEVC][B82A2DD0].mkv",
-        "path": "/Users/marcotiongson/Downloads/[ASW] Ameku Takao no Suiri Karte - 10 [1080p HEVC][B82A2DD0].mkv",
-        "type": "file",
-        "mtime": 1774687388.2262046,
-        "size": 164233216,
-        "episode": 10
       }
     ],
     "has_video": true,
-    "size": 8490636860
+    "size": 2778726083
   }
 }
