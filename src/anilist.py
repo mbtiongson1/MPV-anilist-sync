@@ -349,6 +349,7 @@ class AnilistClient:
                         status
                         progress
                         score
+                        updatedAt
                         media {
                             id
                             title {
@@ -412,6 +413,7 @@ class AnilistClient:
                         'listStatus': entry.get('status') or list_status,
                         'progress': entry.get('progress', 0),
                         'score': entry.get('score', 0),
+                        'updatedAt': entry.get('updatedAt', 0),
                         'mediaId': media.get('id'),
                         'title': media.get('title', {}),
                         'episodes': media.get('episodes'),
@@ -484,4 +486,30 @@ class AnilistClient:
             return True
         except Exception as e:
             print(f"Error updating progress: {e}")
+            return False
+
+    def change_status(self, media_id: int, status: str) -> bool:
+        if not self.is_authenticated():
+            print("Not authenticated.")
+            return False
+
+        mutation = '''
+        mutation ($mediaId: Int, $status: MediaListStatus) {
+            SaveMediaListEntry (mediaId: $mediaId, status: $status) {
+                id
+                status
+            }
+        }
+        '''
+        variables = {
+            'mediaId': media_id,
+            'status': status
+        }
+        
+        try:
+            self._execute_query(mutation, variables)
+            print(f"Successfully updated status for media {media_id} to {status}")
+            return True
+        except Exception as e:
+            print(f"Error changing status: {e}")
             return False

@@ -57,15 +57,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let animeList = [];
     let activeTab = 'CURRENT';
     let lastNowPlayingTitle = null;
-    let viewMode = 'grid';
+    let viewMode = 'details';
     // persist view mode across reloads
     const savedViewMode = localStorage.getItem('mpvViewMode');
     if (savedViewMode && ['grid', 'list', 'details'].includes(savedViewMode)) {
         viewMode = savedViewMode;
     }
     let expandedCard = null; // mediaId of expanded card
-    let sortBy = ''; // 'popularity', 'score', 'title', 'progress', 'season', 'studio'
-    let sortDirection = 1; // 1 = asc, -1 = desc
+    let sortBy = 'progress'; // 'popularity', 'score', 'title', 'progress', 'season', 'studio'
+    let sortDirection = -1; // 1 = asc, -1 = desc
+
+    function getCachedImageUrl(url) {
+        if (!url) return '';
+        return `/api/image?url=${encodeURIComponent(url)}`;
+    }
 
     // ===== Fuzzy Search Helper =====
     function fuzzyMatch(query, text) {
@@ -82,38 +87,81 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return false;
     }
-    function renderSegments(container, progress, total, isCurrent) {
+    function renderSegments(container, progress, total, isCurrent, nextAiringEpisode) {
         container.innerHTML = '';
-        if (!total || total <= 0) {
-            // Unknown total - just show progress count
-            const limit = Math.max(progress, 1);
-            for (let i = 1; i <= limit; i++) {
-                const el = document.createElement('div');
-                el.classList.add('segment');
-                if (isCurrent && i === progress) {
-                    el.classList.add('segment-current');
-                } else if (i <= progress) {
-                    el.classList.add('segment-watched');
-                } else {
-                    el.classList.add('segment-unwatched');
-                }
-                container.appendChild(el);
-            }
+        
+        let validTotal = (total && total > 0) ? total : 0;
+        let available = validTotal;
+        
+        // If it's currently airing, available episodes is nextAiringEpisode - 1
+        if (nextAiringEpisode && nextAiringEpisode.episode) {
+            available = Math.max(0, nextAiringEpisode.episode - 1);
+            // If total isn't known but we have nextAiringEpisode, limit validTotal
+            if (validTotal === 0) validTotal = available + 1; // Arbitrary estimate
+            if (available > validTotal) available = validTotal;
+        }
+
+        if (validTotal <= 0) validTotal = Math.max(progress, 1);
+        if (available < progress) available = progress;
+
+        const pWatched = Math.min((progress / validTotal) * 100, 100);
+        const pAvailable = Math.min(((available - progress) / validTotal) * 100, 100);
+
+        const barHtml = `
+            <div class="progress-bar-container">
+                <div class="progress-bar-watched" style="width: ${pWatched}%;"></div>
+                <div class="progress-bar-available" style="width: ${pAvailable}%;"></div>
+            </div>
+        `;
+        container.innerHTML = barHtml;
+    }
+
+    function renderRecentAnime() {
+        const listContainer = document.getElementById('recent-anime-list');
+        if (!listContainer) return;
+
+        const recent = [...animeList].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, 10);
+        listContainer.innerHTML = '';
+
+        if (recent.length === 0) {
+            listContainer.innerHTML = '<div style="padding: 1rem; color: var(--text-muted); font-size: 0.9rem;">No recent anime</div>';
             return;
         }
 
-        for (let i = 1; i <= total; i++) {
+        recent.forEach(anime => {
+            const title = anime.title?.romaji || anime.title?.english || 'Unknown';
+            const cover = getCachedImageUrl(anime.coverImage?.medium || anime.coverImage?.large || '');
+            const progress = anime.progress || 0;
+            const total = anime.episodes || '?';
+
             const el = document.createElement('div');
-            el.classList.add('segment');
-            if (isCurrent && i === progress) {
-                el.classList.add('segment-current');
-            } else if (i <= progress) {
-                el.classList.add('segment-watched');
-            } else {
-                el.classList.add('segment-unwatched');
-            }
-            container.appendChild(el);
-        }
+            el.style.cssText = 'display: flex; gap: 0.75rem; align-items: center; padding: 0.5rem; background: var(--bg-card); border-bottom: 1px solid var(--border-light); cursor: pointer; transition: background 0.2s ease;';
+            el.onmouseover = () => el.style.background = 'var(--bg-card-hover)';
+            el.onmouseout = () => el.style.background = 'var(--bg-card)';
+
+            el.innerHTML = `
+                <img src="${cover}" style="width: 32px; height: 48px; object-fit: cover; border-radius: 4px; flex-shrink: 0;">
+                <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
+                    <div style="font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary); margin-bottom: 0.25rem;">${escapeHtml(title)}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Ep ${progress} / ${total}</div>
+                </div>
+                <div style="display: flex; gap: 0.25rem; align-items: center;">
+                    <button class="icon-btn btn-open-folder" data-media-id="${anime.mediaId}" style="padding: 0.3rem;" title="Open folder">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+                    </button>
+                </div>
+            `;
+            listContainer.appendChild(el);
+        });
+
+        // Attach folder events globally (since we populate them here)
+        listContainer.querySelectorAll('.btn-open-folder').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const mediaId = btn.getAttribute('data-media-id');
+                fetch('/api/open_folder?mediaId=' + mediaId).catch(console.error);
+            };
+        });
     }
 
     // ===== Now Playing Status (2s poll) =====
@@ -187,24 +235,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Cover and banner images
                 if (data.media_details) {
-                    const coverUrl = data.media_details.coverImage?.large || data.media_details.coverImage?.medium || '';
-                    const bannerUrl = data.media_details.bannerImage || coverUrl;
+                    const rawCoverUrl = data.media_details.coverImage?.large || data.media_details.coverImage?.medium || '';
+                    const rawBannerUrl = data.media_details.bannerImage || rawCoverUrl;
+                    const coverUrl = getCachedImageUrl(rawCoverUrl);
+                    const bannerUrl = getCachedImageUrl(rawBannerUrl);
                     npCover.src = coverUrl;
                     npBanner.style.backgroundImage = bannerUrl ? `url(${bannerUrl})` : '';
 
                     // Attach click targets
-                    npCover.style.cursor = coverUrl ? 'pointer' : 'default';
-                    npCover.onclick = () => { if (coverUrl) window.open(coverUrl, '_blank'); };
-                    npBanner.style.cursor = bannerUrl ? 'pointer' : 'default';
-                    npBanner.onclick = () => { if (bannerUrl) window.open(bannerUrl, '_blank'); };
+                    npCover.style.cursor = rawCoverUrl ? 'pointer' : 'default';
+                    npCover.onclick = () => { if (rawCoverUrl) window.open(rawCoverUrl, '_blank'); };
+                    npBanner.style.cursor = rawBannerUrl ? 'pointer' : 'default';
+                    npBanner.onclick = () => { if (rawBannerUrl) window.open(rawBannerUrl, '_blank'); };
                 }
 
                 // Determine total: prefer AniList episode count, then local folder count
                 const total = data.anilist_total_episodes || data.total_episodes || 0;
                 const watched = data.watched_episodes || 0;
+                
+                let nextAiring = null;
+                if (data.media_details && data.media_details.nextAiringEpisode) {
+                    nextAiring = data.media_details.nextAiringEpisode;
+                }
+                
                 const totalStr = total > 0 ? total : '?';
                 npProgressLabel.textContent = `E${watched} / ${totalStr}`;
-                renderSegments(npProgressSegments, watched, total, true);
+                renderSegments(npProgressSegments, watched, total, true, nextAiring);
 
                 // Try to find matching anime in list for extra metadata
                 if (data.base_title !== lastNowPlayingTitle) {
@@ -251,8 +307,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (match) {
-            const coverUrl = match.coverImage?.large || match.coverImage?.medium || '';
-            const bannerUrl = match.bannerImage || coverUrl;
+            const rawCoverUrl = match.coverImage?.large || match.coverImage?.medium || '';
+            const rawBannerUrl = match.bannerImage || rawCoverUrl;
+            const coverUrl = getCachedImageUrl(rawCoverUrl);
+            const bannerUrl = getCachedImageUrl(rawBannerUrl);
             npCover.src = coverUrl;
             npBanner.style.backgroundImage = bannerUrl ? `url(${bannerUrl})` : '';
             npStudio.textContent = match.studio || '';
@@ -368,6 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             animeList = data;
+            renderRecentAnime();
             updateCounts();
             renderAnimeGrid();
             // Also refresh now-playing metadata if applicable
@@ -435,7 +494,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         cmp = aTitle.localeCompare(bTitle);
                         break;
                     case 'progress':
-                        cmp = (a.progress || 0) - (b.progress || 0);
+                        const pA = a.episodes && a.episodes > 0 ? (a.progress || 0) / a.episodes : (a.progress === 0 ? 0 : 0.99);
+                        const pB = b.episodes && b.episodes > 0 ? (b.progress || 0) / b.episodes : (b.progress === 0 ? 0 : 0.99);
+                        cmp = pA - pB;
                         break;
                     case 'season':
                         cmp = (a.seasonYear || 0) - (b.seasonYear || 0);
@@ -591,16 +652,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 const title = anime.title?.romaji || anime.title?.english || anime.title?.native || 'Unknown';
                 const progress = anime.progress || 0;
                 const total = anime.episodes || '?';
-                const cover = anime.coverImage?.large || anime.coverImage?.medium || '';
+                const rawCover = anime.coverImage?.large || anime.coverImage?.medium || '';
+                const cover = getCachedImageUrl(rawCover);
                 const formatPop = formatPopularity(anime.popularity || 0);
                 const score = anime.averageScore ? anime.averageScore + '%' : '-';
+
+                const editIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"/></svg>`;
+                const folderIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>`;
+                const resumeIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`;
+
+                let actionButtons = `
+                    <button class="icon-btn btn-open-folder" data-media-id="${anime.mediaId}" title="Open Folder">${folderIcon}</button>
+                    <button class="icon-btn edit-btn" data-media-id="${anime.mediaId}" title="Edit Progress">${editIcon}</button>
+                `;
+                
+                if (anime.listStatus === 'COMPLETED') {
+                    actionButtons += `
+                        <button class="icon-btn btn-resume" data-media-id="${anime.mediaId}" title="Move to In Progress">${resumeIcon}</button>
+                    `;
+                }
 
                 if (viewMode === 'grid') {
                     return `
                         <div class="anime-card" data-media-id="${anime.mediaId}">
-                            <div class="anime-cover" style="background-image: url('${cover}')">
+                            <div class="anime-card-cover" style="background-image: url('${cover}')">
                                 <div class="anime-progress">
-                                    <div class="progress-bar" style="width: ${total !== '?' && total > 0 ? (progress/total)*100 : 0}%"></div>
+                                    <div id="seg-${anime.mediaId}" class="progress-segments"></div>
                                 </div>
                             </div>
                             <div class="anime-info">
@@ -608,19 +685,27 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <div class="anime-meta">Ep ${progress} / ${total}</div>
                             </div>
                             <div class="card-overlay">
-                                <button class="small-btn edit-btn" data-media-id="${anime.mediaId}">Edit</button>
+                                <div style="display: flex; gap: 0.25rem; margin-left: auto;">
+                                    ${actionButtons}
+                                </div>
                             </div>
                         </div>
                     `;
                 } else if (viewMode === 'list') {
                     return `
                         <div class="anime-list-item" data-media-id="${anime.mediaId}">
-                            <img src="${cover}" class="list-cover" alt="cover">
+                            <img src="${cover}" class="anime-list-cover" alt="cover">
                             <div class="list-info">
                                 <div class="list-title">${escapeHtml(title)}</div>
-                                <div class="list-meta">Progress: ${progress} / ${total} | Score: ${score}</div>
+                                <div class="list-meta">
+                                    <span>${progress} / ${total}</span>
+                                    <span>★ ${score}</span>
+                                </div>
+                                <div id="seg-${anime.mediaId}" class="progress-segments"></div>
                             </div>
-                            <button class="small-btn edit-btn" data-media-id="${anime.mediaId}">Edit</button>
+                            <div style="display: flex; gap: 0.25rem; margin-left: auto;">
+                                ${actionButtons}
+                            </div>
                         </div>
                     `;
                 } else {
@@ -632,8 +717,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             <td>${formatPop}</td>
                             <td>${anime.season || '-'} ${anime.seasonYear || ''}</td>
                             <td>${escapeHtml(anime.studio || '-')}</td>
-                            <td>
-                                <button class="small-btn edit-btn" data-media-id="${anime.mediaId}">Edit</button>
+                            <td style="text-align: right; display: flex; justify-content: flex-end; gap: 0.25rem;">
+                                ${actionButtons}
                             </td>
                         </tr>
                     `;
@@ -663,7 +748,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <th data-sort="popularity" data-label="Popularity">Popularity</th>
                             <th data-sort="season" data-label="Season">Season</th>
                             <th data-sort="studio" data-label="Studio">Studio</th>
-                            <th>Actions</th>
+                            <th style="text-align: right;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -680,11 +765,40 @@ document.addEventListener('DOMContentLoaded', () => {
         filtered.forEach(anime => {
             const container = document.getElementById(`seg-${anime.mediaId}`);
             if (container) {
-                renderSegments(container, anime.progress || 0, anime.episodes || 0, false);
+                renderSegments(container, anime.progress || 0, anime.episodes || 0, false, anime.nextAiringEpisode);
             }
         });
 
-        // Add event listeners for edit buttons
+        // Attach new action event listeners
+        const tableBody = animeGrid.querySelector('tbody') || animeGrid; // If not details view, use animeGrid directly
+
+        tableBody.querySelectorAll('.btn-open-folder').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const mediaId = btn.getAttribute('data-media-id');
+                fetch('/api/open_folder?mediaId=' + mediaId).catch(console.error);
+            };
+        });
+
+        tableBody.querySelectorAll('.btn-resume').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const mediaId = btn.getAttribute('data-media-id');
+                if (confirm("Move this anime back to 'In Progress'?")) {
+                    fetch('/api/change_status', {
+                        method: 'POST',
+                        body: JSON.stringify({ mediaId: parseInt(mediaId), status: 'CURRENT' }),
+                        headers: { 'Content-Type': 'application/json' }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) fetchAnimeList();
+                    });
+                }
+            };
+        });
+
+        // Re-attach details events listeners for edit buttons
         document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -977,6 +1091,14 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSettings();
     checkStatus();
     fetchAnimeList();
+
+    if (document.getElementById('btn-open-np-folder')) {
+        document.getElementById('btn-open-np-folder').addEventListener('click', () => {
+            if (activeMediaId) {
+                fetch('/api/open_folder?mediaId=' + activeMediaId).catch(console.error);
+            }
+        });
+    }
 
     // Poll now-playing every 2 seconds
     setInterval(checkStatus, 2000);

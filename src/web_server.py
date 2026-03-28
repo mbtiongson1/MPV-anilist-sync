@@ -274,6 +274,84 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                     print(f"Error in nyaa_batch_search: {e}")
 
             self.wfile.write(json.dumps(results).encode('utf-8'))
+        elif self.path.startswith('/api/open_folder'):
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+
+            parsed_path = urllib.parse.urlparse(self.path)
+            query = urllib.parse.parse_qs(parsed_path.query)
+            media_id = query.get('mediaId', [None])[0]
+            success = False
+            if self.agent and media_id:
+                try:
+                    folder_path = self.agent.settings.get_media_folder(int(media_id))
+                    import subprocess
+                    import sys
+                    if not os.path.exists(folder_path):
+                        os.makedirs(folder_path, exist_ok=True)
+                    if sys.platform == 'win32':
+                        os.startfile(folder_path)
+                        success = True
+                    elif sys.platform == 'darwin':
+                        subprocess.call(['open', folder_path])
+                        success = True
+                    else:
+                        subprocess.call(['xdg-open', folder_path])
+                        success = True
+                except Exception as e:
+                    print(f"Failed to open folder: {e}")
+            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+        elif self.path.startswith('/api/image'):
+            parsed_path = urllib.parse.urlparse(self.path)
+            query = urllib.parse.parse_qs(parsed_path.query)
+            image_url = query.get('url', [None])[0]
+            if not image_url:
+                self.send_response(400)
+                self.end_headers()
+                return
+                
+            cache_dir = os.path.join(os.path.dirname(__file__), '..', 'image_cache')
+            os.makedirs(cache_dir, exist_ok=True)
+            
+            import hashlib
+            filename = hashlib.md5(image_url.encode()).hexdigest()
+            cache_path = os.path.join(cache_dir, filename)
+            
+            if not os.path.exists(cache_path):
+                try:
+                    r = requests.get(image_url, timeout=5)
+                    r.raise_for_status()
+                    content_type = r.headers.get('content-type', '')
+                    with open(cache_path, 'wb') as f:
+                        f.write(r.content)
+                    with open(cache_path + '.meta', 'w') as f:
+                        f.write(content_type)
+                except Exception as e:
+                    print(f"Error fetching image: {e}")
+                    self.send_response(500)
+                    self.end_headers()
+                    return
+            
+            try:
+                with open(cache_path + '.meta', 'r') as f:
+                    content_type = f.read()
+            except Exception:
+                content_type = 'image/jpeg'
+                
+            self.send_response(200)
+            self.send_header('Content-type', content_type)
+            # Add cache headers
+            self.send_header('Cache-Control', 'public, max-age=31536000')
+            self._set_cors_headers()
+            self.end_headers()
+            
+            try:
+                with open(cache_path, 'rb') as f:
+                    self.wfile.write(f.read())
+            except Exception:
+                pass
         else:
             # Fallback to serving static files
             super().do_GET()
@@ -325,6 +403,23 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
 
             self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
 
+        elif self.path == '/api/change_status':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+
+            content_length = int(self.headers.get('Content-Length', 0))
+            data = json.loads(self.rfile.read(content_length).decode('utf-8')) if content_length else {}
+            media_id = data.get('mediaId')
+            status = data.get('status')
+
+            success = False
+            if self.agent and hasattr(self.agent, 'anilist') and media_id and status:
+                success = self.agent.anilist.change_status(media_id, status)
+
+            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+
         elif self.path == '/api/reauthorize':
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
@@ -356,6 +451,11 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                 self.agent.last_synced_filename = None
                 if hasattr(self.agent, 'anilist'):
                     self.agent.anilist.user_id = None
+
+            import shutil
+            cache_dir = os.path.join(os.path.dirname(__file__), '..', 'image_cache')
+            if os.path.exists(cache_dir):
+                shutil.rmtree(cache_dir, ignore_errors=True)
 
             # Reset manual override
             TrackerStateHandler.manual_episode_override = None
