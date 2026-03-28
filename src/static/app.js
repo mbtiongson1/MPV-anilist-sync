@@ -50,8 +50,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputSettingDownloadDir = document.getElementById('setting-download-dir');
     const npPlayerBadge = document.getElementById('np-player-badge');
     const tabTorrents = document.getElementById('tab-torrents');
+    const tabLibrary = document.getElementById('tab-library');
+    const libraryContent = document.getElementById('library-content');
+    const inputSettingBaseAnimeFolder = document.getElementById('setting-base-anime-folder');
+    
+    // View Buttons
+    const btnViewGrid = document.getElementById('btn-view-grid');
+    const btnViewList = document.getElementById('btn-view-list');
+    const btnViewTree = document.getElementById('btn-view-tree');
     
     let userSettings = null;
+    let libraryData = []; // Cached library scanner results
 
     // ===== State =====
     let animeList = [];
@@ -70,19 +79,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== Torrent Filter State (persists within session) =====
     let torrentFilters = {
-        category: '1_2',      // Nyaa category
-        nyaaFilter: '0',      // Nyaa filter (no remakes / trusted)
-        resolution: '',       // empty = use settings default
-        group: '',            // release group override
-        episode: '',          // episode number override for manual search
-        airingOnly: true,     // batch scan: only airing anime
+        category: '1_2',
+        nyaaFilter: '0',
+        resolution: '',
+        group: '',
+        episode: '',
+        airingOnly: true,
+        dateFilter: 'all',
     };
 
     // ===== Torrent Results Cache (persists across tab switches) =====
     let torrentCache = {
         items: [],       // last rendered items
         query: null,     // last search query (null = batch scan)
+        mediaId: null,   // mediaId of the anime searched (for auto-selecting next ep)
         isBatch: false,  // true if last action was batch scan
+        sortBy: 'date',
+        sortDir: -1
     };
 
     function showToast(message, type = 'success') {
@@ -116,6 +129,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return false;
     }
+
+    function parseSize(sizeStr) {
+        if (!sizeStr) return 0;
+        const match = sizeStr.match(/^(\d+(\.\d+)?)\s*([KMGT]i?B)$/i);
+        if (!match) return 0;
+        const val = parseFloat(match[1]);
+        const unit = match[3].toUpperCase();
+        const units = { 
+            'B': 1, 
+            'KB': 1024, 'KIB': 1024, 
+            'MB': 1024**2, 'MIB': 1024**2, 
+            'GB': 1024**3, 'GIB': 1024**3, 
+            'TB': 1024**4, 'TIB': 1024**4 
+        };
+        return val * (units[unit] || 1);
+    }
+
+    function getRelativeTime(timestamp) {
+        if (!timestamp) return '';
+        const now = Math.floor(Date.now() / 1000);
+        const diff = now - timestamp;
+        if (diff < 60) return 'just now';
+        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+        if (diff < 84000) return `${Math.floor(diff / 3600)}h ago`;
+        if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+        const date = new Date(timestamp * 1000);
+        return date.toLocaleDateString();
+    }
+
     function renderSegments(container, progress, total, isCurrent, nextAiringEpisode, mediaId = null) {
         container.innerHTML = '';
         
@@ -187,11 +229,14 @@ document.addEventListener('DOMContentLoaded', () => {
             el.innerHTML = `
                 <img src="${cover}" style="width: 32px; height: 48px; object-fit: cover; border-radius: 4px; flex-shrink: 0;">
                 <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
-                    <div style="font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary); margin-bottom: 0.25rem;">${escapeHtml(title)}</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted);">Ep ${progress} / ${total}</div>
+                    <div style="font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary); margin-bottom: 0.1rem;">${escapeHtml(title)}</div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">Ep ${progress} / ${total}</span>
+                        <span style="font-size: 0.7rem; color: var(--accent); opacity: 0.8; font-weight: 500;">${getRelativeTime(anime.updatedAt)}</span>
+                    </div>
                 </div>
                 <div style="display: flex; gap: 0.25rem; align-items: center;">
-                    <button class="icon-btn btn-search-torrents" data-title="${escapeHtml(title)}" style="padding: 0.3rem;" title="Search Torrents">
+                    <button class="icon-btn btn-search-torrents" data-media-id="${anime.mediaId}" data-title="${escapeHtml(title)}" style="padding: 0.3rem;" title="Search Torrents">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     </button>
                     <button class="icon-btn btn-open-folder" data-media-id="${anime.mediaId}" style="padding: 0.3rem;" title="Open folder">
@@ -582,6 +627,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== Rendering =====
     function renderAnimeGrid() {
+        if (activeTab === 'LIBRARY') return;
         const filtered = getFilteredList();
 
         // Update grid class for view mode
@@ -607,9 +653,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (a.score && a.score > 0) {
                     // User score: if > 10, likely out of 100, otherwise out of 10
                     s = a.score > 10 ? a.score : a.score * 10;
-                } else if (a.averageScore && a.averageScore > 0) {
-                    // Anilist averageScore: usually 0-100
-                    s = a.averageScore;
                 }
                 
                 if (s > 0) {
@@ -639,7 +682,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 weeklyActivity[dayOfWeek] += count;
             });
             
-            const meanScore = scoreCount > 0 ? (scoreSum / scoreCount / 10).toFixed(1) : 0;
+            const meanScore = scoreCount > 0 ? (scoreSum / scoreCount).toFixed(1) : 0;
             const daysWatched = (totalEps * 24 / 60 / 24).toFixed(1);
             
             // Pareto Chart Logic - Truncate to top 9 + Others
@@ -718,6 +761,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             }
 
+            // Genre Overview Logic
+            const genreColors = {
+                'Comedy': '#84cc16',
+                'Action': '#0ea5e9',
+                'Fantasy': '#a855f7',
+                'Drama': '#f472b6',
+                'Adventure': '#06b6d4',
+                'Sci-Fi': '#6366f1',
+                'Romance': '#ec4899',
+                'Slice of Life': '#10b981',
+                'Supernatural': '#8b5cf6',
+                'Mystery': '#64748b',
+                'Psychological': '#475569',
+                'Music': '#f59e0b',
+                'Others': '#fb923c'
+            };
+
+            const topGenres = sortedGenres;
+            let genreOverviewHtml = '';
+            let distributionBarHtml = '';
+
+            if (topGenres.length > 0) {
+                let chipsHtml = '';
+                topGenres.forEach(([genre, count]) => {
+                    const color = genreColors[genre] || '#10B981';
+                    chipsHtml += `
+                        <div class="genre-item">
+                            <div class="genre-chip" style="background: ${color}; font-size: 14px; padding: 8px 12px;">${genre}</div>
+                            <div class="genre-info">
+                                <span class="genre-count" style="color: ${color}; font-size: 14px;">${count}</span> Entries
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // Distribution bar segments
+                const sumDist = topGenres.reduce((s, g) => s + g[1], 0);
+                
+                topGenres.forEach(([genre, count]) => {
+                    const color = genreColors[genre] || '#9CA3AF';
+                    const percentage = (count / sumDist) * 100;
+                    distributionBarHtml += `<div class="genre-dist-segment" style="width: ${percentage}%; background: ${color};" title="${genre}: ${count}"></div>`;
+                });
+
+                genreOverviewHtml = `
+                    <div class="genre-overview-card">
+                        <h3 class="genre-overview-title">Genre Overview</h3>
+                        <div class="genre-chips" style="grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); display: grid; gap: 12px;">
+                            ${chipsHtml}
+                        </div>
+                        <div class="genre-distribution-wrapper">
+                            <div class="genre-distribution-bar">
+                                ${distributionBarHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
             // Heat Map Logic (Last 12 Months)
             const today = new Date();
             today.setHours(0,0,0,0);
@@ -786,6 +888,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 </div>
+
+                ${genreOverviewHtml}
 
                 <div class="stats-card" style="grid-column: 1 / -1; background: var(--bg-card); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-card);">
                     <h3 style="margin-bottom: 24px; font-size: 16px; font-weight: 700; color: var(--text-primary); border-left: 3px solid var(--accent); padding-left: 12px; line-height: 1;">Genre Distribution (Pareto)</h3>
@@ -895,16 +999,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const searchTerm = activeSearchTerm || '';
             activeSearchTerm = ''; // reset after use
 
+            // Pre-fill group from settings on first ever open
+            if (!torrentFilters.group && userSettings && userSettings.preferred_groups) {
+                const groups = userSettings.preferred_groups;
+                torrentFilters.group = Array.isArray(groups) ? (groups[0] || '').replace(/[\[\]]/g, '') : String(groups).split(',')[0].replace(/[\[\]]/g, '').trim();
+            }
+
             animeGrid.className = 'anime-grid torrents-view';
             animeGrid.innerHTML = `
                 <div class="torrents-toolbar">
                     <div class="torrents-search">
                         <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                         <input type="text" id="torrents-search-input" placeholder="Search Nyaa.si..." value="${escapeHtml(searchTerm || torrentCache.query || '')}">
+                        <button class="clear-input-btn" data-input-id="torrents-search-input" title="Clear">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                        <button id="btn-search-go" class="search-go-btn" title="Search">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </button>
                     </div>
-                    <button id="btn-scan-airing" class="refresh-btn" title="Scan airing anime for missing episodes" style="display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;font-weight:600;">
+                    <button id="btn-scan-airing" class="refresh-btn" title="Scan recently airing anime for missing episodes" style="display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;font-weight:600;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        Scan Airing
+                        Scan Recent
                     </button>
                     <a href="https://nyaa.si/?c=1_2" target="_blank" rel="noopener" class="refresh-btn nyaa-link-btn" title="Open Nyaa.si" style="display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;font-weight:600;text-decoration:none;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -941,12 +1057,42 @@ document.addEventListener('DOMContentLoaded', () => {
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label class="filter-label">Group</label>
-                        <input type="text" id="tf-group" class="filter-input" placeholder="e.g. SubsPlease" maxlength="40">
+                        <label class="filter-label">Date</label>
+                        <select id="tf-date" class="filter-select">
+                            <option value="all">All Time</option>
+                            <option value="24h">Last 24h</option>
+                            <option value="48h">Last 48h</option>
+                            <option value="7d">Last 7d</option>
+                            <option value="30d">Last 30d</option>
+                        </select>
                     </div>
                     <div class="filter-group">
-                        <label class="filter-label">Episode #</label>
-                        <input type="number" id="tf-episode" class="filter-input" placeholder="e.g. 5" min="1" style="width:60px;">
+                        <label class="filter-label">Date</label>
+                        <select id="tf-date" class="filter-select">
+                            <option value="all">All Time</option>
+                            <option value="24h">Last 24h</option>
+                            <option value="48h">Last 48h</option>
+                            <option value="7d">Last 7d</option>
+                            <option value="30d">Last 30d</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Subs / Group</label>
+                        <div class="input-with-clear">
+                            <input type="text" id="tf-group" class="filter-input" placeholder="e.g. SubsPlease" maxlength="40">
+                            <button class="clear-input-btn" data-input-id="tf-group" title="Clear">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Episodes</label>
+                        <div class="input-with-clear">
+                            <input type="text" id="tf-episode" class="filter-input" placeholder="e.g. 5-10, 12" style="width:90px;">
+                            <button class="clear-input-btn" data-input-id="tf-episode" title="Clear">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="filter-group filter-toggle-group">
                         <label class="filter-label">Airing Only</label>
@@ -960,14 +1106,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div id="torrents-results">
                     <div class="empty-state torrents-placeholder">
                         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        <p>Search for an anime, or click <strong>Scan Airing</strong> to find missing episodes.</p>
+                        <p>Search for an anime, or click <strong>Scan Recent</strong> to find missing episodes.</p>
                     </div>
                 </div>
                 <div id="batch-download-bar" class="batch-download-bar hidden">
                     <div class="info">
                         <span id="batch-count">0 torrents selected</span>
                     </div>
-                    <button id="btn-download-selected" class="btn-download-selected">Download Selected</button>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button id="btn-select-remaining" class="btn-download-selected btn-secondary" style="background: rgba(255,255,255,0.1); color: white;">Select Remaining</button>
+                        <button id="btn-download-selected" class="btn-download-selected">Download Selected</button>
+                    </div>
                 </div>
             `;
 
@@ -975,6 +1124,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const tfCategory  = document.getElementById('tf-category');
             const tfFilter    = document.getElementById('tf-filter');
             const tfRes       = document.getElementById('tf-resolution');
+            const tfDate      = document.getElementById('tf-date');
             const tfGroup     = document.getElementById('tf-group');
             const tfEpisode   = document.getElementById('tf-episode');
             const tfAiring    = document.getElementById('tf-airing-only');
@@ -989,13 +1139,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 category:   tfCategory.value,
                 nyaaFilter: tfFilter.value,
                 resolution: tfRes.value,
+                dateFilter: tfDate.value,
                 group:      tfGroup.value.trim(),
-                episode:    tfEpisode.value,
+                episode:    tfEpisode.value.trim(),
                 airingOnly: tfAiring.checked,
             });
 
             const saveFilters = () => {
                 Object.assign(torrentFilters, getFilters());
+            };
+
+            /** Parse episode expression like '5', '5-10', '11,12', '5-7,10' into array of ints */
+            const parseEpisodeExpr = (expr) => {
+                if (!expr) return [];
+                const eps = [];
+                expr.split(',').forEach(part => {
+                    part = part.trim();
+                    if (!part) return;
+                    const rangeParts = part.split('-').map(s => parseInt(s.trim(), 10));
+                    if (rangeParts.length === 2 && !isNaN(rangeParts[0]) && !isNaN(rangeParts[1])) {
+                        for (let e = rangeParts[0]; e <= rangeParts[1]; e++) eps.push(e);
+                    } else if (rangeParts.length === 1 && !isNaN(rangeParts[0])) {
+                        eps.push(rangeParts[0]);
+                    }
+                });
+                return eps;
             };
 
             const resultsContainer = document.getElementById('torrents-results');
@@ -1004,8 +1172,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const batchCountText   = document.getElementById('batch-count');
 
             let selectedTorrents = new Set();
-            // sortSeederDir: 1=asc, -1=desc, null=default
-            let sortSeederDir = null;
 
             const updateBatchBar = () => {
                 const count = selectedTorrents.size;
@@ -1023,7 +1189,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const q = f.group ? `${query} ${f.group}` : query;
                 const p = new URLSearchParams({ q, category: f.category, filter: f.nyaaFilter });
                 if (f.resolution) p.set('resolution', f.resolution);
-                if (f.episode) p.set('episode', f.episode);
+                if (torrentCache.mediaId) p.set('media_id', torrentCache.mediaId);
+                // For manual search, send first episode only (or none)
+                const eps = parseEpisodeExpr(f.episode);
+                if (eps.length === 1) p.set('episode', eps[0]);
                 return p.toString();
             };
 
@@ -1040,15 +1209,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const performSearch = async (query) => {
                 saveFilters();
+                const f = getFilters();
+                const eps = parseEpisodeExpr(f.episode);
+
                 torrentCache = { items: [], query, isBatch: false };
                 resultsContainer.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Searching Nyaa...</p></div>';
                 selectedTorrents.clear(); updateBatchBar();
+
                 try {
-                    const resp = await fetch(`/api/nyaa_search?${buildSearchParams(query)}`);
-                    const results = await resp.json();
-                    const items = results.map(r => ({ torrent: r, animeTitle: query }));
-                    torrentCache = { items, query, isBatch: false };
-                    renderTorrentTable(items);
+                    let allItems = [];
+                    if (eps.length > 1) {
+                        // Parallel search for each episode in range
+                        const searches = eps.map(ep => {
+                            const q = f.group ? `${query} ${f.group}` : query;
+                            const p = new URLSearchParams({ q, category: f.category, filter: f.nyaaFilter, episode: ep });
+                            if (f.resolution) p.set('resolution', f.resolution);
+                            return fetch(`/api/nyaa_search?${p.toString()}`).then(r => r.json()).then(results =>
+                                results.map(r => ({ torrent: r, animeTitle: query, episode: ep, _fromSearch: true }))
+                            ).catch(() => []);
+                        });
+                        const results = await Promise.all(searches);
+                        allItems = results.flat();
+                    } else {
+                        const resp = await fetch(`/api/nyaa_search?${buildSearchParams(query)}`);
+                        const results = await resp.json();
+                        allItems = results.map(r => ({ torrent: r, animeTitle: query, _fromSearch: true }));
+                    }
+
+                    torrentCache = { items: allItems, query, isBatch: false };
+
+                    // Fallback: if no mediaId, try fuzzy matching title against animeList
+                    if (!torrentCache.mediaId) {
+                        const q = query.toLowerCase();
+                        const found = animeList.find(a => {
+                            const t = a.title;
+                            return (t.userPreferred && t.userPreferred.toLowerCase().includes(q)) || 
+                                   (t.english && t.english.toLowerCase().includes(q)) || 
+                                   (t.romaji && t.romaji.toLowerCase().includes(q));
+                        });
+                        if (found) torrentCache.mediaId = found.mediaId;
+                    }
+
+                    renderTorrentTable(allItems);
                 } catch (e) {
                     resultsContainer.innerHTML = '<div class="empty-state"><p>Search failed.</p></div>';
                 }
@@ -1057,7 +1259,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const loadBatchMissing = async () => {
                 saveFilters();
                 torrentCache = { items: [], query: null, isBatch: true };
-                resultsContainer.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Scanning airing anime for missing episodes...</p></div>';
+                resultsContainer.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Scanning recent anime for missing episodes...</p></div>';
                 selectedTorrents.clear(); updateBatchBar();
                 try {
                     const resp = await fetch(`/api/nyaa_batch_search?${buildBatchParams()}`);
@@ -1065,35 +1267,123 @@ document.addEventListener('DOMContentLoaded', () => {
                     torrentCache = { items: results, query: null, isBatch: true };
                     renderTorrentTable(results);
                 } catch (e) {
-                    resultsContainer.innerHTML = '<div class="empty-state"><p>Batch search failed.</p></div>';
+                    resultsContainer.innerHTML = '<div class="empty-state"><p>Scan failed.</p></div>';
                 }
             };
 
+
+
             // ---- Render table ----
-            const renderTorrentTable = (items, seederSort = null) => {
+            const renderTorrentTable = (items, sortCol = torrentCache.sortBy, sortDir = torrentCache.sortDir) => {
+                const targetAnime = torrentCache.mediaId ? animeList.find(a => String(a.mediaId) === String(torrentCache.mediaId)) : null;
+                const nextEp = targetAnime ? (targetAnime.progress + 1) : null;
+
+                // Filter by date if applicable
+                const now = new Date();
+                const filterMap = {
+                    '24h': 24 * 3600 * 1000,
+                    '48h': 48 * 3600 * 1000,
+                    '7d':  7 * 24 * 3600 * 1000,
+                    '30d': 30 * 24 * 3600 * 1000
+                };
+                const ms = filterMap[torrentFilters.dateFilter];
+                if (ms) {
+                    items = items.filter(it => {
+                        if (!it.torrent?.pubDate) return false;
+                        const pd = new Date(it.torrent.pubDate);
+                        return (now - pd) <= ms;
+                    });
+                }
+
+                // Is the anime recent (airingAt within past 7 days) or a next-needed episode?
+                const isRecent = (item) => {
+                    // 1. If airingAt metadata is provided directly (from batch scan)
+                    if (item.airingAt) {
+                        const now = Date.now() / 1000;
+                        const sevenDaysAgo = now - (7 * 24 * 60 * 60);
+                        return item.airingAt > sevenDaysAgo && item.airingAt < now + (7 * 24 * 60 * 60);
+                    }
+                    // 2. If it matches target anime the next episode we need
+                    if (targetAnime && (item.torrent?.episode || item.episode)) {
+                        const ep = item.torrent?.episode || item.episode;
+                        if (ep === nextEp) return true;
+                        // Or if it matches the current airing episode precisely
+                        if (targetAnime.nextAiringEpisode && ep === targetAnime.nextAiringEpisode.episode) return true;
+                    }
+                    return false;
+                };
+
                 if (!items || items.length === 0) {
                     resultsContainer.innerHTML = '<div class="empty-state"><p>No results found.</p></div>';
                     return;
                 }
 
-                // Sort by seeders if requested
                 let sorted = [...items];
-                if (seederSort !== null) {
-                    sorted.sort((a, b) => seederSort * ((b.torrent?.seeders ?? 0) - (a.torrent?.seeders ?? 0)));
+                if (sortCol) {
+                    sorted.sort((a, b) => {
+                        let valA, valB;
+                        const tA = a.torrent;
+                        const tB = b.torrent;
+                        
+                        switch (sortCol) {
+                            case 'ep':
+                                valA = parseFloat(a.episode ?? tA?.episode ?? 0);
+                                valB = parseFloat(b.episode ?? tB?.episode ?? 0);
+                                break;
+                            case 'date': {
+                                const parseD = (str) => { if(!str) return 0; try { return new Date(str).getTime(); } catch(e) { return 0; } };
+                                valA = parseD(tA?.pubDate);
+                                valB = parseD(tB?.pubDate);
+                                break;
+                            }
+                            case 'group':
+                                valA = (tA?.group || '').toLowerCase();
+                                valB = (tB?.group || '').toLowerCase();
+                                break;
+                            case 'title':
+                                valA = (tA?.title || '').toLowerCase();
+                                valB = (tB?.title || '').toLowerCase();
+                                break;
+                            case 'size':
+                                valA = parseSize(tA?.size);
+                                valB = parseSize(tB?.size);
+                                break;
+                            case 'seeders':
+                                valA = tA?.seeders ?? 0;
+                                valB = tB?.seeders ?? 0;
+                                break;
+                            case 'leechers':
+                                valA = tA?.leechers ?? 0;
+                                valB = tB?.leechers ?? 0;
+                                break;
+                            default:
+                                return 0;
+                        }
+                        
+                        if (typeof valA === 'string') {
+                            return sortDir * valA.localeCompare(valB);
+                        }
+                        return sortDir * (valA - valB);
+                    });
                 }
 
-                // Split individual vs batch
                 const individual = sorted.filter(it => !it.torrent?.is_batch);
                 const batches    = sorted.filter(it =>  it.torrent?.is_batch);
 
                 const renderRows = (list, startIdx) => list.map((item, i) => {
                     const idx = startIdx + i;
                     const t = item.torrent;
-                    // Pre-select only items that are NOT downloaded AND NOT watched
                     const isDownloaded = !!item.is_downloaded;
                     const isWatched    = !!item.is_watched;
                     const isDisabled   = isDownloaded || isWatched;
-                    const isPreChecked = !isDownloaded && !isWatched; // only pending items
+                    
+                    // Pre-check if:
+                    // A) It is a batch scan and it is not consumed (existing logic)
+                    // B) It is a search match for the SPECIFIC next episode we need
+                    const isBatchScan  = !item._fromSearch;
+                    const isNextNeeded = targetAnime && item.torrent?.episode === nextEp;
+                    const isPreChecked = (isBatchScan && !isDownloaded && !isWatched) || (isNextNeeded && !isDownloaded && !isWatched);
+
                     const statusText   = isWatched ? 'Watched' : (isDownloaded ? 'Downloaded' : '');
                     const statusClass  = isWatched ? 'watched' : 'downloaded';
                     const rowId        = `torrent-row-${idx}`;
@@ -1106,9 +1396,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15A6 6 0 0 0 18 15"/><path d="M6 15V9a6 6 0 0 1 12 0v6"/><line x1="9" y1="9" x2="9" y2="15"/><line x1="15" y1="9" x2="15" y2="15"/></svg>
                            </a>`
                         : '';
+                    const recentClass = isRecent(item) ? ' row-recent' : '';
 
                     return `
-                        <tr class="${isDisabled ? 'row-disabled' : ''}" id="${rowId}">
+                        <tr class="${isDisabled ? 'row-disabled' : ''}${recentClass}" id="${rowId}">
                             <td class="checkbox-cell">
                                 <input type="checkbox" class="torrent-checkbox custom-checkbox"
                                     data-idx="${idx}"
@@ -1122,32 +1413,40 @@ document.addEventListener('DOMContentLoaded', () => {
                             <td class="torrent-title-cell" title="${escapeHtml(t?.title || '')}">
                                 <div class="torrent-title-wrap">${titleLink}</div>
                             </td>
+                            <td style="white-space:nowrap;font-size:0.7rem;color:var(--text-muted);">${t?.pubDate ? new Date(t.pubDate).toLocaleDateString(undefined, {month:'short', day:'numeric'}) : '-'}</td>
                             <td style="white-space:nowrap;">${escapeHtml(t?.size || '')}</td>
                             <td class="torrent-seeders">${t?.seeders ?? 0}</td>
                             <td class="torrent-leechers">${t?.leechers ?? 0}</td>
-                            <td style="white-space:nowrap;">
-                                ${statusText ? `<span class="status-badge ${statusClass}">${statusText}</span>` : ''}
-                                <button class="icon-btn btn-direct-download" data-idx="${idx}" title="Download .torrent" style="padding:4px;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                </button>
-                                ${magnetBtn}
+                            <td style="white-space:nowrap; text-align: right;">
+                                <div style="display: inline-flex; align-items: center; gap: 0.5rem; justify-content: flex-end; width: 100%;">
+                                    ${statusText ? `<span class="status-badge ${statusClass}">${statusText}</span>` : ''}
+                                    ${magnetBtn}
+                                    <button class="icon-btn btn-direct-download" data-idx="${idx}" title="Download .torrent" style="padding:4px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `;
                 }).join('');
 
-                const seederArrow = seederSort === 1 ? ' ↑' : (seederSort === -1 ? ' ↓' : '');
+                const getSortArrow = (col) => {
+                    if (torrentCache.sortBy !== col) return '';
+                    return torrentCache.sortDir === 1 ? ' ↑' : ' ↓';
+                };
+
                 const tableHead = `
                     <thead>
                         <tr>
                             <th class="checkbox-cell"><input type="checkbox" id="select-all-torrents" class="custom-checkbox"></th>
-                            <th style="text-align:center;">Ep</th>
-                            <th>Subs</th>
-                            <th>Torrent Title</th>
-                            <th>Size</th>
-                            <th class="th-sortable" id="th-seeders" style="cursor:pointer;user-select:none;">Seeds${seederArrow}</th>
-                            <th>Leech</th>
-                            <th>Actions</th>
+                            <th class="th-sortable" data-sort="ep" style="text-align:center;cursor:pointer;user-select:none;">Ep${getSortArrow('ep')}</th>
+                            <th class="th-sortable" data-sort="group" style="cursor:pointer;user-select:none;">Subs${getSortArrow('group')}</th>
+                            <th class="th-sortable" data-sort="title" style="cursor:pointer;user-select:none;">Torrent Title${getSortArrow('title')}</th>
+                            <th class="th-sortable" data-sort="date" style="cursor:pointer;user-select:none;">Date${getSortArrow('date')}</th>
+                            <th class="th-sortable" data-sort="size" style="cursor:pointer;user-select:none;">Size${getSortArrow('size')}</th>
+                            <th class="th-sortable" data-sort="seeders" style="cursor:pointer;user-select:none;">Seeds${getSortArrow('seeders')}</th>
+                            <th class="th-sortable" data-sort="leechers" style="cursor:pointer;user-select:none;">Leech${getSortArrow('leechers')}</th>
+                            <th style="text-align: right; width: 160px;">Actions</th>
                         </tr>
                     </thead>`;
 
@@ -1172,7 +1471,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 resultsContainer.innerHTML = html;
 
-                // Track which are pre-checked
+                // Track checked items
                 selectedTorrents.clear();
                 document.querySelectorAll('.torrent-checkbox').forEach(cb => {
                     if (!cb.disabled && cb.checked) selectedTorrents.add(cb.dataset.idx);
@@ -1196,13 +1495,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateBatchBar();
                 });
 
-                // Seeders sort
-                document.getElementById('th-seeders')?.addEventListener('click', () => {
-                    sortSeederDir = sortSeederDir === -1 ? 1 : -1;
-                    renderTorrentTable(torrentCache.items, sortSeederDir);
+                // Header sorting
+                document.querySelectorAll('.torrents-table thead th.th-sortable').forEach(th => {
+                    th.addEventListener('click', () => {
+                        const col = th.dataset.sort;
+                        if (torrentCache.sortBy === col) {
+                            torrentCache.sortDir *= -1;
+                        } else {
+                            torrentCache.sortBy = col;
+                            torrentCache.sortDir = -1; // Default to descending
+                        }
+                        renderTorrentTable(torrentCache.items);
+                    });
                 });
 
-                // Direct download buttons
+                // Direct download
                 document.querySelectorAll('.btn-direct-download').forEach(btn => {
                     btn.addEventListener('click', async (e) => {
                         const idx = e.currentTarget.dataset.idx;
@@ -1231,7 +1538,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             const cb = row.querySelector('.torrent-checkbox');
                             if (cb) { cb.disabled = true; cb.checked = false; }
                             row.classList.add('row-disabled');
-                            // Actions cell is last
                             const lastCell = row.cells[row.cells.length - 1];
                             if (lastCell) lastCell.innerHTML = '<span class="status-badge downloaded">Downloaded ✓</span>';
                             selectedTorrents.delete(idx.toString());
@@ -1243,7 +1549,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 finally { btn.disabled = false; btn.textContent = origText; }
             };
 
-            // Download selected button
+            // Download selected
             document.getElementById('btn-download-selected').addEventListener('click', () => {
                 const items = [], indices = [];
                 selectedTorrents.forEach(idx => {
@@ -1253,23 +1559,85 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (items.length) downloadTorrents(items, indices);
             });
 
-            // Scan Airing button
+            // Scan Recent button
             document.getElementById('btn-scan-airing').addEventListener('click', loadBatchMissing);
 
-            // Search input
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && e.target.value.trim()) performSearch(e.target.value.trim());
-            });
-            animeGrid.querySelector('.search-icon')?.addEventListener('click', () => {
-                const v = searchInput.value.trim();
-                if (v) performSearch(v);
+            // Select Remaining episodes logic
+            document.getElementById('btn-select-remaining')?.addEventListener('click', () => {
+                const currentSelections = Array.from(selectedTorrents).map(idx => {
+                    const cb = document.querySelector(`.torrent-checkbox[data-idx="${idx}"]`);
+                    const row = cb?.closest('tr');
+                    return {
+                        idx,
+                        group: row?.querySelector('.torrent-group')?.textContent.trim(),
+                        ep: parseFloat(row?.cells[1]?.textContent.trim() || 0)
+                    };
+                }).filter(s => s.group);
+
+                if (currentSelections.length === 0) {
+                    showToast('First select an episode to define the group and starting point.', 'info');
+                    return;
+                }
+
+                // Logic: same group, episode > max currently selected
+                const targetGroup = currentSelections[0].group;
+                const maxEp = Math.max(...currentSelections.map(s => s.ep));
+                let count = 0;
+
+                document.querySelectorAll('.torrent-checkbox').forEach(cb => {
+                    if (cb.disabled || cb.checked) return;
+                    const row = cb.closest('tr');
+                    const group = row?.querySelector('.torrent-group')?.textContent.trim();
+                    const ep = parseFloat(row?.cells[1]?.textContent.trim() || 0);
+
+                    if (group === targetGroup && ep > maxEp) {
+                        cb.checked = true;
+                        selectedTorrents.add(cb.dataset.idx);
+                        count++;
+                    }
+                });
+                
+                if (count > 0) {
+                    updateBatchBar();
+                    showToast(`Selected ${count} more episodes from ${targetGroup}`);
+                } else {
+                    showToast(`No newer episodes found for ${targetGroup}`);
+                }
             });
 
-            // Filter changes re-run active search
-            [tfCategory, tfFilter, tfRes, tfAiring].forEach(el => {
+            // Search input + Enter button
+            const triggerSearch = () => {
+                const v = searchInput.value.trim();
+                if (v) performSearch(v);
+            };
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') triggerSearch();
+            });
+            document.getElementById('btn-search-go').addEventListener('click', triggerSearch);
+
+            // Filter changes re-run active action
+            [tfCategory, tfFilter, tfRes, tfDate, tfAiring].forEach(el => {
                 el.addEventListener('change', () => {
                     if (torrentCache.isBatch) loadBatchMissing();
                     else if (torrentCache.query) performSearch(torrentCache.query);
+                });
+            });
+
+            // Clear buttons functionality
+            document.querySelectorAll('.torrents-view .clear-input-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const inputId = btn.dataset.inputId;
+                    const input = document.getElementById(inputId);
+                    if (input) {
+                        input.value = '';
+                        input.focus();
+                        // If it's a filter, it might trigger search
+                        if (inputId === 'tf-group' || inputId === 'tf-episode') {
+                            if (torrentCache.isBatch) loadBatchMissing();
+                            else if (torrentCache.query) performSearch(torrentCache.query);
+                        }
+                    }
                 });
             });
 
@@ -1277,11 +1645,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (searchTerm) {
                 performSearch(searchTerm);
             } else if (torrentCache.items.length > 0) {
-                // Restore from cache without re-fetching
-                renderTorrentTable(torrentCache.items, sortSeederDir);
+                renderTorrentTable(torrentCache.items);
                 if (torrentCache.query) searchInput.value = torrentCache.query;
             }
-            // else: show placeholder, wait for user action
 
             return;
         }
@@ -1626,27 +1992,56 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ===== Tab Switching =====
     function setActiveTab(tab) {
         activeTab = tab;
         tabCurrent.classList.toggle('active', tab === 'CURRENT');
         tabPlanning.classList.toggle('active', tab === 'PLANNING');
         tabCompleted.classList.toggle('active', tab === 'COMPLETED');
         tabTorrents.classList.toggle('active', tab === 'TORRENTS');
+        if (tabLibrary) tabLibrary.classList.toggle('active', tab === 'LIBRARY');
         const tabStats = document.getElementById('tab-stats');
         if (tabStats) tabStats.classList.toggle('active', tab === 'STATS');
         
         const filterBar = document.querySelector('.filter-bar');
-        if (filterBar) {
-            filterBar.style.display = (tab === 'TORRENTS' || tab === 'STATS') ? 'none' : 'flex';
+        const viewToggles = document.querySelector('.view-toggle-group'); 
+        const topDashboard = document.querySelector('.top-dashboard-grid');
+        const listHeader = document.querySelector('.anime-list-section .section-header');
+        
+        if (tab === 'LIBRARY') {
+            if (topDashboard) topDashboard.classList.add('hidden');
+            if (listHeader) listHeader.classList.add('hidden');
+            animeGrid.classList.add('hidden');
+            if (libraryContent) libraryContent.classList.remove('hidden');
+            if (filterBar) filterBar.classList.add('hidden');
+            
+            // Hide all view toggles for Library (as only Tree is allowed now)
+            if (viewToggles) viewToggles.classList.add('hidden');
+            
+            const hasData = libraryData && Object.keys(libraryData).length > 0;
+            if (hasData) renderLibraryView();
+            fetchLibrary(false, hasData);
+        } else {
+            if (topDashboard) topDashboard.classList.remove('hidden');
+            if (listHeader) listHeader.classList.remove('hidden');
+            animeGrid.classList.remove('hidden');
+            if (libraryContent) libraryContent.classList.add('hidden');
+            
+            if (filterBar) {
+                filterBar.classList.toggle('hidden', (tab === 'TORRENTS' || tab === 'STATS'));
+            }
+            
+            // Show view toggles for main tabs
+            if (viewToggles) viewToggles.classList.remove('hidden');
+            
+            renderAnimeGrid();
         }
-        renderAnimeGrid();
     }
 
     tabCurrent.addEventListener('click', () => setActiveTab('CURRENT'));
     tabPlanning.addEventListener('click', () => setActiveTab('PLANNING'));
     tabCompleted.addEventListener('click', () => setActiveTab('COMPLETED'));
     tabTorrents.addEventListener('click', () => setActiveTab('TORRENTS'));
+    if (tabLibrary) tabLibrary.addEventListener('click', () => setActiveTab('LIBRARY'));
     const tabStats = document.getElementById('tab-stats');
     if (tabStats) tabStats.addEventListener('click', () => setActiveTab('STATS'));
     
@@ -1680,7 +2075,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== Filter Events =====
-    filterName.addEventListener('input', renderAnimeGrid);
+    filterName.addEventListener('input', () => {
+        if (activeTab === 'LIBRARY') renderLibraryView();
+        else renderAnimeGrid();
+    });
     filterSeason.addEventListener('change', renderAnimeGrid);
     filterYear.addEventListener('input', renderAnimeGrid);
     filterSort.addEventListener('change', (e) => {
@@ -1696,8 +2094,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== Refresh Button =====
     btnRefreshList.addEventListener('click', () => {
-        animeGrid.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Refreshing...</p></div>`;
-        fetchAnimeList();
+        if (activeTab === 'LIBRARY') {
+            libraryContent.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Refreshing library...</p></div>`;
+            fetchLibrary(true);
+        } else {
+            animeGrid.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Refreshing...</p></div>`;
+            fetchAnimeList();
+        }
     });
 
     // ===== Reauthorize Button =====
@@ -1738,26 +2141,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ===== View Toggle =====
-    function updateViewToggleButton() {
-        const icons = {
-            grid: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
-            list: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="18" r="1"/></svg>',
-            details: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M9 4v16"/><path d="M15 4v16"/></svg>'
-        };
-        btnToggleView.innerHTML = icons[viewMode] || icons.grid;
-        btnToggleView.title = `Switch to ${viewMode === 'grid' ? 'list' : viewMode === 'list' ? 'details' : 'grid'} view`;
+    function setViewMode(mode) {
+        viewMode = mode;
+        localStorage.setItem('mpvViewMode', viewMode);
+        
+        if (btnViewGrid) btnViewGrid.classList.toggle('active', mode === 'grid');
+        if (btnViewList) btnViewList.classList.toggle('active', mode === 'list' || mode === 'details');
+        if (btnViewTree) btnViewTree.classList.toggle('active', mode === 'tree');
+        
+        if (activeTab === 'LIBRARY') renderLibraryView();
+        else renderAnimeGrid();
     }
 
-    btnToggleView.addEventListener('click', () => {
-        if (viewMode === 'grid') viewMode = 'list';
-        else if (viewMode === 'list') viewMode = 'details';
-        else viewMode = 'grid';
-        localStorage.setItem('mpvViewMode', viewMode);
-        updateViewToggleButton();
-        renderAnimeGrid();
-    });
-
-    updateViewToggleButton();
+    if (btnViewGrid) btnViewGrid.addEventListener('click', () => setViewMode('grid'));
+    if (btnViewList) btnViewList.addEventListener('click', () => setViewMode('details'));
+    if (btnViewTree) btnViewTree.addEventListener('click', () => setViewMode('tree'));
+    
+    // Set initial active state based on saved mode
+    // (Button toggles handled by setViewMode, but we don't want to re-render yet.)
+    // Wait for the regular render lifecycle. Just set visuals.
+    if (btnViewGrid) btnViewGrid.classList.toggle('active', viewMode === 'grid');
+    if (btnViewList) btnViewList.classList.toggle('active', viewMode === 'list' || viewMode === 'details');
+    if (btnViewTree) btnViewTree.classList.toggle('active', viewMode === 'tree');
 
     // ===== Settings Load/Save =====
     async function loadSettings() {
@@ -1774,6 +2179,7 @@ document.addEventListener('DOMContentLoaded', () => {
             inputSettingGroups.value = userSettings.preferred_groups || '';
             inputSettingResolution.value = userSettings.preferred_resolution || '1080p';
             inputSettingDownloadDir.value = userSettings.default_download_dir || '';
+            if (inputSettingBaseAnimeFolder) inputSettingBaseAnimeFolder.value = userSettings.base_anime_folder || '';
         }
         settingsModal.classList.remove('hidden');
     }
@@ -1792,6 +2198,7 @@ document.addEventListener('DOMContentLoaded', () => {
             preferred_resolution: inputSettingResolution.value,
             default_download_dir: inputSettingDownloadDir.value
         };
+        if (inputSettingBaseAnimeFolder) payload.base_anime_folder = inputSettingBaseAnimeFolder.value;
 
         try {
             settingsSaveBtn.textContent = 'Saving...';
@@ -1824,8 +2231,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (torrentBtn) {
             e.stopPropagation();
             const title = torrentBtn.getAttribute('data-title');
+            const mediaId = torrentBtn.getAttribute('data-media-id');
             if (title) {
                 activeSearchTerm = title;
+                torrentCache.mediaId = mediaId; // Track which anime we are searching
                 setActiveTab('TORRENTS');
             }
         }
@@ -1836,6 +2245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSearchNpTorrents.addEventListener('click', () => {
             if (latestStatus && latestStatus.title) {
                 activeSearchTerm = latestStatus.base_title || latestStatus.title;
+                torrentCache.mediaId = activeMediaId;
                 setActiveTab('TORRENTS');
             }
         });
@@ -1847,6 +2257,158 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetch('/api/open_folder?mediaId=' + activeMediaId).catch(console.error);
             }
         });
+    }
+    
+    // ===== Library Implementation =====
+    async function fetchLibrary(forceRefresh = false, silent = false) {
+        if (!libraryContent) return;
+        
+        if (!silent || !libraryData || Object.keys(libraryData).length === 0) {
+            libraryContent.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Scanning library folders...</p></div>';
+        }
+        
+        try {
+            const resp = await fetch('/api/library' + (forceRefresh ? '?force_refresh=true' : ''));
+            const result = await resp.json();
+            if (result.success) {
+                libraryData = result.data;
+                renderLibraryView();
+            } else if (!silent) {
+                libraryContent.innerHTML = '<div class="empty-state"><p>No library found or scanned yet.</p></div>';
+            }
+        } catch (e) {
+            if (!silent) {
+                libraryContent.innerHTML = '<div class="empty-state"><p>Network error scanning library.</p></div>';
+            }
+        }
+    }
+
+    function renderLibraryView() {
+        if (!libraryData || !libraryContent) return;
+        
+        libraryContent.innerHTML = '';
+        libraryContent.className = 'library-tree-container';
+        
+        const root = document.createElement('div');
+        root.className = 'tree-root';
+        
+        function renderNode(node, level = 0) {
+            const nodeEl = document.createElement('div');
+            nodeEl.className = 'tree-node';
+            
+            const itemEl = document.createElement('div');
+            itemEl.className = 'tree-item';
+            itemEl.style.paddingLeft = `${level * 16 + 8}px`;
+            
+            const chevron = document.createElement('div');
+            chevron.className = `tree-chevron ${node.type === 'directory' ? '' : 'leaf'}`;
+            chevron.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+            
+            const icon = document.createElement('div');
+            icon.className = 'tree-icon';
+            if (node.type === 'directory') {
+                icon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>';
+            } else {
+                icon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>';
+            }
+            
+            const label = document.createElement('div');
+            label.className = 'tree-label';
+            label.textContent = node.name;
+            if (node.mediaId) {
+                 label.style.fontWeight = '700';
+                 label.style.color = 'var(--accent)';
+                 label.title = 'AniList Matched: ' + node.name;
+            }
+            
+            const meta = document.createElement('div');
+            meta.className = 'tree-meta';
+            if (node.type === 'file') {
+                meta.textContent = formatBytes(node.size);
+            } else {
+                meta.textContent = `${node.children.length} items`;
+            }
+            
+            const actions = document.createElement('div');
+            actions.className = 'tree-actions';
+            
+            const openFolder = document.createElement('button');
+            openFolder.className = 'tree-action-btn';
+            openFolder.title = 'Open Folder';
+            openFolder.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+            openFolder.onclick = (e) => {
+                e.stopPropagation();
+                fetch('/api/open_folder?path=' + encodeURIComponent(node.path)).catch(console.error);
+            };
+            actions.appendChild(openFolder);
+            
+            if (node.type === 'directory') {
+                const searchTorrents = document.createElement('button');
+                searchTorrents.className = 'tree-action-btn';
+                searchTorrents.title = 'Search Torrents';
+                searchTorrents.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+                searchTorrents.onclick = (e) => {
+                    e.stopPropagation();
+                    activeSearchTerm = node.name;
+                    setActiveTab('TORRENTS');
+                };
+                actions.appendChild(searchTorrents);
+            }
+            
+            itemEl.appendChild(chevron);
+            itemEl.appendChild(icon);
+            itemEl.appendChild(label);
+            itemEl.appendChild(meta);
+            itemEl.appendChild(actions);
+            
+            nodeEl.appendChild(itemEl);
+            
+            if (node.type === 'directory' && node.children) {
+                const childrenContainer = document.createElement('div');
+                childrenContainer.className = 'tree-children';
+                
+                // Force expand if it's the root or top level children containing matches
+                let isExpanded = level === 0;
+                if (isExpanded) {
+                    chevron.classList.add('expanded');
+                    childrenContainer.classList.add('expanded');
+                }
+                
+                chevron.onclick = (e) => {
+                    e.stopPropagation();
+                    isExpanded = !isExpanded;
+                    chevron.classList.toggle('expanded', isExpanded);
+                    childrenContainer.classList.toggle('expanded', isExpanded);
+                };
+                
+                itemEl.ondblclick = (e) => {
+                    e.stopPropagation();
+                    chevron.click();
+                };
+                
+                node.children.forEach(child => {
+                    childrenContainer.appendChild(renderNode(child, level + 1));
+                });
+                nodeEl.appendChild(childrenContainer);
+            } else if (node.type === 'file') {
+                itemEl.ondblclick = (e) => {
+                    e.stopPropagation();
+                    fetch('/api/open_folder?path=' + encodeURIComponent(node.path)).catch(console.error);
+                };
+            }
+            
+            return nodeEl;
+        }
+        
+        libraryContent.appendChild(renderNode(libraryData, 0));
+    }
+    
+    function formatBytes(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
     }
 
     // Poll now-playing every 2 seconds

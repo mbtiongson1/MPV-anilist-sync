@@ -137,6 +137,7 @@ class NyaaInterface:
                 seeders_node = item.find('{https://nyaa.si/xmlns/nyaa}seeders')
                 leechers_node = item.find('{https://nyaa.si/xmlns/nyaa}leechers')
                 infohash_node = item.find('{https://nyaa.si/xmlns/nyaa}infoHash')
+                pub_date_node = item.find('pubDate')
 
                 if title_node is None or link_node is None:
                     continue
@@ -170,6 +171,8 @@ class NyaaInterface:
                     import urllib.parse as _up
                     dn = _up.quote(t)
                     magnet = f'magnet:?xt=urn:btih:{ih}&dn={dn}&tr=http%3A%2F%2Fnyaa.tracker.wf%3A7777%2Fannounce'
+                
+                pd: str = str(pub_date_node.text) if pub_date_node is not None and pub_date_node.text is not None else ""
 
                 # Parse episode number and batch status from title
                 parsed_ep, is_batch = _parse_episode_from_title(t)
@@ -200,6 +203,7 @@ class NyaaInterface:
                     'score': score,
                     'episode': parsed_ep,
                     'is_batch': is_batch,
+                    'pubDate': pd,
                 })
 
             results.sort(key=lambda x: (x['score'], x['seeders']), reverse=True)
@@ -255,9 +259,9 @@ class NyaaInterface:
             if sys.platform == 'win32':
                 os.startfile(output_path)
             elif sys.platform == 'darwin':
-                subprocess.call(('open', output_path))
+                subprocess.Popen(['open', output_path])
             else:
-                subprocess.call(('xdg-open', output_path))
+                subprocess.Popen(['xdg-open', output_path])
 
             return output_path
         except Exception as e:

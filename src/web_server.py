@@ -1,4 +1,5 @@
 import json
+import re
 import http.server
 import socketserver
 import threading
@@ -224,7 +225,8 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                 settings = {
                     'preferred_groups': ", ".join(self.agent.settings.preferred_groups),
                     'preferred_resolution': self.agent.settings.preferred_resolution,
-                    'default_download_dir': self.agent.settings.default_download_dir
+                    'default_download_dir': self.agent.settings.default_download_dir,
+                    'base_anime_folder': self.agent.settings.base_anime_folder
                 }
             self.wfile.write(json.dumps(settings).encode('utf-8'))
 
@@ -242,6 +244,8 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             nyaa_filter = query.get('filter', ['0'])[0]
             resolution = query.get('resolution', [None])[0]
 
+            media_id = query.get('media_id', [None])[0]
+            
             episode_int: Optional[int] = None
             if episode_str is not None:
                 try:
@@ -260,9 +264,47 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                     category=category,
                     nyaa_filter=nyaa_filter,
                 )
+                
+                # Check for existing episodes in library if media_id is provided
+                existing_eps = set()
+                progress = 0
+                if media_id:
+                    try:
+                        mid = int(media_id)
+                        progress = self.agent.get_progress_for_media(mid)
+                        media_dir = self.agent.settings.get_media_folder(mid)
+                        
+                        # Fallback to title-based folder if default
+                        if media_dir == self.agent.settings.default_download_dir:
+                            from src.parser import AnimeParser
+                            cached_list = self.agent.anilist._load_list_cache()
+                            anime_info = next((e for e in cached_list if e.get('mediaId') == mid), None)
+                            if anime_info:
+                                romaji = anime_info.get('title', {}).get('romaji') or ''
+                                english = anime_info.get('title', {}).get('english') or ''
+                                title = romaji or english
+                                title_safe = "".join([c for c in title if c.isalnum() or c in (' ', '-', '_')]).strip()
+                                potential_dir = os.path.join(self.agent.settings.default_download_dir, title_safe)
+                                if os.path.exists(potential_dir): media_dir = potential_dir
+
+                        if os.path.exists(media_dir):
+                            from src.parser import AnimeParser
+                            for f in os.listdir(media_dir):
+                                if f.lower().endswith(('.mkv', '.mp4', '.avi')):
+                                    parsed = AnimeParser.parse_filename(f)
+                                    if parsed:
+                                        ep_val = parsed.get('episode')
+                                        if isinstance(ep_val, list): ep_val = ep_val[-1]
+                                        if ep_val:
+                                            try: existing_eps.add(int(ep_val))
+                                            except Exception: pass
+                    except Exception as e:
+                        print(f"Error scanning library for search: {e}")
+
                 for r in results:
-                    r['is_downloaded'] = False
-                    r['is_watched'] = False
+                    ep = r.get('episode')
+                    r['is_downloaded'] = ep in existing_eps if ep else False
+                    r['is_watched'] = ep <= progress if (ep and progress) else False
                     
             self.wfile.write(json.dumps(results).encode('utf-8'))
 
@@ -279,6 +321,10 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             category = qparams.get('category', ['1_2'])[0]
             nyaa_filter = qparams.get('filter', ['0'])[0]
             resolution = qparams.get('resolution', [None])[0]
+            try:
+                max_per_anime = int(qparams.get('max_per_anime', ['1'])[0])
+            except (ValueError, TypeError):
+                max_per_anime = 1
 
             results = []
             if self.agent and hasattr(self.agent, 'anilist') and hasattr(self.agent, 'nyaa'):
@@ -308,9 +354,13 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                         if english and english != romaji:
                             search_title = f"{romaji}|{english}"
 
+                        # Get airing info for recent highlighting
+                        next_airing = entry.get('nextAiringEpisode')
+                        airing_at = next_airing.get('airingAt') if next_airing else None
+
                         missing = []
                         if total_episodes:
-                            for ep in range(progress + 1, min(progress + 6, total_episodes + 1)):
+                            for ep in range(progress + 1, min(progress + max_per_anime + 1, total_episodes + 1)):
                                 missing.append(ep)
                         else:
                             missing.append(progress + 1)
@@ -346,6 +396,7 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                                 'media_id': media_id,
                                 'is_downloaded': next_ep in existing_eps,
                                 'is_watched': next_ep <= progress,
+                                'airing_at': airing_at,
                                 'resolution': resolution or self.agent.settings.preferred_resolution,
                                 'groups': self.agent.settings.preferred_groups,
                                 'category': category,
@@ -376,6 +427,7 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                                         'torrent': search_res[0],
                                         'is_downloaded': task['is_downloaded'],
                                         'is_watched': task['is_watched'],
+                                        'airingAt': task.get('airing_at'),
                                     })
                             except Exception as e:
                                 print(f"Batch search task error: {e}")
@@ -467,6 +519,118 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 with open(cache_path, 'rb') as f: self.wfile.write(f.read())
             except Exception: pass
+        elif self.path.startswith('/api/library'):
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            
+            parsed_path = urllib.parse.urlparse(self.path)
+            query = urllib.parse.parse_qs(parsed_path.query)
+            force_refresh = query.get('force_refresh', ['false'])[0].lower() == 'true'
+            
+            cache_file = 'library_cache.json'
+            
+            def get_base_dir():
+                if self.agent and hasattr(self.agent, 'settings'):
+                    return self.agent.settings.default_download_dir
+                return None
+
+            base_dir = get_base_dir()
+            
+            if not force_refresh and os.path.exists(cache_file):
+                try:
+                    cache_mtime = os.path.getmtime(cache_file)
+                    # Also check base_dir mtime to see if anything changed at the top level
+                    if base_dir and os.path.exists(base_dir):
+                        dir_mtime = os.path.getmtime(base_dir)
+                        # If cache is newer than dir and less than 1 hour old, use it
+                        if cache_mtime > dir_mtime and (time.time() - cache_mtime) < 3600:
+                            with open(cache_file, 'r', encoding='utf-8') as f:
+                                cached_data = json.load(f)
+                                self.wfile.write(json.dumps(cached_data).encode('utf-8'))
+                                return
+                except: pass
+                
+            def build_tree(path):
+                from src.parser import AnimeParser
+                video_exts = ('.mkv', '.mp4', '.avi')
+                
+                # Load cache for matching
+                cached_entries = []
+                if hasattr(self.agent, 'anilist'):
+                    try:
+                        cached_entries = self.agent.anilist._load_list_cache()
+                    except: pass
+
+                def match_title(title):
+                    title_clean = title.lower()
+                    for entry in cached_entries:
+                        romaji = (entry.get('title', {}).get('romaji') or '').lower()
+                        english = (entry.get('title', {}).get('english') or '').lower()
+                        synonyms = [s.lower() for s in entry.get('synonyms', [])]
+                        if title_clean in romaji or title_clean in english or title_clean in synonyms:
+                            return {
+                                "mediaId": entry.get('mediaId'),
+                                "coverImage": entry.get('coverImage', {}).get('large') or entry.get('coverImage', {}).get('medium')
+                            }
+                    return None
+
+                def scan(current_path):
+                    node = {
+                        "name": os.path.basename(current_path) or current_path,
+                        "path": current_path,
+                        "type": "directory",
+                        "children": [],
+                        "has_video": False
+                    }
+                    
+                    try:
+                        items = os.listdir(current_path)
+                    except PermissionError:
+                        return None
+                        
+                    for item in sorted(items):
+                        item_path = os.path.join(current_path, item)
+                        if os.path.isdir(item_path):
+                            child = scan(item_path)
+                            if child and child["has_video"]:
+                                node["children"].append(child)
+                                node["has_video"] = True
+                        elif item.lower().endswith(video_exts):
+                            mtime = os.path.getmtime(item_path)
+                            parsed = AnimeParser.parse_filename(item)
+                            node["children"].append({
+                                "name": item,
+                                "path": item_path,
+                                "type": "file",
+                                "mtime": mtime,
+                                "size": os.path.getsize(item_path),
+                                "episode": parsed.get("episode") if parsed else None
+                            })
+                            node["has_video"] = True
+                            
+                    # Attempt to match directory names to Anilist if they are top-level-ish
+                    # For now, let's just try matching every directory name
+                    match = match_title(node["name"])
+                    if match:
+                        node.update(match)
+                        
+                    return node
+
+                return scan(path)
+
+            result = {"success": False, "data": None}
+            if base_dir and os.path.exists(base_dir):
+                tree = build_tree(base_dir)
+                if tree:
+                    result = {"success": True, "data": tree}
+                    try:
+                        with open(cache_file, 'w', encoding='utf-8') as f:
+                            json.dump(result, f, ensure_ascii=False, indent=2)
+                    except: pass
+            
+            self.wfile.write(json.dumps(result).encode('utf-8'))
         else:
             super().do_GET()
 
@@ -552,6 +716,9 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             import shutil
             cache_dir = os.path.join(os.path.dirname(__file__), '..', 'image_cache')
             if os.path.exists(cache_dir): shutil.rmtree(cache_dir, ignore_errors=True)
+            if os.path.exists('library_cache.json'):
+                try: os.remove('library_cache.json')
+                except: pass
             TrackerStateHandler.manual_episode_override = None
             self.wfile.write(json.dumps({"success": True}).encode('utf-8'))
 
@@ -586,6 +753,8 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                     self.agent.settings.preferred_resolution = data['preferred_resolution']
                 if 'default_download_dir' in data:
                     self.agent.settings.default_download_dir = data['default_download_dir']
+                if 'base_anime_folder' in data:
+                    self.agent.settings.base_anime_folder = data['base_anime_folder']
             self.wfile.write(json.dumps({"success": True}).encode('utf-8'))
 
         elif self.path == '/api/nyaa_download':
@@ -661,14 +830,15 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                                         results.append(f"Moved {item} to {folder_name}/")
                                     except Exception as e: print(f"Skipped {item}: {e}")
             self.wfile.write(json.dumps({"success": True, "results": results}).encode('utf-8'))
+
         else:
             self.send_response(404)
             self.end_headers()
-
     def log_message(self, format, *args): pass
 
-class ReusableTCPServer(socketserver.TCPServer):
+class ReusableTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     allow_reuse_address = True
+    daemon_threads = True
 
 def start_web_server(agent: TrackerAgent, port: int = 8080):
     TrackerStateHandler.agent = agent

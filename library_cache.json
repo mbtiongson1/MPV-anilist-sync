@@ -1,0 +1,127 @@
+{
+  "success": true,
+  "data": {
+    "name": "Downloads",
+    "path": "/Users/marcotiongson/Downloads",
+    "type": "directory",
+    "children": [
+      {
+        "name": "Champignon no Majo",
+        "path": "/Users/marcotiongson/Downloads/Champignon no Majo",
+        "type": "directory",
+        "children": [
+          {
+            "name": "[ASW] Champignon no Majo - 01 [1080p HEVC][80C605A1].mkv",
+            "path": "/Users/marcotiongson/Downloads/Champignon no Majo/[ASW] Champignon no Majo - 01 [1080p HEVC][80C605A1].mkv",
+            "type": "file",
+            "mtime": 1774366364.5691755,
+            "size": 507797707,
+            "episode": 1
+          }
+        ],
+        "has_video": true,
+        "mediaId": 185514,
+        "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx185514-mfJqhtz22l1Z.jpg"
+      },
+      {
+        "name": "Shibou Yuugi de Meshi wo Kuu",
+        "path": "/Users/marcotiongson/Downloads/Shibou Yuugi de Meshi wo Kuu",
+        "type": "directory",
+        "children": [
+          {
+            "name": "[ASW] Shibou Yuugi de Meshi wo Kuu. - 11 [1080p HEVC][91F83CA2].mkv",
+            "path": "/Users/marcotiongson/Downloads/Shibou Yuugi de Meshi wo Kuu/[ASW] Shibou Yuugi de Meshi wo Kuu. - 11 [1080p HEVC][91F83CA2].mkv",
+            "type": "file",
+            "mtime": 1774686550.596231,
+            "size": 137533888,
+            "episode": 11
+          }
+        ],
+        "has_video": true,
+        "mediaId": 180746,
+        "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx180746-eqDiHbzoHMFh.jpg"
+      },
+      {
+        "name": "Still Shining",
+        "path": "/Users/marcotiongson/Downloads/Still Shining",
+        "type": "directory",
+        "children": [
+          {
+            "name": "Still.Shining.S01E05.1080p.NF.WEB-DL.AAC2.0.H.264-MrHulk.mkv",
+            "path": "/Users/marcotiongson/Downloads/Still Shining/Still.Shining.S01E05.1080p.NF.WEB-DL.AAC2.0.H.264-MrHulk.mkv",
+            "type": "file",
+            "mtime": 1774186544.4904084,
+            "size": 2842414198,
+            "episode": 5
+          },
+          {
+            "name": "Still.Shining.S01E06.1080p.NF.WEB-DL.AAC2.0.H.264-MrHulk.mkv",
+            "path": "/Users/marcotiongson/Downloads/Still Shining/Still.Shining.S01E06.1080p.NF.WEB-DL.AAC2.0.H.264-MrHulk.mkv",
+            "type": "file",
+            "mtime": 1774186538.4437635,
+            "size": 2869496579,
+            "episode": 6
+          }
+        ],
+        "has_video": true
+      },
+      {
+        "name": "Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita",
+        "path": "/Users/marcotiongson/Downloads/Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita",
+        "type": "directory",
+        "children": [
+          {
+            "name": "[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 07 [1080p HEVC][8F07C62E].mkv",
+            "path": "/Users/marcotiongson/Downloads/Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita/[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 07 [1080p HEVC][8F07C62E].mkv",
+            "type": "file",
+            "mtime": 1774317090.8934143,
+            "size": 402627881,
+            "episode": 7
+          },
+          {
+            "name": "[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 08 [1080p HEVC][8C2EABC6].mkv",
+            "path": "/Users/marcotiongson/Downloads/Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita/[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 08 [1080p HEVC][8C2EABC6].mkv",
+            "type": "file",
+            "mtime": 1774317074.721826,
+            "size": 378734538,
+            "episode": 8
+          },
+          {
+            "name": "[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 09 [1080p HEVC][C7F2C9E7].mkv",
+            "path": "/Users/marcotiongson/Downloads/Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita/[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 09 [1080p HEVC][C7F2C9E7].mkv",
+            "type": "file",
+            "mtime": 1774317241.4428258,
+            "size": 341485692,
+            "episode": 9
+          },
+          {
+            "name": "[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 10 [1080p HEVC][968D4434].mkv",
+            "path": "/Users/marcotiongson/Downloads/Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita/[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 10 [1080p HEVC][968D4434].mkv",
+            "type": "file",
+            "mtime": 1774317240.3303835,
+            "size": 431942170,
+            "episode": 10
+          },
+          {
+            "name": "[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 11 [1080p HEVC][6F54581C].mkv",
+            "path": "/Users/marcotiongson/Downloads/Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita/[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 11 [1080p HEVC][6F54581C].mkv",
+            "type": "file",
+            "mtime": 1774317210.8661325,
+            "size": 414370991,
+            "episode": 11
+          }
+        ],
+        "has_video": true
+      },
+      {
+        "name": "[ASW] Ameku Takao no Suiri Karte - 10 [1080p HEVC][B82A2DD0].mkv",
+        "path": "/Users/marcotiongson/Downloads/[ASW] Ameku Takao no Suiri Karte - 10 [1080p HEVC][B82A2DD0].mkv",
+        "type": "file",
+        "mtime": 1774687388.2262046,
+        "size": 164233216,
+        "episode": 10
+      }
+    ],
+    "has_video": true
+  }
+}
