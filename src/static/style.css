@@ -24,6 +24,11 @@
     --radius-xl: 1.5rem;
     --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
     --shadow-glow: 0 0 40px rgba(16, 185, 129, 0.08);
+    --status-current: #10B981;
+    --status-planning: #6366F1;
+    --status-completed: #F59E0B;
+    --status-dropped: #EF4444;
+    --status-paused: #94A3B8;
     --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -760,13 +765,33 @@ header {
     background: var(--accent);
 }
 
+.tab.active.tab-CURRENT::after { background: var(--status-current); }
+.tab.active.tab-PLANNING::after { background: var(--status-planning); }
+.tab.active.tab-COMPLETED::after { background: var(--status-completed); }
+.tab.active.tab-DROPPED::after { background: var(--status-dropped); }
+
+.tab.active.tab-CURRENT { color: var(--status-current); background: rgba(16, 185, 129, 0.05); }
+.tab.active.tab-PLANNING { color: var(--status-planning); background: rgba(99, 102, 241, 0.05); }
+.tab.active.tab-COMPLETED { color: var(--status-completed); background: rgba(245, 158, 11, 0.05); }
+.tab.active.tab-DROPPED { color: var(--status-dropped); background: rgba(239, 68, 68, 0.05); }
+
 .tab-count {
-    background: rgba(255, 255, 255, 0.06);
+    margin-left: 0.4rem;
+    background: rgba(255, 255, 255, 0.08);
     padding: 0.1rem 0.45rem;
     border-radius: 9999px;
     font-size: 0.7rem;
     font-weight: 700;
     color: var(--text-muted);
+}
+
+.tab-separator {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+    margin: 0 0.5rem;
+    align-self: center;
+    opacity: 0.6;
 }
 
 .tab.active .tab-count {
@@ -1221,11 +1246,120 @@ header {
     flex-shrink: 0;
 }
 
-.tree-label {
+.tree-label-container {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.tree-label {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1.2;
+    min-width: 0;
+    flex: 0 1 auto;
+}
+
+.tree-sublabel {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
+.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+.tab.drag-over {
+    background: var(--bg-card-hover) !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 10px var(--accent-glow) !important;
+    transform: scale(1.05);
+}
+
+/* Recent Activity Status Highlights */
+.recent-item-status {
+    width: 4px;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.recent-item-status.CURRENT { background-color: var(--status-current); }
+.recent-item-status.PLANNING { background-color: var(--status-planning); }
+.recent-item-status.COMPLETED { background-color: var(--status-completed); }
+.recent-item-status.DROPPED { background-color: var(--status-dropped); }
+.recent-item-status.PAUSED { background-color: var(--status-paused); }
+
+.tree-sublabel.not-matched {
+    color: var(--error);
+    font-style: italic;
+    font-size: 0.65rem;
+}
+
+.tree-link {
+    color: var(--accent);
+    text-decoration: underline;
+    cursor: pointer;
+    margin-left: 4px;
+    font-style: normal;
+}
+
+.tree-link:hover {
+    color: var(--accent-hover);
+}
+
+.search-highlight {
+    background: var(--accent-glow);
+    color: var(--accent);
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+.search-popup-results {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.search-result-item {
+    display: flex;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: var(--bg-card-hover);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    align-items: center;
+}
+
+.search-result-cover {
+    width: 50px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.search-result-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.search-result-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-result-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
 }
 
 .tree-meta {
@@ -1267,6 +1401,92 @@ header {
 
 .tree-action-btn:hover {
     color: var(--text-primary);
+}
+
+.tree-action-btn.play-btn {
+    color: var(--accent);
+}
+
+.tree-action-btn.play-btn:hover {
+    color: var(--accent-hover);
+}
+
+.tree-block-link {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    opacity: 0.5;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-left: 8px;
+    font-style: normal;
+    transition: all var(--transition);
+}
+
+.tree-block-link:hover {
+    color: var(--error);
+    opacity: 1;
+}
+
+.library-footer {
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+    margin-top: 0.5rem;
+}
+
+.manage-exclusions-link {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color var(--transition);
+}
+
+.manage-exclusions-link:hover {
+    color: var(--error);
+}
+
+.exclusion-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.exclusion-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--bg-card-hover);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+}
+
+.exclusion-path {
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    margin-right: 1rem;
+}
+
+.restore-btn {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+    background: var(--success);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.restore-btn:hover {
+    background: var(--accent-hover);
 }
 
 /* ===== Footer ===== */
@@ -1400,6 +1620,18 @@ footer {
     position: absolute;
     left: 0.75rem;
     color: var(--text-muted);
+}
+
+.info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: help;
+    transition: color 0.2s ease;
+}
+
+.info-icon:hover {
+    color: var(--accent);
 }
 
 .torrents-table-container {

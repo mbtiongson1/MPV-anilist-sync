@@ -238,65 +238,35 @@ class AnilistClient:
             print(f"Error getting authenticated user: {e}")
         return None
 
-    def search_anime(self, title: str) -> Optional[Dict[str, Any]]:
-        # This query includes relation edges so we can resolve season/series sequels when
-        # the parsed episode number exceeds the first entry's episode count.
-        # We also fetch full metadata (images, description) here for the Now Playing UI.
+    def search_anime(self, title: str) -> list[Dict[str, Any]]:
+        # Return a list of matches for manual search
         query = '''
         query ($search: String) {
-            Media (search: $search, type: ANIME) {
-                id
-                title {
-                    romaji
-                    english
-                    native
-                }
-                episodes
-                status
-                season
-                seasonYear
-                description(asHtml: false)
-                popularity
-                averageScore
-                genres
-                coverImage {
-                    large
-                    medium
-                }
-                bannerImage
-                studios(isMain: true) {
-                    nodes {
-                        name
+            Page (perPage: 10) {
+                media (search: $search, type: ANIME) {
+                    id
+                    title {
+                        romaji
+                        english
+                        native
                     }
-                }
-                relations {
-                    edges {
-                        relationType
-                        node {
-                            id
-                            title {
-                                romaji
-                                english
-                                native
-                            }
-                            episodes
-                            status
-                            season
-                            seasonYear
-                            description(asHtml: false)
-                            popularity
-                            averageScore
-                            genres
-                            coverImage {
-                                large
-                                medium
-                            }
-                            bannerImage
-                            studios(isMain: true) {
-                                nodes {
-                                    name
-                                }
-                            }
+                    episodes
+                    status
+                    season
+                    seasonYear
+                    description(asHtml: false)
+                    popularity
+                    averageScore
+                    genres
+                    format
+                    coverImage {
+                        large
+                        medium
+                    }
+                    bannerImage
+                    studios(isMain: true) {
+                        nodes {
+                            name
                         }
                     }
                 }
@@ -306,10 +276,10 @@ class AnilistClient:
         variables = {'search': title}
         try:
             result = self._execute_query(query, variables)
-            return result.get('data', {}).get('Media')
+            return result.get('data', {}).get('Page', {}).get('media', [])
         except Exception as e:
             print(f"Error searching anime '{title}': {e}")
-            return None
+            return []
 
     def _load_list_cache(self, statuses: list[str] | None = None) -> list[dict[str, Any]]:
         try:
@@ -522,27 +492,30 @@ class AnilistClient:
             print(f"Error updating progress: {e}")
             return False
 
-    def change_status(self, media_id: int, status: str) -> bool:
+    def change_status(self, media_id: int, status: str, progress: Optional[int] = None) -> bool:
         if not self.is_authenticated():
             print("Not authenticated.")
             return False
 
         mutation = '''
-        mutation ($mediaId: Int, $status: MediaListStatus) {
-            SaveMediaListEntry (mediaId: $mediaId, status: $status) {
+        mutation ($mediaId: Int, $status: MediaListStatus, $progress: Int) {
+            SaveMediaListEntry (mediaId: $mediaId, status: $status, progress: $progress) {
                 id
                 status
+                progress
             }
         }
         '''
-        variables = {
+        variables: Dict[str, Any] = {
             'mediaId': media_id,
             'status': status
         }
+        if progress is not None:
+            variables['progress'] = progress
         
         try:
             self._execute_query(mutation, variables)
-            print(f"Successfully updated status for media {media_id} to {status}")
+            print(f"Successfully updated status for media {media_id} to {status}" + (f" and progress to {progress}" if progress is not None else ""))
             return True
         except Exception as e:
             print(f"Error changing status: {e}")

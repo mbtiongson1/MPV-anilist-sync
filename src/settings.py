@@ -73,6 +73,31 @@ class SettingsManager:
     def media_folders_map(self) -> Dict[str, str]:
         return self.get("media_folders_map", {})
 
+    @property
+    def title_overrides(self) -> Dict[str, str]:
+        return self.get("title_overrides", {})
+
+    def update_title_override(self, media_id: int, custom_title: str):
+        mapping = self.title_overrides
+        mapping[str(media_id)] = custom_title
+        self.set("title_overrides", mapping)
+
+    @property
+    def library_exclusions(self) -> List[str]:
+        return self.get("library_exclusions", [])
+
+    def add_library_exclusion(self, path: str):
+        exclusions = self.library_exclusions
+        if path not in exclusions:
+            exclusions.append(path)
+            self.set("library_exclusions", exclusions)
+
+    def remove_library_exclusion(self, path: str):
+        exclusions = self.library_exclusions
+        if path in exclusions:
+            exclusions.remove(path)
+            self.set("library_exclusions", exclusions)
+
     def update_media_folder(self, media_id: int, folder_path: str):
         mapping = self.media_folders_map
         mapping[str(media_id)] = folder_path

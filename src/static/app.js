@@ -26,13 +26,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabCurrent = document.getElementById('tab-current');
     const tabPlanning = document.getElementById('tab-planning');
     const tabCompleted = document.getElementById('tab-completed');
+    const tabDropped = document.getElementById('tab-dropped');
     const countCurrent = document.getElementById('count-current');
     const countPlanning = document.getElementById('count-planning');
     const countCompleted = document.getElementById('count-completed');
+    const countDropped = document.getElementById('count-dropped');
+
+    const statusColors = {
+        'CURRENT': '#10b981',   // Emerald Green
+        'PLANNING': '#6366f1',  // Indigo Blue
+        'COMPLETED': '#f59e0b', // Amber/Gold
+        'DROPPED': '#ef4444',   // Rose Red
+        'PAUSED': '#94a3b8'     // Slate Gray
+    };
     const btnRefreshList = document.getElementById('btn-refresh-list');
     const btnToggleView = document.getElementById('btn-toggle-view');
     const btnReauthorize = document.getElementById('btn-reauthorize');
     const btnFullRefresh = document.getElementById('btn-full-refresh');
+    const btnClearCache = document.getElementById('btn-clear-cache');
     const detailsModal = document.getElementById('details-modal');
     const modalOverlay = document.getElementById('modal-overlay');
     const modalClose = document.getElementById('modal-close');
@@ -48,10 +59,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputSettingGroups = document.getElementById('setting-groups');
     const inputSettingResolution = document.getElementById('setting-resolution');
     const inputSettingDownloadDir = document.getElementById('setting-download-dir');
+    const inputSettingEnableDragDrop = document.getElementById('setting-enable-drag-drop');
     const npPlayerBadge = document.getElementById('np-player-badge');
     const tabTorrents = document.getElementById('tab-torrents');
     const tabLibrary = document.getElementById('tab-library');
-    const libraryContent = document.getElementById('library-content');
+    const libraryContent = document.getElementById('library-tree-container');
+    const libraryWrapper = document.getElementById('library-content');
     const inputSettingBaseAnimeFolder = document.getElementById('setting-base-anime-folder');
     
     // View Buttons
@@ -61,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let userSettings = null;
     let libraryData = []; // Cached library scanner results
+    let libraryExclusions = []; // List of excluded paths
 
     // ===== State =====
     let animeList = [];
@@ -216,34 +230,80 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         recent.forEach(anime => {
-            const title = anime.title?.romaji || anime.title?.english || 'Unknown';
+            let title = anime.title?.romaji || anime.title?.english || 'Unknown';
+            if (userSettings && userSettings.title_overrides && userSettings.title_overrides[anime.mediaId]) {
+                title = userSettings.title_overrides[anime.mediaId];
+            }
+            
             const cover = getCachedImageUrl(anime.coverImage?.medium || anime.coverImage?.large || '');
             const progress = anime.progress || 0;
             const total = anime.episodes || '?';
+            const status = anime.listStatus || 'CURRENT';
 
             const el = document.createElement('div');
-            el.style.cssText = 'display: flex; gap: 0.75rem; align-items: center; padding: 0.5rem; background: var(--bg-card); border-bottom: 1px solid var(--border-light); cursor: pointer; transition: background 0.2s ease;';
-            el.onmouseover = () => el.style.background = 'var(--bg-card-hover)';
-            el.onmouseout = () => el.style.background = 'var(--bg-card)';
+            el.className = 'recent-anime-item';
+            
+            const baseColor = statusColors[status] || '#94a3b8';
+            const tintColor = baseColor.startsWith('#') ? `${baseColor}15` : 'rgba(255,255,255,0.05)';
 
-            el.innerHTML = `
-                <img src="${cover}" style="width: 32px; height: 48px; object-fit: cover; border-radius: 4px; flex-shrink: 0;">
+            el.style.cssText = `display: flex; gap: 0.75rem; align-items: center; padding: 0.6rem; background: ${tintColor}; border-bottom: 1px solid var(--border-light); cursor: pointer; transition: all 0.2s ease; position: relative; border-left: 3px solid ${baseColor}; overflow: hidden;`;
+            
+            el.onmouseover = () => {
+                el.style.background = baseColor.startsWith('#') ? `${baseColor}25` : 'rgba(255,255,255,0.1)';
+                el.style.transform = 'translateX(4px)';
+            };
+            el.onmouseout = () => {
+                el.style.background = tintColor;
+                el.style.transform = 'translateX(0)';
+            };
+
+            const content = document.createElement('div');
+            content.style.cssText = 'display: flex; gap: 0.75rem; align-items: center; flex: 1; min-width: 0;';
+            content.innerHTML = `
+                <img src="${cover}" style="width: 32px; height: 48px; object-fit: cover; border-radius: 4px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1);">
                 <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
-                    <div style="font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary); margin-bottom: 0.1rem;">${escapeHtml(title)}</div>
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="font-size: 0.75rem; color: var(--text-muted);">Ep ${progress} / ${total}</span>
-                        <span style="font-size: 0.7rem; color: var(--accent); opacity: 0.8; font-weight: 500;">${getRelativeTime(anime.updatedAt)}</span>
+                    <div style="font-size: 0.85rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary); margin-bottom: 0.1rem;" title="${escapeHtml(title)}">${escapeHtml(title)}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
+                        <span>Ep ${progress} / ${total}</span>
+                        <span style="opacity: 0.9; font-weight: 800; font-size: 0.6rem; letter-spacing: 0.02em; color: ${baseColor};">${status === 'CURRENT' ? 'IN PROGRESS' : status}</span>
                     </div>
                 </div>
-                <div style="display: flex; gap: 0.25rem; align-items: center;">
-                    <button class="icon-btn btn-search-torrents" data-media-id="${anime.mediaId}" data-title="${escapeHtml(title)}" style="padding: 0.3rem;" title="Search Torrents">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    </button>
-                    <button class="icon-btn btn-open-folder" data-media-id="${anime.mediaId}" style="padding: 0.3rem;" title="Open folder">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
-                    </button>
-                </div>
             `;
+            
+            el.appendChild(content);
+
+            // Only show search if In Progress
+            if (status === 'CURRENT') {
+                const searchBtn = document.createElement('button');
+                searchBtn.className = 'icon-btn btn-search-torrents';
+                searchBtn.setAttribute('data-media-id', anime.mediaId);
+                searchBtn.setAttribute('data-title', title);
+                searchBtn.style.padding = '0.3rem';
+                searchBtn.title = 'Search Torrents';
+                searchBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+                searchBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    activeSearchTerm = title;
+                    setActiveTab('TORRENTS');
+                };
+                el.appendChild(searchBtn);
+            }
+
+            const openFolderBtn = document.createElement('button');
+            openFolderBtn.className = 'icon-btn btn-open-folder';
+            openFolderBtn.setAttribute('data-media-id', anime.mediaId);
+            openFolderBtn.style.padding = '0.3rem';
+            openFolderBtn.title = 'Open folder';
+            openFolderBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>';
+            openFolderBtn.onclick = (e) => {
+                e.stopPropagation();
+                fetch('/api/open_folder?mediaId=' + anime.mediaId).catch(console.error);
+            };
+            el.appendChild(openFolderBtn);
+
+            el.onclick = () => {
+                openAnimeDetailsModal(anime);
+            };
             listContainer.appendChild(el);
         });
 
@@ -280,10 +340,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // Prefer base title but keep full title for display
-                const displayTitle = data.base_title || data.title;
+                let displayTitle = data.base_title || data.title;
+                const selectedMediaId = data.selected_media_id;
+                
+                // Apply manual override if exists
+                if (selectedMediaId && userSettings && userSettings.title_overrides && userSettings.title_overrides[selectedMediaId]) {
+                    displayTitle = userSettings.title_overrides[selectedMediaId];
+                }
 
                 // Build link for title (AniList page)
-                const selectedMediaId = data.selected_media_id;
                 if (selectedMediaId) {
                     npTitle.innerHTML = `<a href="https://anilist.co/anime/${selectedMediaId}" target="_blank" rel="noopener noreferrer">${escapeHtml(displayTitle)}</a>`;
                 } else {
@@ -538,9 +603,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentCount = animeList.filter(a => a.listStatus === 'CURRENT').length;
         const planningCount = animeList.filter(a => a.listStatus === 'PLANNING').length;
         const completedCount = animeList.filter(a => a.listStatus === 'COMPLETED').length;
-        countCurrent.textContent = currentCount;
-        countPlanning.textContent = planningCount;
-        countCompleted.textContent = completedCount;
+        const droppedCount = animeList.filter(a => a.listStatus === 'DROPPED').length;
+        if (countCurrent) countCurrent.textContent = currentCount;
+        if (countPlanning) countPlanning.textContent = planningCount;
+        if (countCompleted) countCompleted.textContent = completedCount;
+        if (countDropped) countDropped.textContent = droppedCount;
     }
 
     // ===== Filtering =====
@@ -1020,12 +1087,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <button id="btn-scan-airing" class="refresh-btn" title="Scan recently airing anime for missing episodes" style="display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;font-weight:600;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        Scan Recent
+                        Auto Scan
+                        <span class="info-icon" title="Automatically scans your planned/watching anime that recently aired to find missing episodes on Nyaa.si" style="display:inline-flex;opacity:0.7;margin-left:2px;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        </span>
                     </button>
                     <a href="https://nyaa.si/?c=1_2" target="_blank" rel="noopener" class="refresh-btn nyaa-link-btn" title="Open Nyaa.si" style="display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;font-weight:600;text-decoration:none;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                         Nyaa.si
                     </a>
+                    <button id="btn-edit-torrent-prefs" class="refresh-btn" title="Edit Torrent preferences" style="display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;font-weight:600;margin-left:auto;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                        Edit Torrent preferences
+                    </button>
                 </div>
 
                 <!-- Filter Bar -->
@@ -1106,7 +1180,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div id="torrents-results">
                     <div class="empty-state torrents-placeholder">
                         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        <p>Search for an anime, or click <strong>Scan Recent</strong> to find missing episodes.</p>
+                        <p>Search for an anime, or click <strong>Auto Scan</strong> to find missing episodes.</p>
                     </div>
                 </div>
                 <div id="batch-download-bar" class="batch-download-bar hidden">
@@ -1259,7 +1333,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const loadBatchMissing = async () => {
                 saveFilters();
                 torrentCache = { items: [], query: null, isBatch: true };
-                resultsContainer.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Scanning recent anime for missing episodes...</p></div>';
+                resultsContainer.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Auto-scanning planned/watching anime for missing episodes...</p></div>';
                 selectedTorrents.clear(); updateBatchBar();
                 try {
                     const resp = await fetch(`/api/nyaa_batch_search?${buildBatchParams()}`);
@@ -1614,6 +1688,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (e.key === 'Enter') triggerSearch();
             });
             document.getElementById('btn-search-go').addEventListener('click', triggerSearch);
+            document.getElementById('btn-edit-torrent-prefs')?.addEventListener('click', openSettingsModal);
 
             // Filter changes re-run active action
             [tfCategory, tfFilter, tfRes, tfDate, tfAiring].forEach(el => {
@@ -1668,7 +1743,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function renderRows(list) {
             return list.map(anime => {
-                const title = anime.title?.romaji || anime.title?.english || anime.title?.native || 'Unknown';
+                let title = anime.title?.romaji || anime.title?.english || anime.title?.native || 'Unknown';
+                // Check for manual name override
+                if (userSettings && userSettings.title_overrides && userSettings.title_overrides[anime.mediaId]) {
+                    title = userSettings.title_overrides[anime.mediaId];
+                }
+                
                 const progress = anime.progress || 0;
                 const total = anime.episodes || '?';
                 const rawCover = anime.coverImage?.large || anime.coverImage?.medium || '';
@@ -1835,7 +1915,82 @@ document.addEventListener('DOMContentLoaded', () => {
                     fetch('/api/open_folder?mediaId=' + mediaId).catch(console.error);
                 }
             });
+
+            // Drag and Drop
+            const dragEnabled = userSettings ? userSettings.enable_drag_drop !== false : true;
+            if (dragEnabled) {
+                item.setAttribute('draggable', 'true');
+                item.addEventListener('dragstart', (e) => {
+                    const mediaId = item.getAttribute('data-media-id');
+                    e.dataTransfer.setData('text/plain', mediaId);
+                    e.dataTransfer.effectAllowed = 'move';
+                    item.classList.add('dragging');
+                });
+                item.addEventListener('dragend', () => {
+                    item.classList.remove('dragging');
+                });
+            }
         });
+
+        // Initialize Tab Drop Targets (once)
+        if (!window.tabDropInitialized) {
+            const tabs = document.querySelectorAll('.tab[data-status]');
+            tabs.forEach(tab => {
+                const targetStatus = tab.getAttribute('data-status');
+                // Only these statuses make sense for dropping
+                if (!['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED'].includes(targetStatus)) return;
+
+                tab.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    tab.classList.add('drag-over');
+                });
+
+                tab.addEventListener('dragleave', () => {
+                    tab.classList.remove('drag-over');
+                });
+
+                tab.addEventListener('drop', async (e) => {
+                    e.preventDefault();
+                    tab.classList.remove('drag-over');
+                    const mediaId = e.dataTransfer.getData('text/plain');
+                    if (!mediaId) return;
+
+                    const animeIdx = animeList.findIndex(a => a.mediaId == mediaId);
+                    if (animeIdx >= 0 && animeList[animeIdx].listStatus !== targetStatus) {
+                        // Optimistic UI update
+                        const oldStatus = animeList[animeIdx].listStatus;
+                        animeList[animeIdx].listStatus = targetStatus;
+                        updateCounts();
+                        renderAnimeGrid(); // Immediately remove from view and update counts
+                        
+                        try {
+                            const resp = await fetch('/api/change_status', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ mediaId: parseInt(mediaId), status: targetStatus })
+                            });
+                            if (resp.ok) {
+                                showToast(`Moved to ${targetStatus}`);
+                                fetchAnimeList(); // background sync
+                            } else {
+                                // rollback on failure
+                                animeList[animeIdx].listStatus = oldStatus;
+                                updateCounts();
+                                renderAnimeGrid();
+                                showToast('Failed to change status', 'error');
+                            }
+                        } catch (err) {
+                            console.error('Drag drop failed:', err);
+                            animeList[animeIdx].listStatus = oldStatus;
+                            updateCounts();
+                            renderAnimeGrid();
+                        }
+                    }
+                });
+            });
+            window.tabDropInitialized = true;
+        }
 
 
         tableBody.querySelectorAll('.btn-resume').forEach(btn => {
@@ -1904,35 +2059,62 @@ document.addEventListener('DOMContentLoaded', () => {
             if (anime.averageScore) stats.push(`<strong>Score:</strong> ${anime.averageScore}%`);
             if (anime.popularity) stats.push(`<strong>Popularity:</strong> ${formatPopularity(anime.popularity)}`);
 
+            const currentOverride = (userSettings && userSettings.title_overrides) ? userSettings.title_overrides[anime.mediaId] || '' : '';
+
             modalBody.innerHTML = `
                 <h3>${escapeHtml(title)}</h3>
                 <div class="modal-meta">${stats.map(s => `<p>${s}</p>`).join('')}</div>
                 <p><strong>Description</strong></p>
                 <p>${escapeHtml(description)}</p>
-                <div class="modal-actions">
-                    <label>
-                        Set progress:
-                        <input type="number" id="modal-progress" value="${anime.progress || 0}" min="0" />
-                    </label>
-                    <button id="modal-save" class="primary-btn">Save</button>
+                <div class="modal-actions" style="flex-direction: column; align-items: flex-start; gap: 1rem;">
+                    <div style="width: 100%;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 4px;">Local Name Override (folder name):</label>
+                        <input type="text" id="modal-name-override" value="${escapeHtml(currentOverride)}" class="filter-input" style="width: 100%; padding: 8px;" placeholder="e.g. My Folder Name" />
+                    </div>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <label style="font-weight: 600;">
+                            Set progress:
+                            <input type="number" id="modal-progress" value="${anime.progress || 0}" min="0" style="width: 60px; padding: 4px;" />
+                        </label>
+                        <button id="modal-save" class="primary-btn">Save Changes</button>
+                    </div>
                 </div>
             `;
 
             document.getElementById('modal-save').addEventListener('click', async () => {
                 const newProgress = parseInt(document.getElementById('modal-progress').value, 10);
+                const newOverride = document.getElementById('modal-name-override').value.trim();
+                
                 if (!Number.isFinite(newProgress) || newProgress < 0) return;
-                const resp = await fetch('/api/update_progress', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mediaId: anime.mediaId, episode: newProgress })
-                });
-                const result = await resp.json();
-                if (result.success) {
-                    detailsModal.classList.add('hidden');
-                    fetchAnimeList();
-                    checkStatus();
-                } else {
-                    alert('Failed to update progress.');
+                
+                try {
+                    // 1. Save title override
+                    await fetch('/api/update_title_override', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mediaId: anime.mediaId, customTitle: newOverride })
+                    });
+
+                    // 2. Save progress
+                    const resp = await fetch('/api/update_progress', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mediaId: anime.mediaId, episode: newProgress })
+                    });
+                    
+                    const result = await resp.json();
+                    if (result.success) {
+                        detailsModal.classList.add('hidden');
+                        await loadSettings(); // reload to get new overrides
+                        fetchAnimeList();
+                        if (activeTab === 'LIBRARY') fetchLibrary(true);
+                        checkStatus();
+                    } else {
+                        alert('Failed to update progress.');
+                    }
+                } catch (err) {
+                    console.error('Error saving details:', err);
+                    alert('Network error.');
                 }
             });
 
@@ -1994,9 +2176,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setActiveTab(tab) {
         activeTab = tab;
-        tabCurrent.classList.toggle('active', tab === 'CURRENT');
-        tabPlanning.classList.toggle('active', tab === 'PLANNING');
-        tabCompleted.classList.toggle('active', tab === 'COMPLETED');
+        
+        const allTabs = [tabCurrent, tabPlanning, tabCompleted, tabDropped];
+        allTabs.forEach(t => {
+            if (!t) return;
+            const status = t.getAttribute('data-status');
+            t.classList.toggle('active', status === tab);
+            t.classList.remove('tab-CURRENT', 'tab-PLANNING', 'tab-COMPLETED', 'tab-DROPPED');
+            if (status === tab) {
+                t.classList.add(`tab-${status}`);
+            }
+        });
+
         tabTorrents.classList.toggle('active', tab === 'TORRENTS');
         if (tabLibrary) tabLibrary.classList.toggle('active', tab === 'LIBRARY');
         const tabStats = document.getElementById('tab-stats');
@@ -2004,14 +2195,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const filterBar = document.querySelector('.filter-bar');
         const viewToggles = document.querySelector('.view-toggle-group'); 
-        const topDashboard = document.querySelector('.top-dashboard-grid');
         const listHeader = document.querySelector('.anime-list-section .section-header');
         
         if (tab === 'LIBRARY') {
-            if (topDashboard) topDashboard.classList.add('hidden');
-            if (listHeader) listHeader.classList.add('hidden');
             animeGrid.classList.add('hidden');
-            if (libraryContent) libraryContent.classList.remove('hidden');
+            if (libraryWrapper) libraryWrapper.classList.remove('hidden');
             if (filterBar) filterBar.classList.add('hidden');
             
             // Hide all view toggles for Library (as only Tree is allowed now)
@@ -2021,10 +2209,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (hasData) renderLibraryView();
             fetchLibrary(false, hasData);
         } else {
-            if (topDashboard) topDashboard.classList.remove('hidden');
-            if (listHeader) listHeader.classList.remove('hidden');
             animeGrid.classList.remove('hidden');
-            if (libraryContent) libraryContent.classList.add('hidden');
+            if (libraryWrapper) libraryWrapper.classList.add('hidden');
             
             if (filterBar) {
                 filterBar.classList.toggle('hidden', (tab === 'TORRENTS' || tab === 'STATS'));
@@ -2041,9 +2227,43 @@ document.addEventListener('DOMContentLoaded', () => {
     tabPlanning.addEventListener('click', () => setActiveTab('PLANNING'));
     tabCompleted.addEventListener('click', () => setActiveTab('COMPLETED'));
     tabTorrents.addEventListener('click', () => setActiveTab('TORRENTS'));
+    if (tabDropped) tabDropped.addEventListener('click', () => setActiveTab('DROPPED'));
     if (tabLibrary) tabLibrary.addEventListener('click', () => setActiveTab('LIBRARY'));
     const tabStats = document.getElementById('tab-stats');
     if (tabStats) tabStats.addEventListener('click', () => setActiveTab('STATS'));
+    
+    // ===== Library Header Actions =====
+    let librarySearchTerm = '';
+    const btnRefreshLibrary = document.getElementById('btn-refresh-library');
+    if (btnRefreshLibrary) {
+        btnRefreshLibrary.addEventListener('click', () => {
+            libraryContent.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Refreshing library...</p></div>';
+            fetchLibrary(true);
+        });
+    }
+
+    const librarySearchInput = document.getElementById('library-search-input');
+    if (librarySearchInput) {
+        librarySearchInput.addEventListener('input', (e) => {
+            librarySearchTerm = e.target.value.toLowerCase();
+            renderLibraryView();
+        });
+    }
+
+    const linkEditPath = document.getElementById('link-edit-path');
+    if (linkEditPath) {
+        linkEditPath.addEventListener('click', (e) => {
+            e.preventDefault();
+            openSettingsModal();
+            if (inputSettingBaseAnimeFolder) {
+                inputSettingBaseAnimeFolder.focus();
+                inputSettingBaseAnimeFolder.style.boxShadow = '0 0 0 2px var(--accent)';
+                setTimeout(() => {
+                    inputSettingBaseAnimeFolder.style.boxShadow = '';
+                }, 2000);
+            }
+        });
+    }
     
     // ===== Organize Folders Button =====
     const btnOrganizeFolders = document.getElementById('btn-organize-folders');
@@ -2122,7 +2342,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== Full Refresh & Clear Cache Button =====
     btnFullRefresh.addEventListener('click', async () => {
-        if (confirm('This will clear all cached data and refresh everything. Continue?')) {
+        if (confirm('This will clear your current session and re-fetch your anime list. Continue?')) {
             try {
                 const response = await fetch('/api/full_refresh', { method: 'POST' });
                 if (response.ok) {
@@ -2139,6 +2359,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    if (btnClearCache) {
+        btnClearCache.addEventListener('click', async () => {
+            if (confirm('This will clear the library and image cache. The next load will be slower as it re-scans your files. Continue?')) {
+                try {
+                    const response = await fetch('/api/clear_cache', { method: 'POST' });
+                    if (response.ok) {
+                        alert('Cache cleared successfully.');
+                        window.location.reload();
+                    } else {
+                        alert('Failed to clear cache.');
+                    }
+                } catch (error) {
+                    console.error('Clear cache error:', error);
+                    alert('Network error during cache clear.');
+                }
+            }
+        });
+    }
 
     // ===== View Toggle =====
     function setViewMode(mode) {
@@ -2180,6 +2419,7 @@ document.addEventListener('DOMContentLoaded', () => {
             inputSettingResolution.value = userSettings.preferred_resolution || '1080p';
             inputSettingDownloadDir.value = userSettings.default_download_dir || '';
             if (inputSettingBaseAnimeFolder) inputSettingBaseAnimeFolder.value = userSettings.base_anime_folder || '';
+            if (inputSettingEnableDragDrop) inputSettingEnableDragDrop.checked = userSettings.enable_drag_drop !== false;
         }
         settingsModal.classList.remove('hidden');
     }
@@ -2196,7 +2436,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const payload = {
             preferred_groups: inputSettingGroups.value,
             preferred_resolution: inputSettingResolution.value,
-            default_download_dir: inputSettingDownloadDir.value
+            default_download_dir: inputSettingDownloadDir.value,
+            enable_drag_drop: inputSettingEnableDragDrop ? inputSettingEnableDragDrop.checked : true
         };
         if (inputSettingBaseAnimeFolder) payload.base_anime_folder = inputSettingBaseAnimeFolder.value;
 
@@ -2208,12 +2449,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(payload)
             });
             if (resp.ok) {
+                const oldPath = userSettings ? userSettings.base_anime_folder : '';
                 await loadSettings();
                 closeSettingsModal();
+                if (activeTab === 'LIBRARY' || (userSettings && userSettings.base_anime_folder !== oldPath)) {
+                    fetchLibrary(true);
+                }
             } else {
                 alert('Failed to save settings.');
             }
         } catch (e) {
+            console.error('Settings save error:', e);
             alert('Error saving settings.');
         } finally {
             settingsSaveBtn.textContent = 'Save Settings';
@@ -2266,6 +2512,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!silent || !libraryData || Object.keys(libraryData).length === 0) {
             libraryContent.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Scanning library folders...</p></div>';
         }
+
+        // Fetch exclusions too
+        try {
+            const exclResp = await fetch('/api/library/exclusions');
+            libraryExclusions = await exclResp.json();
+        } catch (e) { console.error('Error fetching exclusions:', e); }
         
         try {
             const resp = await fetch('/api/library' + (forceRefresh ? '?force_refresh=true' : ''));
@@ -2283,6 +2535,146 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    async function openSearchPopup(suggestedName) {
+        modalBody.innerHTML = `
+            <div class="search-popup">
+                <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">Search AniList to match this folder:</p>
+                <div style="margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label style="font-size: 0.7rem; color: var(--text-muted);">Local Name Override (folder name)</label>
+                    <input type="text" id="popup-name-override" value="${escapeHtml(suggestedName)}" class="filter-input" style="width: 100%; padding: 8px;">
+                </div>
+                <div class="filter-search" style="margin-bottom: 1rem;">
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="popup-search-input" placeholder="Anime title..." value="${escapeHtml(suggestedName)}" style="width: 100%;">
+                    <button id="btn-popup-search-go" class="search-go-btn" style="right: 10px;">Go</button>
+                </div>
+                <div id="popup-search-results" class="search-popup-results">
+                    <p style="text-align: center; color: var(--text-muted); padding: 2rem;">Click Go to search...</p>
+                </div>
+            </div>
+        `;
+        document.getElementById('details-modal-title').textContent = 'Match Anime';
+        detailsModal.classList.remove('hidden');
+
+        const input = document.getElementById('popup-search-input');
+        const nameOverrideInput = document.getElementById('popup-name-override');
+        const resultsContainer = document.getElementById('popup-search-results');
+        const btnGo = document.getElementById('btn-popup-search-go');
+
+        const doSearch = async () => {
+            const query = input.value.trim();
+            if (!query) return;
+            resultsContainer.innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
+            try {
+                const resp = await fetch('/api/search_anime?q=' + encodeURIComponent(query));
+                const results = await resp.json();
+                resultsContainer.innerHTML = '';
+                if (!results || results.length === 0) {
+                    resultsContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">No results found.</p>';
+                    return;
+                }
+                results.forEach(anime => {
+                    const item = document.createElement('div');
+                    item.className = 'search-result-item';
+                    item.style.flexDirection = 'column';
+                    item.style.alignItems = 'stretch';
+                    item.style.gap = '0.5rem';
+                    
+                    item.innerHTML = `
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <img src="${anime.coverImage.medium}" class="search-result-cover">
+                            <div class="search-result-info">
+                                <div class="search-result-title">${anime.title.romaji || anime.title.english}</div>
+                                <div class="search-result-meta">${anime.season || ''} ${anime.seasonYear || ''} • ${anime.format || ''}</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.25rem;">
+                            <div style="display: flex; flex-direction: column; flex: 1;">
+                                <label style="font-size: 0.65rem; color: var(--text-muted); margin-bottom: 2px;">Status</label>
+                                <select class="filter-select popup-status-select" style="padding: 4px; font-size: 0.75rem;">
+                                    <option value="CURRENT">In Progress</option>
+                                    <option value="COMPLETED">Completed</option>
+                                    <option value="PLANNING" selected>Planning</option>
+                                    <option value="PAUSED">Paused</option>
+                                    <option value="DROPPED">Dropped</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; flex-direction: column; width: 60px;">
+                                <label style="font-size: 0.65rem; color: var(--text-muted); margin-bottom: 2px;">Episode</label>
+                                <input type="number" class="filter-input popup-episode-input" value="0" min="0" style="padding: 4px; font-size: 0.75rem;">
+                            </div>
+                            <button class="primary-btn add-to-lib-btn" style="padding: 6px 12px; font-size: 0.75rem; align-self: flex-end;">Add</button>
+                        </div>
+                    `;
+                    
+                    const addBtn = item.querySelector('.add-to-lib-btn');
+                    const statusSelect = item.querySelector('.popup-status-select');
+                    const epInput = item.querySelector('.popup-episode-input');
+                    
+                    addBtn.onclick = async () => {
+                        addBtn.disabled = true;
+                        addBtn.textContent = 'Adding...';
+                        try {
+                            // 1. Set title override if provided
+                            const customTitle = nameOverrideInput.value.trim();
+                            if (customTitle) {
+                                await fetch('/api/update_title_override', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ mediaId: anime.id, customTitle: customTitle })
+                                });
+                            }
+
+                            // 2. Add to library (Optimistic UI update)
+                            const targetStatus = statusSelect.value;
+                            const newEp = parseInt(epInput.value, 10) || 0;
+                            
+                            // Locally update or add to list for immediate feedback
+                            const localIdx = animeList.findIndex(a => a.mediaId === anime.id);
+                            if (localIdx >= 0) {
+                                animeList[localIdx].listStatus = targetStatus;
+                                animeList[localIdx].progress = newEp;
+                            }
+                            
+                            const addResp = await fetch('/api/change_status', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ 
+                                    mediaId: anime.id, 
+                                    status: targetStatus,
+                                    episode: newEp
+                                })
+                            });
+                            if (addResp.ok) {
+                                alert(`Added to ${statusSelect.options[statusSelect.selectedIndex].text}!`);
+                                detailsModal.classList.add('hidden');
+                                fetchLibrary(true);
+                                fetchAnimeList(); // Full sync
+                            } else {
+                                alert('Failed to add.');
+                                addBtn.disabled = false;
+                                addBtn.textContent = 'Add';
+                            }
+                        } catch (err) {
+                            alert('Network error.');
+                            addBtn.disabled = false;
+                            addBtn.textContent = 'Add';
+                        }
+                    };
+                    resultsContainer.appendChild(item);
+                });
+            } catch (err) {
+                resultsContainer.innerHTML = '<p style="text-align: center; color: var(--error); padding: 2rem;">Search failed.</p>';
+            }
+        };
+
+        btnGo.onclick = doSearch;
+        input.onkeydown = (e) => { if (e.key === 'Enter') doSearch(); };
+        
+        // Auto-trigger search if we have a suggested name
+        if (suggestedName) doSearch();
+    }
+
     function renderLibraryView() {
         if (!libraryData || !libraryContent) return;
         
@@ -2291,8 +2683,26 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const root = document.createElement('div');
         root.className = 'tree-root';
+
+        function highlightText(text, term) {
+            if (!term) return escapeHtml(text);
+            const safeText = escapeHtml(text);
+            const regex = new RegExp(`(${term.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')})`, 'gi');
+            return safeText.replace(regex, '<mark class="search-highlight">$1</mark>');
+        }
+
+        function nodeMatches(node, term) {
+            if (!term) return true;
+            if (node.name.toLowerCase().includes(term)) return true;
+            if (node.children) {
+                return node.children.some(child => nodeMatches(child, term));
+            }
+            return false;
+        }
         
         function renderNode(node, level = 0) {
+            if (librarySearchTerm && !nodeMatches(node, librarySearchTerm)) return null;
+
             const nodeEl = document.createElement('div');
             nodeEl.className = 'tree-node';
             
@@ -2312,13 +2722,84 @@ document.addEventListener('DOMContentLoaded', () => {
                 icon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>';
             }
             
+            const labelContainer = document.createElement('div');
+            labelContainer.className = 'tree-label-container';
+            
             const label = document.createElement('div');
             label.className = 'tree-label';
-            label.textContent = node.name;
+            label.innerHTML = highlightText(node.name, librarySearchTerm);
             if (node.mediaId) {
                  label.style.fontWeight = '700';
                  label.style.color = 'var(--accent)';
                  label.title = 'AniList Matched: ' + node.name;
+            }
+            
+            labelContainer.appendChild(label);
+            
+            if (node.mediaId && node.listStatus) {
+                const sublabel = document.createElement('div');
+                sublabel.className = 'tree-sublabel';
+                const statusMap = {
+                    'CURRENT': 'In Progress',
+                    'PLANNING': 'Planning',
+                    'COMPLETED': 'Completed',
+                    'DROPPED': 'Dropped',
+                    'PAUSED': 'Paused'
+                };
+                sublabel.textContent = statusMap[node.listStatus] || node.listStatus;
+                
+                const blockLink = document.createElement('span');
+                blockLink.className = 'tree-block-link';
+                blockLink.textContent = '(Not an anime)';
+                blockLink.onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm(`Exclude folder "${node.name}" from library?`)) {
+                        excludePath(node.path);
+                    }
+                };
+                sublabel.appendChild(blockLink);
+                labelContainer.appendChild(sublabel);
+            } else if (node.type === 'directory' && node.name !== 'Downloads') {
+                const sublabel = document.createElement('div');
+                sublabel.className = 'tree-sublabel not-matched';
+                sublabel.textContent = 'Not in library';
+                
+                const addLink = document.createElement('span');
+                addLink.className = 'tree-link';
+                addLink.textContent = '(Add to library)';
+                addLink.onclick = (e) => {
+                    e.stopPropagation();
+                    openSearchPopup(node.name);
+                };
+                sublabel.appendChild(addLink);
+
+                const blockLink = document.createElement('span');
+                blockLink.className = 'tree-block-link';
+                blockLink.textContent = '(Not an anime)';
+                blockLink.onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm(`Exclude folder "${node.name}" from library?`)) {
+                        excludePath(node.path);
+                    }
+                };
+                sublabel.appendChild(blockLink);
+                labelContainer.appendChild(sublabel);
+            } else if (node.type === 'file') {
+                const sublabel = document.createElement('div');
+                sublabel.className = 'tree-sublabel';
+                
+                const blockLink = document.createElement('span');
+                blockLink.className = 'tree-block-link';
+                blockLink.style.marginLeft = '0';
+                blockLink.textContent = '(Not an anime)';
+                blockLink.onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm(`Exclude file "${node.name}" from library?`)) {
+                        excludePath(node.path);
+                    }
+                };
+                sublabel.appendChild(blockLink);
+                labelContainer.appendChild(sublabel);
             }
             
             const meta = document.createElement('div');
@@ -2326,7 +2807,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (node.type === 'file') {
                 meta.textContent = formatBytes(node.size);
             } else {
-                meta.textContent = `${node.children.length} items`;
+                meta.textContent = `${formatBytes(node.size)} (${node.children.length} items)`;
             }
             
             const actions = document.createElement('div');
@@ -2335,14 +2816,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const openFolder = document.createElement('button');
             openFolder.className = 'tree-action-btn';
             openFolder.title = 'Open Folder';
-            openFolder.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+            openFolder.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
             openFolder.onclick = (e) => {
                 e.stopPropagation();
                 fetch('/api/open_folder?path=' + encodeURIComponent(node.path)).catch(console.error);
             };
-            actions.appendChild(openFolder);
+            
+            const titleRow = document.createElement('div');
+            titleRow.style.display = 'flex';
+            titleRow.style.alignItems = 'center';
+            titleRow.style.gap = '0.5rem';
             
             if (node.type === 'directory') {
+                // For directories, put open folder next to title if it's an anime folder
+                // Re-parent label to titleRow
+                labelContainer.removeChild(label);
+                titleRow.appendChild(label);
+                titleRow.appendChild(openFolder);
+                labelContainer.prepend(titleRow);
+                
                 const searchTorrents = document.createElement('button');
                 searchTorrents.className = 'tree-action-btn';
                 searchTorrents.title = 'Search Torrents';
@@ -2353,11 +2845,33 @@ document.addEventListener('DOMContentLoaded', () => {
                     setActiveTab('TORRENTS');
                 };
                 actions.appendChild(searchTorrents);
+                
+                actions.appendChild(searchTorrents);
+            } else {
+                // For files, move label to titleRow and add play button if .mkv
+                labelContainer.removeChild(label);
+                titleRow.appendChild(label);
+                
+                if (node.name.toLowerCase().endsWith('.mkv')) {
+                    const playBtn = document.createElement('button');
+                    playBtn.className = 'tree-action-btn play-btn';
+                    playBtn.title = 'Play File';
+                    playBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg>';
+                    playBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        fetch('/api/play_file?path=' + encodeURIComponent(node.path)).catch(console.error);
+                    };
+                    titleRow.appendChild(playBtn);
+                }
+                
+                titleRow.appendChild(openFolder);
+                
+                labelContainer.prepend(titleRow);
             }
             
             itemEl.appendChild(chevron);
             itemEl.appendChild(icon);
-            itemEl.appendChild(label);
+            itemEl.appendChild(labelContainer);
             itemEl.appendChild(meta);
             itemEl.appendChild(actions);
             
@@ -2367,8 +2881,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const childrenContainer = document.createElement('div');
                 childrenContainer.className = 'tree-children';
                 
-                // Force expand if it's the root or top level children containing matches
-                let isExpanded = level === 0;
+                // Force expand if it's the root or if we are searching and there are matches inside
+                let isExpanded = level === 0 || (librarySearchTerm && node.children.some(c => nodeMatches(c, librarySearchTerm)));
                 if (isExpanded) {
                     chevron.classList.add('expanded');
                     childrenContainer.classList.add('expanded');
@@ -2381,26 +2895,113 @@ document.addEventListener('DOMContentLoaded', () => {
                     childrenContainer.classList.toggle('expanded', isExpanded);
                 };
                 
-                itemEl.ondblclick = (e) => {
-                    e.stopPropagation();
-                    chevron.click();
-                };
-                
                 node.children.forEach(child => {
-                    childrenContainer.appendChild(renderNode(child, level + 1));
+                    const childNode = renderNode(child, level + 1);
+                    if (childNode) childrenContainer.appendChild(childNode);
                 });
                 nodeEl.appendChild(childrenContainer);
-            } else if (node.type === 'file') {
-                itemEl.ondblclick = (e) => {
-                    e.stopPropagation();
-                    fetch('/api/open_folder?path=' + encodeURIComponent(node.path)).catch(console.error);
-                };
             }
             
             return nodeEl;
         }
         
-        libraryContent.appendChild(renderNode(libraryData, 0));
+        const rootNode = renderNode(libraryData, 0);
+        if (rootNode) libraryContent.appendChild(rootNode);
+
+        // Add footer for managing exclusions if any exist
+        if (libraryExclusions && libraryExclusions.length > 0) {
+            const footer = document.createElement('div');
+            footer.className = 'library-footer';
+            
+            const link = document.createElement('span');
+            link.className = 'manage-exclusions-link';
+            link.textContent = `Show Exclusion List (${libraryExclusions.length} items)`;
+            link.onclick = openExclusionModal;
+            
+            footer.appendChild(link);
+            libraryContent.appendChild(footer);
+        }
+    }
+
+    async function excludePath(path) {
+        try {
+            const resp = await fetch('/api/library/exclude', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: path })
+            });
+            const result = await resp.json();
+            if (result.success) {
+                showToast('Path excluded from library');
+                fetchLibrary(true);
+            } else {
+                showToast('Failed to exclude path', 'error');
+            }
+        } catch (e) {
+            showToast('Network error', 'error');
+        }
+    }
+
+    async function restorePath(path) {
+        try {
+            const resp = await fetch('/api/library/include', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: path })
+            });
+            const result = await resp.json();
+            if (result.success) {
+                showToast('Path restored to library');
+                // We keep the modal open but refresh its content
+                libraryExclusions = libraryExclusions.filter(p => p !== path);
+                if (libraryExclusions.length === 0) {
+                    detailsModal.classList.add('hidden');
+                } else {
+                    renderExclusionListInModal();
+                }
+                fetchLibrary(true);
+            } else {
+                showToast('Failed to restore path', 'error');
+            }
+        } catch (e) {
+            showToast('Network error', 'error');
+        }
+    }
+
+    function openExclusionModal() {
+        modalBody.innerHTML = `<h3>Managed Exclusions</h3><div id="exclusion-list-container"></div>`;
+        renderExclusionListInModal();
+        detailsModal.classList.remove('hidden');
+    }
+
+    function renderExclusionListInModal() {
+        const container = document.getElementById('exclusion-list-container');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        if (libraryExclusions.length === 0) {
+            container.innerHTML = '<p style="color: var(--text-muted); padding: 1rem 0;">No exclusions found.</p>';
+            return;
+        }
+        
+        const list = document.createElement('div');
+        list.className = 'exclusion-list';
+        
+        libraryExclusions.forEach(path => {
+            const item = document.createElement('div');
+            item.className = 'exclusion-item';
+            
+            const name = path.split('/').pop();
+            item.innerHTML = `
+                <div class="exclusion-path" title="${escapeHtml(path)}">${escapeHtml(name)} <span style="opacity: 0.5; font-size: 0.7rem;">(${escapeHtml(path)})</span></div>
+                <button class="primary-btn restore-btn">Restore</button>
+            `;
+            
+            item.querySelector('.restore-btn').onclick = () => restorePath(path);
+            list.appendChild(item);
+        });
+        
+        container.appendChild(list);
     }
     
     function formatBytes(bytes) {

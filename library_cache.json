@@ -20,8 +20,10 @@
           }
         ],
         "has_video": true,
+        "size": 507797707,
         "mediaId": 185514,
-        "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx185514-mfJqhtz22l1Z.jpg"
+        "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx185514-mfJqhtz22l1Z.jpg",
+        "listStatus": "CURRENT"
       },
       {
         "name": "Shibou Yuugi de Meshi wo Kuu",
@@ -38,8 +40,10 @@
           }
         ],
         "has_video": true,
+        "size": 137533888,
         "mediaId": 180746,
-        "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx180746-eqDiHbzoHMFh.jpg"
+        "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx180746-eqDiHbzoHMFh.jpg",
+        "listStatus": "CURRENT"
       },
       {
         "name": "Still Shining",
@@ -63,7 +67,8 @@
             "episode": 6
           }
         ],
-        "has_video": true
+        "has_video": true,
+        "size": 5711910777
       },
       {
         "name": "Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita",
@@ -111,7 +116,8 @@
             "episode": 11
           }
         ],
-        "has_video": true
+        "has_video": true,
+        "size": 1969161272
       },
       {
         "name": "[ASW] Ameku Takao no Suiri Karte - 10 [1080p HEVC][B82A2DD0].mkv",
@@ -122,6 +128,7 @@
         "episode": 10
       }
     ],
-    "has_video": true
+    "has_video": true,
+    "size": 8490636860
   }
 }

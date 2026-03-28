@@ -204,7 +204,7 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             entries = []
             if self.agent:
                 try:
-                    entries = self.agent.anilist.get_user_anime_list(['CURRENT', 'PLANNING', 'COMPLETED'])
+                    entries = self.agent.anilist.get_user_anime_list(['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED'])
                 except requests.exceptions.HTTPError as e:
                     if e.response.status_code in (400, 401, 403):
                         self.wfile.write(json.dumps({"error": "auth_failed"}).encode('utf-8'))
@@ -226,7 +226,8 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                     'preferred_groups': ", ".join(self.agent.settings.preferred_groups),
                     'preferred_resolution': self.agent.settings.preferred_resolution,
                     'default_download_dir': self.agent.settings.default_download_dir,
-                    'base_anime_folder': self.agent.settings.base_anime_folder
+                    'base_anime_folder': self.agent.settings.base_anime_folder,
+                    'title_overrides': self.agent.settings.title_overrides
                 }
             self.wfile.write(json.dumps(settings).encode('utf-8'))
 
@@ -449,8 +450,13 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             parsed_path = urllib.parse.urlparse(self.path)
             query = urllib.parse.parse_qs(parsed_path.query)
             media_id = query.get('mediaId', [None])[0]
+            target_path = query.get('path', [None])[0]
             success = False
-            if self.agent and media_id:
+            
+            folder_path = None
+            if target_path:
+                folder_path = target_path
+            elif self.agent and media_id:
                 try:
                     folder_path = self.agent.settings.get_media_folder(int(media_id))
                     if not os.path.exists(folder_path) or folder_path == self.agent.settings.default_download_dir:
@@ -463,17 +469,88 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                                     subfolder = os.path.join(self.agent.settings.default_download_dir, title_safe)
                                     if os.path.exists(subfolder): folder_path = subfolder
                                     break
+                except Exception as e:
+                    print(f"Failed to determine folder path from mediaId: {e}")
 
+            if folder_path:
+                try:
                     import subprocess
                     import sys
-                    if not os.path.exists(folder_path): os.makedirs(folder_path, exist_ok=True)
-                    if sys.platform == 'win32': os.startfile(folder_path)
-                    elif sys.platform == 'darwin': subprocess.call(['open', folder_path])
-                    else: subprocess.call(['xdg-open', folder_path])
+                    # If it's a file, we want to open its containing folder on some OSs, 
+                    # but usually 'open' or 'start' on a path will do the right thing (open folder or launch file).
+                    # However, users usually expect "Open Folder" to open the folder even if a file is selected.
+                    if os.path.isfile(folder_path):
+                        folder_to_open = os.path.dirname(folder_path)
+                    else:
+                        folder_to_open = folder_path
+
+                    if not os.path.exists(folder_to_open): os.makedirs(folder_to_open, exist_ok=True)
+                    
+                    if sys.platform == 'win32': os.startfile(folder_to_open)
+                    elif sys.platform == 'darwin': subprocess.call(['open', folder_to_open])
+                    else: subprocess.call(['xdg-open', folder_to_open])
                     success = True
                 except Exception as e:
                     print(f"Failed to open folder: {e}")
             self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+
+        elif self.path.startswith('/api/search_anime'):
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            
+            parsed_path = urllib.parse.urlparse(self.path)
+            query = urllib.parse.parse_qs(parsed_path.query)
+            q = query.get('q', [None])[0]
+            
+            result = []
+            if q and self.agent and hasattr(self.agent, 'anilist'):
+                result = self.agent.anilist.search_anime(q)
+            
+            self.wfile.write(json.dumps(result).encode('utf-8'))
+
+        elif self.path.startswith('/api/play_file'):
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+
+            parsed_path = urllib.parse.urlparse(self.path)
+            query = urllib.parse.parse_qs(parsed_path.query)
+            file_path = query.get('path', [None])[0]
+            success = False
+            
+            if file_path and os.path.exists(file_path):
+                try:
+                    import subprocess
+                    import sys
+                    if sys.platform == 'win32': os.startfile(file_path)
+                    elif sys.platform == 'darwin': subprocess.call(['open', file_path])
+                    else: subprocess.call(['xdg-open', file_path])
+                    success = True
+                except Exception as e:
+                    print(f"Failed to play file: {e}")
+            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+
+        elif self.path == '/api/clear_cache':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+
+            # Clear library cache
+            if os.path.exists('library_cache.json'):
+                os.remove('library_cache.json')
+
+            # Clear image cache
+            cache_dir = os.path.join(os.path.dirname(__file__), '..', 'image_cache')
+            if os.path.exists(cache_dir):
+                import shutil
+                shutil.rmtree(cache_dir)
+                os.makedirs(cache_dir, exist_ok=True)
+
+            self.wfile.write(json.dumps({"success": True}).encode('utf-8'))
 
         elif self.path.startswith('/api/image'):
             parsed_path = urllib.parse.urlparse(self.path)
@@ -563,8 +640,29 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                         cached_entries = self.agent.anilist._load_list_cache()
                     except: pass
 
+                # Load overrides and exclusions
+                title_overrides = {}
+                exclusions = []
+                if hasattr(self.agent, 'settings'):
+                    title_overrides = self.agent.settings.title_overrides
+                    exclusions = self.agent.settings.library_exclusions
+
                 def match_title(title):
                     title_clean = title.lower()
+                    
+                    # First check manual overrides: if any mediaId has an override that matches this folder title
+                    for media_id_str, custom_title in title_overrides.items():
+                        if custom_title.lower() == title_clean:
+                            # Find the entry in cached_entries to get full metadata
+                            for entry in cached_entries:
+                                if str(entry.get('mediaId')) == media_id_str:
+                                    return {
+                                        "mediaId": entry.get('mediaId'),
+                                        "coverImage": entry.get('coverImage', {}).get('large') or entry.get('coverImage', {}).get('medium'),
+                                        "listStatus": entry.get('listStatus')
+                                    }
+                    
+                    # Fallback to standard matching
                     for entry in cached_entries:
                         romaji = (entry.get('title', {}).get('romaji') or '').lower()
                         english = (entry.get('title', {}).get('english') or '').lower()
@@ -572,17 +670,22 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                         if title_clean in romaji or title_clean in english or title_clean in synonyms:
                             return {
                                 "mediaId": entry.get('mediaId'),
-                                "coverImage": entry.get('coverImage', {}).get('large') or entry.get('coverImage', {}).get('medium')
+                                "coverImage": entry.get('coverImage', {}).get('large') or entry.get('coverImage', {}).get('medium'),
+                                "listStatus": entry.get('listStatus')
                             }
                     return None
 
                 def scan(current_path):
+                    if current_path in exclusions:
+                        return None
+                        
                     node = {
                         "name": os.path.basename(current_path) or current_path,
                         "path": current_path,
                         "type": "directory",
                         "children": [],
-                        "has_video": False
+                        "has_video": False,
+                        "size": 0
                     }
                     
                     try:
@@ -597,21 +700,23 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                             if child and child["has_video"]:
                                 node["children"].append(child)
                                 node["has_video"] = True
+                                node["size"] += child.get("size", 0)
                         elif item.lower().endswith(video_exts):
                             mtime = os.path.getmtime(item_path)
+                            size = os.path.getsize(item_path)
                             parsed = AnimeParser.parse_filename(item)
                             node["children"].append({
                                 "name": item,
                                 "path": item_path,
                                 "type": "file",
                                 "mtime": mtime,
-                                "size": os.path.getsize(item_path),
+                                "size": size,
                                 "episode": parsed.get("episode") if parsed else None
                             })
                             node["has_video"] = True
+                            node["size"] += size
                             
                     # Attempt to match directory names to Anilist if they are top-level-ish
-                    # For now, let's just try matching every directory name
                     match = match_title(node["name"])
                     if match:
                         node.update(match)
@@ -631,6 +736,15 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                     except: pass
             
             self.wfile.write(json.dumps(result).encode('utf-8'))
+        elif self.path == '/api/library/exclusions':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            exclusions = []
+            if self.agent and hasattr(self.agent, 'settings'):
+                exclusions = self.agent.settings.library_exclusions
+            self.wfile.write(json.dumps(exclusions).encode('utf-8'))
         else:
             super().do_GET()
 
@@ -684,9 +798,25 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             data = json.loads(self.rfile.read(content_length).decode('utf-8')) if content_length else {}
             media_id = data.get('mediaId')
             status = data.get('status')
+            episode = data.get('episode')
             success = False
             if self.agent and hasattr(self.agent, 'anilist') and media_id and status:
-                success = self.agent.anilist.change_status(media_id, status)
+                success = self.agent.anilist.change_status(media_id, status, progress=int(episode) if episode is not None else None)
+            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+
+        elif self.path == '/api/update_title_override':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            content_length = int(self.headers.get('Content-Length', 0))
+            data = json.loads(self.rfile.read(content_length).decode('utf-8')) if content_length else {}
+            media_id = data.get('mediaId')
+            custom_title = data.get('customTitle')
+            success = False
+            if self.agent and hasattr(self.agent, 'settings') and media_id:
+                self.agent.settings.update_title_override(media_id, custom_title)
+                success = True
             self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
 
         elif self.path == '/api/reauthorize':
@@ -830,6 +960,38 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                                         results.append(f"Moved {item} to {folder_name}/")
                                     except Exception as e: print(f"Skipped {item}: {e}")
             self.wfile.write(json.dumps({"success": True, "results": results}).encode('utf-8'))
+
+        elif self.path == '/api/library/exclude':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            content_length = int(self.headers.get('Content-Length', 0))
+            data = json.loads(self.rfile.read(content_length).decode('utf-8')) if content_length else {}
+            path = data.get('path')
+            success = False
+            if self.agent and hasattr(self.agent, 'settings') and path:
+                self.agent.settings.add_library_exclusion(path)
+                # Clear library cache when exclusion is added
+                if os.path.exists('library_cache.json'): os.remove('library_cache.json')
+                success = True
+            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+
+        elif self.path == '/api/library/include':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            content_length = int(self.headers.get('Content-Length', 0))
+            data = json.loads(self.rfile.read(content_length).decode('utf-8')) if content_length else {}
+            path = data.get('path')
+            success = False
+            if self.agent and hasattr(self.agent, 'settings') and path:
+                self.agent.settings.remove_library_exclusion(path)
+                # Clear library cache when exclusion is removed
+                if os.path.exists('library_cache.json'): os.remove('library_cache.json')
+                success = True
+            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
 
         else:
             self.send_response(404)
