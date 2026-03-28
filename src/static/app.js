@@ -328,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resolution: '',
         group: '',
         episode: '',
-        airingOnly: true,
+        airingOnly: false,
         dateFilter: 'all',
     };
 
@@ -1629,6 +1629,16 @@ document.addEventListener('DOMContentLoaded', () => {
                             <option value="1080p">1080p</option>
                             <option value="720p">720p</option>
                             <option value="480p">480p</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Date</label>
+                        <select id="tf-date" class="filter-select">
+                            <option value="all">All Time</option>
+                            <option value="24h">Past 24h</option>
+                            <option value="48h">Past 48h</option>
+                            <option value="7d">Past 7 days</option>
+                            <option value="30d">Past 30 days</option>
                         </select>
                     </div>
                     <div class="filter-group">
