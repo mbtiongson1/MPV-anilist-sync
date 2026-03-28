@@ -163,6 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let pendingApiRequests = []; // Array of { type: string, mediaId: int, data: obj, label: string }
     let activeTab = 'CURRENT';
     let lastNowPlayingTitle = null;
+    let currentNpAnime = null;
     let viewMode = 'details';
     let selectedGenres = new Set(); // For sidebar genre filter
     let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
@@ -400,6 +401,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         updatePendingUI();
+    }
+
+    function recordProgressChange(anime, newProgress) {
+        if (!anime) return;
+        const idInt = parseInt(anime.mediaId, 10);
+        const title = anime.title?.romaji || anime.title?.english || 'Anime';
+        
+        const oldStatus = anime.listStatus;
+        let targetStatus = oldStatus;
+
+        // Auto-move COMPLETED to CURRENT if progress decreased below total (or known to be lower)
+        if (anime.episodes && newProgress < anime.episodes && oldStatus === 'COMPLETED') {
+            targetStatus = 'CURRENT';
+        }
+
+        // Record status change if needed
+        if (targetStatus !== oldStatus) {
+            recordApiRequest('STATUS', idInt, { status: targetStatus }, `${title}: Move to ${targetStatus}`);
+            anime.listStatus = targetStatus;
+        }
+
+        // Record progress update
+        recordApiRequest('PROGRESS', idInt, { episode: newProgress }, `${title}: Set progress to ${newProgress}`);
+        anime.progress = newProgress;
+
+        updateCounts();
+        renderAnimeGrid(); 
+        showToast(`Recorded update for ${title} (Pending Update)`);
     }
 
     function updatePendingUI() {
@@ -884,6 +913,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateNowPlayingMetadata(baseTitle) {
         // Try to find this anime in the loaded list
         // Do not wipe out cover/banner here, since the status API already provides accurate ones.
+        currentNpAnime = null;
         if (!baseTitle || animeList.length === 0) {
             npStudio.textContent = '';
             return;
@@ -900,6 +930,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (match) {
+            currentNpAnime = match;
             // Only update studio if present, do not override valid cover images from status API with empty ones
             npStudio.textContent = match.studio || '';
         } else {
@@ -909,6 +940,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== Episode Adjustment =====
     async function adjustEpisode(change) {
+        if (currentNpAnime) {
+            const newProgress = Math.max(0, (currentNpAnime.progress || 0) + change);
+            recordProgressChange(currentNpAnime, newProgress);
+        }
+
         try {
             const response = await fetch('/api/adjust_episode', {
                 method: 'POST',
@@ -2369,9 +2405,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const tableBody = animeGrid.querySelector('tbody') || animeGrid; // If not details view, use animeGrid directly
 
         tableBody.querySelectorAll('.btn-minus-prog, .btn-plus-prog').forEach(btn => {
-            btn.onclick = async (e) => {
+            btn.onclick = (e) => {
                 e.stopPropagation();
-                btn.disabled = true;
                 const mediaId = btn.getAttribute('data-media-id');
                 const anime = animeList.find(a => a.mediaId == mediaId);
                 if (!anime) return;
@@ -2379,24 +2414,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let newProgress = (anime.progress || 0) + (btn.classList.contains('btn-plus-prog') ? 1 : -1);
                 if (newProgress < 0) newProgress = 0;
                 
-                try {
-                    btn.classList.add('loading');
-                    const resp = await fetch('/api/update_progress', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ mediaId: parseInt(mediaId, 10), episode: newProgress })
-                    });
-                    const result = await resp.json();
-                    if (result.success) {
-                        anime.progress = newProgress;
-                        fetchAnimeList(); // Refresh list to get accurate state
-                    } else {
-                        alert('Failed to update progress.');
-                        btn.disabled = false;
-                    }
-                } catch(e) {
-                    btn.disabled = false;
-                }
+                recordProgressChange(anime, newProgress);
             };
         });
 
@@ -2623,15 +2641,47 @@ document.addEventListener('DOMContentLoaded', () => {
                     <label style="display: block; font-weight: 600; margin-bottom: 4px;">Local Name Override (folder name):</label>
                     <input type="text" id="modal-name-override" value="${escapeHtml(currentOverride)}" class="filter-input" style="width: 100%; padding: 8px;" placeholder="e.g. My Folder Name" />
                 </div>
+                <div style="width: 100%;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 6px;">Move To:</label>
+                    <div id="modal-status-selector" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button class="status-btn ${anime.listStatus === 'CURRENT' ? 'active' : ''}" data-status="CURRENT" style="--btn-color: var(--status-current)">In Progress</button>
+                        <button class="status-btn ${anime.listStatus === 'PLANNING' ? 'active' : ''}" data-status="PLANNING" style="--btn-color: var(--status-planning)">Planning</button>
+                        <button class="status-btn ${anime.listStatus === 'COMPLETED' ? 'active' : ''}" data-status="COMPLETED" style="--btn-color: var(--status-completed)">Completed</button>
+                        <button class="status-btn ${anime.listStatus === 'DROPPED' ? 'active' : ''}" data-status="DROPPED" style="--btn-color: var(--status-dropped)">Dropped</button>
+                        <button class="status-btn ${anime.listStatus === 'PAUSED' ? 'active' : ''}" data-status="PAUSED" style="--btn-color: var(--status-paused)">Paused</button>
+                    </div>
+                </div>
                 <div style="display: flex; gap: 1rem; align-items: center; width: 100%; justify-content: space-between;">
-                    <label style="font-weight: 600;">
-                        Set progress:
-                        <input type="number" id="modal-progress" value="${anime.progress || 0}" min="0" style="width: 60px; padding: 4px;" />
-                    </label>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label style="font-weight: 600;">Set progress:</label>
+                        <div style="display: flex; align-items: center; gap: 4px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; padding: 2px;">
+                            <button id="btn-modal-minus" class="icon-btn" style="width: 28px; height: 28px; padding: 0;">-</button>
+                            <input type="number" id="modal-progress" value="${anime.progress || 0}" min="0" style="width: 50px; padding: 4px; border: none; background: transparent; text-align: center; color: var(--text-primary); font-family: inherit; font-weight: 600;" />
+                            <button id="btn-modal-plus" class="icon-btn" style="width: 28px; height: 28px; padding: 0;">+</button>
+                        </div>
+                    </div>
                     <button id="modal-save" class="primary-btn">Save Changes</button>
                 </div>
             </div>
         `;
+
+        let selectedModalStatus = anime.listStatus;
+        document.querySelectorAll('#modal-status-selector .status-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                document.querySelectorAll('#modal-status-selector .status-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedModalStatus = btn.dataset.status;
+            };
+        });
+
+        document.getElementById('btn-modal-minus').onclick = () => {
+            const input = document.getElementById('modal-progress');
+            input.value = Math.max(0, parseInt(input.value || 0) - 1);
+        };
+        document.getElementById('btn-modal-plus').onclick = () => {
+            const input = document.getElementById('modal-progress');
+            input.value = parseInt(input.value || 0) + 1;
+        };
 
         document.getElementById('modal-save').addEventListener('click', async () => {
             const newProgress = parseInt(document.getElementById('modal-progress').value, 10);
@@ -2642,23 +2692,31 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update local cache immediately for speed
             const localAnime = animeList.find(a => a.mediaId === anime.mediaId);
             const animeTitle = anime.title?.romaji || anime.title?.english || 'Anime';
-            let targetStatus = anime.listStatus;
-
+            
             if (localAnime) {
+                const oldStatus = localAnime.listStatus;
+                let targetStatus = selectedModalStatus;
+
                 localAnime.progress = newProgress;
+                
                 // If progress < total and it was COMPLETED, move to CURRENT
-                if (localAnime.episodes && newProgress < localAnime.episodes && localAnime.listStatus === 'COMPLETED') {
+                if (localAnime.episodes && newProgress < localAnime.episodes && oldStatus === 'COMPLETED') {
                     targetStatus = 'CURRENT';
                     localAnime.listStatus = 'CURRENT';
                 }
+
                 // Record Title Override if changed
                 const oldOverride = (userSettings && userSettings.title_overrides) ? userSettings.title_overrides[anime.mediaId] || '' : '';
                 if (newOverride !== oldOverride) {
                     recordApiRequest('TITLE_OVERRIDE', anime.mediaId, { customTitle: newOverride }, `${animeTitle}: Set title override to "${newOverride}"`);
+                    // Update userSettings locally
+                    if (!userSettings) userSettings = {};
+                    if (!userSettings.title_overrides) userSettings.title_overrides = {};
+                    userSettings.title_overrides[anime.mediaId] = newOverride;
                 }
 
                 // Record Status change if needed
-                if (targetStatus !== anime.listStatus) {
+                if (targetStatus !== oldStatus) {
                     recordApiRequest('STATUS', anime.mediaId, { status: targetStatus }, `${animeTitle}: Move to ${targetStatus}`);
                 }
 

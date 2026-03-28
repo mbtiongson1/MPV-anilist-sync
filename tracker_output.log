@@ -1,3 +1,75 @@
 Starting Multi-Player Anilist Tracker Agent v0.2.0 on darwin...
 UI Server started at http://localhost:8080
 Detected activity on MPVWatcher: [ASW] Champignon no Majo - 01 [1080p HEVC][80C605A1].mkv
+Starting Multi-Player Anilist Tracker Agent v0.2.0 on darwin...
+UI Server started at http://localhost:8082
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+HTTP Error fetching user anime list: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+HTTP Error fetching user anime list: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+HTTP Error fetching user anime list: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+HTTP Error fetching user anime list: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+HTTP Error fetching user anime list: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+HTTP Error fetching user anime list: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+HTTP Error fetching user anime list: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+HTTP Error fetching user anime list: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+HTTP Error fetching user anime list: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+HTTP Error fetching user anime list: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+HTTP Error fetching user anime list: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Syncing media 187942 to episode 11
+Syncing to AniList: media 187942 (187942) episode {episode}
+Anilist already at or past episode 11 (Current: 12)
+Successfully synced 187942 progress to episode 11
+HTTP Error fetching user anime list: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Syncing media 187942 to episode 11
+Syncing to AniList: media 187942 (187942) episode {episode}
+Anilist already at or past episode 11 (Current: 12)
+Successfully synced 187942 progress to episode 11
+Syncing media 187942 to episode 11
+Syncing to AniList: media 187942 (187942) episode {episode}
+Error getting authenticated user: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Anilist already at or past episode 11 (Current: 12)
+Successfully synced 187942 progress to episode 11
+HTTP Error fetching user anime list: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Syncing media 187942 to episode 11
+Syncing to AniList: media 187942 (187942) episode {episode}
+Anilist already at or past episode 11 (Current: 12)
+Successfully synced 187942 progress to episode 11
+Syncing media 187942 to episode 11
+Syncing to AniList: media 187942 (187942) episode {episode}
+Anilist already at or past episode 11 (Current: 12)
+Successfully synced 187942 progress to episode 11
+Syncing media 187942 to episode 11
+Syncing to AniList: media 187942 (187942) episode {episode}
+Anilist already at or past episode 11 (Current: 12)
+Successfully synced 187942 progress to episode 11
+Syncing media 187942 to episode 11
+Syncing to AniList: media 187942 (187942) episode {episode}
+Anilist already at or past episode 11 (Current: 12)
+Successfully synced 187942 progress to episode 11
+Syncing media 187942 to episode 11
+Syncing to AniList: media 187942 (187942) episode {episode}
+Anilist already at or past episode 11 (Current: 12)
+Successfully synced 187942 progress to episode 11
+Syncing media 187942 to episode 11
+Syncing to AniList: media 187942 (187942) episode {episode}
+Anilist already at or past episode 11 (Current: 12)
+Successfully synced 187942 progress to episode 11
+HTTP Error fetching user anime list: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+HTTP Error fetching user anime list: 500 Server Error: Internal Server Error for url: https://graphql.anilist.co/
+Detected activity on MPVWatcher: [ASW] Shibou Yuugi de Meshi wo Kuu. - 11 [1080p HEVC][91F83CA2].mkv

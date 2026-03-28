@@ -556,6 +556,30 @@ header {
     color: var(--text-secondary);
 }
 
+.status-btn {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.status-btn:hover {
+    border-color: var(--btn-color);
+    color: var(--text-primary);
+}
+
+.status-btn.active {
+    background: var(--btn-color);
+    border-color: var(--btn-color);
+    color: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
 .modal-actions {
     display: flex;
     align-items: center;

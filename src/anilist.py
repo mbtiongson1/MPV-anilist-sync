@@ -461,8 +461,8 @@ class AnilistClient:
 
         # Check existing entry
         entry = self.get_list_entry(media_id)
-        if entry and (entry.get('progress') or 0) >= episode:
-            print(f"Anilist already at or past episode {episode} (Current: {entry.get('progress')})")
+        if entry and (entry.get('progress') or 0) == episode:
+            print(f"Anilist progress already set to episode {episode}")
             return True
 
         mutation = '''

@@ -30,7 +30,8 @@ def _parse_episode_from_title(title: str) -> tuple[Optional[int], bool]:
     batch_patterns = [
         r'\b(?:batch|complete series|complete|all episodes)\b',
         r'[\[\(]batch[\]\)]',
-        r'\d{1,3}\s*[-~]\s*\d{1,3}',   # e.g. 01-13 or 01~13
+        # Standalone range e.g. 01-13 or 01~13, avoiding things like S1 - 05
+        r'(?<![S\d])\b\d{1,3}\s*[-~]\s*\d{1,3}\b',
     ]
     for pat in batch_patterns:
         if re.search(pat, title, re.IGNORECASE):
@@ -41,6 +42,7 @@ def _parse_episode_from_title(title: str) -> tuple[Optional[int], bool]:
         r'[-_\s]E(\d{1,4})\b',              # -E01 or _E01
         r'\bEP\.?\s*(\d{1,4})\b',           # EP01  EP. 01
         r'S\d{1,2}E(\d{1,4})\b',            # S01E05
+        r'S\d{1,2}\s+-\s+(\d{1,4})\b',      # S2 - 05
         r'\s-\s(\d{1,4})(?:\s|$|\[|\()',    # " - 05 " or " - 05["
         r'\]\s+(\d{1,4})\s+(?:\[|\()',      # "] 03 [" or "] 03 ("
         r'\s(\d{2,3})\s+(?:\[|\()',         # " 03 [720p]" or " 03 (720p)"
@@ -120,8 +122,12 @@ class NyaaInterface:
                 'f': nyaa_filter,
             }
 
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+
             try:
-                response = requests.get(self.base_url, params=params, timeout=10)
+                response = requests.get(self.base_url, params=params, headers=headers, timeout=10)
                 response.raise_for_status()
                 root = ET.fromstring(response.content)
             except Exception as e:
