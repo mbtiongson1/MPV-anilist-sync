@@ -57,6 +57,19 @@ class SettingsManager:
         self.set("default_download_dir", value)
 
     @property
+    def base_anime_folder(self) -> str:
+        import sys
+        if sys.platform == "win32":
+            default_path = os.path.join(os.path.expanduser("~"), "Videos", "Anime")
+        else:
+            default_path = os.path.join(os.path.expanduser("~"), "Downloads")
+        return self.get("base_anime_folder", default_path)
+
+    @base_anime_folder.setter
+    def base_anime_folder(self, value: str):
+        self.set("base_anime_folder", value)
+
+    @property
     def media_folders_map(self) -> Dict[str, str]:
         return self.get("media_folders_map", {})
 

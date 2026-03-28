@@ -2,24 +2,34 @@ import os
 import re
 import requests
 import xml.etree.ElementTree as ET
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 class NyaaInterface:
     def __init__(self):
         self.base_url = "https://nyaa.si/"
 
-    def search(self, title: str, episode: int, resolution: str = "1080p", preferred_groups: List[str] | None = None) -> List[Dict[str, Any]]:
+    def get_torrent_download_url(self, page_url: str) -> str:
+        """
+        Converts a Nyaa.si view URL to a direct download URL.
+        Example: https://nyaa.si/view/1234567 -> https://nyaa.si/download/1234567.torrent
+        """
+        if "/view/" in page_url:
+            return page_url.replace("/view/", "/download/") + ".torrent"
+        return page_url
+
+    def search(self, title: str, episode: Optional[int] = None, resolution: str = "1080p", preferred_groups: List[str] | None = None) -> List[Dict[str, Any]]:
         if preferred_groups is None:
             preferred_groups = []
             
-        # Clean title by keeping only alphanumeric and spaces to avoid query parser issues
+        # Clean title
         clean_title = re.sub(r'[^\w\s]', ' ', title).strip()
         
-        # Pad episode to 2 digits (e.g. 05 instead of 5, which is standard on Nyaa)
-        padded_ep = f"{int(episode):02d}"
-        
         # Build search query
-        query = f'"{clean_title}" {padded_ep} {resolution}'
+        if episode is not None:
+            padded_ep = f"{int(episode):02d}"
+            query = f'"{clean_title}" {padded_ep} {resolution}'
+        else:
+            query = f'"{clean_title}" {resolution}'
         
         params = {
             'page': 'rss',
@@ -40,7 +50,7 @@ class NyaaInterface:
         for item in root.findall('./channel/item'):
             title_node = item.find('title')
             link_node = item.find('link')
-            # Nyaa uses custom namespaces for size and seeders
+            guid_node = item.find('guid') # Often the view link
             size_node = item.find('{https://nyaa.si/xmlns/nyaa}size')
             seeders_node = item.find('{https://nyaa.si/xmlns/nyaa}seeders')
             
@@ -49,9 +59,13 @@ class NyaaInterface:
                 
             t: str = str(title_node.text) if title_node.text is not None else ""
             l: str = str(link_node.text) if link_node.text is not None else ""
+            
+            # Use guid if it's a view link, otherwise link
+            view_link = guid_node.text if guid_node is not None and guid_node.text and "view" in guid_node.text else l
+            download_link = self.get_torrent_download_url(view_link) if "view" in view_link else l
+            
             s: str = str(size_node.text) if size_node is not None and size_node.text is not None else "Unknown"
             
-            # Safe conversion of seeders to int
             seed: int = 0
             if seeders_node is not None and seeders_node.text is not None:
                 try:
@@ -59,34 +73,30 @@ class NyaaInterface:
                 except (ValueError, TypeError):
                     seed = 0
             
-            # calculate a score based on preferred groups
             score = 0
             group_match = "Unknown"
             
-            # extract group name like [ASW]
             match = re.search(r'^\[(.*?)\]', t)
             if match:
                 group_match = match.group(1)
                 
             for i, group in enumerate(preferred_groups):
-                # Clean the group name from preferences
                 group_clean = group.strip("[] ").lower()
                 if group_clean and group_clean in t.lower():
-                    # higher score for groups closer to the front of the preference list
                     score = 1000 - i
                     group_match = group.strip("[] ")
                     break
                     
             results.append({
                 'title': t,
-                'link': l,
+                'link': download_link,
+                'view_link': view_link,
                 'size': s,
                 'seeders': seed,
                 'group': group_match,
                 'score': score
             })
             
-        # Sort by score desc, then seeders desc
         results.sort(key=lambda x: (x['score'], x['seeders']), reverse=True)
         return results
 
@@ -97,11 +107,12 @@ class NyaaInterface:
         os.makedirs(output_dir, exist_ok=True)
         
         filename = "download.torrent"
-        # Attempt to extract filename from URL
         if "/download/" in url:
             filename = url.split("/download/")[-1]
             if "?" in filename:
                 filename = filename.split("?")[0]
+            if not filename.endswith(".torrent"):
+                filename += ".torrent"
         elif url.endswith(".torrent"):
             filename = os.path.basename(url)
             
@@ -114,17 +125,15 @@ class NyaaInterface:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
                     
-            # Open the file
-            if os.name == 'nt' and hasattr(os, 'startfile'):
+            import sys
+            import subprocess
+            
+            if sys.platform == 'win32':
                 os.startfile(output_path)
+            elif sys.platform == 'darwin':
+                subprocess.call(('open', output_path))
             else:
-                import subprocess
-                if os.name == 'nt':
-                    os.startfile(output_path) # Fallback if hasattr failed but it IS nt
-                elif sys.platform == 'darwin':
-                    subprocess.call(('open', output_path))
-                else:
-                    subprocess.call(('xdg-open', output_path))
+                subprocess.call(('xdg-open', output_path))
                 
             return output_path
         except Exception as e:

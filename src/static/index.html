@@ -65,6 +65,9 @@
                     <div class="np-header">
                         <h1 id="np-title" class="np-title">—</h1>
                         <div style="display: flex; gap: 0.5rem;">
+                            <button id="btn-search-np-torrents" class="icon-btn" title="Search Torrents">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            </button>
                             <button id="btn-open-np-folder" class="icon-btn" title="Open folder">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
                             </button>
@@ -122,7 +125,12 @@
         <!-- Anime List Section -->
         <section id="anime-list-section" class="anime-list-section">
             <div class="section-header">
-                <h2>My Anime List</h2>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <h2>My Anime List</h2>
+                    <button id="btn-organize-folders" class="secondary-btn" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg> Automatically organize anime folders
+                    </button>
+                </div>
                 <button id="btn-refresh-list" class="refresh-btn" aria-label="Refresh anime list" title="Refresh list">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2.66 15.57a10 10 0 0 0 17.68-1.27M21.34 8.43a10 10 0 0 0-17.68 1.27"/></svg>
                 </button>
@@ -167,6 +175,9 @@
                 <button id="tab-completed" class="tab" data-status="COMPLETED">
                     Completed
                     <span id="count-completed" class="tab-count">0</span>
+                </button>
+                <button id="tab-stats" class="tab" data-status="STATS">
+                    Stats
                 </button>
                 <button id="tab-torrents" class="tab" data-status="TORRENTS">
                     Torrents

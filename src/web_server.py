@@ -88,16 +88,13 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                             episode = ep_val if ep_val is not None else 1
                             TrackerStateHandler.manual_episode_override = episode
 
-                        # Display correction: if the episode count is larger than the selected media
-                        # and we can find a season 1 episode count, show the difference.
+                        # Display correction
                         display_episode = episode
                         if isinstance(episode, int) and episode > 0:
-                            # Determine selected media context
                             selected_media = None
                             if hasattr(self.agent, 'selected_media_id') and self.agent.selected_media_id:
                                 selected_media = self.agent.current_media_map.get(self.agent.selected_media_id)
 
-                            # Find season 1 in the current map
                             season1_episodes = None
                             if hasattr(self.agent, 'current_media_map'):
                                 for m in self.agent.current_media_map.values():
@@ -114,7 +111,6 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                             ):
                                 display_episode = episode - season1_episodes
 
-                        # Prefer to display season number when available (e.g. "S2 E6")
                         season_label = None
                         if selected_media and isinstance(selected_media.get('season'), int):
                             season_label = f"S{selected_media.get('season')}"
@@ -134,7 +130,7 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                         display_episode = episode
                         TrackerStateHandler.manual_episode_override = None
 
-                    # Build season options and find selected media
+                    # Build season options
                     if hasattr(self.agent, 'current_media_map'):
                         season_options = []
                         for mid, data in self.agent.current_media_map.items():
@@ -168,12 +164,8 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                             'bannerImage': selected_media.get('bannerImage'),
                             'status': selected_media.get('status'),
                         }
-
-                        # Use the AniList progress for the selected media
                         anilist_progress = self.agent.get_progress_for_media(selected_id)
                         self.agent.selected_media_id = selected_id
-
-                        # Use the selected media's episode count for progress bar
                         anilist_total_episodes = selected_media.get('episodes')
                     else:
                         anilist_progress = getattr(self.agent, 'current_anilist_progress', 0)
@@ -233,6 +225,32 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                 }
             self.wfile.write(json.dumps(settings).encode('utf-8'))
 
+        elif self.path.startswith('/api/nyaa_search'):
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            
+            parsed_path = urllib.parse.urlparse(self.path)
+            query = urllib.parse.parse_qs(parsed_path.query)
+            search_str = query.get('q', [None])[0]
+            
+            results = []
+            if self.agent and hasattr(self.agent, 'nyaa') and search_str:
+                results = self.agent.nyaa.search(
+                    search_str, 
+                    None, 
+                    self.agent.settings.preferred_resolution, 
+                    self.agent.settings.preferred_groups
+                )
+                
+                # Check download status for search results too
+                for res in results:
+                    res['is_downloaded'] = False
+                    res['is_watched'] = False
+                    
+            self.wfile.write(json.dumps(results).encode('utf-8'))
+
         elif self.path.startswith('/api/nyaa_batch_search'):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
@@ -245,35 +263,64 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                     entries = self.agent.anilist.get_user_anime_list(['CURRENT'])
                     for entry in entries:
                         progress = entry.get('progress', 0)
-                        episodes = entry.get('episodes')
-                        if episodes and progress >= episodes:
-                            continue
-                            
-                        next_ep = progress + 1
+                        total_episodes = entry.get('episodes')
                         title = entry.get('title', {}).get('romaji') or entry.get('title', {}).get('english')
-                        if not title:
+                        media_id = entry.get('mediaId')
+                        
+                        if not title or not media_id:
                             continue
                             
-                        search_res = self.agent.nyaa.search(
-                            title, 
-                            next_ep, 
-                            self.agent.settings.preferred_resolution, 
-                            self.agent.settings.preferred_groups
-                        )
-                        
-                        if search_res:
-                            # top result
-                            torrent = search_res[0]
-                            results.append({
-                                'mediaId': entry.get('mediaId'),
-                                'animeTitle': title,
-                                'episode': next_ep,
-                                'torrent': torrent
-                            })
+                        missing = []
+                        if total_episodes:
+                            for ep in range(progress + 1, min(progress + 6, total_episodes + 1)):
+                                missing.append(ep)
+                        else:
+                            missing.append(progress + 1)
+                            
+                        media_dir = self.agent.settings.get_media_folder(int(media_id))
+                        # Poke in subfolder if it looks like default
+                        if media_dir == self.agent.settings.default_download_dir:
+                            title_safe = "".join([c for c in title if c.isalnum() or c in (' ', '-', '_')]).strip()
+                            potential_dir = os.path.join(self.agent.settings.default_download_dir, title_safe)
+                            if os.path.exists(potential_dir): media_dir = potential_dir
+
+                        existing_eps = set()
+                        if os.path.exists(media_dir):
+                            from src.parser import AnimeParser
+                            for f in os.listdir(media_dir):
+                                if f.lower().endswith('.mkv'):
+                                    parsed = AnimeParser.parse_filename(f)
+                                    ep_val = parsed.get('episode')
+                                    if isinstance(ep_val, list): ep_val = ep_val[-1]
+                                    if ep_val:
+                                        try: existing_eps.add(int(ep_val))
+                                        except: pass
+
+                        for next_ep in missing:
+                            is_downloaded = next_ep in existing_eps
+                            is_watched = next_ep <= progress
+                            
+                            search_res = self.agent.nyaa.search(
+                                title, 
+                                next_ep, 
+                                self.agent.settings.preferred_resolution, 
+                                self.agent.settings.preferred_groups
+                            )
+                            
+                            if search_res:
+                                results.append({
+                                    'mediaId': media_id,
+                                    'animeTitle': title,
+                                    'episode': next_ep,
+                                    'torrent': search_res[0],
+                                    'is_downloaded': is_downloaded,
+                                    'is_watched': is_watched
+                                })
                 except Exception as e:
                     print(f"Error in nyaa_batch_search: {e}")
 
             self.wfile.write(json.dumps(results).encode('utf-8'))
+            
         elif self.path.startswith('/api/open_folder'):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
@@ -287,22 +334,28 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             if self.agent and media_id:
                 try:
                     folder_path = self.agent.settings.get_media_folder(int(media_id))
+                    if not os.path.exists(folder_path) or folder_path == self.agent.settings.default_download_dir:
+                        if hasattr(self.agent, 'anilist'):
+                            entries = self.agent.anilist._load_list_cache()
+                            for entry in entries:
+                                if entry.get('mediaId') == int(media_id):
+                                    name = entry.get('title', {}).get('romaji') or entry.get('title', {}).get('english') or str(media_id)
+                                    title_safe = "".join([c for c in name if c.isalnum() or c in (' ', '-', '_')]).strip()
+                                    subfolder = os.path.join(self.agent.settings.default_download_dir, title_safe)
+                                    if os.path.exists(subfolder): folder_path = subfolder
+                                    break
+
                     import subprocess
                     import sys
-                    if not os.path.exists(folder_path):
-                        os.makedirs(folder_path, exist_ok=True)
-                    if sys.platform == 'win32':
-                        os.startfile(folder_path)
-                        success = True
-                    elif sys.platform == 'darwin':
-                        subprocess.call(['open', folder_path])
-                        success = True
-                    else:
-                        subprocess.call(['xdg-open', folder_path])
-                        success = True
+                    if not os.path.exists(folder_path): os.makedirs(folder_path, exist_ok=True)
+                    if sys.platform == 'win32': os.startfile(folder_path)
+                    elif sys.platform == 'darwin': subprocess.call(['open', folder_path])
+                    else: subprocess.call(['xdg-open', folder_path])
+                    success = True
                 except Exception as e:
                     print(f"Failed to open folder: {e}")
             self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+
         elif self.path.startswith('/api/image'):
             parsed_path = urllib.parse.urlparse(self.path)
             query = urllib.parse.parse_qs(parsed_path.query)
@@ -335,25 +388,19 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                     return
             
             try:
-                with open(cache_path + '.meta', 'r') as f:
-                    content_type = f.read()
-            except Exception:
-                content_type = 'image/jpeg'
+                with open(cache_path + '.meta', 'r') as f: content_type = f.read()
+            except Exception: content_type = 'image/jpeg'
                 
             self.send_response(200)
             self.send_header('Content-type', content_type)
-            # Add cache headers
             self.send_header('Cache-Control', 'public, max-age=31536000')
             self._set_cors_headers()
             self.end_headers()
             
             try:
-                with open(cache_path, 'rb') as f:
-                    self.wfile.write(f.read())
-            except Exception:
-                pass
+                with open(cache_path, 'rb') as f: self.wfile.write(f.read())
+            except Exception: pass
         else:
-            # Fallback to serving static files
             super().do_GET()
 
     def do_POST(self):
@@ -361,11 +408,9 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
             data = json.loads(post_data.decode('utf-8'))
-            
             change = data.get('change', 0)
             if TrackerStateHandler.manual_episode_override is not None:
                 TrackerStateHandler.manual_episode_override = max(1, TrackerStateHandler.manual_episode_override + change)
-                
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self._set_cors_headers()
@@ -377,7 +422,6 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self._set_cors_headers()
             self.end_headers()
-
             content_length = int(self.headers.get('Content-Length', 0))
             data = json.loads(self.rfile.read(content_length).decode('utf-8')) if content_length else {}
             media_id = data.get('mediaId')
@@ -390,17 +434,14 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self._set_cors_headers()
             self.end_headers()
-
             content_length = int(self.headers.get('Content-Length', 0))
             data = json.loads(self.rfile.read(content_length).decode('utf-8')) if content_length else {}
             media_id = data.get('mediaId')
             episode = data.get('episode')
-
             success = False
             if self.agent and media_id and episode is not None:
                 if hasattr(self.agent, 'sync_progress_by_media'):
                     success = self.agent.sync_progress_by_media(media_id, int(episode))
-
             self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
 
         elif self.path == '/api/change_status':
@@ -408,16 +449,13 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self._set_cors_headers()
             self.end_headers()
-
             content_length = int(self.headers.get('Content-Length', 0))
             data = json.loads(self.rfile.read(content_length).decode('utf-8')) if content_length else {}
             media_id = data.get('mediaId')
             status = data.get('status')
-
             success = False
             if self.agent and hasattr(self.agent, 'anilist') and media_id and status:
                 success = self.agent.anilist.change_status(media_id, status)
-
             self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
 
         elif self.path == '/api/reauthorize':
@@ -425,14 +463,10 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self._set_cors_headers()
             self.end_headers()
-
             success = False
             if self.agent and hasattr(self.agent, 'anilist'):
-                try:
-                    success = self.agent.anilist.authenticate()
-                except Exception as e:
-                    print(f"Reauthorization failed: {e}")
-
+                try: success = self.agent.anilist.authenticate()
+                except Exception as e: print(f"Reauthorization failed: {e}")
             self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
 
         elif self.path == '/api/full_refresh':
@@ -440,8 +474,6 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self._set_cors_headers()
             self.end_headers()
-
-            # Clear agent caches
             if self.agent:
                 self.agent.current_media_map = {}
                 self.agent.selected_media_id = None
@@ -449,17 +481,11 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                 self.agent.current_media_id = None
                 self.agent._cached_anilist_episodes = None
                 self.agent.last_synced_filename = None
-                if hasattr(self.agent, 'anilist'):
-                    self.agent.anilist.user_id = None
-
+                if hasattr(self.agent, 'anilist'): self.agent.anilist.user_id = None
             import shutil
             cache_dir = os.path.join(os.path.dirname(__file__), '..', 'image_cache')
-            if os.path.exists(cache_dir):
-                shutil.rmtree(cache_dir, ignore_errors=True)
-
-            # Reset manual override
+            if os.path.exists(cache_dir): shutil.rmtree(cache_dir, ignore_errors=True)
             TrackerStateHandler.manual_episode_override = None
-
             self.wfile.write(json.dumps({"success": True}).encode('utf-8'))
 
         elif self.path == '/api/sync':
@@ -467,30 +493,25 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self._set_cors_headers()
             self.end_headers()
-
             success = False
             if self.agent and self.agent.active_watcher and self.agent.active_watcher.is_connected:
                 filename = self.agent.active_watcher.get_current_filename()
                 if filename:
-                    # Sync with the manually overridden episode number if present
                     if hasattr(self.agent, 'sync_progress_manual') and TrackerStateHandler.manual_episode_override is not None:
                         self.agent.sync_progress_manual(filename, TrackerStateHandler.manual_episode_override, getattr(self.agent, 'selected_media_id', None))
                         success = True
                     else:
-                        # Fallback to normal sync
                         self.agent.sync_progress(filename)
                         success = True
-
             self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+
         elif self.path == '/api/settings':
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self._set_cors_headers()
             self.end_headers()
-
             content_length = int(self.headers.get('Content-Length', 0))
             data = json.loads(self.rfile.read(content_length).decode('utf-8')) if content_length else {}
-            
             if self.agent and hasattr(self.agent, 'settings'):
                 if 'preferred_groups' in data:
                     self.agent.settings.preferred_groups = [g.strip() for g in data['preferred_groups'].split(',') if g.strip()]
@@ -505,36 +526,77 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self._set_cors_headers()
             self.end_headers()
-
             content_length = int(self.headers.get('Content-Length', 0))
             data = json.loads(self.rfile.read(content_length).decode('utf-8')) if content_length else {}
             
-            url = data.get('url')
-            media_id = data.get('mediaId')
+            # Support both single and batch download
+            items = data.get('items', [])
+            if not items and 'url' in data:
+                items = [{'url': data['url'], 'mediaId': data.get('mediaId'), 'animeTitle': data.get('animeTitle')}]
             
-            success = False
-            if self.agent and hasattr(self.agent, 'nyaa') and url and media_id:
-                download_dir = self.agent.settings.get_media_folder(int(media_id))
-                path = self.agent.nyaa.download_torrent(url, download_dir)
-                success = bool(path)
+            results = []
+            if self.agent and hasattr(self.agent, 'nyaa'):
+                for item in items:
+                    url = item.get('url')
+                    media_id = item.get('mediaId')
+                    anime_title = item.get('animeTitle')
+                    
+                    if not url: continue
+                    
+                    # Target folder logic
+                    if media_id:
+                        download_dir = self.agent.settings.get_media_folder(int(media_id))
+                    elif anime_title:
+                        title_safe = "".join([c for c in anime_title if c.isalnum() or c in (' ', '-', '_')]).strip()
+                        download_dir = os.path.join(self.agent.settings.default_download_dir, title_safe)
+                    else:
+                        download_dir = self.agent.settings.default_download_dir
+                        
+                    path = self.agent.nyaa.download_torrent(url, download_dir)
+                    results.append({"url": url, "success": bool(path)})
                 
-            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+            self.wfile.write(json.dumps({"success": True, "results": results}).encode('utf-8'))
+            
+        elif self.path == '/api/organize_folders':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            results = []
+            if self.agent and hasattr(self.agent, 'settings'):
+                base_dir = self.agent.settings.base_anime_folder
+                if os.path.exists(base_dir):
+                    from src.parser import AnimeParser
+                    import shutil
+                    video_exts = ('.mkv', '.mp4', '.avi')
+                    for item in os.listdir(base_dir):
+                        if item.lower().endswith(video_exts):
+                            file_path = os.path.join(base_dir, item)
+                            if os.path.isfile(file_path):
+                                parsed = AnimeParser.parse_filename(item)
+                                if parsed and parsed.get('title'):
+                                    title = parsed['title']
+                                    folder_name = "".join([c for c in title if c.isalnum() or c in (' ', '-', '_')]).strip()
+                                    target_dir = os.path.join(base_dir, folder_name)
+                                    target_path = os.path.join(target_dir, item)
+                                    if not os.path.exists(target_dir): os.makedirs(target_dir, exist_ok=True)
+                                    try:
+                                        shutil.move(file_path, target_path)
+                                        results.append(f"Moved {item} to {folder_name}/")
+                                    except Exception as e: print(f"Skipped {item}: {e}")
+            self.wfile.write(json.dumps({"success": True, "results": results}).encode('utf-8'))
         else:
             self.send_response(404)
             self.end_headers()
 
-    # Suppress logging to keep the terminal clean
-    def log_message(self, format, *args):
-        pass
+    def log_message(self, format, *args): pass
 
 class ReusableTCPServer(socketserver.TCPServer):
     allow_reuse_address = True
 
 def start_web_server(agent: TrackerAgent, port: int = 8080):
     TrackerStateHandler.agent = agent
-    handler = TrackerStateHandler
-    
-    with ReusableTCPServer(("", port), handler) as httpd:
+    with ReusableTCPServer(("", port), TrackerStateHandler) as httpd:
         print(f"UI Server started at http://localhost:{port}")
         httpd.serve_forever()
 

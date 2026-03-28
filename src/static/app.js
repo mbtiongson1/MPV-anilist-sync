@@ -66,6 +66,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let expandedCard = null; // mediaId of expanded card
     let sortBy = 'progress'; // 'popularity', 'score', 'title', 'progress', 'season', 'studio'
     let sortDirection = -1; // 1 = asc, -1 = desc
+    let activeSearchTerm = ""; // to pass search terms to torrents tab
+
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add('fade-out');
+            setTimeout(() => toast.remove(), 500);
+        }, 3000);
+    }
 
     function getCachedImageUrl(url) {
         if (!url) return '';
@@ -87,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return false;
     }
-    function renderSegments(container, progress, total, isCurrent, nextAiringEpisode) {
+    function renderSegments(container, progress, total, isCurrent, nextAiringEpisode, mediaId = null) {
         container.innerHTML = '';
         
         let validTotal = (total && total > 0) ? total : 0;
@@ -107,12 +119,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const pWatched = Math.min((progress / validTotal) * 100, 100);
         const pAvailable = Math.min(((available - progress) / validTotal) * 100, 100);
 
-        const barHtml = `
+        let barHtml = `
             <div class="progress-bar-container">
                 <div class="progress-bar-watched" style="width: ${pWatched}%;"></div>
                 <div class="progress-bar-available" style="width: ${pAvailable}%;"></div>
             </div>
         `;
+
+        if (mediaId && !isCurrent) {
+            // Smaller inline +/- buttons for list/grid items
+            barHtml = `
+                <div style="display: flex; align-items: center; gap: 0.5rem; width: 100%;">
+                    <button class="icon-btn btn-minus-prog" data-media-id="${mediaId}" style="padding: 0.1rem; width: 22px; height: 22px; flex-shrink: 0;" aria-label="Decrease Episode" title="-1 Episode">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                    ${barHtml}
+                    <button class="icon-btn btn-plus-prog" data-media-id="${mediaId}" style="padding: 0.1rem; width: 22px; height: 22px; flex-shrink: 0;" aria-label="Increase Episode" title="+1 Episode">
+                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                </div>
+            `;
+        }
+
         container.innerHTML = barHtml;
     }
 
@@ -146,6 +174,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div style="font-size: 0.75rem; color: var(--text-muted);">Ep ${progress} / ${total}</div>
                 </div>
                 <div style="display: flex; gap: 0.25rem; align-items: center;">
+                    <button class="icon-btn btn-search-torrents" data-title="${escapeHtml(title)}" style="padding: 0.3rem;" title="Search Torrents">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </button>
                     <button class="icon-btn btn-open-folder" data-media-id="${anime.mediaId}" style="padding: 0.3rem;" title="Open folder">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
                     </button>
@@ -289,9 +320,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateNowPlayingMetadata(baseTitle) {
         // Try to find this anime in the loaded list
+        // Do not wipe out cover/banner here, since the status API already provides accurate ones.
         if (!baseTitle || animeList.length === 0) {
-            npBanner.style.backgroundImage = '';
-            npCover.src = '';
             npStudio.textContent = '';
             return;
         }
@@ -307,16 +337,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (match) {
-            const rawCoverUrl = match.coverImage?.large || match.coverImage?.medium || '';
-            const rawBannerUrl = match.bannerImage || rawCoverUrl;
-            const coverUrl = getCachedImageUrl(rawCoverUrl);
-            const bannerUrl = getCachedImageUrl(rawBannerUrl);
-            npCover.src = coverUrl;
-            npBanner.style.backgroundImage = bannerUrl ? `url(${bannerUrl})` : '';
+            // Only update studio if present, do not override valid cover images from status API with empty ones
             npStudio.textContent = match.studio || '';
         } else {
-            npBanner.style.backgroundImage = '';
-            npCover.src = '';
             npStudio.textContent = '';
         }
     }
@@ -455,6 +478,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const yearQuery = filterYear.value ? parseInt(filterYear.value) : null;
 
         let filtered = animeList.filter(a => {
+            // Exclude Adult/Ecchi by default
+            if (a.genres && a.genres.some(g => ['Ecchi', 'Hentai', 'Adult'].includes(g))) return false;
+            if (a.isAdult) return false;
+
             // Status tab filter
             if (a.listStatus !== activeTab) return false;
 
@@ -494,9 +521,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         cmp = aTitle.localeCompare(bTitle);
                         break;
                     case 'progress':
-                        const pA = a.episodes && a.episodes > 0 ? (a.progress || 0) / a.episodes : (a.progress === 0 ? 0 : 0.99);
-                        const pB = b.episodes && b.episodes > 0 ? (b.progress || 0) / b.episodes : (b.progress === 0 ? 0 : 0.99);
+                        const aProg = a.progress || 0;
+                        const aTotal = (a.episodes && a.episodes > 0) ? a.episodes : Infinity;
+                        const bProg = b.progress || 0;
+                        const bTotal = (b.episodes && b.episodes > 0) ? b.episodes : Infinity;
+
+                        const pA = aTotal === Infinity ? (aProg > 0 ? (aProg / 1000) : 0) : (aProg / aTotal);
+                        const pB = bTotal === Infinity ? (bProg > 0 ? (bProg / 1000) : 0) : (bProg / bTotal);
+                        
                         cmp = pA - pB;
+                        if (cmp === 0) {
+                            cmp = aProg - bProg;
+                        }
                         break;
                     case 'season':
                         cmp = (a.seasonYear || 0) - (b.seasonYear || 0);
@@ -524,111 +560,537 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update grid class for view mode
         animeGrid.className = `anime-grid ${viewMode}-view`;
 
-        if (activeTab === 'TORRENTS') {
-            animeGrid.className = 'anime-grid torrents-view';
-            animeGrid.innerHTML = `
-                <div class="torrents-header" style="margin-bottom: 20px; text-align: center;">
-                    <button id="btn-find-torrents" class="primary-btn" style="font-size: 16px; padding: 12px 24px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 8px; font-weight: 600;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        Find available episodes
-                    </button>
-                    <p style="margin-top: 10px; color: #666; font-size: 14px;">Scans your "In Progress" list and finds torrents for the next episodes you need.</p>
-                </div>
-                <div id="torrents-results"></div>
-            `;
+        if (activeTab === 'STATS') {
+            const watchedList = animeList.filter(a => {
+                if (a.genres && a.genres.some(g => ['Ecchi', 'Hentai', 'Adult'].includes(g))) return false;
+                if (a.isAdult) return false;
+                return a.listStatus === 'COMPLETED' || (a.progress || 0) > 0;
+            });
             
-            document.getElementById('btn-find-torrents').addEventListener('click', async () => {
-                if (!userSettings || (!userSettings.preferred_groups && userSettings.default_download_dir === '')) {
-                    alert("Please configure your settings first.");
-                    openSettingsModal();
-                    return;
+            let totalAnime = watchedList.length;
+            let totalEps = 0;
+            let scoreSum = 0;
+            let scoreCount = 0;
+            let genres = {};
+            let dailyActivity = {}; // timestamp (start of day) -> count
+            
+            watchedList.forEach(a => {
+                totalEps += a.progress || 0;
+                let s = 0;
+                if (a.score && a.score > 0) {
+                    // User score: if > 10, likely out of 100, otherwise out of 10
+                    s = a.score > 10 ? a.score : a.score * 10;
+                } else if (a.averageScore && a.averageScore > 0) {
+                    // Anilist averageScore: usually 0-100
+                    s = a.averageScore;
                 }
                 
-                const resultsContainer = document.getElementById('torrents-results');
-                resultsContainer.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Searching Nyaa...</p></div>';
+                if (s > 0) {
+                    scoreSum += s;
+                    scoreCount++;
+                }
                 
+                if (a.genres && a.genres.length > 0) {
+                    a.genres.forEach(g => {
+                        genres[g] = (genres[g] || 0) + 1;
+                    });
+                }
+                
+                if (a.updatedAt) {
+                    const date = new Date(a.updatedAt * 1000);
+                    date.setHours(0,0,0,0);
+                    const ts = date.getTime();
+                    dailyActivity[ts] = (dailyActivity[ts] || 0) + 1;
+                }
+            });
+            
+            // Weekly Activity Distribution (day-of-week bucket from dailyActivity)
+            // 0=Sun, 1=Mon, ..., 6=Sat (JS getDay)
+            const weeklyActivity = [0, 0, 0, 0, 0, 0, 0];
+            Object.entries(dailyActivity).forEach(([ts, count]) => {
+                const dayOfWeek = new Date(parseInt(ts)).getDay();
+                weeklyActivity[dayOfWeek] += count;
+            });
+            
+            const meanScore = scoreCount > 0 ? (scoreSum / scoreCount / 10).toFixed(1) : 0;
+            const daysWatched = (totalEps * 24 / 60 / 24).toFixed(1);
+            
+            // Pareto Chart Logic - Truncate to top 9 + Others
+            const allSortedGenres = Object.entries(genres).sort((a,b) => b[1] - a[1]);
+            let sortedGenres = allSortedGenres.slice(0, 9);
+            const othersSum = allSortedGenres.slice(9).reduce((sum, g) => sum + g[1], 0);
+            if (othersSum > 0) {
+                sortedGenres.push(['Others', othersSum]);
+            }
+            
+            const totalGenreCount = Object.values(genres).reduce((a, b) => a + b, 0);
+            let paretoHtml = '';
+            if (sortedGenres.length > 0) {
+                const width = 900;
+                const height = 400;
+                const margin = { top: 40, right: 80, bottom: 90, left: 60 };
+                const chartWidth = width - margin.left - margin.right;
+                const chartHeight = height - margin.top - margin.bottom;
+                const maxCount = Math.max(...sortedGenres.map(g => g[1])) || 1;
+                const barWidth = chartWidth / sortedGenres.length;
+                
+                let bars = '', points = [], cumulative = 0, axisTicks = '', gridLines = '';
+                
+                // Y-Axis Frequency Ticks (Left)
+                for (let i = 0; i <= 5; i++) {
+                    const y = chartHeight - (i / 5) * chartHeight;
+                    const val = Math.round((i / 5) * maxCount);
+                    axisTicks += `<text x="-10" y="${y + 4}" font-size="12" fill="var(--text-muted)" text-anchor="end">${val}</text>`;
+                    gridLines += `<line x1="0" y1="${y}" x2="${chartWidth}" y2="${y}" stroke="var(--border-light)" stroke-width="1" stroke-dasharray="3,3" />`;
+                }
+                
+                // Y-Axis Cumulative % Ticks (Right)
+                for (let i = 0; i <= 5; i++) {
+                    const y = chartHeight - (i / 5) * chartHeight;
+                    axisTicks += `<text x="${chartWidth + 10}" y="${y + 4}" font-size="12" fill="#FBBF24" text-anchor="start">${i * 20}%</text>`;
+                }
+
+                sortedGenres.forEach(([genre, count], i) => {
+                    const x = i * barWidth;
+                    const barHeight = (count / maxCount) * chartHeight;
+                    const y = chartHeight - barHeight;
+                    cumulative += count;
+                    const cumulativePercent = (cumulative / totalGenreCount) * 100;
+                    const cy = chartHeight - (cumulativePercent / 100) * chartHeight;
+                    points.push(`${x + barWidth/2},${cy}`);
+                    
+                    bars += `
+                        <rect x="${x + 8}" y="${y}" width="${barWidth - 16}" height="${barHeight}" fill="var(--accent)" opacity="0.8" rx="4">
+                            <title>${genre}: ${count} (${((count/totalGenreCount)*100).toFixed(1)}%)</title>
+                        </rect>
+                        <text x="${x + barWidth/2}" y="${chartHeight + 20}" font-size="13" fill="var(--text-secondary)" text-anchor="end" transform="rotate(-35, ${x + barWidth/2}, ${chartHeight + 20})" font-weight="600">${genre}</text>
+                    `;
+                });
+                
+                const linePath = `M ${points.join(' L ')}`;
+                paretoHtml = `
+                    <svg viewBox="0 0 ${width} ${height}" style="width: 100%; height: auto; overflow: visible; font-family: inherit;">
+                        <g transform="translate(${margin.left}, ${margin.top})">
+                            ${gridLines}
+                            <line x1="0" y1="${chartHeight}" x2="${chartWidth}" y2="${chartHeight}" stroke="var(--border)" stroke-width="1.5" />
+                            <line x1="0" y1="0" x2="0" y2="${chartHeight}" stroke="var(--border)" stroke-width="1.5" />
+                            <line x1="${chartWidth}" y1="0" x2="${chartWidth}" y2="${chartHeight}" stroke="var(--border)" stroke-width="1.5" />
+                            ${axisTicks}
+                            ${bars}
+                            <path d="${linePath}" fill="none" stroke="#FBBF24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            ${points.map((p, i) => `<circle cx="${p.split(',')[0]}" cy="${p.split(',')[1]}" r="5" fill="#FBBF24" stroke="var(--bg-card)" stroke-width="2" />`).join('')}
+                            
+                            <g transform="translate(0, -25)">
+                                <rect width="14" height="14" fill="var(--accent)" rx="3" />
+                                <text x="22" y="11" font-size="12" fill="var(--text-primary)" font-weight="600">Genre Frequency</text>
+                                <line x1="150" y1="7" x2="185" y2="7" stroke="#FBBF24" stroke-width="3" />
+                                <text x="195" y="11" font-size="12" fill="var(--text-primary)" font-weight="600">Cumulative Coverage (%)</text>
+                            </g>
+                        </g>
+                    </svg>
+                `;
+            }
+
+            // Heat Map Logic (Last 12 Months)
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const heatWidth = 800;
+            const heatHeight = 130;
+            const cellSize = 12;
+            const cellGap = 3;
+            let heatCells = '';
+            
+            const startDate = new Date(today);
+            startDate.setDate(today.getDate() - (52 * 7 + today.getDay()));
+            
+            let months = [];
+            let lastMonth = -1;
+            
+            for (let w = 0; w <= 52; w++) {
+                for (let d = 0; d < 7; d++) {
+                    const current = new Date(startDate);
+                    current.setDate(startDate.getDate() + (w * 7 + d));
+                    if (current > today) break;
+                    
+                    const ts = current.getTime();
+                    const count = dailyActivity[ts] || 0;
+                    
+                    if (d === 0) {
+                        const m = current.getMonth();
+                        if (m !== lastMonth) {
+                            months.push(`<text x="${w * (cellSize + cellGap)}" y="-5" font-size="10" fill="var(--text-muted)">${current.toLocaleString('default', { month: 'short' })}</text>`);
+                            lastMonth = m;
+                        }
+                    }
+                    
+                    let color = 'rgba(255, 255, 255, 0.05)';
+                    if (count > 0) color = 'rgba(16, 185, 129, 0.2)';
+                    if (count > 1) color = 'rgba(16, 185, 129, 0.5)';
+                    if (count > 2) color = 'rgba(16, 185, 129, 0.8)';
+                    if (count > 4) color = 'var(--accent)';
+                    
+                    heatCells += `
+                        <rect x="${w * (cellSize + cellGap)}" y="${d * (cellSize + cellGap)}" width="${cellSize}" height="${cellSize}" fill="${color}" rx="2">
+                            <title>${current.toDateString()}: ${count} updates</title>
+                        </rect>
+                    `;
+                }
+            }
+
+            animeGrid.className = 'anime-grid stats-view';
+            animeGrid.innerHTML = `
+                <div class="stats-card" style="grid-column: 1 / -1; background: var(--bg-card); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-card);">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 8px;">Total Anime</div>
+                            <div style="font-size: 32px; color: var(--accent); font-weight: 800;">${totalAnime}</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 8px;">Episodes</div>
+                            <div style="font-size: 32px; color: var(--accent); font-weight: 800;">${totalEps}</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 8px;">Days Watched</div>
+                            <div style="font-size: 32px; color: var(--accent); font-weight: 800;">${daysWatched}</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 8px;">Mean Score</div>
+                            <div style="font-size: 32px; color: var(--accent); font-weight: 800;">${meanScore}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-card" style="grid-column: 1 / -1; background: var(--bg-card); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-card);">
+                    <h3 style="margin-bottom: 24px; font-size: 16px; font-weight: 700; color: var(--text-primary); border-left: 3px solid var(--accent); padding-left: 12px; line-height: 1;">Genre Distribution (Pareto)</h3>
+                    <div style="width: 100%;">${paretoHtml || '<div style="color: var(--text-muted); text-align: center; padding: 40px 0;">No genre data available</div>'}</div>
+                </div>
+
+                <div class="stats-card" style="grid-column: 1 / -1; background: var(--bg-card); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-card);">
+                    <h3 style="margin-bottom: 24px; font-size: 16px; font-weight: 700; color: var(--text-primary); border-left: 3px solid var(--accent); padding-left: 12px; line-height: 1;">Activity Heatmap (Updates)</h3>
+                    <div style="overflow-x: auto; width: 100%; padding-bottom: 15px;">
+                        <svg viewBox="0 0 ${heatWidth} ${heatHeight}" style="width: 100%; min-width: 750px; height: auto; overflow: visible;">
+                            <g transform="translate(30, 20)">
+                                ${heatCells}
+                                ${months.join('')}
+                                <text x="-25" y="10" font-size="9" fill="var(--text-muted)">Mon</text>
+                                <text x="-25" y="40" font-size="9" fill="var(--text-muted)">Wed</text>
+                                <text x="-25" y="70" font-size="9" fill="var(--text-muted)">Fri</text>
+                                <text x="-25" y="100" font-size="9" fill="var(--text-muted)">Sun</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Weekly Distribution Block Chart -->
+                <div class="stats-card" style="grid-column: 1 / -1; background: var(--bg-card); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-card);">
+                    <h3 style="margin-bottom: 24px; font-size: 16px; font-weight: 700; color: var(--text-primary); border-left: 3px solid var(--accent); padding-left: 12px; line-height: 1;">Weekly Watch Distribution</h3>
+                    ${(() => {
+                        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                        const maxWeekly = Math.max(...weeklyActivity, 1);
+                        const BLOCK_ROWS = 8; // number of block rows per column
+                        const BLOCK_SIZE = 18;
+                        const BLOCK_GAP = 4;
+                        const COL_GAP = 14;
+                        const colWidth = BLOCK_SIZE + COL_GAP;
+
+                        // Reorder columns to Mon–Sun (Mon=1 … Sat=6, Sun=0)
+                        const ordered = [1, 2, 3, 4, 5, 6, 0];
+                        const orderedNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+                        const svgW = ordered.length * colWidth - COL_GAP + 60;
+                        const svgH = BLOCK_ROWS * (BLOCK_SIZE + BLOCK_GAP) + 50;
+
+                        let cols = '';
+                        ordered.forEach((dowIdx, colI) => {
+                            const count = weeklyActivity[dowIdx];
+                            const ratio = count / maxWeekly;
+                            // How many full blocks to fill (out of BLOCK_ROWS)
+                            const filledBlocks = Math.round(ratio * BLOCK_ROWS);
+                            const x = colI * colWidth;
+
+                            // Count label above
+                            cols += `<text x="${x + BLOCK_SIZE / 2}" y="-8" font-size="11" fill="var(--text-secondary)" text-anchor="middle" font-weight="700">${count}</text>`;
+
+                            for (let row = 0; row < BLOCK_ROWS; row++) {
+                                // Render from bottom up
+                                const blockIdx = BLOCK_ROWS - 1 - row;
+                                const y = blockIdx * (BLOCK_SIZE + BLOCK_GAP);
+                                const isFilled = row < filledBlocks;
+                                let fill, opacity;
+                                if (!isFilled) {
+                                    fill = 'rgba(255,255,255,0.05)';
+                                    opacity = 1;
+                                } else {
+                                    // Gradient: bottom blocks brighter
+                                    const blockRatio = (row + 1) / filledBlocks;
+                                    if (blockRatio <= 0.33) { fill = 'rgba(16,185,129,0.25)'; opacity = 1; }
+                                    else if (blockRatio <= 0.66) { fill = 'rgba(16,185,129,0.55)'; opacity = 1; }
+                                    else { fill = 'var(--accent)'; opacity = 1; }
+                                }
+                                cols += `<rect x="${x}" y="${y}" width="${BLOCK_SIZE}" height="${BLOCK_SIZE}" fill="${fill}" rx="3" opacity="${opacity}"><title>${orderedNames[colI]}: ${count} update${count !== 1 ? 's' : ''}</title></rect>`;
+                            }
+
+                            // Day label below
+                            cols += `<text x="${x + BLOCK_SIZE / 2}" y="${BLOCK_ROWS * (BLOCK_SIZE + BLOCK_GAP) + 14}" font-size="11" fill="${ratio > 0.5 ? 'var(--text-primary)' : 'var(--text-muted)'}" text-anchor="middle" font-weight="${ratio > 0.5 ? '700' : '400'}">${orderedNames[colI]}</text>`;
+                        });
+
+                        // Legend
+                        const legendX = ordered.length * colWidth + 8;
+                        const legendItems = [
+                            { fill: 'rgba(255,255,255,0.05)', label: 'None' },
+                            { fill: 'rgba(16,185,129,0.25)', label: 'Low' },
+                            { fill: 'rgba(16,185,129,0.55)', label: 'Mid' },
+                            { fill: 'var(--accent)', label: 'High' },
+                        ];
+                        let legend = '';
+                        legendItems.forEach((item, i) => {
+                            const ly = i * 28;
+                            legend += `<rect x="${legendX}" y="${ly}" width="14" height="14" fill="${item.fill}" rx="3"/>`;
+                            legend += `<text x="${legendX + 20}" y="${ly + 11}" font-size="10" fill="var(--text-muted)">${item.label}</text>`;
+                        });
+
+                        return `
+                                <div style="overflow-x: auto; width: 100%;">
+                                    <svg viewBox="0 0 ${svgW} ${svgH}" style="overflow: visible; height: auto; min-width: ${svgW}px; max-width: 500px; display: block;">
+                                        <g transform="translate(10, 24)">
+                                            ${cols}
+                                            ${legend}
+                                        </g>
+                                    </svg>
+                                </div>`;
+                    })()}
+                </div>
+            `;
+            return;
+        }
+
+        if (activeTab === 'TORRENTS') {
+            const searchTerm = activeSearchTerm || '';
+            activeSearchTerm = ""; // reset after use
+            
+            animeGrid.className = 'anime-grid torrents-view';
+            animeGrid.innerHTML = `
+                <div class="torrents-toolbar">
+                    <div class="torrents-search">
+                        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="torrents-search-input" placeholder="Search Nyaa.si..." value="${escapeHtml(searchTerm)}">
+                    </div>
+                    <button id="btn-refresh-torrents" class="refresh-btn" title="Refresh/Batch Search">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+                    </button>
+                </div>
+                <div id="torrents-results">
+                    <div class="loading-state"><div class="spinner"></div><p>Scanning missing episodes...</p></div>
+                </div>
+                <div id="batch-download-bar" class="batch-download-bar hidden">
+                    <div class="info">
+                        <span id="batch-count">0 torrents selected</span>
+                    </div>
+                    <button id="btn-download-selected" class="btn-download-selected">Download Selected</button>
+                </div>
+            `;
+
+            const resultsContainer = document.getElementById('torrents-results');
+            const searchInput = document.getElementById('torrents-search-input');
+            const batchBar = document.getElementById('batch-download-bar');
+            const batchCountText = document.getElementById('batch-count');
+            
+            let selectedTorrents = new Set();
+
+            const updateBatchBar = () => {
+                const count = selectedTorrents.size;
+                if (count > 0) {
+                    batchBar.classList.remove('hidden');
+                    batchCountText.textContent = `${count} torrent${count > 1 ? 's' : ''} selected`;
+                } else {
+                    batchBar.classList.add('hidden');
+                }
+            };
+
+            const performSearch = async (query) => {
+                resultsContainer.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Searching Nyaa...</p></div>';
+                selectedTorrents.clear();
+                updateBatchBar();
+                try {
+                    const resp = await fetch(`/api/nyaa_search?q=${encodeURIComponent(query)}`);
+                    const results = await resp.json();
+                    renderTorrentTable(results.map(r => ({ torrent: r, animeTitle: query })));
+                } catch (e) {
+                    resultsContainer.innerHTML = '<div class="empty-state"><p>Search failed.</p></div>';
+                }
+            };
+
+            const loadBatchMissing = async () => {
+                resultsContainer.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Scanning missing episodes from AniList...</p></div>';
+                selectedTorrents.clear();
+                updateBatchBar();
                 try {
                     const resp = await fetch('/api/nyaa_batch_search');
                     const results = await resp.json();
-                    
-                    if (results.length === 0) {
-                        resultsContainer.innerHTML = '<div class="empty-state"><p>No new episodes found.</p></div>';
-                        return;
-                    }
-                    
-                    let html = `
-                        <table class="details-table" style="width: 100%; text-align: left; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                            <thead style="background: #fdfaf6;">
+                    renderTorrentTable(results);
+                } catch (e) {
+                    resultsContainer.innerHTML = '<div class="empty-state"><p>Batch search failed.</p></div>';
+                }
+            };
+
+            const renderTorrentTable = (items) => {
+                if (items.length === 0) {
+                    resultsContainer.innerHTML = '<div class="empty-state"><p>No results found.</p></div>';
+                    return;
+                }
+
+                let html = `
+                    <div class="torrents-table-container">
+                        <table class="torrents-table">
+                            <thead>
                                 <tr>
+                                    <th class="checkbox-cell"><input type="checkbox" id="select-all-torrents" class="custom-checkbox"></th>
                                     <th>Anime</th>
                                     <th>Ep</th>
                                     <th>Group</th>
                                     <th>Torrent Title</th>
                                     <th>Size</th>
                                     <th>Seeders</th>
-                                    <th>Action</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
+                `;
+
+                items.forEach((item, idx) => {
+                    const t = item.torrent;
+                    const isDisabled = item.is_downloaded || item.is_watched;
+                    const statusText = item.is_watched ? 'Watched' : (item.is_downloaded ? 'Downloaded' : '');
+                    const statusClass = item.is_watched ? 'watched' : 'downloaded';
+                    const rowId = `torrent-row-${idx}`;
+                    
+                    html += `
+                        <tr class="${isDisabled ? 'row-disabled' : ''}" id="${rowId}">
+                            <td class="checkbox-cell">
+                                <input type="checkbox" class="torrent-checkbox custom-checkbox" 
+                                    data-idx="${idx}" 
+                                    ${isDisabled ? 'disabled' : 'checked'}
+                                    data-url="${escapeHtml(t.link)}"
+                                    data-mediaid="${item.mediaId || ''}"
+                                    data-title="${escapeHtml(item.animeTitle || '')}">
+                            </td>
+                            <td><strong>${escapeHtml(item.animeTitle || 'Search Result')}</strong></td>
+                            <td style="font-weight:700;">${item.episode || '-'}</td>
+                            <td><span class="torrent-group">${escapeHtml(t.group)}</span></td>
+                            <td class="torrent-title-cell" title="${escapeHtml(t.title)}">
+                                <div class="torrent-title-wrap">${escapeHtml(t.title)}</div>
+                            </td>
+                            <td>${escapeHtml(t.size)}</td>
+                            <td class="torrent-seeders">${t.seeders}</td>
+                            <td>
+                                ${statusText ? `<span class="status-badge ${statusClass}">${statusText}</span>` : ''}
+                                <button class="icon-btn btn-direct-download" data-idx="${idx}" title="Download immediately" style="margin-left: 5px; padding: 4px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                </button>
+                            </td>
+                        </tr>
                     `;
-                    
-                    results.forEach(res => {
-                        const t = res.torrent;
-                        const shortGroup = t.group !== "Unknown" ? t.group : "";
-                        html += `
-                            <tr>
-                                <td><strong>${escapeHtml(res.animeTitle)}</strong></td>
-                                <td>${res.episode}</td>
-                                <td><span class="np-badge" style="background:#e0dcd3; color:#433422;">${escapeHtml(shortGroup)}</span></td>
-                                <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(t.title)}">${escapeHtml(t.title)}</td>
-                                <td>${escapeHtml(t.size)}</td>
-                                <td style="color: #4CAF50; font-weight: bold;">${t.seeders}</td>
-                                <td>
-                                    <button class="primary-btn btn-download-torrent" data-url="${escapeHtml(t.link)}" data-mediaid="${res.mediaId}" style="padding: 6px 12px; font-size: 12px; cursor: pointer;">Download</button>
-                                </td>
-                            </tr>
-                        `;
+                    if (!isDisabled) selectedTorrents.add(idx.toString());
+                });
+
+                html += `</tbody></table></div>`;
+                resultsContainer.innerHTML = html;
+                updateBatchBar();
+
+                document.getElementById('select-all-torrents').addEventListener('change', (e) => {
+                    document.querySelectorAll('.torrent-checkbox').forEach(cb => {
+                        if (!cb.disabled) {
+                            cb.checked = e.target.checked;
+                            if (cb.checked) selectedTorrents.add(cb.dataset.idx);
+                            else selectedTorrents.delete(cb.dataset.idx);
+                        }
                     });
+                    updateBatchBar();
+                });
+
+                document.querySelectorAll('.torrent-checkbox').forEach(cb => {
+                    cb.addEventListener('change', (e) => {
+                        if (e.target.checked) selectedTorrents.add(e.target.dataset.idx);
+                        else selectedTorrents.delete(e.target.dataset.idx);
+                        updateBatchBar();
+                    });
+                });
+
+                document.querySelectorAll('.btn-direct-download').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const idx = e.currentTarget.dataset.idx;
+                        const cb = document.querySelector(`.torrent-checkbox[data-idx="${idx}"]`);
+                        downloadTorrents([{
+                            url: cb.dataset.url,
+                            mediaId: cb.dataset.mediaid,
+                            animeTitle: cb.dataset.title
+                        }], [idx]);
+                    });
+                });
+            };
+
+            const downloadTorrents = async (items, indices) => {
+                const btn = document.getElementById('btn-download-selected');
+                const originalText = btn.textContent;
+                btn.disabled = true;
+                btn.textContent = 'Downloading...';
+
+                try {
+                    const resp = await fetch('/api/nyaa_download', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ items })
+                    });
+                    const result = await resp.json();
                     
-                    html += `</tbody></table>`;
-                    resultsContainer.innerHTML = html;
-                    
-                    document.querySelectorAll('.btn-download-torrent').forEach(btn => {
-                        btn.addEventListener('click', async (e) => {
-                            const btnEl = e.target;
-                            btnEl.disabled = true;
-                            btnEl.textContent = 'Downloading...';
-                            btnEl.style.opacity = '0.7';
-                            
-                            const url = btnEl.dataset.url;
-                            const mediaId = btnEl.dataset.mediaid;
-                            
-                            try {
-                                const resp = await fetch('/api/nyaa_download', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ url, mediaId })
-                                });
-                                const result = await resp.json();
-                                if (result.success) {
-                                    btnEl.textContent = 'Downloaded ✓';
-                                    btnEl.style.backgroundColor = '#4CAF50';
-                                    btnEl.style.color = '#fff';
-                                } else {
-                                    btnEl.textContent = 'Failed ✗';
-                                    btnEl.style.backgroundColor = '#f44336';
-                                    btnEl.style.color = '#fff';
-                                }
-                            } catch (err) {
-                                btnEl.textContent = 'Error';
-                            }
+                    if (result.success) {
+                        indices.forEach(idx => {
+                            const row = document.getElementById(`torrent-row-${idx}`);
+                            const cb = row.querySelector('.torrent-checkbox');
+                            cb.disabled = true;
+                            cb.checked = false;
+                            row.classList.add('row-disabled');
+                            const statusCell = row.cells[7];
+ statusCell.innerHTML = '<span class="status-badge downloaded">Downloaded ✓</span>';
+                            selectedTorrents.delete(idx.toString());
                         });
-                    });
-                    
+                        updateBatchBar();
+                        showToast(`Successfully queued ${items.length} torrents`);
+                    } else {
+                        showToast('Failed to queue some torrents', 'error');
+                    }
                 } catch (e) {
-                    resultsContainer.innerHTML = '<div class="empty-state"><p>Error searching torrents.</p></div>';
+                    showToast('Network error during download', 'error');
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = originalText;
                 }
+            };
+
+            document.getElementById('btn-download-selected').addEventListener('click', () => {
+                const items = [];
+                const indices = [];
+                selectedTorrents.forEach(idx => {
+                    const cb = document.querySelector(`.torrent-checkbox[data-idx="${idx}"]`);
+                    items.push({
+                        url: cb.dataset.url,
+                        mediaId: cb.dataset.mediaid,
+                        animeTitle: cb.dataset.title
+                    });
+                    indices.push(idx);
+                });
+                downloadTorrents(items, indices);
             });
+
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && e.target.value.trim()) performSearch(e.target.value.trim());
+            });
+
+            document.getElementById('btn-refresh-torrents').addEventListener('click', loadBatchMissing);
+
+            if (searchTerm) performSearch(searchTerm);
+            else loadBatchMissing();
+            
             return;
         }
 
@@ -644,8 +1106,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const unwatched = filtered.filter(a => (a.progress || 0) === 0);
-        const watched = filtered.filter(a => (a.progress || 0) > 0);
+
 
         function renderRows(list) {
             return list.map(anime => {
@@ -661,8 +1122,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const folderIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>`;
                 const resumeIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`;
 
+                const searchIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`;
+
                 let actionButtons = `
                     <button class="icon-btn btn-open-folder" data-media-id="${anime.mediaId}" title="Open Folder">${folderIcon}</button>
+                    <button class="icon-btn btn-search-torrents" data-media-id="${anime.mediaId}" data-title="${escapeHtml(title)}" title="Search Torrents">${searchIcon}</button>
                     <button class="icon-btn edit-btn" data-media-id="${anime.mediaId}" title="Edit Progress">${editIcon}</button>
                 `;
                 
@@ -674,7 +1138,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (viewMode === 'grid') {
                     return `
-                        <div class="anime-card" data-media-id="${anime.mediaId}">
+                        <div class="anime-card" data-media-id="${anime.mediaId}" style="cursor: pointer;">
                             <div class="anime-card-cover" style="background-image: url('${cover}')">
                                 <div class="anime-progress">
                                     <div id="seg-${anime.mediaId}" class="progress-segments"></div>
@@ -693,7 +1157,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 } else if (viewMode === 'list') {
                     return `
-                        <div class="anime-list-item" data-media-id="${anime.mediaId}">
+                        <div class="anime-list-item" data-media-id="${anime.mediaId}" style="cursor: pointer;">
                             <img src="${cover}" class="anime-list-cover" alt="cover">
                             <div class="list-info">
                                 <div class="list-title">${escapeHtml(title)}</div>
@@ -710,7 +1174,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 } else {
                     return `
-                        <tr class="details-row" data-media-id="${anime.mediaId}">
+                        <tr class="details-row" data-media-id="${anime.mediaId}" style="cursor: pointer;">
                             <td>${escapeHtml(title)}</td>
                             <td>${progress} / ${total}</td>
                             <td>${score}</td>
@@ -726,16 +1190,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        const buildSection = (label, list) => {
-            const header = viewMode === 'details'
-                ? `<tr class="details-section-header"><td colspan="7">${escapeHtml(label)}</td></tr>`
-                : `<div class="section-header">${escapeHtml(label)}</div>`;
-            return `${header}${renderRows(list).join('')}`;
-        };
-
-        const rowHtml = (activeTab === 'CURRENT' && unwatched.length > 0)
-            ? `${buildSection('Unwatched', unwatched)}${buildSection('Watching', watched)}`
-            : renderRows(filtered).join('');
+        const rowHtml = renderRows(filtered).join('');
 
         if (viewMode === 'details') {
             animeGrid.innerHTML = `
@@ -765,12 +1220,44 @@ document.addEventListener('DOMContentLoaded', () => {
         filtered.forEach(anime => {
             const container = document.getElementById(`seg-${anime.mediaId}`);
             if (container) {
-                renderSegments(container, anime.progress || 0, anime.episodes || 0, false, anime.nextAiringEpisode);
+                renderSegments(container, anime.progress || 0, anime.episodes || 0, false, anime.nextAiringEpisode, anime.mediaId);
             }
         });
 
         // Attach new action event listeners
         const tableBody = animeGrid.querySelector('tbody') || animeGrid; // If not details view, use animeGrid directly
+
+        tableBody.querySelectorAll('.btn-minus-prog, .btn-plus-prog').forEach(btn => {
+            btn.onclick = async (e) => {
+                e.stopPropagation();
+                btn.disabled = true;
+                const mediaId = btn.getAttribute('data-media-id');
+                const anime = animeList.find(a => a.mediaId == mediaId);
+                if (!anime) return;
+                
+                let newProgress = (anime.progress || 0) + (btn.classList.contains('btn-plus-prog') ? 1 : -1);
+                if (newProgress < 0) newProgress = 0;
+                
+                try {
+                    btn.classList.add('loading');
+                    const resp = await fetch('/api/update_progress', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mediaId: parseInt(mediaId, 10), episode: newProgress })
+                    });
+                    const result = await resp.json();
+                    if (result.success) {
+                        anime.progress = newProgress;
+                        fetchAnimeList(); // Refresh list to get accurate state
+                    } else {
+                        alert('Failed to update progress.');
+                        btn.disabled = false;
+                    }
+                } catch(e) {
+                    btn.disabled = false;
+                }
+            };
+        });
 
         tableBody.querySelectorAll('.btn-open-folder').forEach(btn => {
             btn.onclick = (e) => {
@@ -779,6 +1266,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetch('/api/open_folder?mediaId=' + mediaId).catch(console.error);
             };
         });
+        
+        // Double click handlers for whole rows/cards
+        const itemsToBind = tableBody.querySelectorAll('.anime-card, .anime-list-item, .details-row');
+        itemsToBind.forEach(item => {
+            item.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                const mediaId = item.getAttribute('data-media-id');
+                if (mediaId) {
+                    fetch('/api/open_folder?mediaId=' + mediaId).catch(console.error);
+                }
+            });
+        });
+
 
         tableBody.querySelectorAll('.btn-resume').forEach(btn => {
             btn.onclick = (e) => {
@@ -941,9 +1441,12 @@ document.addEventListener('DOMContentLoaded', () => {
         tabPlanning.classList.toggle('active', tab === 'PLANNING');
         tabCompleted.classList.toggle('active', tab === 'COMPLETED');
         tabTorrents.classList.toggle('active', tab === 'TORRENTS');
+        const tabStats = document.getElementById('tab-stats');
+        if (tabStats) tabStats.classList.toggle('active', tab === 'STATS');
+        
         const filterBar = document.querySelector('.filter-bar');
         if (filterBar) {
-            filterBar.style.display = tab === 'TORRENTS' ? 'none' : 'flex';
+            filterBar.style.display = (tab === 'TORRENTS' || tab === 'STATS') ? 'none' : 'flex';
         }
         renderAnimeGrid();
     }
@@ -952,6 +1455,37 @@ document.addEventListener('DOMContentLoaded', () => {
     tabPlanning.addEventListener('click', () => setActiveTab('PLANNING'));
     tabCompleted.addEventListener('click', () => setActiveTab('COMPLETED'));
     tabTorrents.addEventListener('click', () => setActiveTab('TORRENTS'));
+    const tabStats = document.getElementById('tab-stats');
+    if (tabStats) tabStats.addEventListener('click', () => setActiveTab('STATS'));
+    
+    // ===== Organize Folders Button =====
+    const btnOrganizeFolders = document.getElementById('btn-organize-folders');
+    if (btnOrganizeFolders) {
+        btnOrganizeFolders.addEventListener('click', async () => {
+            const originalText = btnOrganizeFolders.innerHTML;
+            btnOrganizeFolders.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px;"></div> Organizing...';
+            btnOrganizeFolders.disabled = true;
+            
+            try {
+                const resp = await fetch('/api/organize_folders', { method: 'POST' });
+                const result = await resp.json();
+                if (result.success) {
+                    if (result.results && result.results.length > 0) {
+                        alert(`Organized ${result.results.length} files:\n` + result.results.join('\n'));
+                    } else {
+                        alert('No loose valid video files were found to organize.');
+                    }
+                } else {
+                    alert('Organization failed. Check logs.');
+                }
+            } catch (e) {
+                alert('Network error reaching tracker agent.');
+            }
+            
+            btnOrganizeFolders.innerHTML = originalText;
+            btnOrganizeFolders.disabled = false;
+        });
+    }
 
     // ===== Filter Events =====
     filterName.addEventListener('input', renderAnimeGrid);
@@ -1091,6 +1625,29 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSettings();
     checkStatus();
     fetchAnimeList();
+
+    // Global Event Delegation for dynamic torrent search buttons
+    document.addEventListener('click', (e) => {
+        const torrentBtn = e.target.closest('.btn-search-torrents');
+        if (torrentBtn) {
+            e.stopPropagation();
+            const title = torrentBtn.getAttribute('data-title');
+            if (title) {
+                activeSearchTerm = title;
+                setActiveTab('TORRENTS');
+            }
+        }
+    });
+
+    const btnSearchNpTorrents = document.getElementById('btn-search-np-torrents');
+    if (btnSearchNpTorrents) {
+        btnSearchNpTorrents.addEventListener('click', () => {
+            if (latestStatus && latestStatus.title) {
+                activeSearchTerm = latestStatus.base_title || latestStatus.title;
+                setActiveTab('TORRENTS');
+            }
+        });
+    }
 
     if (document.getElementById('btn-open-np-folder')) {
         document.getElementById('btn-open-np-folder').addEventListener('click', () => {

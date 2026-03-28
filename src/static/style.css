@@ -1035,6 +1035,11 @@ header {
     display: block;
 }
 
+/* ===== Stats View ===== */
+.anime-grid.stats-view {
+    display: block;
+}
+
 .details-table {
     width: 100%;
     border-collapse: separate;
@@ -1203,4 +1208,239 @@ footer {
     .anime-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* Torrents View Styles */
+.torrents-view {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.torrents-toolbar {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    background: var(--bg-card);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+}
+
+.torrents-search {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.torrents-search input {
+    width: 100%;
+    padding: 0.6rem 0.75rem 0.6rem 2.25rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.torrents-search input:focus {
+    border-color: var(--accent);
+    outline: none;
+}
+
+.torrents-search .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    color: var(--text-muted);
+}
+
+.torrents-table-container {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.torrents-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.torrents-table th {
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--border);
+}
+
+.torrents-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+}
+
+.torrents-table tr:hover:not(.row-disabled) {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.row-disabled {
+    opacity: 0.5;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+.status-badge.downloaded {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+}
+
+.status-badge.watched {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--accent);
+}
+
+.batch-download-bar {
+    position: sticky;
+    bottom: 1rem;
+    background: var(--accent);
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    z-index: 100;
+    margin-top: 1rem;
+    transition: all 0.3s ease;
+}
+
+.batch-download-bar.hidden {
+    transform: translateY(200%);
+    opacity: 0;
+}
+
+.btn-download-selected {
+    background: white;
+    color: var(--accent);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-download-selected:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+.checkbox-cell {
+    width: 32px;
+}
+
+.custom-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--accent);
+}
+
+.torrent-title-cell {
+    max-width: 400px;
+    color: var(--text-primary);
+}
+
+.torrent-title-wrap {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.torrent-group {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.torrent-seeders {
+    color: var(--success);
+    font-weight: 700;
+}
+
+.torrent-icon-btn {
+    padding: 0.4rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.torrent-icon-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-glow);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Toast Notification Styles */
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(0);
+    background: #333;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    animation: slideUpToast 0.3s ease-out;
+}
+
+.toast-success {
+    background: var(--success);
+}
+
+.toast-error {
+    background: #ef4444;
+}
+
+.toast.fade-out {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+}
+
+@keyframes slideUpToast {
+    from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
