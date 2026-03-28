@@ -415,8 +415,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.running && data.title) {
                 statusBubble.className = 'status-bubble online';
                 statusText.textContent = 'Running';
-                nowPlaying.classList.remove('hidden');
-                idleState.classList.add('hidden');
+                if (npActiveContent) npActiveContent.classList.remove('hidden');
+                if (idleState) idleState.classList.add('hidden');
 
                 // Update badge with watcher name if available
                 if (data.watcher_name) {
@@ -524,20 +524,21 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 statusBubble.className = 'status-bubble offline';
                 statusText.textContent = 'Nothing Playing';
-                nowPlaying.classList.add('hidden');
-                idleState.classList.remove('hidden');
+                if (npActiveContent) npActiveContent.classList.add('hidden');
+                if (idleState) idleState.classList.remove('hidden');
                 lastNowPlayingTitle = null;
                 // Reset cover/banner
-                npBanner.style.backgroundImage = '';
-                npCover.src = '';
-                npStudio.textContent = '';
+                if (npBanner) npBanner.style.backgroundImage = '';
+                if (npCover) npCover.src = '';
+                if (npStudio) npStudio.textContent = '';
+                updateContinueWatching();
             }
         } catch (error) {
             console.error('Error fetching status:', error);
             statusBubble.className = 'status-bubble offline';
             statusText.textContent = 'Disconnected';
-            nowPlaying.classList.add('hidden');
-            idleState.classList.remove('hidden');
+            if (npActiveContent) npActiveContent.classList.add('hidden');
+            if (idleState) idleState.classList.remove('hidden');
         }
     }
 
@@ -633,20 +634,57 @@ document.addEventListener('DOMContentLoaded', () => {
         npSummaryToggle.textContent = expanded ? 'See less' : 'See more';
     });
 
-    // ===== Now Playing Details Modal =====
-    function openDetailsModal() {
+    async function openDetailsModal() {
         if (!latestStatus || !latestStatus.media_details) return;
         const details = latestStatus.media_details;
         const rel = details.title?.romaji || details.title?.english || '';
+        const coverImage = details.coverImage?.large || details.coverImage?.medium || '';
+        const anilistUrl = `https://anilist.co/anime/${details.mediaId}`;
+
+        // Update modal title and add Anilist link
+        document.getElementById('details-modal-title').textContent = 'Anime Details';
+        const modalHeader = document.querySelector('#details-modal .modal-header');
+        const existingLink = modalHeader.querySelector('.anilist-link-top');
+        if (existingLink) existingLink.remove();
+        
+        const anilistLink = document.createElement('a');
+        anilistLink.href = anilistUrl;
+        anilistLink.target = '_blank';
+        anilistLink.className = 'anilist-link-top';
+        anilistLink.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> Open in AniList`;
+        modalHeader.appendChild(anilistLink);
+
         modalBody.innerHTML = `
-            <h3>${escapeHtml(rel)}</h3>
-            <p><strong>Status:</strong> ${escapeHtml(details.status || 'N/A')}</p>
-            <p><strong>Season:</strong> ${escapeHtml(details.season || '')} ${details.seasonYear || ''}</p>
-            <p><strong>Episodes:</strong> ${details.episodes || 'N/A'}</p>
-            <p><strong>Score:</strong> ${details.averageScore || 'N/A'}</p>
-            <p><strong>Popularity:</strong> ${details.popularity || 'N/A'}</p>
-            <p><strong>Description:</strong></p>
-            <p>${escapeHtml(details.description || 'No description available.')}</p>
+            <div class="modal-body-wrapper">
+                <div class="modal-thumb-side">
+                    <img src="${coverImage}" alt="${escapeHtml(rel)}">
+                </div>
+                <div class="modal-main-side">
+                    <h2 class="modal-anime-title">${escapeHtml(rel)}</h2>
+                    <div class="modal-meta-grid">
+                        <div class="meta-item">
+                            <span class="meta-item-label">Status</span>
+                            <span class="meta-item-value">${escapeHtml(details.status || 'N/A')}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-item-label">Season</span>
+                            <span class="meta-item-value">${escapeHtml(details.season || '')} ${details.seasonYear || ''}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-item-label">Episodes</span>
+                            <span class="meta-item-value">${details.episodes || 'N/A'}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-item-label">Score</span>
+                            <span class="meta-item-value">${details.averageScore ? details.averageScore + '%' : 'N/A'}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-description">
+                        ${details.description || 'No description available.'}
+                    </div>
+                </div>
+            </div>
         `;
         detailsModal.classList.remove('hidden');
     }
@@ -2149,44 +2187,139 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function openAnimeDetailsModal(anime) {
+    async function openAnimeDetailsModal(anime) {
         const title = anime.title?.romaji || anime.title?.english || anime.title?.native || 'Unknown';
         const description = anime.description || 'No description available.';
-        const stats = [];
-        if (anime.status) stats.push(`<strong>Status:</strong> ${escapeHtml(anime.status)}`);
-        if (anime.season && anime.seasonYear) stats.push(`<strong>Season:</strong> ${escapeHtml(anime.season)} ${anime.seasonYear}`);
-        if (anime.episodes) stats.push(`<strong>Episodes:</strong> ${anime.episodes}`);
-        if (anime.averageScore) stats.push(`<strong>Score:</strong> ${anime.averageScore}%`);
-        if (anime.popularity) stats.push(`<strong>Popularity:</strong> ${formatPopularity(anime.popularity)}`);
+        const coverImage = anime.coverImage?.large || anime.coverImage?.medium || '';
+        const anilistUrl = `https://anilist.co/anime/${anime.mediaId}`;
+
+        // Fetch folders for the selector
+        let folders = [];
+        try {
+            const resp = await fetch('/api/folders');
+            folders = await resp.json();
+        } catch (e) {
+            console.error('Failed to fetch folders:', e);
+        }
 
         const currentOverride = (userSettings && userSettings.title_overrides) ? userSettings.title_overrides[anime.mediaId] || '' : '';
 
+        // Update modal title and add Anilist link
+        document.getElementById('details-modal-title').textContent = 'Anime Details';
+        const modalHeader = document.querySelector('#details-modal .modal-header');
+        // Remove existing anilist link if any
+        const existingLink = modalHeader.querySelector('.anilist-link-top');
+        if (existingLink) existingLink.remove();
+
+        const anilistLink = document.createElement('a');
+        anilistLink.href = anilistUrl;
+        anilistLink.target = '_blank';
+        anilistLink.className = 'anilist-link-top';
+        anilistLink.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> Open in AniList`;
+        modalHeader.appendChild(anilistLink);
+
         modalBody.innerHTML = `
-            <h3>${escapeHtml(title)}</h3>
-            <div class="modal-meta">${stats.map(s => `<p>${s}</p>`).join('')}</div>
-            <p><strong>Description</strong></p>
-            <p>${escapeHtml(description)}</p>
-            <div class="modal-actions" style="flex-direction: column; align-items: flex-start; gap: 1rem;">
-                <div style="width: 100%;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 4px;">Local Name Override (folder name):</label>
-                    <input type="text" id="modal-name-override" value="${escapeHtml(currentOverride)}" class="filter-input" style="width: 100%; padding: 8px;" placeholder="e.g. My Folder Name" />
+            <div class="modal-body-wrapper">
+                <div class="modal-thumb-side">
+                    <img src="${coverImage}" alt="${escapeHtml(title)}">
                 </div>
-                <div style="display: flex; gap: 1rem; align-items: center;">
-                    <label style="font-weight: 600;">
-                        Set progress:
-                        <input type="number" id="modal-progress" value="${anime.progress || 0}" min="0" style="width: 60px; padding: 4px;" />
-                    </label>
-                    <button id="modal-save" class="primary-btn">Save Changes</button>
+                <div class="modal-main-side">
+                    <h2 class="modal-anime-title">${escapeHtml(title)}</h2>
+                    <div class="modal-meta-grid">
+                        <div class="meta-item">
+                            <span class="meta-item-label">Status</span>
+                            <span class="meta-item-value">${escapeHtml(anime.status || 'N/A')}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-item-label">Season</span>
+                            <span class="meta-item-value">${escapeHtml(anime.season || '')} ${anime.seasonYear || ''}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-item-label">Episodes</span>
+                            <span class="meta-item-value">${anime.episodes || 'N/A'}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-item-label">Score</span>
+                            <span class="meta-item-value">${anime.averageScore ? anime.averageScore + '%' : 'N/A'}</span>
+                        </div>
+                    </div>
+
+                    <div class="modal-description">
+                        ${description}
+                    </div>
+
+                    <div class="modal-controls-section">
+                        <div class="control-group">
+                            <label class="control-label">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+                                My Folder Name (Local Override)
+                            </label>
+                            <div class="folder-selector-wrap">
+                                <select id="modal-folder-selector" class="filter-select" style="flex: 1;">
+                                    <option value="">-- Select existing folder --</option>
+                                    ${folders.map(f => `<option value="${escapeHtml(f)}" ${f === currentOverride ? 'selected' : ''}>${escapeHtml(f)}</option>`).join('')}
+                                    <option value="__custom__" ${currentOverride && !folders.includes(currentOverride) ? 'selected' : ''}>[Custom Name]</option>
+                                </select>
+                                <input type="text" id="modal-name-override" value="${escapeHtml(currentOverride)}" 
+                                    class="filter-input ${(!currentOverride || folders.includes(currentOverride)) ? 'hidden' : ''}" 
+                                    style="flex: 1;" placeholder="Enter folder name..." />
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                Set Progress
+                            </label>
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <select id="modal-progress" class="filter-select" style="width: 120px;">
+                                    ${Array.from({length: Math.max(anime.episodes || 0, (anime.progress || 0) + 12) + 1}, (_, i) => 
+                                        `<option value="${i}" ${i === (anime.progress || 0) ? 'selected' : ''}>Episode ${i}</option>`
+                                    ).join('')}
+                                </select>
+                                <button id="modal-save" class="primary-btn" style="margin-left: auto; padding: 0.6rem 1.5rem; font-weight: 700;">Save Changes</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
 
+        const folderSelector = document.getElementById('modal-folder-selector');
+        const nameOverrideInput = document.getElementById('modal-name-override');
+
+        folderSelector.addEventListener('change', () => {
+            if (folderSelector.value === '__custom__') {
+                nameOverrideInput.classList.remove('hidden');
+                nameOverrideInput.focus();
+            } else {
+                nameOverrideInput.classList.add('hidden');
+                nameOverrideInput.value = folderSelector.value;
+            }
+        });
+
+        // Auto-parse name as the folder name if none is set
+        if (!currentOverride) {
+            // We can suggest a clean title
+            const suggested = title.replace(/[<>:"/\\|?*\x00-\x1f]/g, '').trim();
+            // If it matches an existing folder, select it
+            if (folders.includes(suggested)) {
+                folderSelector.value = suggested;
+                nameOverrideInput.value = suggested;
+            } else {
+                // Otherwise set as custom
+                folderSelector.value = '__custom__';
+                nameOverrideInput.classList.remove('hidden');
+                nameOverrideInput.value = suggested;
+            }
+        }
+
         document.getElementById('modal-save').addEventListener('click', async () => {
             const newProgress = parseInt(document.getElementById('modal-progress').value, 10);
-            const newOverride = document.getElementById('modal-name-override').value.trim();
-            
+            const newOverride = nameOverrideInput.value.trim();
+
             if (!Number.isFinite(newProgress) || newProgress < 0) return;
-            
+
             try {
                 // 1. Save title override
                 await fetch('/api/update_title_override', {
@@ -2201,7 +2334,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ mediaId: anime.mediaId, episode: newProgress })
                 });
-                
+
                 const result = await resp.json();
                 if (result.success) {
                     detailsModal.classList.add('hidden');
@@ -2220,7 +2353,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         detailsModal.classList.remove('hidden');
     }
-
     function updatePaginationUI(totalItems, totalPages) {
         if (!paginationContainer) return;
 
@@ -2429,9 +2561,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnProfile) {
         btnProfile.addEventListener('click', async () => {
             try {
-                // We can use get_authenticated_user to find the ID, but the client already handles the token.
-                // For simplicity, we can fetch the user details from AniList or just redirect to anilist.co/home.
-                // However, users usually want their specific profile.
                 const resp = await fetch('/api/user');
                 const user = await resp.json();
                 if (user && user.name) {
@@ -2443,6 +2572,66 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.open('https://anilist.co/home', '_blank');
             }
         });
+    }
+
+    // ===== Theme Toggle =====
+    const btnThemeToggle = document.getElementById('btn-theme-toggle');
+    const themeIconDark = document.getElementById('theme-icon-dark');
+    const themeIconLight = document.getElementById('theme-icon-light');
+    
+    function setTheme(theme) {
+        if (theme === 'light') {
+            document.body.classList.add('light-mode');
+            themeIconDark.classList.remove('hidden');
+            themeIconLight.classList.add('hidden');
+        } else {
+            document.body.classList.remove('light-mode');
+            themeIconDark.classList.add('hidden');
+            themeIconLight.classList.remove('hidden');
+        }
+        localStorage.setItem('theme', theme);
+    }
+
+    // Initial theme load
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+
+    if (btnThemeToggle) {
+        btnThemeToggle.addEventListener('click', () => {
+            const currentTheme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
+    }
+
+    // ===== Now Playing & Continue Watching =====
+    const npActiveContent = document.getElementById('np-active-content');
+    const idleState = document.getElementById('idle-state');
+    const continueWatchingBox = document.getElementById('continue-watching-box');
+    const continueAnimeTitle = document.getElementById('continue-anime-title');
+    const btnContinueWatching = document.getElementById('btn-continue-watching');
+
+    function updateContinueWatching() {
+        if (!animeList || animeList.length === 0) return;
+        
+        // Find latest updated 'CURRENT' anime
+        const latestInProgress = [...animeList]
+            .filter(a => a.listStatus === 'CURRENT')
+            .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))[0];
+            
+        if (latestInProgress && continueWatchingBox) {
+            continueWatchingBox.classList.remove('hidden');
+            let title = latestInProgress.title?.romaji || latestInProgress.title?.english || 'Unknown';
+            if (userSettings?.title_overrides?.[latestInProgress.mediaId]) {
+                title = userSettings.title_overrides[latestInProgress.mediaId];
+            }
+            continueAnimeTitle.textContent = `Continue ${title}`;
+            
+            btnContinueWatching.onclick = () => {
+                fetch('/api/play_latest?mediaId=' + latestInProgress.mediaId).catch(console.error);
+            };
+        } else if (continueWatchingBox) {
+            continueWatchingBox.classList.add('hidden');
+        }
     }
 
     // Sidebar Filter Handlers
@@ -2848,6 +3037,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function openSearchPopup(suggestedName) {
+        // Clear anilist link from header
+        const modalHeader = document.querySelector('#details-modal .modal-header');
+        const existingLink = modalHeader.querySelector('.anilist-link-top');
+        if (existingLink) existingLink.remove();
+
         modalBody.innerHTML = `
             <div class="search-popup">
                 <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">Search AniList to match this folder:</p>
@@ -3040,10 +3234,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const label = document.createElement('div');
             label.className = 'tree-label';
             label.innerHTML = highlightText(node.name, librarySearchTerm);
+            
+            // Highlights
+            let isCompleted = false;
+            let userProgress = 0;
+            if (node.mediaId) {
+                const anime = animeList.find(a => a.mediaId === node.mediaId);
+                if (anime) {
+                    isCompleted = anime.listStatus === 'COMPLETED';
+                    userProgress = anime.progress || 0;
+                }
+            }
+
             if (node.mediaId) {
                  label.style.fontWeight = '700';
-                 label.style.color = 'var(--accent)';
+                 label.style.color = isCompleted ? 'var(--warning)' : 'var(--accent)';
+                 if (isCompleted) label.classList.add('completed-highlight');
                  label.title = 'AniList Matched: ' + node.name;
+            }
+            
+            // Watched episode highlight
+            if (node.type === 'file' && node.episode !== null && node.episode <= userProgress) {
+                label.classList.add('watched-highlight');
             }
             
             labelContainer.appendChild(label);
@@ -3281,6 +3493,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function openExclusionModal() {
+        // Clear anilist link from header
+        const modalHeader = document.querySelector('#details-modal .modal-header');
+        const existingLink = modalHeader.querySelector('.anilist-link-top');
+        if (existingLink) existingLink.remove();
+
         modalBody.innerHTML = `<h3>Managed Exclusions</h3><div id="exclusion-list-container"></div>`;
         renderExclusionListInModal();
         detailsModal.classList.remove('hidden');
@@ -3322,6 +3539,157 @@ document.addEventListener('DOMContentLoaded', () => {
         const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    // ===== Cleanup Library =====
+    const btnCleanupLibrary = document.getElementById('btn-cleanup-library');
+    const cleanupModal = document.getElementById('cleanup-modal');
+    const cleanupList = document.getElementById('cleanup-list');
+    const btnMoveToTrash = document.getElementById('btn-move-to-trash');
+    const btnOpenTrash = document.getElementById('btn-open-trash');
+    
+    function getCleanupItems(node, items = []) {
+        if (!node) return items;
+        
+        // Respect exclusions
+        if (userSettings && userSettings.library_exclusions && userSettings.library_exclusions.includes(node.path)) {
+            return items;
+        }
+        
+        let isMatched = !!node.mediaId;
+        let isCompleted = false;
+        let progress = 0;
+        
+        if (isMatched) {
+            const anime = animeList.find(a => a.mediaId === node.mediaId);
+            if (anime) {
+                isCompleted = anime.listStatus === 'COMPLETED';
+                progress = anime.progress || 0;
+            }
+        }
+
+        if (node.type === 'directory') {
+            if (isMatched && isCompleted) {
+                // If folder is completed, we can suggest deleting the whole folder
+                items.push({
+                    name: node.name,
+                    path: node.path,
+                    type: 'directory',
+                    status: 'completed',
+                    size: node.size
+                });
+            } else if (node.children) {
+                // Otherwise, check children
+                node.children.forEach(c => getCleanupItems(c, items));
+            }
+        } else if (node.type === 'file' && node.episode !== null && node.episode <= progress) {
+            // Suggest individual watched episodes
+            items.push({
+                name: node.name,
+                path: node.path,
+                type: 'file',
+                status: 'watched',
+                size: node.size
+            });
+        }
+        return items;
+    }
+
+    if (btnCleanupLibrary) {
+        btnCleanupLibrary.onclick = () => {
+            const items = getCleanupItems(libraryData);
+            cleanupList.innerHTML = '';
+            if (items.length === 0) {
+                cleanupList.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted);">No watched or completed items found.</div>';
+            } else {
+                items.forEach((item, idx) => {
+                    const row = document.createElement('div');
+                    row.className = 'cleanup-item';
+                    row.innerHTML = `
+                        <input type="checkbox" id="cleanup-chk-${idx}" data-path="${escapeHtml(item.path)}" checked>
+                        <div class="cleanup-item-info">
+                            <div class="cleanup-item-title">${escapeHtml(item.name)}</div>
+                            <div class="cleanup-item-meta">${formatBytes(item.size)} • ${item.type}</div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                            <span class="cleanup-item-tag ${item.status}">${item.status.toUpperCase()}</span>
+                            <a href="#" class="tree-link cleanup-exclude-link" data-path="${escapeHtml(item.path)}" style="font-size: 0.65rem;">Exclude</a>
+                        </div>
+                    `;
+                    cleanupList.appendChild(row);
+                });
+
+                cleanupList.querySelectorAll('.cleanup-exclude-link').forEach(link => {
+                    link.onclick = async (e) => {
+                        e.preventDefault();
+                        const path = link.dataset.path;
+                        try {
+                            const resp = await fetch('/api/exclude_path', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ path: path })
+                            });
+                            if (resp.ok) {
+                                link.closest('.cleanup-item').remove();
+                                showToast('Added to exclusions.');
+                            }
+                        } catch (err) { console.error(err); }
+                    };
+                });
+            }
+            cleanupModal.classList.remove('hidden');
+        };
+    }
+
+    document.getElementById('cleanup-modal-close').onclick = () => cleanupModal.classList.add('hidden');
+    document.getElementById('cleanup-modal-cancel').onclick = () => cleanupModal.classList.add('hidden');
+
+    document.getElementById('btn-cleanup-sel-completed').onclick = () => {
+        cleanupList.querySelectorAll('.cleanup-item').forEach(row => {
+            const isComp = row.querySelector('.cleanup-item-tag').classList.contains('completed');
+            row.querySelector('input').checked = isComp;
+        });
+    };
+    document.getElementById('btn-cleanup-sel-watched').onclick = () => {
+        cleanupList.querySelectorAll('input').forEach(chk => chk.checked = true);
+    };
+    document.getElementById('btn-cleanup-sel-none').onclick = () => {
+        cleanupList.querySelectorAll('input').forEach(chk => chk.checked = false);
+    };
+
+    btnMoveToTrash.onclick = async () => {
+        const checked = Array.from(cleanupList.querySelectorAll('input:checked')).map(chk => chk.dataset.path);
+        if (checked.length === 0) return;
+        
+        if (confirm(`Move ${checked.length} items to trash?`)) {
+            btnMoveToTrash.disabled = true;
+            btnMoveToTrash.textContent = 'Moving...';
+            try {
+                const resp = await fetch('/api/move_to_trash', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ paths: checked })
+                });
+                if (resp.ok) {
+                    showToast(`Moved ${checked.length} items to trash.`);
+                    cleanupModal.classList.add('hidden');
+                    fetchLibrary(true);
+                } else {
+                    alert('Failed to move some items to trash.');
+                }
+            } catch (err) {
+                alert('Network error.');
+            } finally {
+                btnMoveToTrash.disabled = false;
+                btnMoveToTrash.textContent = 'Move to trash';
+            }
+        }
+    };
+
+    if (btnOpenTrash) {
+        btnOpenTrash.onclick = () => {
+            fetch('/api/open_trash').catch(console.error);
+        };
     }
 
     // Poll now-playing every 2 seconds

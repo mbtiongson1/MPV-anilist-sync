@@ -46,31 +46,6 @@
         "listStatus": "CURRENT"
       },
       {
-        "name": "Still Shining",
-        "path": "/Users/marcotiongson/Downloads/Still Shining",
-        "type": "directory",
-        "children": [
-          {
-            "name": "Still.Shining.S01E05.1080p.NF.WEB-DL.AAC2.0.H.264-MrHulk.mkv",
-            "path": "/Users/marcotiongson/Downloads/Still Shining/Still.Shining.S01E05.1080p.NF.WEB-DL.AAC2.0.H.264-MrHulk.mkv",
-            "type": "file",
-            "mtime": 1774186544.4904084,
-            "size": 2842414198,
-            "episode": 5
-          },
-          {
-            "name": "Still.Shining.S01E06.1080p.NF.WEB-DL.AAC2.0.H.264-MrHulk.mkv",
-            "path": "/Users/marcotiongson/Downloads/Still Shining/Still.Shining.S01E06.1080p.NF.WEB-DL.AAC2.0.H.264-MrHulk.mkv",
-            "type": "file",
-            "mtime": 1774186538.4437635,
-            "size": 2869496579,
-            "episode": 6
-          }
-        ],
-        "has_video": true,
-        "size": 5711910777
-      },
-      {
         "name": "Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita",
         "path": "/Users/marcotiongson/Downloads/Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita",
         "type": "directory",
@@ -129,6 +104,6 @@
       }
     ],
     "has_video": true,
-    "size": 8490636860
+    "size": 2778726083
   }
 }

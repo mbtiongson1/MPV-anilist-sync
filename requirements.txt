@@ -4,3 +4,4 @@ python-mpv-jsonipc
 pystray
 Pillow
 watchdog
+send2trash

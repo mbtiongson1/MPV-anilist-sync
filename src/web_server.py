@@ -494,6 +494,114 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                     print(f"Failed to open folder: {e}")
             self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
 
+        elif self.path.startswith('/api/play_latest'):
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+
+            parsed_path = urllib.parse.urlparse(self.path)
+            query = urllib.parse.parse_qs(parsed_path.query)
+            media_id = query.get('mediaId', [None])[0]
+            success = False
+            
+            if self.agent and media_id:
+                try:
+                    media_id = int(media_id)
+                    folder_path = self.agent.settings.get_media_folder(media_id)
+                    # Find current progress
+                    progress = 0
+                    if hasattr(self.agent, 'anilist'):
+                        entry = self.agent.anilist.get_list_entry(media_id)
+                        if entry: progress = entry.get('progress', 0)
+                    
+                    if os.path.exists(folder_path):
+                        from src.parser import AnimeParser
+                        video_exts = ('.mkv', '.mp4', '.avi')
+                        candidates = []
+                        for item in os.listdir(folder_path):
+                            if item.lower().endswith(video_exts):
+                                p = AnimeParser.parse_filename(item)
+                                if p and p.get('episode') is not None:
+                                    candidates.append((p['episode'], os.path.join(folder_path, item)))
+                        
+                        # Find first candidate where ep > progress
+                        candidates.sort()
+                        target_file = None
+                        for ep, path in candidates:
+                            if ep > progress:
+                                target_file = path
+                                break
+                        
+                        if not target_file and candidates:
+                            # Fallback to latest played or just the first one
+                            target_file = candidates[0][1]
+                            
+                        if target_file:
+                            import sys
+                            import subprocess
+                            if sys.platform == 'win32': os.startfile(target_file)
+                            elif sys.platform == 'darwin': subprocess.call(['open', target_file])
+                            else: subprocess.call(['xdg-open', target_file])
+                            success = True
+                except Exception as e:
+                    print(f"Failed to play latest: {e}")
+            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+
+        elif self.path == '/api/move_to_trash':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            
+            content_length = int(self.headers.get('Content-Length', 0))
+            data = json.loads(self.rfile.read(content_length).decode('utf-8')) if content_length else {}
+            paths = data.get('paths', [])
+            
+            from send2trash import send2trash
+            success_count = 0
+            for p in paths:
+                if os.path.exists(p):
+                    try:
+                        send2trash(p)
+                        success_count += 1
+                    except Exception as e:
+                        print(f"Failed to trash {p}: {e}")
+            
+            # Clear library cache after move
+            if os.path.exists('library_cache.json'):
+                os.remove('library_cache.json')
+                
+            self.wfile.write(json.dumps({"success": success_count == len(paths), "count": success_count}).encode('utf-8'))
+
+        elif self.path == '/api/open_trash':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            
+            import sys
+            import subprocess
+            try:
+                if sys.platform == 'win32': subprocess.call(['explorer', 'shell:RecycleBinFolder'])
+                elif sys.platform == 'darwin': subprocess.call(['open', 'trash:///'])
+                else: subprocess.call(['xdg-open', 'trash:///'])
+                self.wfile.write(json.dumps({"success": True}).encode('utf-8'))
+            except:
+                self.wfile.write(json.dumps({"success": False}).encode('utf-8'))
+
+        elif self.path == '/api/exclude_path':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            content_length = int(self.headers.get('Content-Length', 0))
+            data = json.loads(self.rfile.read(content_length).decode('utf-8')) if content_length else {}
+            path = data.get('path')
+            if path and self.agent and hasattr(self.agent, 'settings'):
+                self.agent.settings.add_library_exclusion(path)
+            self.wfile.write(json.dumps({"success": True}).encode('utf-8'))
+
         elif self.path.startswith('/api/search_anime'):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
@@ -596,6 +704,24 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 with open(cache_path, 'rb') as f: self.wfile.write(f.read())
             except Exception: pass
+        elif self.path == '/api/folders':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            
+            folders = []
+            if self.agent and hasattr(self.agent, 'settings'):
+                base_dir = self.agent.settings.base_anime_folder
+                if os.path.exists(base_dir):
+                    try:
+                        for item in sorted(os.listdir(base_dir)):
+                            if os.path.isdir(os.path.join(base_dir, item)) and not item.startswith('.'):
+                                folders.append(item)
+                    except Exception as e:
+                        print(f"Error listing folders: {e}")
+            self.wfile.write(json.dumps(folders).encode('utf-8'))
+
         elif self.path.startswith('/api/library'):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
