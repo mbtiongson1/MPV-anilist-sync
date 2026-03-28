@@ -98,6 +98,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sidebar Elements
     const appSidebar = document.getElementById('app-sidebar');
     const sidebarToggle = document.getElementById('sidebar-toggle');
+    const themeToggle = document.getElementById('theme-toggle');
+
+    // Theme Toggle Initialization
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    if (currentTheme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        if (themeToggle) themeToggle.checked = true;
+    }
+
+    if (themeToggle) {
+        themeToggle.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    }
+
     const sidebarItems = document.querySelectorAll('.sidebar-item[data-tab]');
     const sidebarSettings = document.getElementById('sidebar-settings');
     const btnSettingsHeader = document.getElementById('btn-settings-header');
@@ -105,8 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterFormat = document.getElementById('filter-format');
     const filterYearSidebar = document.getElementById('filter-year-sidebar');
     const filterSeasonSidebar = document.getElementById('filter-season-sidebar');
-    
-    let userSettings = null;
+
     let libraryData = []; // Cached library scanner results
     let libraryExclusions = []; // List of excluded paths
 
