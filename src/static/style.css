@@ -1021,6 +1021,12 @@ header {
     letter-spacing: 0.05em;
 }
 
+.selection-actions-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 .selection-actions {
     display: flex;
     align-items: center;
@@ -1028,19 +1034,44 @@ header {
     margin-left: auto;
 }
 
-/* Selected State for Cards - Saturated Seasonal Palette */
-.anime-card.selected, .anime-list-item.selected {
-    border-color: transparent;
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-    transform: scale(1.02);
+/* Fix dropdown display */
+.move-to-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-card);
+    z-index: 1000; /* High z-index */
+    width: 180px;
+    margin-top: 5px;
+    padding: 0.5rem;
+    display: none;
+    flex-direction: column;
+    gap: 2px;
 }
 
-/* Season-specific selection intensity - BRIGHTER & MORE SATURATED */
-.anime-card.selected.season-bg-winter, .anime-list-item.selected.season-bg-winter { background-color: rgba(14, 165, 233, 0.45) !important; }
-.anime-card.selected.season-bg-spring, .anime-list-item.selected.season-bg-spring { background-color: rgba(236, 72, 153, 0.45) !important; }
-.anime-card.selected.season-bg-summer, .anime-list-item.selected.season-bg-summer { background-color: rgba(16, 185, 129, 0.45) !important; }
-.anime-card.selected.season-bg-fall,   .anime-list-item.selected.season-bg-fall   { background-color: rgba(245, 158, 11, 0.45) !important; }
+.move-to-dropdown.show {
+    display: flex !important;
+}
+
+/* Saturated Seasonal backgrounds for better selection visibility */
+.anime-card.selected.season-bg-winter, .anime-list-item.selected.season-bg-winter { background-color: rgba(14, 165, 233, 0.6) !important; color: white; }
+.anime-card.selected.season-bg-spring, .anime-list-item.selected.season-bg-spring { background-color: rgba(236, 72, 153, 0.6) !important; color: white; }
+.anime-card.selected.season-bg-summer, .anime-list-item.selected.season-bg-summer { background-color: rgba(16, 185, 129, 0.6) !important; color: white; }
+.anime-card.selected.season-bg-fall,   .anime-list-item.selected.season-bg-fall   { background-color: rgba(245, 158, 11, 0.6) !important; color: white; }
+
+/* In selected state, ensure text remains readable */
+.anime-card.selected .anime-title, .anime-card.selected .anime-meta,
+.anime-list-item.selected .list-title, .anime-list-item.selected .list-meta span {
+    color: white !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.anime-card.selected .anime-card-cover {
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
 
 /* Gradients Selection - Saturated */
 .anime-card.selected.season-bg-winter-spring, .anime-list-item.selected.season-bg-winter-spring { 

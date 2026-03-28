@@ -149,6 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== State =====
     let animeList = [];
+    let currentPagedList = []; // Currently displayed items for range selection
     let selectedAnime = new Set(); // Set of mediaId
     let lastSelectedMediaId = null; // For shift-click range selection
     let pendingChanges = {}; // mediaId -> { status: string, oldStatus: string }
@@ -1109,6 +1110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const startIdx = (currentPage - 1) * itemsPerPage;
         const pagedList = isListTab ? filtered.slice(startIdx, startIdx + itemsPerPage) : filtered;
+        currentPagedList = pagedList; // Store for selection logic
 
         // Update grid class for view mode
         animeGrid.className = `anime-grid ${viewMode}-view`;
@@ -2336,7 +2338,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (e.shiftKey && lastSelectedMediaId) {
                     // Range selection
-                    const allIds = pagedList.map(a => a.mediaId.toString());
+                    const allIds = currentPagedList.map(a => a.mediaId.toString());
                     const startIdx = allIds.indexOf(lastSelectedMediaId);
                     const endIdx = allIds.indexOf(mediaId);
                     
@@ -2351,9 +2353,17 @@ document.addEventListener('DOMContentLoaded', () => {
                             else selectedAnime.delete(id);
                         }
                         
-                        // Full re-render for range selection to be safe/easy
-                        renderAnimeGrid();
+                        // Update UI for all changed items
                         updateSelectionUI();
+                        currentPagedList.forEach(a => {
+                            const id = a.mediaId.toString();
+                            const items = document.querySelectorAll(`[data-media-id="${id}"]`);
+                            items.forEach(item => {
+                                if (selectedAnime.has(id)) item.classList.add('selected');
+                                else item.classList.remove('selected');
+                            });
+                        });
+                        
                         lastSelectedMediaId = mediaId;
                         return;
                     }
