@@ -150,6 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== State =====
     let animeList = [];
     let selectedAnime = new Set(); // Set of mediaId
+    let lastSelectedMediaId = null; // For shift-click range selection
     let pendingChanges = {}; // mediaId -> { status: string, oldStatus: string }
     let activeTab = 'CURRENT';
     let lastNowPlayingTitle = null;
@@ -328,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== Multi-Select & Change Log Helpers =====
-    function toggleSelection(mediaId) {
+    function toggleSelection(mediaId, skipUiUpdate = false) {
         const idStr = mediaId.toString();
         if (selectedAnime.has(idStr)) {
             selectedAnime.delete(idStr);
@@ -336,24 +337,28 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedAnime.add(idStr);
         }
         
-        // Update UI without full re-render for performance
-        const items = document.querySelectorAll(`[data-media-id="${idStr}"]`);
-        items.forEach(item => {
-            if (selectedAnime.has(idStr)) {
-                item.classList.add('selected');
-            } else {
-                item.classList.remove('selected');
-            }
-        });
+        if (!skipUiUpdate) {
+            // Update UI without full re-render for performance
+            const items = document.querySelectorAll(`[data-media-id="${idStr}"]`);
+            items.forEach(item => {
+                if (selectedAnime.has(idStr)) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
 
-        updateSelectionUI();
+            updateSelectionUI();
+        }
+        
+        lastSelectedMediaId = idStr;
     }
 
     function updateSelectionUI() {
         const count = selectedAnime.size;
         if (count > 0) {
             selectionBar.classList.remove('hidden');
-            selectionCount.textContent = `${count} items selected`;
+            selectionCount.textContent = count;
         } else {
             selectionBar.classList.add('hidden');
         }
@@ -2220,7 +2225,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 } else {
                     return `
-                        <tr class="details-row ${selectedClass}" data-media-id="${anime.mediaId}" style="cursor: pointer;">
+                        <tr class="details-row ${seasonalClass} ${selectedClass}" data-media-id="${anime.mediaId}" style="cursor: pointer;">
                             <td>
                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                                     ${liveLabel ? `<div class="card-live-dot" style="position: static; transform: scale(0.8);"></div>` : ''}
@@ -2327,9 +2332,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (e.target.closest('button') || e.target.closest('a')) return;
                 
                 const mediaId = item.getAttribute('data-media-id');
-                if (mediaId) {
-                    toggleSelection(mediaId);
+                if (!mediaId) return;
+
+                if (e.shiftKey && lastSelectedMediaId) {
+                    // Range selection
+                    const allIds = pagedList.map(a => a.mediaId.toString());
+                    const startIdx = allIds.indexOf(lastSelectedMediaId);
+                    const endIdx = allIds.indexOf(mediaId);
+                    
+                    if (startIdx !== -1 && endIdx !== -1) {
+                        const min = Math.min(startIdx, endIdx);
+                        const max = Math.max(startIdx, endIdx);
+                        const isSelecting = !selectedAnime.has(mediaId);
+                        
+                        for (let i = min; i <= max; i++) {
+                            const id = allIds[i];
+                            if (isSelecting) selectedAnime.add(id);
+                            else selectedAnime.delete(id);
+                        }
+                        
+                        // Full re-render for range selection to be safe/easy
+                        renderAnimeGrid();
+                        updateSelectionUI();
+                        lastSelectedMediaId = mediaId;
+                        return;
+                    }
                 }
+                
+                toggleSelection(mediaId);
             });
 
             item.addEventListener('dblclick', (e) => {
