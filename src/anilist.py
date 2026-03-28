@@ -520,8 +520,18 @@ class AnilistClient:
             print(f"Error changing status: {e}")
             return False
 
-    def get_upcoming_anime(self) -> list[dict[str, Any]]:
-        """Fetch currently airing and next season's anime."""
+    def get_upcoming_anime(self, force_refresh: bool = False) -> list[dict[str, Any]]:
+        """Fetch currently airing and next season's anime, with local caching."""
+        cache_file = 'upcoming_cache.json'
+        
+        # Load from cache if it exists and we're not forcing a refresh
+        if not force_refresh and os.path.exists(cache_file):
+            try:
+                with open(cache_file, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            except Exception as e:
+                print(f"Error loading upcoming cache: {e}")
+
         from datetime import datetime
         now = datetime.now()
         month = now.month
@@ -625,6 +635,7 @@ class AnilistClient:
                     'coverImage': media.get('coverImage', {}),
                     'bannerImage': media.get('bannerImage'),
                     'studio': studio_name,
+                    'isAdult': 'Hentai' in media.get('genres', []) or 'Ecchi' in media.get('genres', []),
                     'nextAiringEpisode': {
                         'episode': next_airing.get('episode'),
                         'airingAt': next_airing.get('airingAt'),
@@ -638,6 +649,13 @@ class AnilistClient:
                 fmt = format_media(m)
                 if fmt: combined.append(fmt)
                 
+            # Save to cache
+            try:
+                with open(cache_file, 'w', encoding='utf-8') as f:
+                    json.dump(combined, f, ensure_ascii=False, indent=2)
+            except Exception as e:
+                print(f"Error saving upcoming cache: {e}")
+
             return combined
         except Exception as e:
             print(f"Error fetching upcoming anime: {e}")

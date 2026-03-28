@@ -587,23 +587,36 @@
                                 Anime with no updates for longer than this period will be suggested for move to "Dropped".
                             </p>
                         </div>
-                        <div class="settings-group" style="margin-top: 20px;">
-                            <label style="display: block; font-weight: 600; margin-bottom: 10px;">Filter by Progress (Watched Tiers):</label>
-                            <div class="tier-pills" id="cleanup-tier-filters" style="display: flex; flex-wrap: wrap; gap: 8px;">
-                                <button class="tier-pill active" data-tier="0">0 ep</button>
-                                <button class="tier-pill active" data-tier="1">1 ep</button>
-                                <button class="tier-pill active" data-tier="3">3 eps</button>
-                                <button class="tier-pill active" data-tier="6">6 eps</button>
-                                <button class="tier-pill active" data-tier="6+">6+ eps</button>
-                            </div>
-                        </div>
                     </div>
+
 
                     <!-- Step 2: Confirmation Checklist -->
                     <div id="cleanup-step-2" class="hidden">
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border);">
+                            <div class="settings-group">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.85rem;">Filters (Episodes):</label>
+                                <div class="tier-pills" id="cleanup-tier-filters" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                    <button class="tier-pill active" data-tier="0" title="0 ep watched">0 ep</button>
+                                    <button class="tier-pill active" data-tier="1" title="1 ep watched">1 ep</button>
+                                    <button class="tier-pill active" data-tier="3" title="2-3 eps watched">2-3</button>
+                                    <button class="tier-pill active" data-tier="6" title="4-6 eps watched">4-6</button>
+                                    <button class="tier-pill active" data-tier="6+" title="6+ eps watched">6+</button>
+                                </div>
+                            </div>
+                            <div class="settings-group">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.85rem;">Filters (Format):</label>
+                                <div class="tier-pills" id="cleanup-format-filters" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                    <button class="tier-pill active" data-format="TV">TV</button>
+                                    <button class="tier-pill active" data-format="MOVIE">Movie</button>
+                                    <button class="tier-pill active" data-format="OVA">OVA</button>
+                                    <button class="tier-pill active" data-format="ONA">ONA</button>
+                                    <button class="tier-pill active" data-format="SPECIAL">Special</button>
+                                </div>
+                            </div>
+                        </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                             <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
-                                The following anime match your filters. Uncheck any you wish to keep "In Progress".
+                                Matches your filters. Uncheck any to KEEP.
                             </p>
                             <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; cursor: pointer; user-select: none;">
                                 <input type="checkbox" id="cleanup-select-all" checked style="cursor: pointer;" />

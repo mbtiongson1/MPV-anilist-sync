@@ -226,7 +226,10 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             entries = []
             if self.agent and hasattr(self.agent, 'anilist'):
                 try:
-                    entries = self.agent.anilist.get_upcoming_anime()
+                    parsed_path = urllib.parse.urlparse(self.path)
+                    query = urllib.parse.parse_qs(parsed_path.query)
+                    refresh = query.get('refresh', ['false'])[0].lower() == 'true'
+                    entries = self.agent.anilist.get_upcoming_anime(force_refresh=refresh)
                 except Exception as e:
                     print(f"Error fetching upcoming anime: {e}")
             
@@ -679,6 +682,10 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             # Clear library cache
             if os.path.exists('library_cache.json'):
                 os.remove('library_cache.json')
+
+            # Clear upcoming cache
+            if os.path.exists('upcoming_cache.json'):
+                os.remove('upcoming_cache.json')
 
             # Clear image cache
             cache_dir = os.path.join(os.path.dirname(__file__), '..', 'image_cache')

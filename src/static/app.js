@@ -110,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cleanupRetentionUnit = document.getElementById('cleanup-retention-unit');
     const cleanupSelectAll = document.getElementById('cleanup-select-all');
     const cleanupTierFilters = document.getElementById('cleanup-tier-filters');
+    const cleanupFormatFilters = document.getElementById('cleanup-format-filters');
     
     // View Buttons
     const btnViewGrid = document.getElementById('btn-view-grid');
@@ -145,6 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnRefreshUpcoming = document.getElementById('btn-refresh-upcoming');
     const upcomingGrid = document.getElementById('upcoming-grid');
     const upcomingLoading = document.getElementById('upcoming-loading');
+
+    let upcomingCache = null; // Memory cache for upcoming anime
 
     // Theme Toggle Initialization
     const currentTheme = localStorage.getItem('theme') || 'dark';
@@ -191,6 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
     if (sidebarCollapsed) appSidebar.classList.add('collapsed');
     let selectedSidebarSeasons = new Set(['WINTER', 'SPRING', 'SUMMER', 'FALL']);
+    let cleanupCandidates = []; // Anime matching retention cutoff
 
     const getCurrentSeason = () => {
         const month = new Date().getMonth(); // 0-11
@@ -1090,15 +1094,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function fetchUpcomingAnime() {
+    async function fetchUpcomingAnime(forceRefresh = false) {
         if (!upcomingOverlay) return;
         
+        // Use memory cache if available and not forcing refresh
+        if (!forceRefresh && upcomingCache) {
+            renderUpcomingAnime(upcomingCache);
+            return;
+        }
+
         const loading = document.getElementById('upcoming-loading');
         if (loading) loading.classList.remove('hidden');
 
         try {
-            const response = await fetch('/api/upcoming');
+            const url = forceRefresh ? '/api/upcoming?refresh=true' : '/api/upcoming';
+            const response = await fetch(url);
             const data = await response.json();
+            upcomingCache = data;
             renderUpcomingAnime(data);
         } catch (err) {
             console.error('Failed to fetch upcoming anime:', err);
@@ -3199,7 +3211,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnRefreshUpcoming) {
         btnRefreshUpcoming.onclick = () => {
-            fetchUpcomingAnime();
+            fetchUpcomingAnime(true);
         };
     }
 
@@ -4347,6 +4359,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (pill) {
                 pill.classList.toggle('active');
                 saveCleanupPrefs();
+                updateCleanupResults();
+            }
+        });
+    }
+
+    if (cleanupFormatFilters) {
+        cleanupFormatFilters.addEventListener('click', (e) => {
+            const pill = e.target.closest('.tier-pill');
+            if (pill) {
+                pill.classList.toggle('active');
+                saveCleanupPrefs();
+                updateCleanupResults();
             }
         });
     }
@@ -4356,10 +4380,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveCleanupPrefs() {
         const activeTiers = Array.from(document.querySelectorAll('#cleanup-tier-filters .tier-pill.active')).map(p => p.dataset.tier);
+        const activeFormats = Array.from(document.querySelectorAll('#cleanup-format-filters .tier-pill.active')).map(p => p.dataset.format);
         const prefs = {
             val: cleanupRetentionVal.value,
             unit: cleanupRetentionUnit.value,
-            tiers: activeTiers
+            tiers: activeTiers,
+            formats: activeFormats
         };
         localStorage.setItem('cleanupPrefs', JSON.stringify(prefs));
     }
@@ -4371,14 +4397,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const prefs = JSON.parse(saved);
                 if (prefs.val) cleanupRetentionVal.value = prefs.val;
                 if (prefs.unit) cleanupRetentionUnit.value = prefs.unit;
+                
                 if (prefs.tiers) {
                     const pills = document.querySelectorAll('#cleanup-tier-filters .tier-pill');
                     pills.forEach(p => {
-                        if (prefs.tiers.includes(p.dataset.tier)) {
-                            p.classList.add('active');
-                        } else {
-                            p.classList.remove('active');
-                        }
+                        if (prefs.tiers.includes(p.dataset.tier)) p.classList.add('active');
+                        else p.classList.remove('active');
+                    });
+                }
+                if (prefs.formats) {
+                    const pills = document.querySelectorAll('#cleanup-format-filters .tier-pill');
+                    pills.forEach(p => {
+                        if (prefs.formats.includes(p.dataset.format)) p.classList.add('active');
+                        else p.classList.remove('active');
                     });
                 }
             } catch (e) {
@@ -4389,9 +4420,106 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (cleanupSelectAll) {
         cleanupSelectAll.addEventListener('change', () => {
-            const checkboxes = cleanupContainer.querySelectorAll('input[type="checkbox"]');
+            const checkboxes = cleanupContainer.querySelectorAll('input[type="checkbox"]:not(#cleanup-select-all)');
             checkboxes.forEach(cb => cb.checked = cleanupSelectAll.checked);
         });
+    }
+
+    function updateCleanupResults() {
+        const activeTiers = Array.from(document.querySelectorAll('#cleanup-tier-filters .tier-pill.active')).map(p => p.dataset.tier);
+        const activeFormats = Array.from(document.querySelectorAll('#cleanup-format-filters .tier-pill.active')).map(p => p.dataset.format);
+
+        const filtered = cleanupCandidates.filter(a => {
+            const prog = a.progress || 0;
+            const format = (a.format || 'TV').toUpperCase();
+            
+            // Tier Filter
+            let matchesTier = (activeTiers.length === 0);
+            if (!matchesTier) {
+                if (activeTiers.includes('0') && prog === 0) matchesTier = true;
+                if (activeTiers.includes('1') && prog === 1) matchesTier = true;
+                if (activeTiers.includes('3') && (prog >= 2 && prog <= 3)) matchesTier = true;
+                if (activeTiers.includes('6') && (prog >= 4 && prog <= 6)) matchesTier = true;
+                if (activeTiers.includes('6+') && prog > 6) matchesTier = true;
+            }
+            if (!matchesTier) return false;
+
+            // Format Filter
+            let matchesFormat = (activeFormats.length === 0 || activeFormats.includes(format));
+            return matchesFormat;
+        });
+
+        renderCleanupChecklist(filtered);
+    }
+
+    function renderCleanupChecklist(toDrop) {
+        cleanupContainer.innerHTML = '';
+        
+        if (toDrop.length === 0) {
+            cleanupContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem;">No anime match your active filters.</div>';
+            return;
+        }
+
+        // Stats summary (Years Count)
+        const yearsSet = new Set();
+        toDrop.forEach(a => { if (a.seasonYear) yearsSet.add(a.seasonYear); });
+        const yearArray = Array.from(yearsSet).sort((a, b) => a - b);
+        const yearRangeStr = yearArray.length > 0 ? `${yearArray[0]}${yearArray.length > 1 ? ' - ' + yearArray[yearArray.length-1] : ''}` : '';
+        
+        const statsHeader = document.createElement('div');
+        statsHeader.style.cssText = 'margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; font-size: 0.85rem; border: 1px solid var(--border);';
+        statsHeader.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--text-muted);">Matches Visibility:</span>
+                <strong style="color: var(--accent);">${toDrop.length} anime</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                <span style="color: var(--text-muted);">Years represented:</span>
+                <strong style="color: var(--text-primary);">${yearArray.length} year(s) <span style="font-weight: 400; opacity: 0.7; font-size: 0.75rem;">(${yearRangeStr})</span></strong>
+            </div>
+        `;
+        cleanupContainer.appendChild(statsHeader);
+
+        toDrop.forEach(a => {
+            const title = a.title?.romaji || a.title?.english || 'Unknown';
+            const year = a.seasonYear ? ` (${a.seasonYear})` : '';
+            const relTime = getRelativeTime(a.updatedAt);
+            const item = document.createElement('div');
+            item.className = 'changelog-item';
+            item.style.display = 'flex';
+            item.style.alignItems = 'center';
+            item.style.gap = '10px';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = true;
+            checkbox.dataset.mediaId = a.mediaId;
+            checkbox.dataset.title = title;
+            checkbox.style.cursor = 'pointer';
+            
+            checkbox.addEventListener('change', () => {
+                const allCurrent = cleanupContainer.querySelectorAll('input[type="checkbox"]:not(#cleanup-select-all)');
+                const checkedCount = Array.from(allCurrent).filter(c => c.checked).length;
+                if (cleanupSelectAll) {
+                    cleanupSelectAll.checked = (checkedCount === allCurrent.length);
+                    cleanupSelectAll.indeterminate = (checkedCount > 0 && checkedCount < allCurrent.length);
+                }
+            });
+
+            const label = document.createElement('div');
+            label.style.flex = '1';
+            label.innerHTML = `<strong>${title}${year}</strong><br><span style="font-size: 0.8rem; color: var(--text-muted);">Inactive for ${relTime} • Watched: ${a.progress || 0} eps • ${a.format || 'TV'}</span>`;
+
+            item.appendChild(checkbox);
+            item.appendChild(label);
+            cleanupContainer.appendChild(item);
+        });
+
+        // Reset Select All state
+        if (cleanupSelectAll) {
+            cleanupSelectAll.checked = true;
+            cleanupSelectAll.indeterminate = false;
+        }
     }
 
     if (cleanupNext) {
@@ -4405,99 +4533,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const now = Math.floor(Date.now() / 1000);
             const cutoff = now - (retentionDays * 86400);
 
-            const activeTiers = Array.from(document.querySelectorAll('#cleanup-tier-filters .tier-pill.active')).map(p => p.dataset.tier);
+            cleanupCandidates = animeList.filter(a => 
+                a.listStatus === 'CURRENT' && 
+                a.updatedAt && 
+                a.updatedAt < cutoff
+            );
 
-            const toDrop = animeList.filter(a => {
-                if (a.listStatus !== 'CURRENT') return false;
-                if (!a.updatedAt || a.updatedAt >= cutoff) return false;
-                
-                const prog = a.progress || 0;
-                if (activeTiers.length === 0) return true;
-                
-                let matchesTier = false;
-                if (activeTiers.includes('0') && prog === 0) matchesTier = true;
-                if (activeTiers.includes('1') && prog === 1) matchesTier = true;
-                if (activeTiers.includes('3') && (prog >= 2 && prog <= 3)) matchesTier = true;
-                if (activeTiers.includes('6') && (prog >= 4 && prog <= 6)) matchesTier = true;
-                if (activeTiers.includes('6+') && prog > 6) matchesTier = true;
-                
-                return matchesTier;
-            });
-
-            if (toDrop.length === 0) {
-                showToast(`No anime found matching your criteria.`);
+            if (cleanupCandidates.length === 0) {
+                showToast(`No anime found matching retention criteria.`);
                 return;
             }
 
-            // Save current prefs before moving to next step
+            // Save current prefs
             saveCleanupPrefs();
-
-            // Populate Step 2
-            cleanupContainer.innerHTML = '';
             
-            // Stats summary (Years Count)
-            const yearsSet = new Set();
-            toDrop.forEach(a => { if (a.seasonYear) yearsSet.add(a.seasonYear); });
-            const yearArray = Array.from(yearsSet).sort((a, b) => a - b);
-            const yearRangeStr = yearArray.length > 0 ? `${yearArray[0]}${yearArray.length > 1 ? ' - ' + yearArray[yearArray.length-1] : ''}` : '';
-            
-            const statsHeader = document.createElement('div');
-            statsHeader.style.cssText = 'margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; font-size: 0.85rem; border: 1px solid var(--border);';
-            statsHeader.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="color: var(--text-muted);">Total found:</span>
-                    <strong style="color: var(--accent);">${toDrop.length} anime</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                    <span style="color: var(--text-muted);">Years represented:</span>
-                    <strong style="color: var(--text-primary);">${yearArray.length} year(s) <span style="font-weight: 400; opacity: 0.7; font-size: 0.75rem;">(${yearRangeStr})</span></strong>
-                </div>
-            `;
-            cleanupContainer.appendChild(statsHeader);
+            // Populate and Switch to Step 2
+            updateCleanupResults();
 
-            toDrop.forEach(a => {
-                const title = a.title?.romaji || a.title?.english || 'Unknown';
-                const year = a.seasonYear ? ` (${a.seasonYear})` : '';
-                const relTime = getRelativeTime(a.updatedAt);
-                const item = document.createElement('div');
-                item.className = 'changelog-item';
-                item.style.display = 'flex';
-                item.style.alignItems = 'center';
-                item.style.gap = '10px';
-                
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.checked = true;
-                checkbox.dataset.mediaId = a.mediaId;
-                checkbox.dataset.title = title;
-                checkbox.style.cursor = 'pointer';
-                
-                // Update Select All if item manually toggled
-                checkbox.addEventListener('change', () => {
-                    const allCurrent = cleanupContainer.querySelectorAll('input[type="checkbox"]:not(#cleanup-select-all)');
-                    const checkedCount = Array.from(allCurrent).filter(c => c.checked).length;
-                    if (cleanupSelectAll) {
-                        cleanupSelectAll.checked = (checkedCount === allCurrent.length);
-                        cleanupSelectAll.indeterminate = (checkedCount > 0 && checkedCount < allCurrent.length);
-                    }
-                });
-
-                const label = document.createElement('div');
-                label.style.flex = '1';
-                label.innerHTML = `<strong>${title}${year}</strong><br><span style="font-size: 0.8rem; color: var(--text-muted);">Inactive for ${relTime} • Watched: ${a.progress || 0} eps</span>`;
-
-                item.appendChild(checkbox);
-                item.appendChild(label);
-                cleanupContainer.appendChild(item);
-            });
-
-            // Reset Select All state
-            if (cleanupSelectAll) {
-                cleanupSelectAll.checked = true;
-                cleanupSelectAll.indeterminate = false;
-            }
-
-            // Switch to Step 2
             cleanupStep1.classList.add('hidden');
             cleanupStep2.classList.remove('hidden');
             cleanupNext.classList.add('hidden');
