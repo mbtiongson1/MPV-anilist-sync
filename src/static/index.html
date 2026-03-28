@@ -80,6 +80,16 @@
                             <input type="number" id="filter-year-sidebar" placeholder="e.g. 2024" min="1970" max="2030">
                         </div>
                         <div class="filter-group-sidebar">
+                            <label for="filter-season-sidebar">Season</label>
+                            <select id="filter-season-sidebar">
+                                <option value="">All Seasons</option>
+                                <option value="WINTER">Winter</option>
+                                <option value="SPRING">Spring</option>
+                                <option value="SUMMER">Summer</option>
+                                <option value="FALL">Fall</option>
+                            </select>
+                        </div>
+                        <div class="filter-group-sidebar">
                             <label>Genres</label>
                             <div id="genre-filter-list" class="genre-select-list">
                                 <!-- Populated by JS -->
@@ -125,6 +135,10 @@
                 <button id="btn-clear-cache" class="header-btn" title="Clear library and image cache">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                     <span>Clear Cache</span>
+                </button>
+                <button id="btn-refresh-header" class="header-btn" title="Refresh anime list and local library">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2.66 15.57a10 10 0 0 0 17.68-1.27M21.34 8.43a10 10 0 0 0-17.68 1.27"/></svg>
+                    <span>Refresh</span>
                 </button>
                 <button id="btn-settings-header" class="header-btn" title="Settings">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
@@ -224,9 +238,13 @@
                 <div style="display: flex; gap: 1rem; align-items: center;">
                     <h2>My Anime List</h2>
                 </div>
-                <button id="btn-refresh-list" class="refresh-btn" aria-label="Refresh anime list" title="Refresh list">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2.66 15.57a10 10 0 0 0 17.68-1.27M21.34 8.43a10 10 0 0 0-17.68 1.27"/></svg>
-                </button>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <span id="last-synced-time" class="last-synced-time"></span>
+                    <button id="btn-refresh-list" class="refresh-btn sync-btn-with-text" aria-label="Sync with AniList" title="Sync with AniList">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2.66 15.57a10 10 0 0 0 17.68-1.27M21.34 8.43a10 10 0 0 0-17.68 1.27"/></svg>
+                        <span>Sync to AniList</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Filter Bar -->
@@ -423,8 +441,17 @@
                 <a href="https://github.com/clsid2/mpc-hc" target="_blank" rel="noopener noreferrer">mpc-hc</a>
             </div>
         </footer>
+        
+        <!-- Back to Top Button -->
+        <button id="btn-back-to-top" class="back-to-top" title="Go back to top">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+            <span>Top</span>
+        </button>
         </div>
     </div>
+
     <script src="app.js"></script>
 </body>
 </html>

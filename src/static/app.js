@@ -39,11 +39,34 @@ document.addEventListener('DOMContentLoaded', () => {
         'DROPPED': '#ef4444',   // Rose Red
         'PAUSED': '#94a3b8'     // Slate Gray
     };
+
+    const genreColors = {
+        'Comedy': '#84cc16',
+        'Action': '#0ea5e9',
+        'Fantasy': '#a855f7',
+        'Drama': '#f472b6',
+        'Adventure': '#06b6d4',
+        'Sci-Fi': '#6366f1',
+        'Romance': '#ec4899',
+        'Slice of Life': '#10b981',
+        'Supernatural': '#8b5cf6',
+        'Mystery': '#64748b',
+        'Psychological': '#475569',
+        'Music': '#f59e0b',
+        'Horror': '#f43f5e',
+        'Thriller': '#0f172a',
+        'Sports': '#fb923c',
+        'Mecha': '#64748b',
+        'Mahou Shoujo': '#f472b6',
+        'Others': '#fb923c'
+    };
     const btnRefreshList = document.getElementById('btn-refresh-list');
+    const lastSyncedTimeDisp = document.getElementById('last-synced-time');
     const btnToggleView = document.getElementById('btn-toggle-view');
     const btnReauthorize = document.getElementById('btn-reauthorize');
     const btnFullRefresh = document.getElementById('btn-full-refresh');
     const btnClearCache = document.getElementById('btn-clear-cache');
+    const btnRefreshHeader = document.getElementById('btn-refresh-header');
     const detailsModal = document.getElementById('details-modal');
     const modalOverlay = document.getElementById('modal-overlay');
     const modalClose = document.getElementById('modal-close');
@@ -81,6 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const genreFilterList = document.getElementById('genre-filter-list');
     const filterFormat = document.getElementById('filter-format');
     const filterYearSidebar = document.getElementById('filter-year-sidebar');
+    const filterSeasonSidebar = document.getElementById('filter-season-sidebar');
     
     let userSettings = null;
     let libraryData = []; // Cached library scanner results
@@ -191,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function getRelativeTime(timestamp) {
         if (!timestamp) return '';
         const now = Math.floor(Date.now() / 1000);
-        const diff = now - timestamp;
+        const diff = now - (typeof timestamp === 'string' ? parseInt(timestamp) : timestamp);
         if (diff < 60) return 'just now';
         
         const minutes = Math.floor(diff / 60);
@@ -212,6 +236,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const years = Math.floor(diff / 31536000);
         return `${years} year${years !== 1 ? 's' : ''} ago`;
     }
+
+    function updateLastSyncedDisplay() {
+        if (!lastSyncedTimeDisp) return;
+        const lastSync = localStorage.getItem('lastAnilistSync');
+        if (lastSync) {
+            const relTime = getRelativeTime(Math.floor(parseInt(lastSync) / 1000));
+            lastSyncedTimeDisp.textContent = `Last synced: ${relTime}`;
+        } else {
+            lastSyncedTimeDisp.textContent = '';
+        }
+    }
+
+    // Call on load
+    updateLastSyncedDisplay();
+    // Refresh display ogni minuto if visible
+    setInterval(() => {
+        if (activeTab !== 'STATS' && activeTab !== 'TORRENTS') {
+            updateLastSyncedDisplay();
+        }
+    }, 60000);
 
     function renderSegments(container, progress, total, isCurrent, nextAiringEpisode, mediaId = null) {
         container.innerHTML = '';
@@ -617,6 +661,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('/api/animelist');
             const data = await response.json();
+
+            // Store sync time
+            localStorage.setItem('lastAnilistSync', Date.now());
+            updateLastSyncedDisplay();
             
             if (data.error === 'auth_failed') {
                 animeGrid.innerHTML = `
@@ -656,7 +704,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== Filtering =====
     function getFilteredList() {
         const nameQuery = filterName.value.toLowerCase().trim();
-        const seasonQuery = filterSeason.value;
+        const seasonQuery = filterSeason.value || (filterSeasonSidebar ? filterSeasonSidebar.value : "");
         const yearQuery = filterYear.value ? parseInt(filterYear.value) : (filterYearSidebar.value ? parseInt(filterYearSidebar.value) : null);
         const formatQuery = filterFormat.value;
 
@@ -878,8 +926,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     const cy = chartHeight - (cumulativePercent / 100) * chartHeight;
                     points.push(`${x + barWidth/2},${cy}`);
                     
+                    const color = genreColors[genre] || '#10B981';
                     bars += `
-                        <rect x="${x + 8}" y="${y}" width="${barWidth - 16}" height="${barHeight}" fill="var(--accent)" opacity="0.8" rx="4">
+                        <rect x="${x + 8}" y="${y}" width="${barWidth - 16}" height="${barHeight}" fill="${color}" opacity="0.8" rx="4">
                             <title>${genre}: ${count} (${((count/totalGenreCount)*100).toFixed(1)}%)</title>
                         </rect>
                         <text x="${x + barWidth/2}" y="${chartHeight + 20}" font-size="13" fill="var(--text-secondary)" text-anchor="end" transform="rotate(-35, ${x + barWidth/2}, ${chartHeight + 20})" font-weight="600">${genre}</text>
@@ -900,8 +949,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${points.map((p, i) => `<circle cx="${p.split(',')[0]}" cy="${p.split(',')[1]}" r="5" fill="#FBBF24" stroke="var(--bg-card)" stroke-width="2" />`).join('')}
                             
                             <g transform="translate(0, -25)">
-                                <rect width="14" height="14" fill="var(--accent)" rx="3" />
-                                <text x="22" y="11" font-size="12" fill="var(--text-primary)" font-weight="600">Genre Frequency</text>
+                                <rect width="5" height="14" fill="#84cc16" rx="1" />
+                                <rect x="6" width="5" height="14" fill="#0ea5e9" rx="1" />
+                                <rect x="12" width="5" height="14" fill="#a855f7" rx="1" />
+                                <text x="25" y="11" font-size="12" fill="var(--text-primary)" font-weight="600">Genre Frequency</text>
                                 <line x1="150" y1="7" x2="185" y2="7" stroke="#FBBF24" stroke-width="3" />
                                 <text x="195" y="11" font-size="12" fill="var(--text-primary)" font-weight="600">Cumulative Coverage (%)</text>
                             </g>
@@ -910,22 +961,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             }
 
-            // Genre Overview Logic
-            const genreColors = {
-                'Comedy': '#84cc16',
-                'Action': '#0ea5e9',
-                'Fantasy': '#a855f7',
-                'Drama': '#f472b6',
-                'Adventure': '#06b6d4',
-                'Sci-Fi': '#6366f1',
-                'Romance': '#ec4899',
-                'Slice of Life': '#10b981',
-                'Supernatural': '#8b5cf6',
-                'Mystery': '#64748b',
-                'Psychological': '#475569',
-                'Music': '#f59e0b',
-                'Others': '#fb923c'
-            };
 
             const topGenres = sortedGenres;
             let genreOverviewHtml = '';
@@ -1174,14 +1209,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                         </span>
                     </button>
-                    <a href="https://nyaa.si/?c=1_2" target="_blank" rel="noopener" class="refresh-btn nyaa-link-btn" title="Open Nyaa.si" style="display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;font-weight:600;text-decoration:none;">
+                    <a href="https://nyaa.si/?c=1_2" target="_blank" rel="noopener" class="refresh-btn nyaa-link-btn" title="Open Nyaa.si" style="display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;font-weight:600;text-decoration:none;margin-left:auto;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                         Nyaa.si
                     </a>
-                    <button id="btn-edit-torrent-prefs" class="refresh-btn" title="Edit Torrent preferences" style="display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;font-weight:600;margin-left:auto;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-                        Edit Torrent preferences
-                    </button>
                 </div>
 
                 <!-- Filter Bar -->
@@ -1213,7 +1244,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label class="filter-label">Subs / Group</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+                            <label class="filter-label">Subs / Group</label>
+                            <a id="btn-edit-torrent-prefs" href="#" style="font-size: 0.65rem; color: var(--accent); text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; transition: color var(--transition);">Edit Default</a>
+                        </div>
                         <div class="input-with-clear">
                             <input type="text" id="tf-group" class="filter-input" placeholder="e.g. SubsPlease" maxlength="40">
                             <button class="clear-input-btn" data-input-id="tf-group" title="Clear">
@@ -1750,7 +1784,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (e.key === 'Enter') triggerSearch();
             });
             document.getElementById('btn-search-go').addEventListener('click', triggerSearch);
-            document.getElementById('btn-edit-torrent-prefs')?.addEventListener('click', openSettingsModal);
+            document.getElementById('btn-edit-torrent-prefs')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                openSettingsModal();
+            });
 
             // Filter changes re-run active action
             [tfCategory, tfFilter, tfRes, tfDate, tfAiring].forEach(el => {
@@ -2413,8 +2450,18 @@ document.addEventListener('DOMContentLoaded', () => {
         filterFormat.addEventListener('change', () => renderAnimeGrid());
     }
 
-    if (filterYearSidebar) {
-        filterYearSidebar.addEventListener('input', () => renderAnimeGrid());
+    if (filterYearSidebar && filterYear) {
+        filterYearSidebar.addEventListener('input', () => {
+            filterYear.value = filterYearSidebar.value;
+            renderAnimeGrid();
+        });
+    }
+
+    if (filterSeasonSidebar && filterSeason) {
+        filterSeasonSidebar.addEventListener('change', () => {
+            filterSeason.value = filterSeasonSidebar.value;
+            renderAnimeGrid();
+        });
     }
 
     function renderGenreFilters() {
@@ -2435,16 +2482,28 @@ document.addEventListener('DOMContentLoaded', () => {
         genreFilterList.innerHTML = '';
         sortedGenres.forEach(genre => {
             const chip = document.createElement('div');
+            const color = genreColors[genre] || '#94a3b8';
             chip.className = 'genre-chip-sidebar';
-            if (selectedGenres.has(genre)) chip.classList.add('active');
+            chip.style.borderColor = color;
+            chip.style.color = color;
+            chip.style.background = color + '10'; // very faint background
+            if (selectedGenres.has(genre)) {
+                chip.classList.add('active');
+                chip.style.background = color;
+                chip.style.color = 'white';
+            }
             chip.textContent = genre;
             chip.onclick = () => {
                 if (selectedGenres.has(genre)) {
                     selectedGenres.delete(genre);
                     chip.classList.remove('active');
+                    chip.style.background = color + '10';
+                    chip.style.color = color;
                 } else {
                     selectedGenres.add(genre);
                     chip.classList.add('active');
+                    chip.style.background = color;
+                    chip.style.color = 'white';
                 }
                 renderAnimeGrid();
             };
@@ -2519,8 +2578,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (activeTab === 'LIBRARY') renderLibraryView();
         else renderAnimeGrid();
     });
-    filterSeason.addEventListener('change', renderAnimeGrid);
-    filterYear.addEventListener('input', renderAnimeGrid);
+    filterSeason.addEventListener('change', () => {
+        if (filterSeasonSidebar) filterSeasonSidebar.value = filterSeason.value;
+        renderAnimeGrid();
+    });
+    filterYear.addEventListener('input', () => {
+        if (filterYearSidebar) filterYearSidebar.value = filterYear.value;
+        renderAnimeGrid();
+    });
     filterSort.addEventListener('change', (e) => {
         const newSort = e.target.value;
         if (sortBy === newSort) {
@@ -2532,16 +2597,43 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAnimeGrid();
     });
 
-    // ===== Refresh Button =====
+    // ===== Refresh / Sync Button =====
     btnRefreshList.addEventListener('click', () => {
+        const originalHtml = btnRefreshList.innerHTML;
+        btnRefreshList.disabled = true;
+        btnRefreshList.classList.add('syncing');
+
+        if (btnRefreshList.querySelector('span')) {
+            btnRefreshList.querySelector('span').textContent = 'Syncing...';
+        }
+
+        const restoreButton = () => {
+            btnRefreshList.disabled = false;
+            btnRefreshList.classList.remove('syncing');
+            btnRefreshList.innerHTML = originalHtml;
+        };
+
         if (activeTab === 'LIBRARY') {
             libraryContent.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Refreshing library...</p></div>`;
-            fetchLibrary(true);
+            fetchLibrary(true).finally(restoreButton);
         } else {
             animeGrid.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Refreshing...</p></div>`;
-            fetchAnimeList();
+            fetchAnimeList().finally(restoreButton);
         }
     });
+
+    if (btnRefreshHeader) {
+        btnRefreshHeader.addEventListener('click', () => {
+            if (activeTab === 'LIBRARY') {
+                libraryContent.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Refreshing library...</p></div>`;
+                fetchLibrary(true);
+            } else {
+                animeGrid.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Refreshing...</p></div>`;
+                fetchAnimeList();
+            }
+            checkStatus(); // Also check status when refreshing from header
+        });
+    }
 
     // ===== Reauthorize Button =====
     btnReauthorize.addEventListener('click', async () => {
@@ -3234,6 +3326,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Poll now-playing every 2 seconds
     setInterval(checkStatus, 2000);
+
+    // ===== Back to Top Button Logic =====
+    const backToTopBtn = document.getElementById('btn-back-to-top');
+    if (backToTopBtn) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 400) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        });
+
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
 
     // Refresh anime list every 60 seconds
     setInterval(fetchAnimeList, 60000);

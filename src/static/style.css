@@ -646,6 +646,41 @@ header {
     transform: scale(0.92);
 }
 
+.sync-btn-with-text {
+    padding: 0.5rem 1rem !important;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 0.8rem;
+    border-radius: var(--radius-md) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--accent) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.sync-btn-with-text:hover {
+    background: var(--accent-hover) !important;
+    box-shadow: 0 6px 18px var(--accent-glow);
+    transform: translateY(-2px);
+}
+
+.sync-btn-with-text svg {
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.syncing svg {
+    animation: spin 1s linear infinite;
+}
+
+.last-synced-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    opacity: 0.8;
+}
+
 /* ===== Filter Bar ===== */
 .filter-bar {
     display: flex;
@@ -2545,4 +2580,73 @@ input:not(:placeholder-shown) + .clear-input-btn {
         text-align: center;
         justify-content: center;
     }
+}
+
+/* ===== Back to Top Button ===== */
+.back-to-top {
+    position: fixed;
+    bottom: 2.5rem;
+    left: calc(50% + var(--sidebar-width) / 2);
+    transform: translateX(-50%) translateY(20px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        0 12px 24px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+    opacity: 0;
+    pointer-events: none;
+    transition: 
+        opacity 0.4s ease,
+        transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        background 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease,
+        left var(--transition);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+#app-sidebar.collapsed ~ .app-container .back-to-top {
+    left: calc(50% + var(--sidebar-collapsed-width) / 2);
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+}
+
+.back-to-top:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateX(-50%) translateY(-5px);
+    box-shadow: 
+        0 8px 16px rgba(0, 0, 0, 0.5),
+        0 16px 32px rgba(0, 0, 0, 0.4),
+        0 0 15px var(--accent-glow);
+}
+
+.back-to-top:active {
+    transform: translateX(-50%) translateY(-2px) scale(0.96);
+}
+
+.back-to-top svg {
+    color: var(--accent);
+    transition: transform 0.3s ease;
+}
+
+.back-to-top:hover svg {
+    transform: translateY(-2px);
 }
