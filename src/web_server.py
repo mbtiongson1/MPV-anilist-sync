@@ -237,20 +237,32 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             parsed_path = urllib.parse.urlparse(self.path)
             query = urllib.parse.parse_qs(parsed_path.query)
             search_str = query.get('q', [None])[0]
+            episode_str = query.get('episode', [None])[0]
+            category = query.get('category', ['1_2'])[0]
+            nyaa_filter = query.get('filter', ['0'])[0]
+            resolution = query.get('resolution', [None])[0]
+
+            episode_int: Optional[int] = None
+            if episode_str is not None:
+                try:
+                    episode_int = int(episode_str)
+                except (ValueError, TypeError):
+                    pass
             
             results = []
             if self.agent and hasattr(self.agent, 'nyaa') and search_str:
+                res = resolution if resolution else self.agent.settings.preferred_resolution
                 results = self.agent.nyaa.search(
-                    search_str, 
-                    None, 
-                    self.agent.settings.preferred_resolution, 
-                    self.agent.settings.preferred_groups
+                    search_str,
+                    episode_int,
+                    res,
+                    self.agent.settings.preferred_groups,
+                    category=category,
+                    nyaa_filter=nyaa_filter,
                 )
-                
-                # Check download status for search results too
-                for res in results:
-                    res['is_downloaded'] = False
-                    res['is_watched'] = False
+                for r in results:
+                    r['is_downloaded'] = False
+                    r['is_watched'] = False
                     
             self.wfile.write(json.dumps(results).encode('utf-8'))
 
@@ -260,32 +272,55 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             self._set_cors_headers()
             self.end_headers()
 
+            parsed_path = urllib.parse.urlparse(self.path)
+            qparams = urllib.parse.parse_qs(parsed_path.query)
+            airing_only_str = qparams.get('airing_only', ['true'])[0]
+            airing_only = airing_only_str.lower() != 'false'
+            category = qparams.get('category', ['1_2'])[0]
+            nyaa_filter = qparams.get('filter', ['0'])[0]
+            resolution = qparams.get('resolution', [None])[0]
+
             results = []
             if self.agent and hasattr(self.agent, 'anilist') and hasattr(self.agent, 'nyaa'):
                 try:
+                    from concurrent.futures import ThreadPoolExecutor, as_completed
                     entries = self.agent.anilist.get_user_anime_list(['CURRENT'])
+
+                    # Build search tasks
+                    tasks = []  # (title_for_search, next_ep, media_id, anime_title, is_downloaded, is_watched)
                     for entry in entries:
+                        # Airing-only filter
+                        if airing_only and not entry.get('nextAiringEpisode'):
+                            continue
+
                         progress = entry.get('progress', 0)
                         total_episodes = entry.get('episodes')
-                        title = entry.get('title', {}).get('romaji') or entry.get('title', {}).get('english')
+                        romaji = entry.get('title', {}).get('romaji') or ''
+                        english = entry.get('title', {}).get('english') or ''
+                        title = romaji or english
                         media_id = entry.get('mediaId')
-                        
+
                         if not title or not media_id:
                             continue
-                            
+
+                        # Build title with English fallback using pipe separator
+                        search_title = title
+                        if english and english != romaji:
+                            search_title = f"{romaji}|{english}"
+
                         missing = []
                         if total_episodes:
                             for ep in range(progress + 1, min(progress + 6, total_episodes + 1)):
                                 missing.append(ep)
                         else:
                             missing.append(progress + 1)
-                            
+
                         media_dir = self.agent.settings.get_media_folder(int(media_id))
-                        # Poke in subfolder if it looks like default
                         if media_dir == self.agent.settings.default_download_dir:
                             title_safe = "".join([c for c in title if c.isalnum() or c in (' ', '-', '_')]).strip()
                             potential_dir = os.path.join(self.agent.settings.default_download_dir, title_safe)
-                            if os.path.exists(potential_dir): media_dir = potential_dir
+                            if os.path.exists(potential_dir):
+                                media_dir = potential_dir
 
                         existing_eps = set()
                         if os.path.exists(media_dir):
@@ -293,32 +328,61 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                             for f in os.listdir(media_dir):
                                 if f.lower().endswith('.mkv'):
                                     parsed = AnimeParser.parse_filename(f)
-                                    ep_val = parsed.get('episode')
-                                    if isinstance(ep_val, list): ep_val = ep_val[-1]
-                                    if ep_val:
-                                        try: existing_eps.add(int(ep_val))
-                                        except: pass
+                                    if parsed:
+                                        ep_val = parsed.get('episode')
+                                        if isinstance(ep_val, list):
+                                            ep_val = ep_val[-1]
+                                        if ep_val:
+                                            try:
+                                                existing_eps.add(int(ep_val))
+                                            except Exception:
+                                                pass
 
                         for next_ep in missing:
-                            is_downloaded = next_ep in existing_eps
-                            is_watched = next_ep <= progress
-                            
-                            search_res = self.agent.nyaa.search(
-                                title, 
-                                next_ep, 
-                                self.agent.settings.preferred_resolution, 
-                                self.agent.settings.preferred_groups
-                            )
-                            
-                            if search_res:
-                                results.append({
-                                    'mediaId': media_id,
-                                    'animeTitle': title,
-                                    'episode': next_ep,
-                                    'torrent': search_res[0],
-                                    'is_downloaded': is_downloaded,
-                                    'is_watched': is_watched
-                                })
+                            tasks.append({
+                                'search_title': search_title,
+                                'anime_title': title,
+                                'episode': next_ep,
+                                'media_id': media_id,
+                                'is_downloaded': next_ep in existing_eps,
+                                'is_watched': next_ep <= progress,
+                                'resolution': resolution or self.agent.settings.preferred_resolution,
+                                'groups': self.agent.settings.preferred_groups,
+                                'category': category,
+                                'nyaa_filter': nyaa_filter,
+                            })
+
+                    def _search_task(task):
+                        res = self.agent.nyaa.search(
+                            task['search_title'],
+                            task['episode'],
+                            task['resolution'],
+                            task['groups'],
+                            category=task['category'],
+                            nyaa_filter=task['nyaa_filter'],
+                        )
+                        return task, res
+
+                    with ThreadPoolExecutor(max_workers=8) as executor:
+                        futures = [executor.submit(_search_task, t) for t in tasks]
+                        for future in as_completed(futures):
+                            try:
+                                task, search_res = future.result()
+                                if search_res:
+                                    results.append({
+                                        'mediaId': task['media_id'],
+                                        'animeTitle': task['anime_title'],
+                                        'episode': task['episode'],
+                                        'torrent': search_res[0],
+                                        'is_downloaded': task['is_downloaded'],
+                                        'is_watched': task['is_watched'],
+                                    })
+                            except Exception as e:
+                                print(f"Batch search task error: {e}")
+
+                    # Sort results: by animeTitle then episode
+                    results.sort(key=lambda x: (x['animeTitle'], x['episode']))
+
                 except Exception as e:
                     print(f"Error in nyaa_batch_search: {e}")
 

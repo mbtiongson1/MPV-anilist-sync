@@ -68,6 +68,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let sortDirection = -1; // 1 = asc, -1 = desc
     let activeSearchTerm = ""; // to pass search terms to torrents tab
 
+    // ===== Torrent Filter State (persists within session) =====
+    let torrentFilters = {
+        category: '1_2',      // Nyaa category
+        nyaaFilter: '0',      // Nyaa filter (no remakes / trusted)
+        resolution: '',       // empty = use settings default
+        group: '',            // release group override
+        episode: '',          // episode number override for manual search
+        airingOnly: true,     // batch scan: only airing anime
+    };
+
     function showToast(message, type = 'success') {
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
@@ -231,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Season selector
                 if (Array.isArray(data.season_options) && data.season_options.length > 0) {
                     npSeason.innerHTML = data.season_options
-                        .sort((a, b) => (a.seasonYear || 0) - (b.seasonYear || 0))
+                        .sort((a, b) => (b.seasonYear || 0) - (a.seasonYear || 0))
                         .map(opt => {
                             const label = opt.title || `Season ${opt.season || ''} ${opt.seasonYear || ''}`;
                             return `<option value="${opt.mediaId}" ${opt.mediaId === selectedMediaId ? 'selected' : ''}>${escapeHtml(label)}</option>`;
@@ -876,8 +886,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (activeTab === 'TORRENTS') {
             const searchTerm = activeSearchTerm || '';
-            activeSearchTerm = ""; // reset after use
-            
+            activeSearchTerm = ''; // reset after use
+
             animeGrid.className = 'anime-grid torrents-view';
             animeGrid.innerHTML = `
                 <div class="torrents-toolbar">
@@ -885,12 +895,66 @@ document.addEventListener('DOMContentLoaded', () => {
                         <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                         <input type="text" id="torrents-search-input" placeholder="Search Nyaa.si..." value="${escapeHtml(searchTerm)}">
                     </div>
-                    <button id="btn-refresh-torrents" class="refresh-btn" title="Refresh/Batch Search">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+                    <button id="btn-scan-airing" class="refresh-btn" title="Scan airing anime for missing episodes" style="display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;font-weight:600;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        Scan Airing
                     </button>
+                    <a href="https://nyaa.si/?c=1_2" target="_blank" rel="noopener" class="refresh-btn nyaa-link-btn" title="Open Nyaa.si" style="display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;font-weight:600;text-decoration:none;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        Nyaa.si
+                    </a>
                 </div>
+
+                <!-- Filter Bar -->
+                <div class="torrents-filter-bar" id="torrents-filter-bar">
+                    <div class="filter-group">
+                        <label class="filter-label">Category</label>
+                        <select id="tf-category" class="filter-select">
+                            <option value="1_2">English Subs</option>
+                            <option value="1_3">Non-English</option>
+                            <option value="1_4">Raw</option>
+                            <option value="1_0">All Anime</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Trust</label>
+                        <select id="tf-filter" class="filter-select">
+                            <option value="0">All</option>
+                            <option value="1">No Remakes</option>
+                            <option value="2">Trusted Only</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Resolution</label>
+                        <select id="tf-resolution" class="filter-select">
+                            <option value="">Default</option>
+                            <option value="1080p">1080p</option>
+                            <option value="720p">720p</option>
+                            <option value="480p">480p</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Group</label>
+                        <input type="text" id="tf-group" class="filter-input" placeholder="e.g. SubsPlease" maxlength="40">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Episode #</label>
+                        <input type="number" id="tf-episode" class="filter-input" placeholder="e.g. 5" min="1" style="width:60px;">
+                    </div>
+                    <div class="filter-group filter-toggle-group">
+                        <label class="filter-label">Airing Only</label>
+                        <label class="toggle-switch" title="Scan only currently airing anime">
+                            <input type="checkbox" id="tf-airing-only" ${torrentFilters.airingOnly ? 'checked' : ''}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
                 <div id="torrents-results">
-                    <div class="loading-state"><div class="spinner"></div><p>Scanning missing episodes...</p></div>
+                    <div class="empty-state torrents-placeholder">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <p>Search for an anime, or click <strong>Scan Airing</strong> to find missing episodes.</p>
+                    </div>
                 </div>
                 <div id="batch-download-bar" class="batch-download-bar hidden">
                     <div class="info">
@@ -900,12 +964,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
 
+            // ---- Restore & sync filter state ----
+            const tfCategory  = document.getElementById('tf-category');
+            const tfFilter    = document.getElementById('tf-filter');
+            const tfRes       = document.getElementById('tf-resolution');
+            const tfGroup     = document.getElementById('tf-group');
+            const tfEpisode   = document.getElementById('tf-episode');
+            const tfAiring    = document.getElementById('tf-airing-only');
+
+            tfCategory.value  = torrentFilters.category;
+            tfFilter.value    = torrentFilters.nyaaFilter;
+            tfRes.value       = torrentFilters.resolution;
+            tfGroup.value     = torrentFilters.group;
+            tfEpisode.value   = torrentFilters.episode;
+
+            const getFilters = () => ({
+                category:   tfCategory.value,
+                nyaaFilter: tfFilter.value,
+                resolution: tfRes.value,
+                group:      tfGroup.value.trim(),
+                episode:    tfEpisode.value,
+                airingOnly: tfAiring.checked,
+            });
+
+            const saveFilters = () => {
+                Object.assign(torrentFilters, getFilters());
+            };
+
             const resultsContainer = document.getElementById('torrents-results');
-            const searchInput = document.getElementById('torrents-search-input');
-            const batchBar = document.getElementById('batch-download-bar');
-            const batchCountText = document.getElementById('batch-count');
-            
+            const searchInput      = document.getElementById('torrents-search-input');
+            const batchBar         = document.getElementById('batch-download-bar');
+            const batchCountText   = document.getElementById('batch-count');
+
             let selectedTorrents = new Set();
+            let lastRenderedItems = [];
 
             const updateBatchBar = () => {
                 const count = selectedTorrents.size;
@@ -917,26 +1009,53 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             };
 
+            // Build search URL params from current filters
+            const buildSearchParams = (query) => {
+                const f = getFilters();
+                const p = new URLSearchParams({ q: query, category: f.category, filter: f.nyaaFilter });
+                if (f.resolution) p.set('resolution', f.resolution);
+                // Append group to query if set
+                const q = f.group ? `${query} ${f.group}` : query;
+                p.set('q', q);
+                if (f.episode) p.set('episode', f.episode);
+                return p.toString();
+            };
+
+            const buildBatchParams = () => {
+                const f = getFilters();
+                const p = new URLSearchParams({
+                    airing_only: f.airingOnly ? 'true' : 'false',
+                    category:    f.category,
+                    filter:      f.nyaaFilter,
+                });
+                if (f.resolution) p.set('resolution', f.resolution);
+                return p.toString();
+            };
+
             const performSearch = async (query) => {
+                saveFilters();
                 resultsContainer.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Searching Nyaa...</p></div>';
                 selectedTorrents.clear();
                 updateBatchBar();
                 try {
-                    const resp = await fetch(`/api/nyaa_search?q=${encodeURIComponent(query)}`);
+                    const resp = await fetch(`/api/nyaa_search?${buildSearchParams(query)}`);
                     const results = await resp.json();
-                    renderTorrentTable(results.map(r => ({ torrent: r, animeTitle: query })));
+                    lastRenderedItems = results.map(r => ({ torrent: r, animeTitle: query }));
+                    renderTorrentTable(lastRenderedItems);
                 } catch (e) {
                     resultsContainer.innerHTML = '<div class="empty-state"><p>Search failed.</p></div>';
                 }
             };
 
             const loadBatchMissing = async () => {
-                resultsContainer.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Scanning missing episodes from AniList...</p></div>';
+                saveFilters();
+                resultsContainer.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Scanning airing anime for missing episodes...</p></div>';
                 selectedTorrents.clear();
                 updateBatchBar();
                 try {
-                    const resp = await fetch('/api/nyaa_batch_search');
+                    const resp = await fetch(`/api/nyaa_batch_search?${buildBatchParams()}`);
                     const results = await resp.json();
+                    lastRenderedItems = results;
                     renderTorrentTable(results);
                 } catch (e) {
                     resultsContainer.innerHTML = '<div class="empty-state"><p>Batch search failed.</p></div>';
@@ -944,81 +1063,110 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             const renderTorrentTable = (items) => {
-                if (items.length === 0) {
+                if (!items || items.length === 0) {
                     resultsContainer.innerHTML = '<div class="empty-state"><p>No results found.</p></div>';
                     return;
                 }
 
-                let html = `
-                    <div class="torrents-table-container">
-                        <table class="torrents-table">
-                            <thead>
-                                <tr>
-                                    <th class="checkbox-cell"><input type="checkbox" id="select-all-torrents" class="custom-checkbox"></th>
-                                    <th>Anime</th>
-                                    <th>Ep</th>
-                                    <th>Group</th>
-                                    <th>Torrent Title</th>
-                                    <th>Size</th>
-                                    <th>Seeders</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `;
+                // Split into individual episodes vs batch releases
+                const individual = items.filter(it => !it.torrent?.is_batch);
+                const batches    = items.filter(it =>  it.torrent?.is_batch);
 
-                items.forEach((item, idx) => {
+                const renderRows = (list, startIdx) => list.map((item, i) => {
+                    const idx = startIdx + i;
                     const t = item.torrent;
                     const isDisabled = item.is_downloaded || item.is_watched;
                     const statusText = item.is_watched ? 'Watched' : (item.is_downloaded ? 'Downloaded' : '');
                     const statusClass = item.is_watched ? 'watched' : 'downloaded';
                     const rowId = `torrent-row-${idx}`;
-                    
-                    html += `
+                    // Parsed episode from title (prefer item.episode from batch context)
+                    const displayEp = item.episode ?? t?.episode ?? '-';
+                    const titleLink = t?.view_link
+                        ? `<a href="${escapeHtml(t.view_link)}" target="_blank" rel="noopener" class="torrent-title-link">${escapeHtml(t?.title || '')}</a>`
+                        : escapeHtml(t?.title || '');
+
+                    return `
                         <tr class="${isDisabled ? 'row-disabled' : ''}" id="${rowId}">
                             <td class="checkbox-cell">
-                                <input type="checkbox" class="torrent-checkbox custom-checkbox" 
-                                    data-idx="${idx}" 
+                                <input type="checkbox" class="torrent-checkbox custom-checkbox"
+                                    data-idx="${idx}"
                                     ${isDisabled ? 'disabled' : 'checked'}
-                                    data-url="${escapeHtml(t.link)}"
+                                    data-url="${escapeHtml(t?.link || '')}"
                                     data-mediaid="${item.mediaId || ''}"
                                     data-title="${escapeHtml(item.animeTitle || '')}">
                             </td>
                             <td><strong>${escapeHtml(item.animeTitle || 'Search Result')}</strong></td>
-                            <td style="font-weight:700;">${item.episode || '-'}</td>
-                            <td><span class="torrent-group">${escapeHtml(t.group)}</span></td>
-                            <td class="torrent-title-cell" title="${escapeHtml(t.title)}">
-                                <div class="torrent-title-wrap">${escapeHtml(t.title)}</div>
+                            <td style="font-weight:700;">${displayEp}</td>
+                            <td><span class="torrent-group">${escapeHtml(t?.group || '')}</span></td>
+                            <td class="torrent-title-cell" title="${escapeHtml(t?.title || '')}">
+                                <div class="torrent-title-wrap">${titleLink}</div>
                             </td>
-                            <td>${escapeHtml(t.size)}</td>
-                            <td class="torrent-seeders">${t.seeders}</td>
+                            <td>${escapeHtml(t?.size || '')}</td>
+                            <td class="torrent-seeders">${t?.seeders ?? ''}</td>
                             <td>
                                 ${statusText ? `<span class="status-badge ${statusClass}">${statusText}</span>` : ''}
-                                <button class="icon-btn btn-direct-download" data-idx="${idx}" title="Download immediately" style="margin-left: 5px; padding: 4px;">
+                                <button class="icon-btn btn-direct-download" data-idx="${idx}" title="Download immediately" style="margin-left:5px;padding:4px;">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                                 </button>
                             </td>
                         </tr>
                     `;
-                    if (!isDisabled) selectedTorrents.add(idx.toString());
-                });
+                }).join('');
 
+                const tableHead = `
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell"><input type="checkbox" id="select-all-torrents" class="custom-checkbox"></th>
+                            <th>Anime</th>
+                            <th>Ep</th>
+                            <th>Group</th>
+                            <th>Torrent Title</th>
+                            <th>Size</th>
+                            <th>Seeders</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>`;
+
+                let html = `<div class="torrents-table-container"><table class="torrents-table">${tableHead}<tbody>`;
+                html += renderRows(individual, 0);
                 html += `</tbody></table></div>`;
+
+                // Batch section
+                if (batches.length > 0) {
+                    html += `
+                        <details class="batch-section" open>
+                            <summary class="batch-section-label">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+                                Batch / Pack Releases (${batches.length})
+                            </summary>
+                            <div class="torrents-table-container">
+                                <table class="torrents-table">${tableHead}<tbody>
+                                ${renderRows(batches, individual.length)}
+                                </tbody></table>
+                            </div>
+                        </details>`;
+                }
+
                 resultsContainer.innerHTML = html;
                 updateBatchBar();
 
-                document.getElementById('select-all-torrents').addEventListener('change', (e) => {
-                    document.querySelectorAll('.torrent-checkbox').forEach(cb => {
-                        if (!cb.disabled) {
-                            cb.checked = e.target.checked;
-                            if (cb.checked) selectedTorrents.add(cb.dataset.idx);
-                            else selectedTorrents.delete(cb.dataset.idx);
-                        }
+                // Select-all handler
+                const selectAll = document.getElementById('select-all-torrents');
+                if (selectAll) {
+                    selectAll.addEventListener('change', (e) => {
+                        document.querySelectorAll('.torrent-checkbox').forEach(cb => {
+                            if (!cb.disabled) {
+                                cb.checked = e.target.checked;
+                                if (cb.checked) selectedTorrents.add(cb.dataset.idx);
+                                else selectedTorrents.delete(cb.dataset.idx);
+                            }
+                        });
+                        updateBatchBar();
                     });
-                    updateBatchBar();
-                });
+                }
 
                 document.querySelectorAll('.torrent-checkbox').forEach(cb => {
+                    if (!cb.disabled) selectedTorrents.add(cb.dataset.idx);
                     cb.addEventListener('change', (e) => {
                         if (e.target.checked) selectedTorrents.add(e.target.dataset.idx);
                         else selectedTorrents.delete(e.target.dataset.idx);
@@ -1029,7 +1177,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.btn-direct-download').forEach(btn => {
                     btn.addEventListener('click', async (e) => {
                         const idx = e.currentTarget.dataset.idx;
-                        const cb = document.querySelector(`.torrent-checkbox[data-idx="${idx}"]`);
+                        const cb  = document.querySelector(`.torrent-checkbox[data-idx="${idx}"]`);
                         downloadTorrents([{
                             url: cb.dataset.url,
                             mediaId: cb.dataset.mediaid,
@@ -1041,10 +1189,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const downloadTorrents = async (items, indices) => {
                 const btn = document.getElementById('btn-download-selected');
+                if (!btn) return;
                 const originalText = btn.textContent;
                 btn.disabled = true;
                 btn.textContent = 'Downloading...';
-
                 try {
                     const resp = await fetch('/api/nyaa_download', {
                         method: 'POST',
@@ -1052,20 +1200,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         body: JSON.stringify({ items })
                     });
                     const result = await resp.json();
-                    
                     if (result.success) {
                         indices.forEach(idx => {
                             const row = document.getElementById(`torrent-row-${idx}`);
+                            if (!row) return;
                             const cb = row.querySelector('.torrent-checkbox');
-                            cb.disabled = true;
-                            cb.checked = false;
+                            if (cb) { cb.disabled = true; cb.checked = false; }
                             row.classList.add('row-disabled');
-                            const statusCell = row.cells[7];
- statusCell.innerHTML = '<span class="status-badge downloaded">Downloaded ✓</span>';
+                            const cells = row.cells;
+                            if (cells[7]) cells[7].innerHTML = '<span class="status-badge downloaded">Downloaded ✓</span>';
                             selectedTorrents.delete(idx.toString());
                         });
                         updateBatchBar();
-                        showToast(`Successfully queued ${items.length} torrents`);
+                        showToast(`Successfully queued ${items.length} torrent${items.length > 1 ? 's' : ''}`);
                     } else {
                         showToast('Failed to queue some torrents', 'error');
                     }
@@ -1077,30 +1224,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             };
 
+            // ---- Wire up Download Selected button ----
             document.getElementById('btn-download-selected').addEventListener('click', () => {
-                const items = [];
-                const indices = [];
+                const items = [], indices = [];
                 selectedTorrents.forEach(idx => {
                     const cb = document.querySelector(`.torrent-checkbox[data-idx="${idx}"]`);
-                    items.push({
-                        url: cb.dataset.url,
-                        mediaId: cb.dataset.mediaid,
-                        animeTitle: cb.dataset.title
-                    });
-                    indices.push(idx);
+                    if (cb) {
+                        items.push({ url: cb.dataset.url, mediaId: cb.dataset.mediaid, animeTitle: cb.dataset.title });
+                        indices.push(idx);
+                    }
                 });
-                downloadTorrents(items, indices);
+                if (items.length) downloadTorrents(items, indices);
             });
 
+            // ---- Wire up Scan Airing button ----
+            document.getElementById('btn-scan-airing').addEventListener('click', loadBatchMissing);
+
+            // ---- Wire up search input ----
             searchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' && e.target.value.trim()) performSearch(e.target.value.trim());
             });
 
-            document.getElementById('btn-refresh-torrents').addEventListener('click', loadBatchMissing);
+            // ---- Wire up search btn (magnifier icon click) ----
+            animeGrid.querySelector('.search-icon')?.addEventListener('click', () => {
+                const v = searchInput.value.trim();
+                if (v) performSearch(v);
+            });
 
+            // ---- Filter change: re-run last action ----
+            [tfCategory, tfFilter, tfRes, tfAiring].forEach(el => {
+                el.addEventListener('change', () => {
+                    const q = searchInput.value.trim();
+                    if (q) performSearch(q);
+                });
+            });
+
+            // ---- If coming from anime search button, auto-search the term ----
             if (searchTerm) performSearch(searchTerm);
-            else loadBatchMissing();
-            
+            // Do NOT auto-load batch scan anymore
+
             return;
         }
 
@@ -1417,7 +1579,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sortDirection = -sortDirection;
         } else {
             sortBy = column;
-            sortDirection = 1;
+            sortDirection = -1;
         }
         if (filterSort) {
             const optionExists = Array.from(filterSort.options).some(opt => opt.value === sortBy);
@@ -1507,7 +1669,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sortDirection = -sortDirection;
         } else {
             sortBy = newSort;
-            sortDirection = 1;
+            sortDirection = -1;
         }
         renderAnimeGrid();
     });
