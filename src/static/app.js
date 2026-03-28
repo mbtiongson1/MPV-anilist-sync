@@ -405,6 +405,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function recordProgressChange(anime, newProgress) {
         if (!anime) return;
+        if ((anime.progress || 0) === newProgress) return; // Do not add if no change
+
         const idInt = parseInt(anime.mediaId, 10);
         const title = anime.title?.romaji || anime.title?.english || 'Anime';
         
@@ -2705,6 +2707,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (localAnime) {
                 const oldStatus = localAnime.listStatus;
+                const oldProgress = localAnime.progress || 0;
                 let targetStatus = selectedModalStatus;
 
                 localAnime.progress = newProgress;
@@ -2715,10 +2718,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     localAnime.listStatus = 'CURRENT';
                 }
 
-                // Record Title Override if changed
+                // Record Title Override if changed - Purely Local Update
                 const oldOverride = (userSettings && userSettings.title_overrides) ? userSettings.title_overrides[anime.mediaId] || '' : '';
                 if (newOverride !== oldOverride) {
-                    recordApiRequest('TITLE_OVERRIDE', anime.mediaId, { customTitle: newOverride }, `${animeTitle}: Set title override to "${newOverride}"`);
+                    // Title override is local-only, save immediately to backend config
+                    fetch('/api/update_title_override', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mediaId: anime.mediaId, customTitle: newOverride })
+                    }).catch(err => console.error('Failed to save title override:', err));
+
                     // Update userSettings locally
                     if (!userSettings) userSettings = {};
                     if (!userSettings.title_overrides) userSettings.title_overrides = {};
@@ -2730,14 +2739,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     recordApiRequest('STATUS', anime.mediaId, { status: targetStatus }, `${animeTitle}: Move to ${targetStatus}`);
                 }
 
-                // Record Progress
-                recordApiRequest('PROGRESS', anime.mediaId, { episode: newProgress }, `${animeTitle}: Set progress to ${newProgress}`);
+                // Record Progress if changed
+                if (newProgress !== oldProgress) {
+                    recordApiRequest('PROGRESS', anime.mediaId, { episode: newProgress }, `${animeTitle}: Set progress to ${newProgress}`);
+                }
 
                 // Update visuals
                 updateCounts();
                 renderAnimeGrid();
                 detailsModal.classList.add('hidden');
-                showToast("Changes recorded (Pending Update)");
+                
+                // Only show toast if something was actually added to pending
+                if (targetStatus !== oldStatus || newProgress !== oldProgress) {
+                    showToast("Changes recorded (Pending Update)");
+                } else {
+                    showToast("Local changes saved");
+                }
             }
         });
 

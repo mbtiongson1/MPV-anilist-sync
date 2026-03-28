@@ -113,9 +113,97 @@
         ],
         "has_video": true,
         "size": 1969161272
+      },
+      {
+        "name": "[ASW] Dr. Stone S4 - 19 [1080p HEVC][6728221E].mkv",
+        "path": "/Users/marcotiongson/Downloads/[ASW] Dr. Stone S4 - 19 [1080p HEVC][6728221E].mkv",
+        "type": "file",
+        "mtime": 1774732837.596774,
+        "size": 558126534,
+        "episode": null
+      },
+      {
+        "name": "[ASW] Dr. Stone S4 - 22 [1080p HEVC][90B11E52].mkv",
+        "path": "/Users/marcotiongson/Downloads/[ASW] Dr. Stone S4 - 22 [1080p HEVC][90B11E52].mkv",
+        "type": "file",
+        "mtime": 1774732837.68791,
+        "size": 632553472,
+        "episode": null
+      },
+      {
+        "name": "[ASW] Mayonaka Heart Tune - 12 [1080p HEVC][6439B8C3].mkv",
+        "path": "/Users/marcotiongson/Downloads/[ASW] Mayonaka Heart Tune - 12 [1080p HEVC][6439B8C3].mkv",
+        "type": "file",
+        "mtime": 1774732383.692195,
+        "size": 378013912,
+        "episode": 12
+      },
+      {
+        "name": "[ASW] Sousou no Frieren - 22 [1080p HEVC][D7EF4CF2].mkv",
+        "path": "/Users/marcotiongson/Downloads/[ASW] Sousou no Frieren - 22 [1080p HEVC][D7EF4CF2].mkv",
+        "type": "file",
+        "mtime": 1774732660.8198388,
+        "size": 376573678,
+        "episode": 22
+      },
+      {
+        "name": "[ASW] Sousou no Frieren - 23 [1080p HEVC][6E312AF4].mkv",
+        "path": "/Users/marcotiongson/Downloads/[ASW] Sousou no Frieren - 23 [1080p HEVC][6E312AF4].mkv",
+        "type": "file",
+        "mtime": 1774732837.6206708,
+        "size": 371239990,
+        "episode": 23
+      },
+      {
+        "name": "[ASW] Sousou no Frieren - 24 [1080p HEVC][DD58A3D7].mkv",
+        "path": "/Users/marcotiongson/Downloads/[ASW] Sousou no Frieren - 24 [1080p HEVC][DD58A3D7].mkv",
+        "type": "file",
+        "mtime": 1774732742.7112308,
+        "size": 331022865,
+        "episode": 24
+      },
+      {
+        "name": "[ASW] Sousou no Frieren - 25 [1080p HEVC][8B3A576C].mkv",
+        "path": "/Users/marcotiongson/Downloads/[ASW] Sousou no Frieren - 25 [1080p HEVC][8B3A576C].mkv",
+        "type": "file",
+        "mtime": 1774732752.9168067,
+        "size": 385908143,
+        "episode": 25
+      },
+      {
+        "name": "[ASW] Sousou no Frieren - 26 [1080p HEVC][38E1BD7C].mkv",
+        "path": "/Users/marcotiongson/Downloads/[ASW] Sousou no Frieren - 26 [1080p HEVC][38E1BD7C].mkv",
+        "type": "file",
+        "mtime": 1774732738.6828773,
+        "size": 453834461,
+        "episode": 26
+      },
+      {
+        "name": "[ASW] Sousou no Frieren - 27 [1080p HEVC][0A4FAA9E].mkv",
+        "path": "/Users/marcotiongson/Downloads/[ASW] Sousou no Frieren - 27 [1080p HEVC][0A4FAA9E].mkv",
+        "type": "file",
+        "mtime": 1774732634.9164586,
+        "size": 321528590,
+        "episode": 27
+      },
+      {
+        "name": "[ASW] Sousou no Frieren - 28 [1080p HEVC][FD18CFA0].mkv",
+        "path": "/Users/marcotiongson/Downloads/[ASW] Sousou no Frieren - 28 [1080p HEVC][FD18CFA0].mkv",
+        "type": "file",
+        "mtime": 1774732598.3239715,
+        "size": 384665822,
+        "episode": 28
+      },
+      {
+        "name": "[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 12 [1080p HEVC][18AAFC42].mkv",
+        "path": "/Users/marcotiongson/Downloads/[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 12 [1080p HEVC][18AAFC42].mkv",
+        "type": "file",
+        "mtime": 1774732812.0931363,
+        "size": 428233057,
+        "episode": 12
       }
     ],
     "has_video": true,
-    "size": 2778726083
+    "size": 7400426607
   }
 }
