@@ -2213,7 +2213,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 let seasonalClass = "";
                 let seasonIconsHtml = "";
                 if (seasons.length > 0) {
-                    seasonalClass = `season-bg-${seasons.join('-').toLowerCase()}`;
+                    const bgSeasons = seasons.slice(0, 2);
+                    seasonalClass = `season-bg-${bgSeasons.join('-').toLowerCase()}`;
                     seasonIconsHtml = seasons.map(s => getSeasonIcon(s)).join('');
                 }
 
@@ -2307,7 +2308,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                     ${escapeHtml(title)}
                                 </div>
                             </td>
-                            <td>${progress} / ${total} ${anime.mediaStatus === 'RELEASING' && anime.nextAiringEpisode ? `<span style="color:var(--accent); font-size: 0.7rem; font-weight: 700;">(+${Math.max(0, (anime.nextAiringEpisode.episode - 1) - progress)})</span>` : ''}</td>
+                            <td>${progress} / ${total} ${anime.mediaStatus === 'RELEASING' && anime.nextAiringEpisode ? (() => {
+                                const diff = Math.max(0, (anime.nextAiringEpisode.episode - 1) - progress);
+                                const color = diff > 0 ? 'var(--accent)' : 'var(--text-muted)';
+                                return `<span style="color:${color}; font-size: 0.7rem; font-weight: 700;">(+${diff})</span>`;
+                            })() : ''}</td>
                             <td>${score}</td>
                             <td>${formatPop}</td>
                             <td>

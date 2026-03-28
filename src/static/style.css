@@ -1172,12 +1172,12 @@ header {
 .anime-card.selected.season-bg-winter, .anime-list-item.selected.season-bg-winter { background-color: #0ea5e9 !important; color: white; }
 .anime-card.selected.season-bg-spring, .anime-list-item.selected.season-bg-spring { background-color: #ec4899 !important; color: white; }
 .anime-card.selected.season-bg-summer, .anime-list-item.selected.season-bg-summer { background-color: #fbbf24 !important; color: white; }
-.anime-card.selected.season-bg-fall,   .anime-list-item.selected.season-bg-fall   { background-color: #c2410c !important; color: white; }
+.anime-card.selected.season-bg-fall,   .anime-list-item.selected.season-bg-fall   { background-color: #d97706 !important; color: white; }
 
 .anime-card.selected.season-bg-winter-spring, .anime-list-item.selected.season-bg-winter-spring { background: linear-gradient(135deg, #0ea5e9 45%, #ec4899 55%) !important; color: white; }
 .anime-card.selected.season-bg-spring-summer, .anime-list-item.selected.season-bg-spring-summer { background: linear-gradient(135deg, #ec4899 45%, #fbbf24 55%) !important; color: white; }
-.anime-card.selected.season-bg-summer-fall,   .anime-list-item.selected.season-bg-summer-fall   { background: linear-gradient(135deg, #fbbf24 45%, #c2410c 55%) !important; color: white; }
-.anime-card.selected.season-bg-fall-winter,   .anime-list-item.selected.season-bg-fall-winter   { background: linear-gradient(135deg, #c2410c 45%, #0ea5e9 55%) !important; color: white; }
+.anime-card.selected.season-bg-summer-fall,   .anime-list-item.selected.season-bg-summer-fall   { background: linear-gradient(135deg, #fbbf24 45%, #d97706 55%) !important; color: white; }
+.anime-card.selected.season-bg-fall-winter,   .anime-list-item.selected.season-bg-fall-winter   { background: linear-gradient(135deg, #d97706 45%, #0ea5e9 55%) !important; color: white; }
 
 /* Season Icons */
 .season-icon {
@@ -1201,7 +1201,7 @@ header {
 .season-icon.winter { color: #0ea5e9; }
 .season-icon.spring { color: #ec4899; }
 .season-icon.summer { color: #fbbf24; }
-.season-icon.fall   { color: #c2410c; }
+.season-icon.fall   { color: #d97706; }
 
 .selected .season-icon {
     color: white !important;
@@ -2270,7 +2270,7 @@ header {
     --season-winter-alpha: rgba(14, 165, 233, 0.08); /* Sky Blue */
     --season-spring-alpha: rgba(236, 72, 153, 0.08); /* Pink */
     --season-summer-alpha: rgba(251, 191, 36, 0.12); /* Yellow */
-    --season-fall-alpha: rgba(194, 65, 12, 0.15);   /* Dark Orange */
+    --season-fall-alpha: rgba(217, 119, 6, 0.15);   /* Dark Orange */
 }
 
 /* Single Season */
@@ -2296,7 +2296,7 @@ header {
 .anime-list-item.season-bg-winter { border-left-color: #0ea5e9; }
 .anime-list-item.season-bg-spring { border-left-color: #ec4899; }
 .anime-list-item.season-bg-summer { border-left-color: #fbbf24; }
-.anime-list-item.season-bg-fall   { border-left-color: #c2410c; }
+.anime-list-item.season-bg-fall   { border-left-color: #d97706; }
 
 /* Reduced Colors Mode */
 .reduce-colors [class*="season-bg-"] {
