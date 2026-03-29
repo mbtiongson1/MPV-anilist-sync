@@ -96,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputSettingDownloadDir = document.getElementById('setting-download-dir');
     const inputSettingEnableDragDrop = document.getElementById('setting-enable-drag-drop');
     const inputSettingReduceColors = document.getElementById('setting-reduce-colors');
+    const btnResetOverrides = document.getElementById('btn-reset-overrides');
     const npPlayerBadge = document.getElementById('np-player-badge');
     const tabTorrents = document.getElementById('tab-torrents');
     const tabLibrary = document.getElementById('tab-library');
@@ -4472,6 +4473,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (changelogModalOverlay) changelogModalOverlay.addEventListener('click', () => changelogModal.classList.add('hidden'));
     if (btnChangelogCancel) btnChangelogCancel.addEventListener('click', () => changelogModal.classList.add('hidden'));
     if (btnChangelogConfirm) btnChangelogConfirm.addEventListener('click', performBulkSync);
+    
+    if (btnResetOverrides) {
+        btnResetOverrides.addEventListener('click', async () => {
+            if (confirm("Are you sure you want to reset all custom title overrides? This will revert to default AniList title matching for all items.")) {
+                try {
+                    const res = await fetch('/api/reset_title_overrides', { method: 'POST' });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast("Title overrides reset successfully");
+                        settingsModal.classList.add('hidden');
+                        fetchAnimeList(); // Refresh to ensure sync with updated settings
+                    } else {
+                        showToast("Failed to reset overrides", "error");
+                    }
+                } catch (e) {
+                    console.error('Reset overrides failed:', e);
+                    showToast("Error resetting overrides", "error");
+                }
+            }
+        });
+    }
 
     // Cleanup Unwatched Anime Wizard Listeners
     if (btnCleanupProgress) {

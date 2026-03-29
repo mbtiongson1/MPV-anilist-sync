@@ -54,6 +54,9 @@ class MPVWatcher(BaseWatcher):
             return True
         except Exception as e:
             # Maybe socket exists but mpv is not running or listening
+            if sys.platform == "darwin" and not os.path.exists(self.socket_path):
+                print(f"MPV detected as possibly running but IPC socket {self.socket_path} is missing.")
+                print("Tip: Start MPV with --input-ipc-server=/tmp/mpvsocket or add it to your mpv.conf")
             self._is_connected = False
             return False
 

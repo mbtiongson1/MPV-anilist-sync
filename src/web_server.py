@@ -1076,6 +1076,17 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                 success = True
             self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
 
+        elif self.path == '/api/reset_title_overrides':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            success = False
+            if self.agent and hasattr(self.agent, 'settings'):
+                self.agent.settings.set("title_overrides", {})
+                success = True
+            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+
         elif self.path == '/api/reauthorize':
             self.send_response(200)
             self.send_header('Content-type', 'application/json')

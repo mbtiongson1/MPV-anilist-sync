@@ -1083,3 +1083,7 @@ Detected activity on MPVWatcher: [ASW] Sousou no Frieren S2 - 05 [1080p HEVC][6B
 Starting Multi-Player Anilist Tracker Agent v1.2.0 on darwin...
 UI Server started at http://localhost:8082
 Detected activity on MPVWatcher: [ASW] Sousou no Frieren S2 - 05 [1080p HEVC][6B87E0D0].mkv
+Syncing media 182255 to episode 5
+Syncing to AniList: media 182255 (182255) episode {episode}
+Successfully updated Anilist progress to episode 5
+Successfully synced 182255 progress to episode 5
