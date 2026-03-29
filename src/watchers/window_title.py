@@ -38,6 +38,10 @@ class WindowTitleWatcher(BaseWatcher):
     def is_connected(self) -> bool:
         return self._is_connected
 
+    @property
+    def is_paused(self) -> bool:
+        return False
+
     def connect(self) -> bool:
         if sys.platform != "win32":
             return False
@@ -71,6 +75,15 @@ class WindowTitleWatcher(BaseWatcher):
         # Window titles don't reliably provide position percentage.
         # This will return 0 and trigger sync upon closure instead of via percentage threshold.
         return 0.0
+
+    def toggle_pause(self):
+        pass
+
+    def next_episode(self):
+        pass
+
+    def previous_episode(self):
+        pass
 
     def _scan_windows_for_media(self) -> bool:
         found_player = False

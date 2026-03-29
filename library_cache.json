@@ -46,6 +46,26 @@
         "listStatus": "CURRENT"
       },
       {
+        "name": "Chi",
+        "path": "/Users/marcotiongson/Downloads/Chi",
+        "type": "directory",
+        "children": [
+          {
+            "name": "[EMBER] Chi - Chikyuu no Undou ni Tsuite - 25.mkv",
+            "path": "/Users/marcotiongson/Downloads/Chi/[EMBER] Chi - Chikyuu no Undou ni Tsuite - 25.mkv",
+            "type": "file",
+            "mtime": 1774745888.8743339,
+            "size": 339340147,
+            "episode": 25
+          }
+        ],
+        "has_video": true,
+        "size": 339340147,
+        "mediaId": 101381,
+        "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx101381-ZawZ7kIzuZVR.jpg",
+        "listStatus": "DROPPED"
+      },
+      {
         "name": "Dr Stone",
         "path": "/Users/marcotiongson/Downloads/Dr Stone",
         "type": "directory",
@@ -108,9 +128,26 @@
           }
         ],
         "has_video": true,
-        "size": 3901467119,
-        "mediaId": 172019,
-        "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx172019-3cfZbrYBmV23.jpg",
+        "size": 3901467119
+      },
+      {
+        "name": "Kizoku Tensei",
+        "path": "/Users/marcotiongson/Downloads/Kizoku Tensei",
+        "type": "directory",
+        "children": [
+          {
+            "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 01 [1080p HEVC][5CFA9CC1].mkv",
+            "path": "/Users/marcotiongson/Downloads/Kizoku Tensei/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 01 [1080p HEVC][5CFA9CC1].mkv",
+            "type": "file",
+            "mtime": 1774745921.9126859,
+            "size": 215158603,
+            "episode": 1
+          }
+        ],
+        "has_video": true,
+        "size": 215158603,
+        "mediaId": 185993,
+        "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx185993-BecPUaWfZJgR.png",
         "listStatus": "CURRENT"
       },
       {
@@ -131,7 +168,7 @@
         "size": 378013912,
         "mediaId": 187942,
         "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx187942-c2cZvunJGfiE.jpg",
-        "listStatus": "CURRENT"
+        "listStatus": "COMPLETED"
       },
       {
         "name": "Shibou Yuugi de Meshi wo Kuu",
@@ -213,10 +250,58 @@
             "mtime": 1774732598.3239715,
             "size": 384665822,
             "episode": 28
+          },
+          {
+            "name": "[ASW] Sousou no Frieren S2 - 05 [1080p HEVC][6B87E0D0].mkv",
+            "path": "/Users/marcotiongson/Downloads/Sousou no Frieren/[ASW] Sousou no Frieren S2 - 05 [1080p HEVC][6B87E0D0].mkv",
+            "type": "file",
+            "mtime": 1774746110.656433,
+            "size": 615184411,
+            "episode": null
+          },
+          {
+            "name": "[ASW] Sousou no Frieren S2 - 06 [1080p HEVC][D9DBDA18].mkv",
+            "path": "/Users/marcotiongson/Downloads/Sousou no Frieren/[ASW] Sousou no Frieren S2 - 06 [1080p HEVC][D9DBDA18].mkv",
+            "type": "file",
+            "mtime": 1774746217.345409,
+            "size": 422296692,
+            "episode": null
+          },
+          {
+            "name": "[ASW] Sousou no Frieren S2 - 07 [1080p HEVC][A72385B1].mkv",
+            "path": "/Users/marcotiongson/Downloads/Sousou no Frieren/[ASW] Sousou no Frieren S2 - 07 [1080p HEVC][A72385B1].mkv",
+            "type": "file",
+            "mtime": 1774746216.5854764,
+            "size": 451550518,
+            "episode": null
+          },
+          {
+            "name": "[ASW] Sousou no Frieren S2 - 08 [1080p HEVC][FC44211B].mkv",
+            "path": "/Users/marcotiongson/Downloads/Sousou no Frieren/[ASW] Sousou no Frieren S2 - 08 [1080p HEVC][FC44211B].mkv",
+            "type": "file",
+            "mtime": 1774746208.675214,
+            "size": 527360754,
+            "episode": null
+          },
+          {
+            "name": "[ASW] Sousou no Frieren S2 - 09 [1080p HEVC][84A5E0C0].mkv",
+            "path": "/Users/marcotiongson/Downloads/Sousou no Frieren/[ASW] Sousou no Frieren S2 - 09 [1080p HEVC][84A5E0C0].mkv",
+            "type": "file",
+            "mtime": 1774746088.5082455,
+            "size": 594038382,
+            "episode": null
+          },
+          {
+            "name": "[ASW] Sousou no Frieren S2 - 10 [1080p HEVC][D7649084].mkv",
+            "path": "/Users/marcotiongson/Downloads/Sousou no Frieren/[ASW] Sousou no Frieren S2 - 10 [1080p HEVC][D7649084].mkv",
+            "type": "file",
+            "mtime": 1774746090.63285,
+            "size": 528981162,
+            "episode": null
           }
         ],
         "has_video": true,
-        "size": 2624773549,
+        "size": 5764185468,
         "mediaId": 154587,
         "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx154587-qQTzQnEJJ3oB.jpg",
         "listStatus": "COMPLETED"
@@ -276,13 +361,10 @@
           }
         ],
         "has_video": true,
-        "size": 2397394329,
-        "mediaId": 195515,
-        "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx195515-p1nD71Hmr4ly.jpg",
-        "listStatus": "CURRENT"
+        "size": 2397394329
       }
     ],
     "has_video": true,
-    "size": 10111213720
+    "size": 13805124389
   }
 }

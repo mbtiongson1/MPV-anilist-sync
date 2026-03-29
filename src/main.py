@@ -217,6 +217,7 @@ class TrackerAgent:
             
         if self.active_filename != filename:
             self.active_filename = filename
+            self.settings.last_played_file = filename  # Persist for resume feature
             self._fetch_current_anilist_progress(filename)
 
     def _sync_to_media(self, media_id: int, episode: int) -> bool:

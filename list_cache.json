@@ -9901,6 +9901,41 @@
     }
   },
   {
+    "entryId": 277245985,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736802,
+    "mediaId": 129196,
+    "title": {
+      "romaji": "Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka IV: Shin Shou Meikyuu-hen",
+      "english": "Is It Wrong to Try to Pick Up Girls in a Dungeon? IV",
+      "native": "ダンジョンに出会いを求めるのは間違っているだろうかⅣ 新章 迷宮篇"
+    },
+    "episodes": 11,
+    "mediaStatus": "FINISHED",
+    "season": "SUMMER",
+    "seasonYear": 2022,
+    "description": "The fourth season of <i>Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka</i>.<br>\n<br>\nIntrepid adventurer Bell Cranel has leveled up, but he can’t rest on his dungeoneering laurels just yet. The Hestia Familia still has a long way to go before it can stand toe-to-toe with the other Familias of Orario — but before Bell can set out on his next mission, reports of a brutal murder rock the adventuring community! One of Bell’s trusted allies stands accused of the horrible crime, and it’s up to Bell and his friends to clear their name and uncover a nefarious plot brewing in the dungeon’s dark depths.<br>\n<br>\n(Source: Sentai Filmworks)",
+    "popularity": 115049,
+    "averageScore": 77,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Comedy",
+      "Fantasy",
+      "Romance"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx129196-eFVs05hMbVSm.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx129196-eFVs05hMbVSm.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/129196-bs6Z7VXXsyNd.jpg",
+    "studio": "Warner Bros. Japan",
+    "nextAiringEpisode": null
+  },
+  {
     "entryId": 277245987,
     "listStatus": "DROPPED",
     "progress": 0,
@@ -14118,6 +14153,38 @@
     "nextAiringEpisode": null
   },
   {
+    "entryId": 365265666,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736732,
+    "mediaId": 163205,
+    "title": {
+      "romaji": "Mononogatari 2nd Season",
+      "english": "Malevolent Spirits: Mononogatari Cour 2",
+      "native": "もののがたり 第二章"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SUMMER",
+    "seasonYear": 2023,
+    "description": "The second season of <i>Mononogatari</i>.<br><br>\nThe tsukumogami encounter mysterious new enemies who threaten life in Kyoto! <br><br>\n\n(Source: Crunchyroll)",
+    "popularity": 11740,
+    "averageScore": 72,
+    "genres": [
+      "Action",
+      "Supernatural"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx163205-s9TZY5bb99oB.png",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx163205-s9TZY5bb99oB.png"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/163205-TApFSSDPUBGz.jpg",
+    "studio": "Shogakukan-Shueisha Productions",
+    "nextAiringEpisode": null
+  },
+  {
     "entryId": 365265671,
     "listStatus": "DROPPED",
     "progress": 0,
@@ -14184,6 +14251,37 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/154116-dFaciqCd2pZU.jpg",
     "studio": "David Production",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 365266976,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736802,
+    "mediaId": 154459,
+    "title": {
+      "romaji": "Keikenzumi na Kimi to, Keiken Zero na Ore ga, Otsukiai suru Hanashi.",
+      "english": "Our Dating Story: The Experienced You and The Inexperienced Me",
+      "native": "経験済みなキミと、経験ゼロなオレが、お付き合いする話。"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "FALL",
+    "seasonYear": 2023,
+    "description": "Ryuuto Kashima is the school’s gloomy introvert, and he’s got a crush on Runa Shirakawa, the popular girl. After losing a bet to classmates, he confesses his feelings to Runa one day. Shocked and secretly just as inexperienced as Ryuuto, Runa agrees to date him. The relationship grows between two people who are as similar as they are different. Will their young love blossom? Time will tell!<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 72305,
+    "averageScore": 66,
+    "genres": [
+      "Romance"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx154459-foR6BMJayEbi.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx154459-foR6BMJayEbi.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/154459-ZHa4a0AxexMy.jpg",
+    "studio": "ENGI",
     "nextAiringEpisode": null
   },
   {
@@ -14285,6 +14383,41 @@
     "nextAiringEpisode": null
   },
   {
+    "entryId": 365267060,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736802,
+    "mediaId": 156039,
+    "title": {
+      "romaji": "Boushoku no Berserk",
+      "english": "Berserk of Gluttony",
+      "native": "暴食のベルセルク"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "FALL",
+    "seasonYear": 2023,
+    "description": "Fate Graphite was born into a world where magical skills shape your destiny. His skill is Gluttony, a seemingly useless curse of unending hunger that has left him shunned and looked down upon. Until one day, after he takes the life of a thief, his true power awakens: he can devour the skill of anyone he kills to feed his appetite. Will he learn to control this gruesome ability for the better?<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 83460,
+    "averageScore": 67,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Drama",
+      "Fantasy",
+      "Romance"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx156039-JnepQcVxXLLW.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx156039-JnepQcVxXLLW.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/156039-oGyVXfVsG8GM.jpg",
+    "studio": "Genco",
+    "nextAiringEpisode": null
+  },
+  {
     "entryId": 365267066,
     "listStatus": "DROPPED",
     "progress": 0,
@@ -14348,6 +14481,38 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/155419-yO6MTtDbaeDj.jpg",
     "studio": "Studio Gokumi",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 365267109,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736802,
+    "mediaId": 138788,
+    "title": {
+      "romaji": "Under Ninja",
+      "english": "UNDER NINJA",
+      "native": "アンダーニンジャ"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "FALL",
+    "seasonYear": 2023,
+    "description": "Ninjas still exist in Japan today. They number around 200,000. The ninja organization NIN (National Intelligence of NINJA) is not controlled by the civilian government, with its elite members performing assassinations and sabotage in secret. There is an organization that opposes NIN: UN (Under Ninja). Ninja versus ninja: What lies waiting at the end of this shadowy feud?<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 24243,
+    "averageScore": 66,
+    "genres": [
+      "Action",
+      "Comedy"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx138788-CXUvAraN1xha.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx138788-CXUvAraN1xha.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/138788-EegwXUtH8iJR.jpg",
+    "studio": "Tezuka Productions",
     "nextAiringEpisode": null
   },
   {
@@ -14447,6 +14612,39 @@
     "nextAiringEpisode": null
   },
   {
+    "entryId": 365267311,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736802,
+    "mediaId": 150077,
+    "title": {
+      "romaji": "Paradox Live THE ANIMATION",
+      "english": "Paradox Live THE ANIMATION",
+      "native": "Paradox Live THE ANIMATION"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "FALL",
+    "seasonYear": 2023,
+    "description": "Saturated in hip hop culture comes the birth of a new movement known as “Phantom Live ”. Each of the artists have a metal accessory known as “Phantom Metal” which chemically reacts to the wearer’s emotions to produce an image, setting a magnificent stage for enthusiastic youths. With legendary club “CLUB paradox” hosting the mysterious Paradox Live, four teams: BAE, The Cat’s Whiskers, cozmez and Akanyatsura each receive an invitation to participate, each with their own genre of music in a race to the top. Each of the four teams go into the competition for a reason. As the competition heats up, so do the unimaginably large motives each of them hides…<br>\n<br>\nThe curtain now rises on a swirling illusory stage battle between light and darkness–!<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 14490,
+    "averageScore": 66,
+    "genres": [
+      "Drama",
+      "Music",
+      "Sci-Fi"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx150077-L2XSxnoonCiq.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx150077-L2XSxnoonCiq.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/150077-9A7Pllt4B5WZ.jpg",
+    "studio": "PINE JAM",
+    "nextAiringEpisode": null
+  },
+  {
     "entryId": 365267318,
     "listStatus": "DROPPED",
     "progress": 0,
@@ -14508,6 +14706,37 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/166896-IFRRBmvoqHkG.jpg",
     "studio": "Quad",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 365267343,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736733,
+    "mediaId": 120755,
+    "title": {
+      "romaji": "The IDOLM@STER Million Live!",
+      "english": "THE IDOLM@STER Million Live!",
+      "native": "アイドルマスター ミリオンライブ！"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "FALL",
+    "seasonYear": 2023,
+    "description": "Mirai Kasuga, who wants to carry on a dream she has yet to see. Shizuka Mogami, who yearns to be an idol and is shaken. Tsubasa Ibuki, who does not know what she can be serious about.<br>\n<br>\nAt 765 Production new idols gather and everyone's \"dreams\" will brought into brilliance at the theater! The long-awaited anime of <i>\"The IDOLM@STER Million Live!!</i> <br><br>\n(Source: Official Site, translated)",
+    "popularity": 5506,
+    "averageScore": 68,
+    "genres": [
+      "Music"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx120755-GNWdZXkBtNlw.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx120755-GNWdZXkBtNlw.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/120755-DJS9ciiZfKiq.jpg",
+    "studio": "Shirogumi",
     "nextAiringEpisode": null
   },
   {
@@ -14605,6 +14834,40 @@
     },
     "bannerImage": null,
     "studio": "WIT STUDIO",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 365270134,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736733,
+    "mediaId": 160589,
+    "title": {
+      "romaji": "Blue Archive The Animation",
+      "english": null,
+      "native": "ブルーアーカイブ The Animation"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "The anime will adapt the \"Countermeasures Committee\" arc.\n<br><br>\nThe city's academies are divided into their own districts and are considered mostly independent.\n<br><br>\nThe General Student Council acts as governing board to manage the academies as a whole. However, the group's ability to govern has come to halt since the mysterious disappearance of the General Student Council president. Countless issues have begun to surface throughout Kivotos in the absence of the president's leadership.\n<br><br>\nTo avoid disaster, the General Student Council requests assistance from the Federal Investigation Club, otherwise known as Schale. In fact, Schale is the city's newest club and the last to be approved before the president's disappearance.\n<br><br>\nTo accomplish its task, Schale relies on the guidance of a Sensei who can help them resolve the incidents around Kivotos.<br><br> <i>(Students are required to carry personal weapons and smart phones! Get a taste of the military action, love, and friendship the Academy City has to offer!) </i><br><br>(Source: Anime News Network, Nexon, edited)",
+    "popularity": 27935,
+    "averageScore": 66,
+    "genres": [
+      "Action",
+      "Comedy",
+      "Fantasy",
+      "Slice of Life"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx160589-tqLLm7trgCSa.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx160589-tqLLm7trgCSa.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/160589-H6dJMRMEMw44.jpg",
+    "studio": "Yostar Pictures",
     "nextAiringEpisode": null
   },
   {
@@ -14802,6 +15065,71 @@
     "nextAiringEpisode": null
   },
   {
+    "entryId": 370347108,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736733,
+    "mediaId": 161364,
+    "title": {
+      "romaji": "Toaru Ossan no VRMMO Katsudouki",
+      "english": "A Playthrough of a Certain Dude's VRMMO Life",
+      "native": "とあるおっさんのVRMMO活動記"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "FALL",
+    "seasonYear": 2023,
+    "description": "Tanaka Taichi is just an ordinary 38-year-old who enjoys video games. He starts a new virtual reality multiplayer game called One More Free Life Online, naming his character Earth. Unlike his fellow players, he decides to master the most menial of skills in the game. He cooks the finest meals, overbrews complicated potions, and hunts monsters with handmade weapons. His fantasy life begins!<br><br>\n(Source: Crunchyroll)<br>\n<br><i>Note: The first 2 episodes were exclusively shown as a world premiere during the Anime Messe Babelsberg 2023 in July as a part of a special Anime Panel. </i><br>\n",
+    "popularity": 31823,
+    "averageScore": 62,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Comedy",
+      "Fantasy"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx161364-X0Nk5FvL6GHj.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx161364-X0Nk5FvL6GHj.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/161364-6WK6WHqfIYot.jpg",
+    "studio": "Maho Film",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 372630663,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736733,
+    "mediaId": 162889,
+    "title": {
+      "romaji": "The iDOLM@STER: Shiny Colors",
+      "english": "THE iDOLM@STER SHINY COLORS",
+      "native": "アイドルマスター シャイニーカラーズ"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "The producer of the 283 Production group brings together a whole new cast of idols to the stage!\n<br><br>\n(Source: Crunchyroll)<br><br>\n<i>Note: The series had a three-part theatrical pre-screening in Japan starting in October 2023. Regular TV broadcast begins in April 2024.<br><br>\n• Part 1 releasing theatrically on October 27, 2023.<br>\n• Part 2 releasing theatrically on November 24, 2023.<br>\n• Part 3 releasing theatrically on January 5, 2024.</i>",
+    "popularity": 5197,
+    "averageScore": 57,
+    "genres": [
+      "Music"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx162889-I61pWq5qN8QC.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx162889-I61pWq5qN8QC.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/162889-BnfG1JKNN1PE.jpg",
+    "studio": "POLYGON PICTURES",
+    "nextAiringEpisode": null
+  },
+  {
     "entryId": 372826751,
     "listStatus": "DROPPED",
     "progress": 0,
@@ -14943,6 +15271,42 @@
     "nextAiringEpisode": null
   },
   {
+    "entryId": 382039822,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736733,
+    "mediaId": 141821,
+    "title": {
+      "romaji": "Mato Seihei no Slave",
+      "english": "Chained Soldier",
+      "native": "魔都精兵のスレイブ"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "WINTER",
+    "seasonYear": 2024,
+    "description": "Yuuki Wakura watches as dueling supernatural forces ravage the Earth. Mato are portals to another dimension, avenues from which dangerous monsters escape. Peaches are resources given to women granting them abilities. Chief of the Seventh Unity of the Anti-Demon Corp, Kyouka Uzen arrives to save Yuuki from a monster. Surprisingly, Yuuki holds the power to increase the Peaches effectiveness. But to save the world, Yuuki must be willing to become Kyouka’s servant both on the battlefield and at home.<br>\n<br>\n(Source: HIDIVE)",
+    "popularity": 94854,
+    "averageScore": 67,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Drama",
+      "Ecchi",
+      "Fantasy",
+      "Romance"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx141821-lkVTjKqL4BU2.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx141821-lkVTjKqL4BU2.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/141821-KIRWH28jXINm.jpg",
+    "studio": "Seven Arcs",
+    "nextAiringEpisode": null
+  },
+  {
     "entryId": 382039823,
     "listStatus": "DROPPED",
     "progress": 1,
@@ -15041,6 +15405,175 @@
     "nextAiringEpisode": null
   },
   {
+    "entryId": 382039831,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736733,
+    "mediaId": 158931,
+    "title": {
+      "romaji": "Ao no Exorcist: Shimane Illuminati-hen",
+      "english": "Blue Exorcist -Shimane Illuminati Saga-",
+      "native": "青の祓魔師 島根啓明結社篇"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "WINTER",
+    "seasonYear": 2024,
+    "description": "New TV anime series of <i>Ao no Exorcist</i>.<br>\n<br>\nAt True Cross Academy, Rin Okumura unknowingly comes across the first signs that something is amiss; ordinary people have been gaining the ability to perceive the invisible creatures that roam the human realm, Assiah. While Rin sees this as an opportunity to make a new friend, his twin brother, Yukio, is more burdened than ever. Swamped with his education, exorcist duties, and teaching position, Yukio has remained silent about his awakened powers, unable to understand their scale or significance.\n<br>\nWhile Rin and his friends prepare for the annual Exorcist Certification Exam, the True Cross Order has uncovered the first artificial gate to the demonic realm of Gehenna. Witnessing its size and the advanced technology that made it possible, the exorcists realize they are now dealing with the Illuminati, an extremely wealthy and powerful organization. Moreover, the inscrutable Illuminati have planted three spies in the True Cross Order—and one may be hiding among the aspiring exorcists sworn to protect mankind from the demonic threat.<br>\n<br>\n(Source: MAL Rewrite)",
+    "popularity": 55857,
+    "averageScore": 71,
+    "genres": [
+      "Action",
+      "Fantasy",
+      "Supernatural"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx158931-QAQMtWKunvy3.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx158931-QAQMtWKunvy3.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/158931-3cXdwPkUplE8.jpg",
+    "studio": "Aniplex",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 382039833,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736733,
+    "mediaId": 156131,
+    "title": {
+      "romaji": "Shin no Nakama ja Nai to Yuusha no Party wo Oidasareta node, Henkyou de Slow Life suru Koto ni shimashita 2nd",
+      "english": "Banished from the Hero’s Party, I Decided to Live a Quiet Life in the Countryside Season 2",
+      "native": "真の仲間じゃないと勇者のパーティーを追い出されたので、辺境でスローライフすることにしました 2nd"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "WINTER",
+    "seasonYear": 2024,
+    "description": "The second season of <i>Shin no Nakama ja Nai to Yuusha no Party wo Oidasareta node, Henkyou de Slow Life suru Koto ni shimashita.</i><br>\n<br>\nA once-great Hero is now living the slow life. Red, shunned from his adventuring party, spends his days running an apothecary. He lives with his lifelong love, Princess Rit, and his sister, Ruti. They indulge in moments of bliss, like soaking in serene hot springs and enjoying delicious meals with a view. No matter what happens to the world around them, these happy moments will be unchanged.<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 51060,
+    "averageScore": 68,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Fantasy",
+      "Romance",
+      "Slice of Life"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx156131-aZPpDX61BIeo.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx156131-aZPpDX61BIeo.jpg"
+    },
+    "bannerImage": null,
+    "studio": "Studio Flad",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 382039835,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736733,
+    "mediaId": 155963,
+    "title": {
+      "romaji": "Dosanko Gal wa Namara Menkoi",
+      "english": "Hokkaido Gals Are Super Adorable!",
+      "native": "道産子ギャルはなまらめんこい"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "WINTER",
+    "seasonYear": 2024,
+    "description": "Snowflakes aren’t the only things dropping in Hokkaido—so are jaws, thanks to the super adorable gals who are turning the icy north into a hotbed of fashion and fun. Brace yourself for a winter storm of laughs, love, and killer outfits as these gals prove that being cute is an all-season affair. Here, frostbite meets fashionista!\n<br><br>\n(Source: Crunchyroll) ",
+    "popularity": 73420,
+    "averageScore": 69,
+    "genres": [
+      "Comedy",
+      "Romance",
+      "Slice of Life"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx155963-kOnLUDAEamUe.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx155963-kOnLUDAEamUe.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/155963-0YBhWU1chFHt.jpg",
+    "studio": "BLADE",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 382039836,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736733,
+    "mediaId": 153818,
+    "title": {
+      "romaji": "Majo to Yajuu",
+      "english": "The Witch and the Beast",
+      "native": "魔女と野獣"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "WINTER",
+    "seasonYear": 2024,
+    "description": "It all started with the 17 \"Origins,\" whose powers were passed down to individuals who still exist around the world today. A man carrying a coffin and a girl with the eyes of a beast appear in a town. The girl was once cursed by a witch and now searches for her in order to undo the curse. Is the witch who appears before them the quarry they've been searching for? And how can the curse be undone? This quest for revenge against an evil witch begins rolling when the beast captures the witch. This magnificent and intense dark fantasy begins now!<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 61466,
+    "averageScore": 72,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Drama",
+      "Fantasy"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx153818-FWvl0RL6vDbq.png",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx153818-FWvl0RL6vDbq.png"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/153818-3NkluPookK0W.jpg",
+    "studio": "Yokohama Animation Lab",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 382039840,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736733,
+    "mediaId": 158028,
+    "title": {
+      "romaji": "Sokushi Cheat ga Saikyou Sugite, Isekai no Yatsura ga Marude Aite ni Naranai n desu ga.",
+      "english": "My Instant Death Ability is Overpowered",
+      "native": "即死チートが最強すぎて、異世界のやつらがまるで相手にならないんですが。"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "WINTER",
+    "seasonYear": 2024,
+    "description": "Yogiri Takatou missed out on a few things while napping during a school trip... mainly how his entire class got transported to another world and how a curious sage gave everyone special powers! When Yogiri wakes up, he and classmate Tomochika Dannoura must defend themselves against a dragon. Out of options, Yogiri reluctantly agrees to team up with Tomochika and fend off danger with his Instant Death ability. If he can keep his eyes open, that is...<br>\n<br>\n(Source: HIDIVE)",
+    "popularity": 63928,
+    "averageScore": 63,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Comedy",
+      "Fantasy"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx158028-gQ2vnz7LEb0E.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx158028-gQ2vnz7LEb0E.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/158028-VsdGzE4GpcUW.jpg",
+    "studio": "Okuruto Noboru",
+    "nextAiringEpisode": null
+  },
+  {
     "entryId": 382039841,
     "listStatus": "DROPPED",
     "progress": 3,
@@ -15070,6 +15603,74 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/137908-ZJ0tMykH623Z.jpg",
     "studio": "Shin-Ei Animation",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 382039844,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736733,
+    "mediaId": 163076,
+    "title": {
+      "romaji": "Akuyaku Reijou Level 99: Watashi wa Ura Boss desu ga Maou de wa Arimasen",
+      "english": "Villainess Level 99: I May Be the Hidden Boss but I'm Not the Demon Lord",
+      "native": "悪役令嬢レベル99 ～私は裏ボスですが魔王ではありません～"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "WINTER",
+    "seasonYear": 2024,
+    "description": "This college kid wants nothing more than a quiet life. So when she’s reborn as Yumiella, the hidden villainess of an Otome RPG, she’s not exactly thrilled. Still yearning for peace, she abandons her evil duties to live a more discreet life. Until her gamer side kicks in and she accidentally reaches level 99! Now, everyone suspects that she’s the infamous Demon Lord. What future awaits her?<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 67247,
+    "averageScore": 71,
+    "genres": [
+      "Comedy",
+      "Fantasy",
+      "Romance"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx163076-5wQKtU3FoMxd.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx163076-5wQKtU3FoMxd.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/163076-vD78A7Jl8j5l.jpg",
+    "studio": "Jumondou",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 382039847,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736733,
+    "mediaId": 160389,
+    "title": {
+      "romaji": "Kekkon Yubiwa Monogatari",
+      "english": "Tales of Wedding Rings",
+      "native": "結婚指輪物語"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "WINTER",
+    "seasonYear": 2024,
+    "description": "Satou is a high school boy in love with his best friend Hime, an unearthly beauty from another realm. So when she moves back to her home world to get married, Satou doesn’t think twice—he follows her and crashes the wedding. Then, after a kiss from Hime, he suddenly becomes the new groom! But here, Hime is a Ring Princess and her husband is destined to be the Ring King: a hero of immense power.<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 46913,
+    "averageScore": 59,
+    "genres": [
+      "Adventure",
+      "Comedy",
+      "Ecchi",
+      "Fantasy",
+      "Romance"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx160389-2f6SosbyUpxX.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx160389-2f6SosbyUpxX.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/160389-zQYpBIU4tnd8.jpg",
+    "studio": "Staple Entertainment",
     "nextAiringEpisode": null
   },
   {
@@ -15173,6 +15774,71 @@
     "nextAiringEpisode": null
   },
   {
+    "entryId": 382039854,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736733,
+    "mediaId": 162144,
+    "title": {
+      "romaji": "Gekai Elise",
+      "english": "Doctor Elise: The Royal Lady with the Lamp",
+      "native": "外科医エリーゼ"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "WINTER",
+    "seasonYear": 2024,
+    "description": "Making up for her sins in a past life as the evil princess Elise, Aoi Takamoto dedicates her life to saving people as a doctor. But a fatal accident cuts her atonement short and suddenly she’s back to her previous life, 10 years before her death! Will her foresight and medical brilliance help her change her past ways and heal an ailing empire, or is fate doomed to repeat itself?\n<br><br>\n(Source: Crunchyroll)",
+    "popularity": 36877,
+    "averageScore": 71,
+    "genres": [
+      "Comedy",
+      "Fantasy",
+      "Romance"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx162144-T0y7XyTFhSYJ.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx162144-T0y7XyTFhSYJ.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/162144-EY0vpBkP5gDj.jpg",
+    "studio": "Maho Film",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 382039855,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736733,
+    "mediaId": 162002,
+    "title": {
+      "romaji": "Kyuujitsu no Warumono-san",
+      "english": "Mr. Villain's Day Off",
+      "native": "休日のわるものさん"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "WINTER",
+    "seasonYear": 2024,
+    "description": "The man known as General within a villainous organization that plans to take over the world is usually fighting to the death against the Rangers who protect the Earth...<br>\n<br>\nBut today is his day off.<br>\n<br>\nTo heal his tired soul from working so hard every day, he goes to the zoo to see pandas and to the convenience store to get some ice cream.<br>\n<br>\nWe get to see how a certain villain gets to completely enjoy his days off to the fullest in this comedy that will heal your soul.<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 36628,
+    "averageScore": 71,
+    "genres": [
+      "Comedy",
+      "Slice of Life"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx162002-tlKT0PVbwluv.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx162002-tlKT0PVbwluv.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/162002-6FkKCqd2FNFs.jpg",
+    "studio": "Shin-Ei Animation",
+    "nextAiringEpisode": null
+  },
+  {
     "entryId": 382039857,
     "listStatus": "DROPPED",
     "progress": 0,
@@ -15203,6 +15869,38 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/152072-my1VCyQhERhV.jpg",
     "studio": "EMT Squared",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 382039858,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736733,
+    "mediaId": 163151,
+    "title": {
+      "romaji": "HIGH CARD season 2",
+      "english": "HIGH CARD Season 2",
+      "native": "HIGH CARD season 2"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "WINTER",
+    "seasonYear": 2024,
+    "description": "Second season of <i>HIGH CARD<i>.",
+    "popularity": 16543,
+    "averageScore": 70,
+    "genres": [
+      "Action",
+      "Fantasy"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx163151-yxXcufmMoCmv.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx163151-yxXcufmMoCmv.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/163151-0RAW1fABXTDH.jpg",
+    "studio": "Studio Hibari",
     "nextAiringEpisode": null
   },
   {
@@ -15239,6 +15937,38 @@
     "nextAiringEpisode": null
   },
   {
+    "entryId": 382039863,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736733,
+    "mediaId": 156891,
+    "title": {
+      "romaji": "Saijaku Tamer wa Gomi Hiroi no Tabi wo Hajimemashita.",
+      "english": "The Weakest Tamer Began a Journey to Pick Up Trash",
+      "native": "最弱テイマーはゴミ拾いの旅を始めました。"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "WINTER",
+    "seasonYear": 2024,
+    "description": "Stars are everything, granting abilities to Tamers. So when Ivy was born without one, her village took it as an ill omen! Now banished, she leads a lonely life of salvaging rubbish to survive. That is until she befriends Sora, a weak little slime, in the forest. Together, the delicate duo embarks on a heartwarming journey of survival and discovers there’s more to Ivy than being starless.<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 45145,
+    "averageScore": 74,
+    "genres": [
+      "Adventure",
+      "Fantasy"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx156891-bw91QNdptQEG.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx156891-bw91QNdptQEG.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/156891-VdUOlIqn48TE.jpg",
+    "studio": "Studio Massket",
+    "nextAiringEpisode": null
+  },
+  {
     "entryId": 382039865,
     "listStatus": "DROPPED",
     "progress": 0,
@@ -15272,6 +16002,39 @@
     "nextAiringEpisode": null
   },
   {
+    "entryId": 382039866,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736733,
+    "mediaId": 166522,
+    "title": {
+      "romaji": "Hime-sama, \"Goumon\" no Jikan desu",
+      "english": "'Tis Time for \"Torture,\" Princess",
+      "native": "姫様“拷問”の時間です"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "WINTER",
+    "seasonYear": 2024,
+    "description": "As the war between the Imperial Army and Hellhorde rages on, the Princess, despite being armed with her mythical sword Excalibur, is captured and imprisoned. What kind of torture does she face at the hands of the chief demon interrogator? Fluffy fresh-baked toast! Hot, steaming ramen! Oh, the humanity! Can the Princess withstand these tormenting treats and keep her kingdom’s secrets safe?<br><br>\n(Source: Crunchyroll)",
+    "popularity": 31630,
+    "averageScore": 71,
+    "genres": [
+      "Comedy",
+      "Fantasy",
+      "Slice of Life"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx166522-pUnBSDFzs9DD.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx166522-pUnBSDFzs9DD.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/166522-khKEYJzH2jKm.jpg",
+    "studio": "PINE JAM",
+    "nextAiringEpisode": null
+  },
+  {
     "entryId": 382039867,
     "listStatus": "DROPPED",
     "progress": 8,
@@ -15301,6 +16064,69 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/152682-5Lr6NRpiWh43.jpg",
     "studio": "KADOKAWA",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 382039868,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736734,
+    "mediaId": 165314,
+    "title": {
+      "romaji": "Pon no Michi",
+      "english": "Pon no Michi",
+      "native": "ぽんのみち"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "WINTER",
+    "seasonYear": 2024,
+    "description": "The anime is set in Hiroshima Prefecture's Onomichi City, where a high school student Nashiko Jippensha was kicked out of her house. Without a place to play with her friends, she learns that the mahjong parlor that her father used to run is now vacant. She fixes the mahjong parlor and turns it into a place where she and her friends can have fun, cook, have tea, and sometimes play mahjong.<br>\n<br>\n(Source: Anime News Network)",
+    "popularity": 15147,
+    "averageScore": 67,
+    "genres": [
+      "Slice of Life"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx165314-oHSkxN95nSsx.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx165314-oHSkxN95nSsx.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/165314-TD6m7bbINzow.jpg",
+    "studio": "OLM",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 382039871,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736734,
+    "mediaId": 167146,
+    "title": {
+      "romaji": "Momochi-san Chi no Ayakashi Ouji",
+      "english": "The Demon Prince of Momochi House",
+      "native": "百千さん家のあやかし王子"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "WINTER",
+    "seasonYear": 2024,
+    "description": "Himari’s 16th birthday will be one she never forgets. Unexpectedly, she receives a will detailing her inheritance of a mysterious estate: the Momochi House. She arrives only to discover that the home was built on the cusp between the human world and the spiritual realm. There, she encounters Yukari, Ise, and a peculiar boy named Aoi, who seems to be concealing a shadowy secret.\n<br><br>\n(Source: Crunchyroll)",
+    "popularity": 18631,
+    "averageScore": 62,
+    "genres": [
+      "Romance",
+      "Supernatural"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx167146-H6Kpldjzcxic.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx167146-H6Kpldjzcxic.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/167146-LS7T5rsbjYuA.jpg",
+    "studio": "Drive",
     "nextAiringEpisode": null
   },
   {
@@ -15408,6 +16234,107 @@
     "nextAiringEpisode": null
   },
   {
+    "entryId": 399551562,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736734,
+    "mediaId": 166372,
+    "title": {
+      "romaji": "Dekisokonai to Yobareta Moto Eiyuu wa, Jikka kara Tsuihou Sareta node Suki Katte ni Ikiru Koto ni Shita",
+      "english": "The Banished Former Hero Lives as He Pleases",
+      "native": "出来損ないと呼ばれた元英雄は、実家から追放されたので好き勝手に生きることにした"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "\"I can finally go search for the peaceful life I've been looking forward to since my past life.\" \n<br><br>\nAllen, a boy called a failure because he was not blessed with a \"Gift\" from god, is actually a former hero who still has the memories and powers of his past life?! Using his banishment from his family's duchy as an excuse, Allen is about to start a carefree journey to do whatever he wants when he comes across an attempt on the life of his ex-fiancée...?! \n<br><br>\nThe former hero wants to live a relaxing life this time around, but the heroic fantasy life he never wanted is about to begin! \n<br><br>\n(Source: Crunchyroll)",
+    "popularity": 32610,
+    "averageScore": 48,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Fantasy",
+      "Romance"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx166372-AO67sLMZfUpB.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx166372-AO67sLMZfUpB.jpg"
+    },
+    "bannerImage": null,
+    "studio": "Studio DEEN",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551563,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736734,
+    "mediaId": 169417,
+    "title": {
+      "romaji": "Re:Monster",
+      "english": "Re:Monster",
+      "native": "Re:Monster"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "After meeting an untimely death, Tomokui Kanata is reincarnated as a lowly goblin, but he’s worked up a monstrous appetite. Thanks to his new ability that allows him to grow stronger the more he feeds, his feeble status quickly changes, and he rises to become the goblin leader. With a mix of his past memories, new body, and strong stomach, he’s taking a bite out of this new fantastical world! <br><br>\n(Source: Crunchyroll)<br><br>\n<i>The episodes were streamed several days ahead than the TV broadcast on U-NEXT, Anime Houdai, and Crunchyroll beginning on April 2nd, 2024 at 0:00 JST. The regular TV broadcast begins on April 5th, 2024.",
+    "popularity": 59151,
+    "averageScore": 65,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Fantasy"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx169417-izsfKg0hasRd.png",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx169417-izsfKg0hasRd.png"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/169417-NaD0wR83gTbm.jpg",
+    "studio": "Studio DEEN",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551564,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736734,
+    "mediaId": 169927,
+    "title": {
+      "romaji": "One Room, Hi Atari Futsuu, Tenshi Tsuki.",
+      "english": "Studio Apartment, Good Lighting, Angel Included",
+      "native": "ワンルーム、日当たり普通、天使つき。"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "After a long day, high schooler Shintarou Tokumitsu’s plans for relaxing in his studio apartment take a turn when he discovers an angel on his balcony. The divine girl, Towa, reveals she’s there to study humanity, and yet despite his skepticism, he agrees to put her up. Prepare for the most heavenly and high jinks roommate experience of all time!<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 29431,
+    "averageScore": 68,
+    "genres": [
+      "Comedy",
+      "Romance",
+      "Slice of Life",
+      "Supernatural"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx169927-3FwBuKn4x5LL.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx169927-3FwBuKn4x5LL.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/169927-Z42R2hk0LvjJ.jpg",
+    "studio": "Okuruto Noboru",
+    "nextAiringEpisode": null
+  },
+  {
     "entryId": 399551568,
     "listStatus": "DROPPED",
     "progress": 0,
@@ -15442,6 +16369,138 @@
     "nextAiringEpisode": null
   },
   {
+    "entryId": 399551570,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736803,
+    "mediaId": 150085,
+    "title": {
+      "romaji": "Touken Ranbu Kai: Kyoden Moyuru Honnouji",
+      "english": "TOUKEN RANBU KAI KYODEN",
+      "native": "刀剣乱舞 廻 -虚伝 燃ゆる本能寺-"
+    },
+    "episodes": 8,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "One day, a new sword manifested at their citadel.\n<br><br>\nFudou Yukimitsu: A sword worn by a commander of the Sengoku era, Oda Nobunaga, who was granted to one of his attending servants, Mori Ranmaru. Fudou Yukimitsu makes it known that he is proud to be Oda Nobunaga's beloved sword, but clashes with the other swords who also call Nobunaga their former master: Souza Samonji, Heshikiri Hasebe, and Yagen Toushirou. The appointed team captain, Yamanbagiri Kunihiro, must rally a citadel that has fallen into disarray at Fudou Yukimitsu's arrival. In the midst of all this, the saniwa has received an order to depart for the year 1582 -- the Honnouji event, where Oda Nobunaga met his demise...\n<br><br>\nAnime production was scripted and overseen by Kenichi Suemitsu, the director and playwright of the original play.\n",
+    "popularity": 5139,
+    "averageScore": 54,
+    "genres": [
+      "Action",
+      "Fantasy"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx150085-CBTMBvROhxmY.png",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx150085-CBTMBvROhxmY.png"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/150085-AywWcqVkomJH.jpg",
+    "studio": "domerica",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551723,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737024,
+    "mediaId": 136804,
+    "title": {
+      "romaji": "Kono Subarashii Sekai ni Shukufuku wo! 3",
+      "english": "KONOSUBA -God's blessing on this wonderful world! 3",
+      "native": "この素晴らしい世界に祝福を！３"
+    },
+    "episodes": 11,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "The third season of <i>Kono Subarashii Sekai ni Shukufuku wo! </i><br><br>\nThe dysfunctional party is back, but they may be short a member soon ’cause Kazuma is over it. Disillusioned with adventure, he wants to become a monk, but Aqua, Megumin, and Darkness call bull. However, the career dispute gets put on hold when a princess requests to hear all about their tales. Will the taste of fame at the royal castle keep them together or will this mark their farewell tour?<br><br>\n\n(Source: Crunchyroll)",
+    "popularity": 157211,
+    "averageScore": 82,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Comedy",
+      "Ecchi",
+      "Fantasy"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx136804-7FVftG67FPBc.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx136804-7FVftG67FPBc.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/136804-yHC8D64UTiRA.jpg",
+    "studio": "Drive",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551744,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736734,
+    "mediaId": 130590,
+    "title": {
+      "romaji": "Maou Gakuin no Futekigousha: Shijou Saikyou no Maou no Shiso, Tensei shite Shison-tachi no Gakkou e Kayou II Part 2",
+      "english": "The Misfit of Demon King Academy II (Cour 2)",
+      "native": "魔王学院の不適合者 ～史上最強の魔王の始祖、転生して子孫たちの学校へ通う～ Ⅱ 2クール"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "The second cour of the second season of <i>Maou Gakuin no Futekigousha</i>. <br><br>\nThe academy's lessons are back in session with Anos Voldigoad fighting more powerful enemies!<br><br>\n(Source: Crunchyroll)",
+    "popularity": 60436,
+    "averageScore": 65,
+    "genres": [
+      "Action",
+      "Fantasy"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx130590-698sT7jWoz42.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx130590-698sT7jWoz42.jpg"
+    },
+    "bannerImage": null,
+    "studio": "SILVER LINK.",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551748,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736735,
+    "mediaId": 160181,
+    "title": {
+      "romaji": "Sasayaku You ni Koi wo Utau",
+      "english": "Whisper Me a Love Song",
+      "native": "ささやくように恋を唄う"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "After performing a song at her school’s opening ceremony, musician Yori Asanagi receives an apparent love confession from freshman Himari Kino. But just as Yori decides she wants to return Himari’s feelings, Himari reveals that she did not “love” her, but “admires” her! But you can’t unring a bell once struck, and Yori is determined to make Himari fall for her, not just her music. Will their hearts ever beat as one, or will their love fall out of tune?<br>\n<br>\n(Source: HIDIVE)",
+    "popularity": 42174,
+    "averageScore": 64,
+    "genres": [
+      "Drama",
+      "Music",
+      "Romance"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx160181-EGC0Scngy5In.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx160181-EGC0Scngy5In.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/160181-dGYigyjYZhBn.jpg",
+    "studio": "CLOUDHEARTS",
+    "nextAiringEpisode": null
+  },
+  {
     "entryId": 399551751,
     "listStatus": "DROPPED",
     "progress": 0,
@@ -15472,6 +16531,40 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/143271-llmIgJN9tu3l.jpg",
     "studio": "Aniplex",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551753,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774736734,
+    "mediaId": 158417,
+    "title": {
+      "romaji": "Sentai Daishikkaku",
+      "english": "Go! Go! Loser Ranger!",
+      "native": "戦隊大失格"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "When the Monster Army invaded Earth thirteen years ago, the Divine Dragon Rangers rose up to stop them! With the war raging on, these great heroes are mankind’s last hope!<br>\n<br>\n<i>...or are they?</i><br>\n<br>\nIn truth, the invaders were subjugated within a year, forced to continue to crank out a monster a week for the Rangers to crush in front of their adoring fans! But one monster has had enough. Something has to change! He’ll rebel against the might of the Dragon Rangers and destroy them all...from the inside!<br>\n<br>\n(Source: Kodansha USA)",
+    "popularity": 71389,
+    "averageScore": 72,
+    "genres": [
+      "Action",
+      "Comedy",
+      "Drama",
+      "Sci-Fi"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx158417-Ii0DOFwNim0A.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx158417-Ii0DOFwNim0A.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/158417-9oit16KQM4l7.jpg",
+    "studio": "Shouchiku",
     "nextAiringEpisode": null
   },
   {
@@ -15573,6 +16666,72 @@
     "nextAiringEpisode": null
   },
   {
+    "entryId": 399551760,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737024,
+    "mediaId": 158709,
+    "title": {
+      "romaji": "Unnamed Memory",
+      "english": "Unnamed Memory",
+      "native": "Unnamed Memory"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "<i>\"My wish as champion is for you to descend the tower and be my wife.\"</i><br>\n<br>\nSeeking to end a curse thwarting his lineage, Prince Oscar sets out on a quest that leads him to a powerful and beautiful witch, Tinasha, and he demands a unique bargain: marriage. Though unenthused by the proposal, she agrees to stay in his castle for a year while researching the spell cast upon him. But beneath her beauty lies a lifetime of dark secrets that soon come to light.<br>\n<br>\n(Source: Yen Press, Crunchyroll)",
+    "popularity": 52837,
+    "averageScore": 66,
+    "genres": [
+      "Adventure",
+      "Fantasy",
+      "Romance"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx158709-WFA0RHloDvPl.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx158709-WFA0RHloDvPl.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/158709-ZGCammGG4F9a.jpg",
+    "studio": "ENGI",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551761,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737024,
+    "mediaId": 170130,
+    "title": {
+      "romaji": "Lv2 Kara Cheat datta Moto Yuusha Kouho no Mattari Isekai Life",
+      "english": "Chillin' in Another World with Level 2 Super Cheat Powers",
+      "native": "Lv2からチートだった元勇者候補のまったり異世界ライフ"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "The Magical Kingdom of Klyrode summons hundreds of heroes from other worlds every year to fight in their war against the Dark One and his army of powerful demons. Banaza is one of those heroes, summoned from the Royal Capital Paluma, but something’s not right—Banaza is only an average merchant. He has no magic, no fighting ability, and his stats are abysmal. Worse, a mishap leaves him unable to return home! Rejected as a hero and stranded in another world, abandoned to the far reaches of the kingdom by a cruel king who just wants him gone, Banaza’s fate looks pretty bleak. But what will happen once the failed hero candidate finds himself with super cheat powers once he hits level two?<br>\n<br>\n(Source: J-Novel Club)",
+    "popularity": 80849,
+    "averageScore": 68,
+    "genres": [
+      "Adventure",
+      "Fantasy",
+      "Romance"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx170130-tvhn13WYQ2qM.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx170130-tvhn13WYQ2qM.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/170130-UfSdfrNR4BU8.jpg",
+    "studio": "OVERLAP",
+    "nextAiringEpisode": null
+  },
+  {
     "entryId": 399551762,
     "listStatus": "DROPPED",
     "progress": 0,
@@ -15602,6 +16761,40 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/155890-LYzJpbGn1iS5.jpg",
     "studio": "Liber",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551763,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737024,
+    "mediaId": 168138,
+    "title": {
+      "romaji": "Jii-san Baa-san Wakagaeru",
+      "english": "Grandpa and Grandma Turn Young Again",
+      "native": "じいさんばあさん若返る"
+    },
+    "episodes": 11,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "The story of <i>Jii-san Baa-san Wakagaeru</i> follows Shouzou and Ine, an elderly couple who are living a quiet life in a farming village in Aomori Prefecture. After eating a mysterious apple that they discover on their apple farm, Shozo and Ine spontaneously regain their youth, but even after being reinvigorated they continue to live life at a grandparent-ly pace.<br>\n<br>\n(Source: Crunchyroll News, edited)",
+    "popularity": 45403,
+    "averageScore": 71,
+    "genres": [
+      "Comedy",
+      "Fantasy",
+      "Romance",
+      "Slice of Life"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx168138-jgMSP1rDkJhs.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx168138-jgMSP1rDkJhs.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/168138-eOsNTWgeiHH7.jpg",
+    "studio": "KADOKAWA",
     "nextAiringEpisode": null
   },
   {
@@ -15635,6 +16828,173 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/156023-0LHytkAZy4mL.jpg",
     "studio": "Brain's Base",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551767,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737024,
+    "mediaId": 166715,
+    "title": {
+      "romaji": "Kuroshitsuji: Kishuku Gakkou-hen",
+      "english": "Black Butler: Public School Arc",
+      "native": "黒執事 寄宿学校編"
+    },
+    "episodes": 11,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "Continuation of the <i>Kuroshitsuji</i> anime adaptation.<br>\n<br>\nAt the request of Queen Victoria, Earl Ciel Phantomhive goes to Weston College—a prestigious public academy for boys, known for its traditions and outstanding curriculum—to search for a relative of hers who has not returned home in months. Thanks to his noble status, the 13-year-old Ciel is swiftly able to enroll as a student, while his devilish butler Sebastian Michaelis assumes a teaching position at the school.<br>\n<br>\nCiel does not anticipate being unable to locate the Queen's relative on campus. To make matters worse, he cannot request a meeting with the headmaster of the college, who may be the only person that knows anything pertaining to the disappearance. The only ones in frequent contact with the headmaster are the heads of the college dormitories, known as the Prefect 4 (P4): Edgar Redmond, Lawrence Bluewer, Herman Greenhill, and Gregory Violet.<br>\n<br>\nCiel must concoct a plan to get in the P4's good graces if he wants to use their connections to succeed in his mission. But the distinguished college and its students hide much that is unseen, making this task more improbable than he could imagine.<br>\n<br>\n(Source: MAL Rewrite)",
+    "popularity": 29032,
+    "averageScore": 78,
+    "genres": [
+      "Action",
+      "Comedy",
+      "Fantasy",
+      "Mystery",
+      "Supernatural"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx166715-humnzscIw7SC.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx166715-humnzscIw7SC.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/166715-0sYIhm6yOOPJ.jpg",
+    "studio": "CloverWorks",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551768,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737024,
+    "mediaId": 164702,
+    "title": {
+      "romaji": "Tensei Kizoku, Kantei Skill de Nariagaru",
+      "english": "As a Reincarnated Aristocrat, I'll Use My Appraisal Skill to Rise in the World",
+      "native": "転生貴族、鑑定スキルで成り上がる"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "Our protagonist, Ars Louvent, was reincarnated in another world as the young son of a minor noble who owns a small domain. Ars was not particularly strong or intelligent, but he was born with the Appraisal Skill that's able to see others' abilities and statuses. He uses his skill to find the best hidden talents in the world to make their small, weak domain into the best. An isekai tale about unification is about to start, featuring the kind-hearted Ars and the unique talents he manages to find!<br><br>\n(Source: Crunchyroll)",
+    "popularity": 61760,
+    "averageScore": 71,
+    "genres": [
+      "Adventure",
+      "Fantasy"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx164702-FjpM96MPdzVm.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx164702-FjpM96MPdzVm.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/164702-WbVDTm2MFHaL.jpg",
+    "studio": "studio MOTHER",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551769,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737024,
+    "mediaId": 160090,
+    "title": {
+      "romaji": "Kaii to Otome to Kamikakushi",
+      "english": "Mysterious Disappearances",
+      "native": "怪異と乙女と神隠し"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "Sumireko Ogawa’s dream of becoming a novelist is reinvigorated with new rumors of mystical incidents. Now a clerk at a bookstore, she enlists her young coworker, Ren Adashino, to investigate urban legends, black magic, and ghost stories across the city. Sumireko has a knack for triggering magical events, and Ren has a dark secret of his own. Will they survive their investigation unscathed?<br><br>\n\n(Source: Crunchyroll)",
+    "popularity": 37384,
+    "averageScore": 66,
+    "genres": [
+      "Ecchi",
+      "Horror",
+      "Mystery",
+      "Supernatural"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx160090-EHP57CniSa7I.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx160090-EHP57CniSa7I.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/160090-epCcB263It09.jpg",
+    "studio": "KADOKAWA",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551770,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737024,
+    "mediaId": 170890,
+    "title": {
+      "romaji": "THE NEW GATE",
+      "english": "THE NEW GATE",
+      "native": "THE NEW GATE"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "When an online game turns real, trapping its players in its virtual space, the strongest of them, Shin, rises up to put a stop to the madness. But just moments after defeating the game’s final boss, Origin, and freeing everyone, Shin is transported 500 years into the future of the in-game world. Armed with unrivaled strength, the young swordsman embarks on a legendary journey.<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 49765,
+    "averageScore": 63,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Fantasy"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx170890-XrggQYjAJAGa.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx170890-XrggQYjAJAGa.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/170890-fQBemeo8Z4CH.jpg",
+    "studio": "CLOUDHEARTS",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551771,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737024,
+    "mediaId": 159039,
+    "title": {
+      "romaji": "Seiyuu Radio no Uraomote",
+      "english": "The Many Sides of Voice Actor Radio",
+      "native": "声優ラジオのウラオモテ"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "Yuuhi Yugure and Yasumi Utatane, high school classmates and co-hosts of a weekly radio program, paint a picture-perfect friendship for their listeners. Yet, in reality, they couldn’t be more different. Their off-air dynamic is a whirlwind of chaos and insults. As their tumultuous relationship unfolds, they navigate the turbulent waters of friendship and rivalry in the cutthroat realm of showbiz. <br><br>\n(Source: Crunchyroll, edited)",
+    "popularity": 25762,
+    "averageScore": 74,
+    "genres": [
+      "Comedy",
+      "Drama",
+      "Slice of Life"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx159039-88kPltmhTzqU.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx159039-88kPltmhTzqU.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/159039-pS8nlIsLwzBr.jpg",
+    "studio": "CONNECT",
     "nextAiringEpisode": null
   },
   {
@@ -15707,6 +17067,103 @@
     "nextAiringEpisode": null
   },
   {
+    "entryId": 399551905,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737024,
+    "mediaId": 174653,
+    "title": {
+      "romaji": "Kenka Dokugaku",
+      "english": "Viral Hit",
+      "native": "喧嘩独学"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "Scrawny high school student Hobin Yu is probably the last guy you’d expect to star in a NewTube channel that revolves around fighting. But after following some advice from a mysterious NewTube channel, Hobin is soon knocking out guys stronger than him and raking in more money than he could have ever dreamed of. Can Hobin keep this up, or will he eventually meet his match?\n<br><br>\n(Source: WEBTOON)",
+    "popularity": 33753,
+    "averageScore": 71,
+    "genres": [
+      "Action",
+      "Comedy"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx174653-OsnK4BuENjUT.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx174653-OsnK4BuENjUT.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/174653-Rq9ikE3MDb4x.jpg",
+    "studio": "Okuruto Noboru",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551906,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737024,
+    "mediaId": 170604,
+    "title": {
+      "romaji": "Vampire Dormitory",
+      "english": "Vampire Dormitory",
+      "native": "ヴァンパイア男子寮"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "<i>“I want to become your thrall…!”</i><br>\n<br>\nA crossdressing girl and doting vampire’s dangerous cohabitation is about to begin!<br>\n<br>\nAfter losing her parents and being abandoned by her relatives, Mito is left all alone in the world. When she’s kicked out of the restaurant where she works with no money and no place to live, she is taken in by Ruka, a vampire. In exchange for giving Ruka her blood as his “food,” she ends up living with him in a boys’ dorm full of beautiful boys with unique personalities…?!<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 18189,
+    "averageScore": 59,
+    "genres": [
+      "Romance",
+      "Supernatural"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx170604-VwLdBL8Gip9Z.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx170604-VwLdBL8Gip9Z.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/170604-2Ljw3APzUY4z.jpg",
+    "studio": "Studio Blanc",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551907,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737024,
+    "mediaId": 166828,
+    "title": {
+      "romaji": "Henjin no Salad Bowl",
+      "english": "A Salad Bowl of Eccentrics",
+      "native": "変人のサラダボウル"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "Sousuke Kaburaya, an impoverished detective, met Sara, a princess from another world with magical powers.\n<br><br>\nSara began living with Sousuke, and she quickly adjusted to life in modern Japan.<br>\nMeanwhile, Livia, a female knight who came from the same world as Sara, found herself lost and homeless, but surprisingly enjoyed her days here.\n<br><br>\nThese two people, who live a positive life despite their situation, began to have an impact on Sousuke and the other oddballs in the neighborhood, including a devilish lawyer, a divorce agent, and a cult leader. <br><br>\n(Source: Shogakukan, translated)",
+    "popularity": 25525,
+    "averageScore": 71,
+    "genres": [
+      "Comedy",
+      "Fantasy",
+      "Slice of Life"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx166828-iDbw5IGYR40D.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx166828-iDbw5IGYR40D.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/166828-1pKrew8OLgvb.jpg",
+    "studio": "SynergySP",
+    "nextAiringEpisode": null
+  },
+  {
     "entryId": 399551909,
     "listStatus": "DROPPED",
     "progress": 0,
@@ -15737,6 +17194,104 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/171040-TrQBid9k4RNU.jpg",
     "studio": "Telecom Animation Film",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551910,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737025,
+    "mediaId": 169698,
+    "title": {
+      "romaji": "Tadaima, Okaeri",
+      "english": "Tadaima, Okaeri",
+      "native": "ただいま、おかえり"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "Masaki Fujiyoshi is a stay-at-home spouse and parent. He has fought long and hard with feelings of being a burden to his loving husband, Hiromu, due to his status as an omega—and the difficulty they faced to achieve this domesticity. When their son, Hikari, was born, the family moved to an area better suited for raising children.<br>\n<br>\nDespite their newfound domestic bliss, the family's ties to their past are in tatters. There are people they left behind to pursue the creation of their happy family, and when they begin to return, Masaki and Hiromu aren't quite sure they have good intentions.\n<br><br>\n(Source: Crunchyroll)",
+    "popularity": 14382,
+    "averageScore": 74,
+    "genres": [
+      "Drama",
+      "Romance",
+      "Slice of Life"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx169698-pmIhuxlGufON.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx169698-pmIhuxlGufON.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/169698-bMhXndCIlAOu.jpg",
+    "studio": "Studio DEEN",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551911,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737025,
+    "mediaId": 152302,
+    "title": {
+      "romaji": "HIGHSPEED Étoile",
+      "english": "HIGHSPEED Étoile",
+      "native": "HIGHSPEED Étoile"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "Rin Rindou, who once dreamt of becoming a ballet dancer before being sidelined by injury, is embracing a quiet life with her grandmother until she is unexpectedly thrust into the high-speed world of racing. Now, she faces a new adrenaline-fueled reality in the NEX Race, a revolutionary motorsport event exceeding speeds of 500 km/h.<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 7285,
+    "averageScore": 52,
+    "genres": [
+      "Sports"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx152302-afLOVyltWMSq.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx152302-afLOVyltWMSq.jpg"
+    },
+    "bannerImage": null,
+    "studio": "King Records",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 399551913,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737025,
+    "mediaId": 170503,
+    "title": {
+      "romaji": "Karasu wa Aruji wo Erabanai",
+      "english": "YATAGARASU: The Raven Does Not Choose Its Master",
+      "native": "烏は主を選ばない"
+    },
+    "episodes": 20,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2024,
+    "description": "Welcome to Yamauchi, a world inhabited by the Yatagarasu, a race of three-legged ravens who shapeshift into humans. The land is divided into four regions—North, South, East, and West—each ruled by a noble family. Yukiya, the son of a leader in the North, is shocked by a call to attend to the Imperial Prince. Murder, mysteries, and an invasion from an unexpected enemy await in this epic fantasy.<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 19614,
+    "averageScore": 78,
+    "genres": [
+      "Action",
+      "Drama",
+      "Fantasy",
+      "Supernatural"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx170503-PCr24JL8F8f9.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx170503-PCr24JL8F8f9.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/170503-oFeGjPss0HIZ.jpg",
+    "studio": "NHK",
     "nextAiringEpisode": null
   },
   {
@@ -15902,6 +17457,138 @@
     "nextAiringEpisode": null
   },
   {
+    "entryId": 408834312,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737025,
+    "mediaId": 115142,
+    "title": {
+      "romaji": "Watanuki-san Chi no",
+      "english": null,
+      "native": "四月一日さん家の"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2019,
+    "description": "In the district of Monzen-Nakacho of Koutou in Tokyo, three sisters live in one house. The Watanuki sisters had a life of hardships, a life without a mother, who died in their early childhood and now without a father, who died just a year ago. Now alone and becoming the inheritors of the Watanuki house, the sisters have to endure several situations in their everyday lives; whether those are happy, sad or special, they will test the sisters' bonds as a family.<br><br>\n(Source: Virtual YouTuber FANDOM)",
+    "popularity": 965,
+    "averageScore": 45,
+    "genres": [
+      "Slice of Life"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx115142-QTJw0rbhHAgR.png",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx115142-QTJw0rbhHAgR.png"
+    },
+    "bannerImage": null,
+    "studio": "Helo",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 408834322,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737025,
+    "mediaId": 115654,
+    "title": {
+      "romaji": "Watanuki-san Chi to",
+      "english": null,
+      "native": "四月一日さん家と"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SPRING",
+    "seasonYear": 2020,
+    "description": "The second season of <i>Watanuki-san Chi no</i>.",
+    "popularity": 706,
+    "averageScore": 46,
+    "genres": [
+      "Drama",
+      "Slice of Life"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx115654-9nQBxGRaPQQw.png",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx115654-9nQBxGRaPQQw.png"
+    },
+    "bannerImage": null,
+    "studio": "TV Tokyo",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 411272267,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737025,
+    "mediaId": 129277,
+    "title": {
+      "romaji": "Shinigami Bocchan to Kuro Maid",
+      "english": "The Duke of Death and His Maid",
+      "native": "死神坊ちゃんと黒メイド"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SUMMER",
+    "seasonYear": 2021,
+    "description": "How can you fall in love when you can’t even hold hands? Due to a childhood curse, anything that the Duke touches will die—which makes his flirty maid’s behavior all the more shocking! Is there a way for the Duke and his companions to somehow break the curse, or is he doomed to a life where love is forever out of his reach?<br>\n<br>\n(Source: Funimation)",
+    "popularity": 77448,
+    "averageScore": 74,
+    "genres": [
+      "Comedy",
+      "Drama",
+      "Romance",
+      "Supernatural"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx129277-ou64knqN2eQT.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx129277-ou64knqN2eQT.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/129277-qlbNHKGvfr8f.jpg",
+    "studio": "J.C.STAFF",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 413823693,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737025,
+    "mediaId": 153406,
+    "title": {
+      "romaji": "Kami no Tou: Tower of God 2nd Season",
+      "english": "Tower of God Season 2",
+      "native": "神之塔 -Tower of God- 第2期"
+    },
+    "episodes": 26,
+    "mediaStatus": "FINISHED",
+    "season": "SUMMER",
+    "seasonYear": 2024,
+    "description": "The second season of <i>Kami no Tou: Tower of God</i>.\n<br><br>\nJa Wangnan can’t seem to pass the 20th Floor. Even after failing time and time again, he refuses to give up. On his journey, he meets a mysterious and powerful character named Viole. Wangnan invites Viole to join his team of Regulars. Their journey continues with new challenges at every turn.\n<br><br>\n(Source: Crunchyroll)",
+    "popularity": 110587,
+    "averageScore": 66,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Drama",
+      "Fantasy",
+      "Mystery"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx153406-dU2RLKgMUF2U.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx153406-dU2RLKgMUF2U.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/153406-wP0TEqBVxY0V.jpg",
+    "studio": "Crunchyroll",
+    "nextAiringEpisode": null
+  },
+  {
     "entryId": 413823695,
     "listStatus": "DROPPED",
     "progress": 0,
@@ -15933,6 +17620,107 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/166710-ZRHB6rjcc089.jpg",
     "studio": "WIT STUDIO",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 413823701,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737025,
+    "mediaId": 139825,
+    "title": {
+      "romaji": "Kimi to Boku no Saigo no Senjou, Arui wa Sekai ga Hajimaru Seisen Season II",
+      "english": "Our Last Crusade or the Rise of a New World Season 2",
+      "native": "キミと僕の最後の戦場、あるいは世界が始まる聖戦 Season II"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SUMMER",
+    "seasonYear": 2024,
+    "description": "The second season of <i>Kimi to Boku no Saigo no Senjou, Aruiwa Sekai ga Hajimaru Seisen</i>.<br><br>\nIska guards Sisbell, sparking Alice's jealousy. Amid a conspiracy, can they thwart personal disputes and war?<br><br>\n(Source: Crunchyroll News)",
+    "popularity": 37533,
+    "averageScore": 67,
+    "genres": [
+      "Action",
+      "Fantasy",
+      "Romance"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx139825-rFlrzdRZmlYK.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx139825-rFlrzdRZmlYK.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/139825-skAduSjC86v6.jpg",
+    "studio": "SILVER LINK.",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 413823707,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737025,
+    "mediaId": 152137,
+    "title": {
+      "romaji": "Isekai Shikkaku",
+      "english": "No Longer Allowed in Another World",
+      "native": "異世界失格"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SUMMER",
+    "seasonYear": 2024,
+    "description": "Pulled into an otherworldly adventure with cute sidekicks and superpowers, you’d think Osamu hit the jackpot. Nope! From a time before pixels, the early 20th-century gloomy author just wants to find a quiet place to meet his maker, not to rack up XP. Sadly, his poetic demise is constantly thwarted by inconvenient heroics. Dive into the hilariously tragic life of the most reluctant hero!<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 80170,
+    "averageScore": 71,
+    "genres": [
+      "Comedy",
+      "Fantasy",
+      "Romance",
+      "Slice of Life",
+      "Supernatural"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx152137-JpefyFlYa03R.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx152137-JpefyFlYa03R.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/152137-8zhxj4nTFUmC.jpg",
+    "studio": "KADOKAWA",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 413823714,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737025,
+    "mediaId": 154963,
+    "title": {
+      "romaji": "ATRI: My Dear Moments",
+      "english": "ATRI -My Dear Moments-",
+      "native": "ATRI -My Dear Moments-"
+    },
+    "episodes": 13,
+    "mediaStatus": "FINISHED",
+    "season": "SUMMER",
+    "seasonYear": 2024,
+    "description": "In the near future, a sudden and unexplained sea rise has left much of human civilization underwater. Ikaruga Natsuki, a boy who lost his mother and one of his legs in an accident some years earlier, returns disillusioned from a harsh life in the big city to find his old countryside home half-swallowed by the sea. Left without a family, all he has to his name is the ship and submarine left to him by his oceanologist grandmother, and her debts. His only hope to restore the dreams for the future that he has lost is to take up an opportunity presented to him by the suspicious debt collector Catherine. They set sail to search the sunken ruins of his grandmother's laboratory in order to find a treasure rumor says she left there. But what they find is not riches or jewels; it is a strange girl lying asleep in a coffin at the bottom of the sea, Atri. Atri is a robot, but her appearance and her wealth of emotions would fool anyone into thinking she's a living, breathing human being. In gratitude for being salvaged, she makes a declaration to Natsuki.<br><br>\n(Source: Crunchyroll)",
+    "popularity": 29228,
+    "averageScore": 70,
+    "genres": [
+      "Drama",
+      "Romance",
+      "Sci-Fi"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx154963-Ju6Ey3P5YHs2.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx154963-Ju6Ey3P5YHs2.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/154963-sDMgZTrrsT70.jpg",
+    "studio": "TROYCA",
     "nextAiringEpisode": null
   },
   {
@@ -15969,6 +17757,239 @@
     "nextAiringEpisode": null
   },
   {
+    "entryId": 413823718,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737025,
+    "mediaId": 173694,
+    "title": {
+      "romaji": "Hazure Waku no [Joutai Ijou Skill] de Saikyou ni Natta Ore ga Subete wo Juurin Suru made",
+      "english": "Failure Frame: I Became the Strongest and Annihilated Everything with Low-Level Spells",
+      "native": "ハズレ枠の【状態異常スキル】で最強になった俺がすべてを蹂躙するまで"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SUMMER",
+    "seasonYear": 2024,
+    "description": "Touka always faded into the background at school. And when he’s summoned to another world with his classmates, that still doesn’t change! They all acquire top-rank skills, except Touka, who’s deemed a failure and cast to ancient ruins by the goddess Vicius. Turns out, his low-rank skills may not be so useless after all. Now, he seeks revenge against the goddess, and his true nature is revealed.<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 78604,
+    "averageScore": 63,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Drama",
+      "Fantasy"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx173694-XcwGOMBxboOO.png",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx173694-XcwGOMBxboOO.png"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/173694-zkZHpXUKouoC.jpg",
+    "studio": "Seven Arcs",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 413823721,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737025,
+    "mediaId": 166477,
+    "title": {
+      "romaji": "Megami no Café Terrace 2nd Season",
+      "english": "The Café Terrace and Its Goddesses Season 2",
+      "native": "女神のカフェテラス 第2期"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SUMMER",
+    "seasonYear": 2024,
+    "description": "The second season of <i>Megami no Café Terrace</i>. <br><br>\n\nThe Familia Café Terrace opens once again, with a rival restaurant opening right next door!<br><br>\n(Source: Crunchyroll News, edited)",
+    "popularity": 25491,
+    "averageScore": 73,
+    "genres": [
+      "Comedy",
+      "Drama",
+      "Ecchi",
+      "Romance"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx166477-Q5jKn2WpDQ6z.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx166477-Q5jKn2WpDQ6z.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/166477-odXUre8yGjQe.jpg",
+    "studio": "Tezuka Productions",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 413823724,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737026,
+    "mediaId": 167419,
+    "title": {
+      "romaji": "Naze Boku no Sekai wo Daremo Oboeteinai no ka?",
+      "english": "Why Does Nobody Remember Me in This World?",
+      "native": "なぜ僕の世界を誰も覚えていないのか？"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SUMMER",
+    "seasonYear": 2024,
+    "description": "In a world where humans triumphed in a great war, Kai guards sealed crypts containing their enemies. But when “World Rebirth” overwrites history, he’s thrust into an alternate reality where humanity lost the war and he’s been forgotten by everyone he knows. Now, this lost hero must rise to restore the world’s balance!<br>\n<br>\n(Source: Crunchyroll)",
+    "popularity": 49516,
+    "averageScore": 62,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Fantasy",
+      "Sci-Fi"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx167419-yesWtncEBD9N.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx167419-yesWtncEBD9N.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/167419-KHPHxLWEZmlg.jpg",
+    "studio": "project No.9",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 413823725,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737026,
+    "mediaId": 173584,
+    "title": {
+      "romaji": "Maou Gun Saikyou no Majutsushi wa Ningen datta",
+      "english": "The Strongest Magician in the Demon Lord's Army was a Human",
+      "native": "魔王軍最強の魔術師は人間だった"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SUMMER",
+    "seasonYear": 2024,
+    "description": "Ike is a powerful magician and the leader of the Immortal Brigade, part of the Seventh Corps of the Demon Lord’s Army. He single-handedly conquers fortresses and pushes back the armies of humanity. Neither Dairokuten, the Demon Lord, nor Ike’s loyal soldiers know his darkest secret—he is a human in hiding! But can he keep his secret safe and bring peaceful coexistence to demons and humans?<br><br>\n(Source: Crunchyroll)",
+    "popularity": 49245,
+    "averageScore": 62,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Drama",
+      "Fantasy"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx173584-nyZElmr8218W.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx173584-nyZElmr8218W.jpg"
+    },
+    "bannerImage": null,
+    "studio": "studio A-CAT",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 413823729,
+    "listStatus": "DROPPED",
+    "progress": 3,
+    "score": 0,
+    "updatedAt": 1774737026,
+    "mediaId": 171457,
+    "title": {
+      "romaji": "Make Heroine ga Oosugiru!",
+      "english": "Makeine: Too Many Losing Heroines!",
+      "native": "負けヒロインが多すぎる！"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SUMMER",
+    "seasonYear": 2024,
+    "description": "Kazuhiko Nukumizu is a high school boy content to blend in with the background mob, until he witnessed his more popular classmate Anna Yanami get dumped by her childhood friend. He felt like he had to try to comfort Yanami, but this led him to become entangled with other girls who have met defeat at love?",
+    "popularity": 110894,
+    "averageScore": 81,
+    "genres": [
+      "Comedy",
+      "Romance",
+      "Slice of Life"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx171457-nmMIk0gNiWsm.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx171457-nmMIk0gNiWsm.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/171457-VBH6gmvCKHwV.jpg",
+    "studio": "Aniplex",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 413823733,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737026,
+    "mediaId": 167144,
+    "title": {
+      "romaji": "Koi wa Futago de Warikirenai",
+      "english": "Love Is Indivisible by Twins",
+      "native": "恋は双子で割り切れない"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SUMMER",
+    "seasonYear": 2024,
+    "description": "Jun Shirasaki’s love life takes a wild turn when he finds himself caught between the Jinguji twins—his childhood friends who are as different as night and day. Rumi, the older sister, pairs a boyish charm with a maiden’s heart, while Naori combines girlish looks with her deep love for otaku culture. As feelings grow and confusion mounts, Jun must navigate this unexpected love triangle next door.<br><br>\n\n(Source: Crunchyroll)",
+    "popularity": 25399,
+    "averageScore": 61,
+    "genres": [
+      "Romance"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx167144-tKDxH7M9z1Hb.png",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx167144-tKDxH7M9z1Hb.png"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/167144-45Bw1hPsZFuk.jpg",
+    "studio": "KADOKAWA",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 413823734,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737026,
+    "mediaId": 170891,
+    "title": {
+      "romaji": "Na-Nare Hana-Nare",
+      "english": "Narenare -Cheer for you!-",
+      "native": "菜なれ花なれ"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SUMMER",
+    "seasonYear": 2024,
+    "description": "Misora Kanata is a first-year student on the Takanosaki High School cheerleading team. She won a national championship in middle school, but can’t jump after a mistake in a competition. She befriends Suzuha, Shion, Anna, Nodoka, and Megumi to form the PoMPoMs. Their new team goes beyond cheerleading to reach the hearts of the people they cheer on. They might just change the world!<br><br>\n(Source: Crunchyroll, edited)",
+    "popularity": 15994,
+    "averageScore": 61,
+    "genres": [
+      "Drama",
+      "Slice of Life",
+      "Sports"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx170891-Bhxn5y4a86Q0.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx170891-Bhxn5y4a86Q0.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/170891-4OuuElPLL20Q.jpg",
+    "studio": "P.A.WORKS",
+    "nextAiringEpisode": null
+  },
+  {
     "entryId": 413824092,
     "listStatus": "DROPPED",
     "progress": 0,
@@ -15999,6 +18020,38 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/163077-EqzHALQl1GH5.jpg",
     "studio": "100studio",
+    "nextAiringEpisode": null
+  },
+  {
+    "entryId": 413824100,
+    "listStatus": "DROPPED",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774737026,
+    "mediaId": 171748,
+    "title": {
+      "romaji": "SHY: Tokyo Dakkan-hen",
+      "english": "SHY Season 2",
+      "native": "SHY 東京奪還編 "
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "SUMMER",
+    "seasonYear": 2024,
+    "description": "Shy has grown up a little after fighting against the 'Amalareik,' led by the mysterious boy Stigma. When she returns to Japan, she meets a girl named Ai Tennouji who has run away from her ninja village. Ai tells Shy that she left the village to chase a member of the 'Amalareik.' Meanwhile, an incident occurs in which Tokyo is suddenly enveloped in a black ball and disappears. The heroes are dispatched to rescue Tokyo.\n<br><br>\n(Source: Official Site, translated)",
+    "popularity": 11554,
+    "averageScore": 68,
+    "genres": [
+      "Action",
+      "Drama"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx171748-yigmfmsgq6SR.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx171748-yigmfmsgq6SR.jpg"
+    },
+    "bannerImage": null,
+    "studio": "8-bit",
     "nextAiringEpisode": null
   },
   {
@@ -31406,6 +33459,38 @@
     "nextAiringEpisode": null
   },
   {
+    "entryId": 526705129,
+    "listStatus": "COMPLETED",
+    "progress": 12,
+    "score": 0,
+    "updatedAt": 1774746889,
+    "mediaId": 187942,
+    "title": {
+      "romaji": "Mayonaka Heart Tune",
+      "english": "Tune In to the Midnight Heart",
+      "native": "真夜中ハートチューン"
+    },
+    "episodes": 12,
+    "mediaStatus": "FINISHED",
+    "season": "WINTER",
+    "seasonYear": 2026,
+    "description": "When Arisu Yamabuki was all alone in bed at night, he was able to find solace in the voice of a radio host who went by “Apollo.” However, one day, she simply stopped broadcasting without any explanation. Years then passed, and Arisu is now a second-year high-schooler. He makes it his mission to search for Apollo, as there is something he wants to tell her. He doesn’t know what she looks like, or even what her real name is, but he manages to get some leads on her in his school’s broadcasting club. That’s where he meets four girls who all dream to get a job where they can make full use of their voices! Just who is Apollo, and how will those four’s dreams pan out?\n<br><br>\n(Source: K Manga)",
+    "popularity": 30851,
+    "averageScore": 71,
+    "genres": [
+      "Comedy",
+      "Romance"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx187942-c2cZvunJGfiE.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx187942-c2cZvunJGfiE.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/187942-tUpZo1VxashN.jpg",
+    "studio": "Gekkou",
+    "nextAiringEpisode": null
+  },
+  {
     "entryId": 526705154,
     "listStatus": "COMPLETED",
     "progress": 5,
@@ -42665,41 +44750,6 @@
     "nextAiringEpisode": null
   },
   {
-    "entryId": 277245985,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291159,
-    "mediaId": 129196,
-    "title": {
-      "romaji": "Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka IV: Shin Shou Meikyuu-hen",
-      "english": "Is It Wrong to Try to Pick Up Girls in a Dungeon? IV",
-      "native": "ダンジョンに出会いを求めるのは間違っているだろうかⅣ 新章 迷宮篇"
-    },
-    "episodes": 11,
-    "mediaStatus": "FINISHED",
-    "season": "SUMMER",
-    "seasonYear": 2022,
-    "description": "The fourth season of <i>Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka</i>.<br>\n<br>\nIntrepid adventurer Bell Cranel has leveled up, but he can’t rest on his dungeoneering laurels just yet. The Hestia Familia still has a long way to go before it can stand toe-to-toe with the other Familias of Orario — but before Bell can set out on his next mission, reports of a brutal murder rock the adventuring community! One of Bell’s trusted allies stands accused of the horrible crime, and it’s up to Bell and his friends to clear their name and uncover a nefarious plot brewing in the dungeon’s dark depths.<br>\n<br>\n(Source: Sentai Filmworks)",
-    "popularity": 115049,
-    "averageScore": 77,
-    "genres": [
-      "Action",
-      "Adventure",
-      "Comedy",
-      "Fantasy",
-      "Romance"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx129196-eFVs05hMbVSm.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx129196-eFVs05hMbVSm.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/129196-bs6Z7VXXsyNd.jpg",
-    "studio": "Warner Bros. Japan",
-    "nextAiringEpisode": null
-  },
-  {
     "entryId": 298318586,
     "listStatus": "CURRENT",
     "progress": 0,
@@ -42873,38 +44923,6 @@
     "nextAiringEpisode": null
   },
   {
-    "entryId": 365265666,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1695435105,
-    "mediaId": 163205,
-    "title": {
-      "romaji": "Mononogatari 2nd Season",
-      "english": "Malevolent Spirits: Mononogatari Cour 2",
-      "native": "もののがたり 第二章"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SUMMER",
-    "seasonYear": 2023,
-    "description": "The second season of <i>Mononogatari</i>.<br><br>\nThe tsukumogami encounter mysterious new enemies who threaten life in Kyoto! <br><br>\n\n(Source: Crunchyroll)",
-    "popularity": 11740,
-    "averageScore": 72,
-    "genres": [
-      "Action",
-      "Supernatural"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx163205-s9TZY5bb99oB.png",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx163205-s9TZY5bb99oB.png"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/163205-TApFSSDPUBGz.jpg",
-    "studio": "Shogakukan-Shueisha Productions",
-    "nextAiringEpisode": null
-  },
-  {
     "entryId": 365265687,
     "listStatus": "CURRENT",
     "progress": 0,
@@ -43010,37 +45028,6 @@
     "nextAiringEpisode": null
   },
   {
-    "entryId": 365266976,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1707120440,
-    "mediaId": 154459,
-    "title": {
-      "romaji": "Keikenzumi na Kimi to, Keiken Zero na Ore ga, Otsukiai suru Hanashi.",
-      "english": "Our Dating Story: The Experienced You and The Inexperienced Me",
-      "native": "経験済みなキミと、経験ゼロなオレが、お付き合いする話。"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "FALL",
-    "seasonYear": 2023,
-    "description": "Ryuuto Kashima is the school’s gloomy introvert, and he’s got a crush on Runa Shirakawa, the popular girl. After losing a bet to classmates, he confesses his feelings to Runa one day. Shocked and secretly just as inexperienced as Ryuuto, Runa agrees to date him. The relationship grows between two people who are as similar as they are different. Will their young love blossom? Time will tell!<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 72305,
-    "averageScore": 66,
-    "genres": [
-      "Romance"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx154459-foR6BMJayEbi.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx154459-foR6BMJayEbi.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/154459-ZHa4a0AxexMy.jpg",
-    "studio": "ENGI",
-    "nextAiringEpisode": null
-  },
-  {
     "entryId": 365267029,
     "listStatus": "CURRENT",
     "progress": 0,
@@ -43071,137 +45058,6 @@
     },
     "bannerImage": null,
     "studio": "TBS",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 365267060,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1696660188,
-    "mediaId": 156039,
-    "title": {
-      "romaji": "Boushoku no Berserk",
-      "english": "Berserk of Gluttony",
-      "native": "暴食のベルセルク"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "FALL",
-    "seasonYear": 2023,
-    "description": "Fate Graphite was born into a world where magical skills shape your destiny. His skill is Gluttony, a seemingly useless curse of unending hunger that has left him shunned and looked down upon. Until one day, after he takes the life of a thief, his true power awakens: he can devour the skill of anyone he kills to feed his appetite. Will he learn to control this gruesome ability for the better?<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 83460,
-    "averageScore": 67,
-    "genres": [
-      "Action",
-      "Adventure",
-      "Drama",
-      "Fantasy",
-      "Romance"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx156039-JnepQcVxXLLW.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx156039-JnepQcVxXLLW.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/156039-oGyVXfVsG8GM.jpg",
-    "studio": "Genco",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 365267109,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1696660187,
-    "mediaId": 138788,
-    "title": {
-      "romaji": "Under Ninja",
-      "english": "UNDER NINJA",
-      "native": "アンダーニンジャ"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "FALL",
-    "seasonYear": 2023,
-    "description": "Ninjas still exist in Japan today. They number around 200,000. The ninja organization NIN (National Intelligence of NINJA) is not controlled by the civilian government, with its elite members performing assassinations and sabotage in secret. There is an organization that opposes NIN: UN (Under Ninja). Ninja versus ninja: What lies waiting at the end of this shadowy feud?<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 24243,
-    "averageScore": 66,
-    "genres": [
-      "Action",
-      "Comedy"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx138788-CXUvAraN1xha.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx138788-CXUvAraN1xha.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/138788-EegwXUtH8iJR.jpg",
-    "studio": "Tezuka Productions",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 365267311,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1696660185,
-    "mediaId": 150077,
-    "title": {
-      "romaji": "Paradox Live THE ANIMATION",
-      "english": "Paradox Live THE ANIMATION",
-      "native": "Paradox Live THE ANIMATION"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "FALL",
-    "seasonYear": 2023,
-    "description": "Saturated in hip hop culture comes the birth of a new movement known as “Phantom Live ”. Each of the artists have a metal accessory known as “Phantom Metal” which chemically reacts to the wearer’s emotions to produce an image, setting a magnificent stage for enthusiastic youths. With legendary club “CLUB paradox” hosting the mysterious Paradox Live, four teams: BAE, The Cat’s Whiskers, cozmez and Akanyatsura each receive an invitation to participate, each with their own genre of music in a race to the top. Each of the four teams go into the competition for a reason. As the competition heats up, so do the unimaginably large motives each of them hides…<br>\n<br>\nThe curtain now rises on a swirling illusory stage battle between light and darkness–!<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 14490,
-    "averageScore": 66,
-    "genres": [
-      "Drama",
-      "Music",
-      "Sci-Fi"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx150077-L2XSxnoonCiq.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx150077-L2XSxnoonCiq.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/150077-9A7Pllt4B5WZ.jpg",
-    "studio": "PINE JAM",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 365267343,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1696159343,
-    "mediaId": 120755,
-    "title": {
-      "romaji": "The IDOLM@STER Million Live!",
-      "english": "THE IDOLM@STER Million Live!",
-      "native": "アイドルマスター ミリオンライブ！"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "FALL",
-    "seasonYear": 2023,
-    "description": "Mirai Kasuga, who wants to carry on a dream she has yet to see. Shizuka Mogami, who yearns to be an idol and is shaken. Tsubasa Ibuki, who does not know what she can be serious about.<br>\n<br>\nAt 765 Production new idols gather and everyone's \"dreams\" will brought into brilliance at the theater! The long-awaited anime of <i>\"The IDOLM@STER Million Live!!</i> <br><br>\n(Source: Official Site, translated)",
-    "popularity": 5506,
-    "averageScore": 68,
-    "genres": [
-      "Music"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx120755-GNWdZXkBtNlw.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx120755-GNWdZXkBtNlw.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/120755-DJS9ciiZfKiq.jpg",
-    "studio": "Shirogumi",
     "nextAiringEpisode": null
   },
   {
@@ -43297,40 +45153,6 @@
       "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx138416-Ez4Zd3nd3oz3.jpg"
     },
     "bannerImage": null,
-    "studio": "Yostar Pictures",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 365270134,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1695436833,
-    "mediaId": 160589,
-    "title": {
-      "romaji": "Blue Archive The Animation",
-      "english": null,
-      "native": "ブルーアーカイブ The Animation"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "The anime will adapt the \"Countermeasures Committee\" arc.\n<br><br>\nThe city's academies are divided into their own districts and are considered mostly independent.\n<br><br>\nThe General Student Council acts as governing board to manage the academies as a whole. However, the group's ability to govern has come to halt since the mysterious disappearance of the General Student Council president. Countless issues have begun to surface throughout Kivotos in the absence of the president's leadership.\n<br><br>\nTo avoid disaster, the General Student Council requests assistance from the Federal Investigation Club, otherwise known as Schale. In fact, Schale is the city's newest club and the last to be approved before the president's disappearance.\n<br><br>\nTo accomplish its task, Schale relies on the guidance of a Sensei who can help them resolve the incidents around Kivotos.<br><br> <i>(Students are required to carry personal weapons and smart phones! Get a taste of the military action, love, and friendship the Academy City has to offer!) </i><br><br>(Source: Anime News Network, Nexon, edited)",
-    "popularity": 27935,
-    "averageScore": 66,
-    "genres": [
-      "Action",
-      "Comedy",
-      "Fantasy",
-      "Slice of Life"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx160589-tqLLm7trgCSa.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx160589-tqLLm7trgCSa.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/160589-H6dJMRMEMw44.jpg",
     "studio": "Yostar Pictures",
     "nextAiringEpisode": null
   },
@@ -43499,40 +45321,6 @@
     "nextAiringEpisode": null
   },
   {
-    "entryId": 370347108,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1697860170,
-    "mediaId": 161364,
-    "title": {
-      "romaji": "Toaru Ossan no VRMMO Katsudouki",
-      "english": "A Playthrough of a Certain Dude's VRMMO Life",
-      "native": "とあるおっさんのVRMMO活動記"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "FALL",
-    "seasonYear": 2023,
-    "description": "Tanaka Taichi is just an ordinary 38-year-old who enjoys video games. He starts a new virtual reality multiplayer game called One More Free Life Online, naming his character Earth. Unlike his fellow players, he decides to master the most menial of skills in the game. He cooks the finest meals, overbrews complicated potions, and hunts monsters with handmade weapons. His fantasy life begins!<br><br>\n(Source: Crunchyroll)<br>\n<br><i>Note: The first 2 episodes were exclusively shown as a world premiere during the Anime Messe Babelsberg 2023 in July as a part of a special Anime Panel. </i><br>\n",
-    "popularity": 31823,
-    "averageScore": 62,
-    "genres": [
-      "Action",
-      "Adventure",
-      "Comedy",
-      "Fantasy"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx161364-X0Nk5FvL6GHj.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx161364-X0Nk5FvL6GHj.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/161364-6WK6WHqfIYot.jpg",
-    "studio": "Maho Film",
-    "nextAiringEpisode": null
-  },
-  {
     "entryId": 372630425,
     "listStatus": "CURRENT",
     "progress": 0,
@@ -43562,37 +45350,6 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/137075-ooCsz49X19QQ.jpg",
     "studio": "Studio Khara",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 372630663,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1699179272,
-    "mediaId": 162889,
-    "title": {
-      "romaji": "The iDOLM@STER: Shiny Colors",
-      "english": "THE iDOLM@STER SHINY COLORS",
-      "native": "アイドルマスター シャイニーカラーズ"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "The producer of the 283 Production group brings together a whole new cast of idols to the stage!\n<br><br>\n(Source: Crunchyroll)<br><br>\n<i>Note: The series had a three-part theatrical pre-screening in Japan starting in October 2023. Regular TV broadcast begins in April 2024.<br><br>\n• Part 1 releasing theatrically on October 27, 2023.<br>\n• Part 2 releasing theatrically on November 24, 2023.<br>\n• Part 3 releasing theatrically on January 5, 2024.</i>",
-    "popularity": 5197,
-    "averageScore": 57,
-    "genres": [
-      "Music"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx162889-I61pWq5qN8QC.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx162889-I61pWq5qN8QC.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/162889-BnfG1JKNN1PE.jpg",
-    "studio": "POLYGON PICTURES",
     "nextAiringEpisode": null
   },
   {
@@ -43632,1233 +45389,6 @@
     "nextAiringEpisode": null
   },
   {
-    "entryId": 382039822,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1704689417,
-    "mediaId": 141821,
-    "title": {
-      "romaji": "Mato Seihei no Slave",
-      "english": "Chained Soldier",
-      "native": "魔都精兵のスレイブ"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "WINTER",
-    "seasonYear": 2024,
-    "description": "Yuuki Wakura watches as dueling supernatural forces ravage the Earth. Mato are portals to another dimension, avenues from which dangerous monsters escape. Peaches are resources given to women granting them abilities. Chief of the Seventh Unity of the Anti-Demon Corp, Kyouka Uzen arrives to save Yuuki from a monster. Surprisingly, Yuuki holds the power to increase the Peaches effectiveness. But to save the world, Yuuki must be willing to become Kyouka’s servant both on the battlefield and at home.<br>\n<br>\n(Source: HIDIVE)",
-    "popularity": 94854,
-    "averageScore": 67,
-    "genres": [
-      "Action",
-      "Adventure",
-      "Drama",
-      "Ecchi",
-      "Fantasy",
-      "Romance"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx141821-lkVTjKqL4BU2.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx141821-lkVTjKqL4BU2.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/141821-KIRWH28jXINm.jpg",
-    "studio": "Seven Arcs",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 382039831,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1704689416,
-    "mediaId": 158931,
-    "title": {
-      "romaji": "Ao no Exorcist: Shimane Illuminati-hen",
-      "english": "Blue Exorcist -Shimane Illuminati Saga-",
-      "native": "青の祓魔師 島根啓明結社篇"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "WINTER",
-    "seasonYear": 2024,
-    "description": "New TV anime series of <i>Ao no Exorcist</i>.<br>\n<br>\nAt True Cross Academy, Rin Okumura unknowingly comes across the first signs that something is amiss; ordinary people have been gaining the ability to perceive the invisible creatures that roam the human realm, Assiah. While Rin sees this as an opportunity to make a new friend, his twin brother, Yukio, is more burdened than ever. Swamped with his education, exorcist duties, and teaching position, Yukio has remained silent about his awakened powers, unable to understand their scale or significance.\n<br>\nWhile Rin and his friends prepare for the annual Exorcist Certification Exam, the True Cross Order has uncovered the first artificial gate to the demonic realm of Gehenna. Witnessing its size and the advanced technology that made it possible, the exorcists realize they are now dealing with the Illuminati, an extremely wealthy and powerful organization. Moreover, the inscrutable Illuminati have planted three spies in the True Cross Order—and one may be hiding among the aspiring exorcists sworn to protect mankind from the demonic threat.<br>\n<br>\n(Source: MAL Rewrite)",
-    "popularity": 55857,
-    "averageScore": 71,
-    "genres": [
-      "Action",
-      "Fantasy",
-      "Supernatural"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx158931-QAQMtWKunvy3.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx158931-QAQMtWKunvy3.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/158931-3cXdwPkUplE8.jpg",
-    "studio": "Aniplex",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 382039833,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1704689420,
-    "mediaId": 156131,
-    "title": {
-      "romaji": "Shin no Nakama ja Nai to Yuusha no Party wo Oidasareta node, Henkyou de Slow Life suru Koto ni shimashita 2nd",
-      "english": "Banished from the Hero’s Party, I Decided to Live a Quiet Life in the Countryside Season 2",
-      "native": "真の仲間じゃないと勇者のパーティーを追い出されたので、辺境でスローライフすることにしました 2nd"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "WINTER",
-    "seasonYear": 2024,
-    "description": "The second season of <i>Shin no Nakama ja Nai to Yuusha no Party wo Oidasareta node, Henkyou de Slow Life suru Koto ni shimashita.</i><br>\n<br>\nA once-great Hero is now living the slow life. Red, shunned from his adventuring party, spends his days running an apothecary. He lives with his lifelong love, Princess Rit, and his sister, Ruti. They indulge in moments of bliss, like soaking in serene hot springs and enjoying delicious meals with a view. No matter what happens to the world around them, these happy moments will be unchanged.<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 51060,
-    "averageScore": 68,
-    "genres": [
-      "Action",
-      "Adventure",
-      "Fantasy",
-      "Romance",
-      "Slice of Life"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx156131-aZPpDX61BIeo.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx156131-aZPpDX61BIeo.jpg"
-    },
-    "bannerImage": null,
-    "studio": "Studio Flad",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 382039835,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291180,
-    "mediaId": 155963,
-    "title": {
-      "romaji": "Dosanko Gal wa Namara Menkoi",
-      "english": "Hokkaido Gals Are Super Adorable!",
-      "native": "道産子ギャルはなまらめんこい"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "WINTER",
-    "seasonYear": 2024,
-    "description": "Snowflakes aren’t the only things dropping in Hokkaido—so are jaws, thanks to the super adorable gals who are turning the icy north into a hotbed of fashion and fun. Brace yourself for a winter storm of laughs, love, and killer outfits as these gals prove that being cute is an all-season affair. Here, frostbite meets fashionista!\n<br><br>\n(Source: Crunchyroll) ",
-    "popularity": 73420,
-    "averageScore": 69,
-    "genres": [
-      "Comedy",
-      "Romance",
-      "Slice of Life"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx155963-kOnLUDAEamUe.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx155963-kOnLUDAEamUe.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/155963-0YBhWU1chFHt.jpg",
-    "studio": "BLADE",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 382039836,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291177,
-    "mediaId": 153818,
-    "title": {
-      "romaji": "Majo to Yajuu",
-      "english": "The Witch and the Beast",
-      "native": "魔女と野獣"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "WINTER",
-    "seasonYear": 2024,
-    "description": "It all started with the 17 \"Origins,\" whose powers were passed down to individuals who still exist around the world today. A man carrying a coffin and a girl with the eyes of a beast appear in a town. The girl was once cursed by a witch and now searches for her in order to undo the curse. Is the witch who appears before them the quarry they've been searching for? And how can the curse be undone? This quest for revenge against an evil witch begins rolling when the beast captures the witch. This magnificent and intense dark fantasy begins now!<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 61466,
-    "averageScore": 72,
-    "genres": [
-      "Action",
-      "Adventure",
-      "Drama",
-      "Fantasy"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx153818-FWvl0RL6vDbq.png",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx153818-FWvl0RL6vDbq.png"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/153818-3NkluPookK0W.jpg",
-    "studio": "Yokohama Animation Lab",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 382039840,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1704689419,
-    "mediaId": 158028,
-    "title": {
-      "romaji": "Sokushi Cheat ga Saikyou Sugite, Isekai no Yatsura ga Marude Aite ni Naranai n desu ga.",
-      "english": "My Instant Death Ability is Overpowered",
-      "native": "即死チートが最強すぎて、異世界のやつらがまるで相手にならないんですが。"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "WINTER",
-    "seasonYear": 2024,
-    "description": "Yogiri Takatou missed out on a few things while napping during a school trip... mainly how his entire class got transported to another world and how a curious sage gave everyone special powers! When Yogiri wakes up, he and classmate Tomochika Dannoura must defend themselves against a dragon. Out of options, Yogiri reluctantly agrees to team up with Tomochika and fend off danger with his Instant Death ability. If he can keep his eyes open, that is...<br>\n<br>\n(Source: HIDIVE)",
-    "popularity": 63928,
-    "averageScore": 63,
-    "genres": [
-      "Action",
-      "Adventure",
-      "Comedy",
-      "Fantasy"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx158028-gQ2vnz7LEb0E.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx158028-gQ2vnz7LEb0E.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/158028-VsdGzE4GpcUW.jpg",
-    "studio": "Okuruto Noboru",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 382039844,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1713692891,
-    "mediaId": 163076,
-    "title": {
-      "romaji": "Akuyaku Reijou Level 99: Watashi wa Ura Boss desu ga Maou de wa Arimasen",
-      "english": "Villainess Level 99: I May Be the Hidden Boss but I'm Not the Demon Lord",
-      "native": "悪役令嬢レベル99 ～私は裏ボスですが魔王ではありません～"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "WINTER",
-    "seasonYear": 2024,
-    "description": "This college kid wants nothing more than a quiet life. So when she’s reborn as Yumiella, the hidden villainess of an Otome RPG, she’s not exactly thrilled. Still yearning for peace, she abandons her evil duties to live a more discreet life. Until her gamer side kicks in and she accidentally reaches level 99! Now, everyone suspects that she’s the infamous Demon Lord. What future awaits her?<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 67247,
-    "averageScore": 71,
-    "genres": [
-      "Comedy",
-      "Fantasy",
-      "Romance"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx163076-5wQKtU3FoMxd.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx163076-5wQKtU3FoMxd.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/163076-vD78A7Jl8j5l.jpg",
-    "studio": "Jumondou",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 382039847,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1704689418,
-    "mediaId": 160389,
-    "title": {
-      "romaji": "Kekkon Yubiwa Monogatari",
-      "english": "Tales of Wedding Rings",
-      "native": "結婚指輪物語"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "WINTER",
-    "seasonYear": 2024,
-    "description": "Satou is a high school boy in love with his best friend Hime, an unearthly beauty from another realm. So when she moves back to her home world to get married, Satou doesn’t think twice—he follows her and crashes the wedding. Then, after a kiss from Hime, he suddenly becomes the new groom! But here, Hime is a Ring Princess and her husband is destined to be the Ring King: a hero of immense power.<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 46913,
-    "averageScore": 59,
-    "genres": [
-      "Adventure",
-      "Comedy",
-      "Ecchi",
-      "Fantasy",
-      "Romance"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx160389-2f6SosbyUpxX.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx160389-2f6SosbyUpxX.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/160389-zQYpBIU4tnd8.jpg",
-    "studio": "Staple Entertainment",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 382039854,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291179,
-    "mediaId": 162144,
-    "title": {
-      "romaji": "Gekai Elise",
-      "english": "Doctor Elise: The Royal Lady with the Lamp",
-      "native": "外科医エリーゼ"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "WINTER",
-    "seasonYear": 2024,
-    "description": "Making up for her sins in a past life as the evil princess Elise, Aoi Takamoto dedicates her life to saving people as a doctor. But a fatal accident cuts her atonement short and suddenly she’s back to her previous life, 10 years before her death! Will her foresight and medical brilliance help her change her past ways and heal an ailing empire, or is fate doomed to repeat itself?\n<br><br>\n(Source: Crunchyroll)",
-    "popularity": 36877,
-    "averageScore": 71,
-    "genres": [
-      "Comedy",
-      "Fantasy",
-      "Romance"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx162144-T0y7XyTFhSYJ.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx162144-T0y7XyTFhSYJ.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/162144-EY0vpBkP5gDj.jpg",
-    "studio": "Maho Film",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 382039855,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1704689421,
-    "mediaId": 162002,
-    "title": {
-      "romaji": "Kyuujitsu no Warumono-san",
-      "english": "Mr. Villain's Day Off",
-      "native": "休日のわるものさん"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "WINTER",
-    "seasonYear": 2024,
-    "description": "The man known as General within a villainous organization that plans to take over the world is usually fighting to the death against the Rangers who protect the Earth...<br>\n<br>\nBut today is his day off.<br>\n<br>\nTo heal his tired soul from working so hard every day, he goes to the zoo to see pandas and to the convenience store to get some ice cream.<br>\n<br>\nWe get to see how a certain villain gets to completely enjoy his days off to the fullest in this comedy that will heal your soul.<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 36628,
-    "averageScore": 71,
-    "genres": [
-      "Comedy",
-      "Slice of Life"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx162002-tlKT0PVbwluv.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx162002-tlKT0PVbwluv.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/162002-6FkKCqd2FNFs.jpg",
-    "studio": "Shin-Ei Animation",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 382039858,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291181,
-    "mediaId": 163151,
-    "title": {
-      "romaji": "HIGH CARD season 2",
-      "english": "HIGH CARD Season 2",
-      "native": "HIGH CARD season 2"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "WINTER",
-    "seasonYear": 2024,
-    "description": "Second season of <i>HIGH CARD<i>.",
-    "popularity": 16543,
-    "averageScore": 70,
-    "genres": [
-      "Action",
-      "Fantasy"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx163151-yxXcufmMoCmv.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx163151-yxXcufmMoCmv.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/163151-0RAW1fABXTDH.jpg",
-    "studio": "Studio Hibari",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 382039863,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291177,
-    "mediaId": 156891,
-    "title": {
-      "romaji": "Saijaku Tamer wa Gomi Hiroi no Tabi wo Hajimemashita.",
-      "english": "The Weakest Tamer Began a Journey to Pick Up Trash",
-      "native": "最弱テイマーはゴミ拾いの旅を始めました。"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "WINTER",
-    "seasonYear": 2024,
-    "description": "Stars are everything, granting abilities to Tamers. So when Ivy was born without one, her village took it as an ill omen! Now banished, she leads a lonely life of salvaging rubbish to survive. That is until she befriends Sora, a weak little slime, in the forest. Together, the delicate duo embarks on a heartwarming journey of survival and discovers there’s more to Ivy than being starless.<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 45145,
-    "averageScore": 74,
-    "genres": [
-      "Adventure",
-      "Fantasy"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx156891-bw91QNdptQEG.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx156891-bw91QNdptQEG.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/156891-VdUOlIqn48TE.jpg",
-    "studio": "Studio Massket",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 382039866,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1713692885,
-    "mediaId": 166522,
-    "title": {
-      "romaji": "Hime-sama, \"Goumon\" no Jikan desu",
-      "english": "'Tis Time for \"Torture,\" Princess",
-      "native": "姫様“拷問”の時間です"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "WINTER",
-    "seasonYear": 2024,
-    "description": "As the war between the Imperial Army and Hellhorde rages on, the Princess, despite being armed with her mythical sword Excalibur, is captured and imprisoned. What kind of torture does she face at the hands of the chief demon interrogator? Fluffy fresh-baked toast! Hot, steaming ramen! Oh, the humanity! Can the Princess withstand these tormenting treats and keep her kingdom’s secrets safe?<br><br>\n(Source: Crunchyroll)",
-    "popularity": 31630,
-    "averageScore": 71,
-    "genres": [
-      "Comedy",
-      "Fantasy",
-      "Slice of Life"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx166522-pUnBSDFzs9DD.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx166522-pUnBSDFzs9DD.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/166522-khKEYJzH2jKm.jpg",
-    "studio": "PINE JAM",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 382039868,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1704689419,
-    "mediaId": 165314,
-    "title": {
-      "romaji": "Pon no Michi",
-      "english": "Pon no Michi",
-      "native": "ぽんのみち"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "WINTER",
-    "seasonYear": 2024,
-    "description": "The anime is set in Hiroshima Prefecture's Onomichi City, where a high school student Nashiko Jippensha was kicked out of her house. Without a place to play with her friends, she learns that the mahjong parlor that her father used to run is now vacant. She fixes the mahjong parlor and turns it into a place where she and her friends can have fun, cook, have tea, and sometimes play mahjong.<br>\n<br>\n(Source: Anime News Network)",
-    "popularity": 15147,
-    "averageScore": 67,
-    "genres": [
-      "Slice of Life"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx165314-oHSkxN95nSsx.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx165314-oHSkxN95nSsx.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/165314-TD6m7bbINzow.jpg",
-    "studio": "OLM",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 382039871,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1704689420,
-    "mediaId": 167146,
-    "title": {
-      "romaji": "Momochi-san Chi no Ayakashi Ouji",
-      "english": "The Demon Prince of Momochi House",
-      "native": "百千さん家のあやかし王子"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "WINTER",
-    "seasonYear": 2024,
-    "description": "Himari’s 16th birthday will be one she never forgets. Unexpectedly, she receives a will detailing her inheritance of a mysterious estate: the Momochi House. She arrives only to discover that the home was built on the cusp between the human world and the spiritual realm. There, she encounters Yukari, Ise, and a peculiar boy named Aoi, who seems to be concealing a shadowy secret.\n<br><br>\n(Source: Crunchyroll)",
-    "popularity": 18631,
-    "averageScore": 62,
-    "genres": [
-      "Romance",
-      "Supernatural"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx167146-H6Kpldjzcxic.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx167146-H6Kpldjzcxic.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/167146-LS7T5rsbjYuA.jpg",
-    "studio": "Drive",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551562,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1712476130,
-    "mediaId": 166372,
-    "title": {
-      "romaji": "Dekisokonai to Yobareta Moto Eiyuu wa, Jikka kara Tsuihou Sareta node Suki Katte ni Ikiru Koto ni Shita",
-      "english": "The Banished Former Hero Lives as He Pleases",
-      "native": "出来損ないと呼ばれた元英雄は、実家から追放されたので好き勝手に生きることにした"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "\"I can finally go search for the peaceful life I've been looking forward to since my past life.\" \n<br><br>\nAllen, a boy called a failure because he was not blessed with a \"Gift\" from god, is actually a former hero who still has the memories and powers of his past life?! Using his banishment from his family's duchy as an excuse, Allen is about to start a carefree journey to do whatever he wants when he comes across an attempt on the life of his ex-fiancée...?! \n<br><br>\nThe former hero wants to live a relaxing life this time around, but the heroic fantasy life he never wanted is about to begin! \n<br><br>\n(Source: Crunchyroll)",
-    "popularity": 32610,
-    "averageScore": 48,
-    "genres": [
-      "Action",
-      "Adventure",
-      "Fantasy",
-      "Romance"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx166372-AO67sLMZfUpB.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx166372-AO67sLMZfUpB.jpg"
-    },
-    "bannerImage": null,
-    "studio": "Studio DEEN",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551563,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1712476129,
-    "mediaId": 169417,
-    "title": {
-      "romaji": "Re:Monster",
-      "english": "Re:Monster",
-      "native": "Re:Monster"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "After meeting an untimely death, Tomokui Kanata is reincarnated as a lowly goblin, but he’s worked up a monstrous appetite. Thanks to his new ability that allows him to grow stronger the more he feeds, his feeble status quickly changes, and he rises to become the goblin leader. With a mix of his past memories, new body, and strong stomach, he’s taking a bite out of this new fantastical world! <br><br>\n(Source: Crunchyroll)<br><br>\n<i>The episodes were streamed several days ahead than the TV broadcast on U-NEXT, Anime Houdai, and Crunchyroll beginning on April 2nd, 2024 at 0:00 JST. The regular TV broadcast begins on April 5th, 2024.",
-    "popularity": 59151,
-    "averageScore": 65,
-    "genres": [
-      "Action",
-      "Adventure",
-      "Fantasy"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx169417-izsfKg0hasRd.png",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx169417-izsfKg0hasRd.png"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/169417-NaD0wR83gTbm.jpg",
-    "studio": "Studio DEEN",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551564,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1712476129,
-    "mediaId": 169927,
-    "title": {
-      "romaji": "One Room, Hi Atari Futsuu, Tenshi Tsuki.",
-      "english": "Studio Apartment, Good Lighting, Angel Included",
-      "native": "ワンルーム、日当たり普通、天使つき。"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "After a long day, high schooler Shintarou Tokumitsu’s plans for relaxing in his studio apartment take a turn when he discovers an angel on his balcony. The divine girl, Towa, reveals she’s there to study humanity, and yet despite his skepticism, he agrees to put her up. Prepare for the most heavenly and high jinks roommate experience of all time!<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 29431,
-    "averageScore": 68,
-    "genres": [
-      "Comedy",
-      "Romance",
-      "Slice of Life",
-      "Supernatural"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx169927-3FwBuKn4x5LL.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx169927-3FwBuKn4x5LL.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/169927-Z42R2hk0LvjJ.jpg",
-    "studio": "Okuruto Noboru",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551570,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1712476127,
-    "mediaId": 150085,
-    "title": {
-      "romaji": "Touken Ranbu Kai: Kyoden Moyuru Honnouji",
-      "english": "TOUKEN RANBU KAI KYODEN",
-      "native": "刀剣乱舞 廻 -虚伝 燃ゆる本能寺-"
-    },
-    "episodes": 8,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "One day, a new sword manifested at their citadel.\n<br><br>\nFudou Yukimitsu: A sword worn by a commander of the Sengoku era, Oda Nobunaga, who was granted to one of his attending servants, Mori Ranmaru. Fudou Yukimitsu makes it known that he is proud to be Oda Nobunaga's beloved sword, but clashes with the other swords who also call Nobunaga their former master: Souza Samonji, Heshikiri Hasebe, and Yagen Toushirou. The appointed team captain, Yamanbagiri Kunihiro, must rally a citadel that has fallen into disarray at Fudou Yukimitsu's arrival. In the midst of all this, the saniwa has received an order to depart for the year 1582 -- the Honnouji event, where Oda Nobunaga met his demise...\n<br><br>\nAnime production was scripted and overseen by Kenichi Suemitsu, the director and playwright of the original play.\n",
-    "popularity": 5139,
-    "averageScore": 54,
-    "genres": [
-      "Action",
-      "Fantasy"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx150085-CBTMBvROhxmY.png",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx150085-CBTMBvROhxmY.png"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/150085-AywWcqVkomJH.jpg",
-    "studio": "domerica",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551723,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1713692745,
-    "mediaId": 136804,
-    "title": {
-      "romaji": "Kono Subarashii Sekai ni Shukufuku wo! 3",
-      "english": "KONOSUBA -God's blessing on this wonderful world! 3",
-      "native": "この素晴らしい世界に祝福を！３"
-    },
-    "episodes": 11,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "The third season of <i>Kono Subarashii Sekai ni Shukufuku wo! </i><br><br>\nThe dysfunctional party is back, but they may be short a member soon ’cause Kazuma is over it. Disillusioned with adventure, he wants to become a monk, but Aqua, Megumin, and Darkness call bull. However, the career dispute gets put on hold when a princess requests to hear all about their tales. Will the taste of fame at the royal castle keep them together or will this mark their farewell tour?<br><br>\n\n(Source: Crunchyroll)",
-    "popularity": 157211,
-    "averageScore": 82,
-    "genres": [
-      "Action",
-      "Adventure",
-      "Comedy",
-      "Ecchi",
-      "Fantasy"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx136804-7FVftG67FPBc.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx136804-7FVftG67FPBc.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/136804-yHC8D64UTiRA.jpg",
-    "studio": "Drive",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551744,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1713692839,
-    "mediaId": 130590,
-    "title": {
-      "romaji": "Maou Gakuin no Futekigousha: Shijou Saikyou no Maou no Shiso, Tensei shite Shison-tachi no Gakkou e Kayou II Part 2",
-      "english": "The Misfit of Demon King Academy II (Cour 2)",
-      "native": "魔王学院の不適合者 ～史上最強の魔王の始祖、転生して子孫たちの学校へ通う～ Ⅱ 2クール"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "The second cour of the second season of <i>Maou Gakuin no Futekigousha</i>. <br><br>\nThe academy's lessons are back in session with Anos Voldigoad fighting more powerful enemies!<br><br>\n(Source: Crunchyroll)",
-    "popularity": 60436,
-    "averageScore": 65,
-    "genres": [
-      "Action",
-      "Fantasy"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx130590-698sT7jWoz42.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx130590-698sT7jWoz42.jpg"
-    },
-    "bannerImage": null,
-    "studio": "SILVER LINK.",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551748,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1714108783,
-    "mediaId": 160181,
-    "title": {
-      "romaji": "Sasayaku You ni Koi wo Utau",
-      "english": "Whisper Me a Love Song",
-      "native": "ささやくように恋を唄う"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "After performing a song at her school’s opening ceremony, musician Yori Asanagi receives an apparent love confession from freshman Himari Kino. But just as Yori decides she wants to return Himari’s feelings, Himari reveals that she did not “love” her, but “admires” her! But you can’t unring a bell once struck, and Yori is determined to make Himari fall for her, not just her music. Will their hearts ever beat as one, or will their love fall out of tune?<br>\n<br>\n(Source: HIDIVE)",
-    "popularity": 42174,
-    "averageScore": 64,
-    "genres": [
-      "Drama",
-      "Music",
-      "Romance"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx160181-EGC0Scngy5In.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx160181-EGC0Scngy5In.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/160181-dGYigyjYZhBn.jpg",
-    "studio": "CLOUDHEARTS",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551753,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1713692860,
-    "mediaId": 158417,
-    "title": {
-      "romaji": "Sentai Daishikkaku",
-      "english": "Go! Go! Loser Ranger!",
-      "native": "戦隊大失格"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "When the Monster Army invaded Earth thirteen years ago, the Divine Dragon Rangers rose up to stop them! With the war raging on, these great heroes are mankind’s last hope!<br>\n<br>\n<i>...or are they?</i><br>\n<br>\nIn truth, the invaders were subjugated within a year, forced to continue to crank out a monster a week for the Rangers to crush in front of their adoring fans! But one monster has had enough. Something has to change! He’ll rebel against the might of the Dragon Rangers and destroy them all...from the inside!<br>\n<br>\n(Source: Kodansha USA)",
-    "popularity": 71389,
-    "averageScore": 72,
-    "genres": [
-      "Action",
-      "Comedy",
-      "Drama",
-      "Sci-Fi"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx158417-Ii0DOFwNim0A.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx158417-Ii0DOFwNim0A.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/158417-9oit16KQM4l7.jpg",
-    "studio": "Shouchiku",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551760,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1713692869,
-    "mediaId": 158709,
-    "title": {
-      "romaji": "Unnamed Memory",
-      "english": "Unnamed Memory",
-      "native": "Unnamed Memory"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "<i>\"My wish as champion is for you to descend the tower and be my wife.\"</i><br>\n<br>\nSeeking to end a curse thwarting his lineage, Prince Oscar sets out on a quest that leads him to a powerful and beautiful witch, Tinasha, and he demands a unique bargain: marriage. Though unenthused by the proposal, she agrees to stay in his castle for a year while researching the spell cast upon him. But beneath her beauty lies a lifetime of dark secrets that soon come to light.<br>\n<br>\n(Source: Yen Press, Crunchyroll)",
-    "popularity": 52837,
-    "averageScore": 66,
-    "genres": [
-      "Adventure",
-      "Fantasy",
-      "Romance"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx158709-WFA0RHloDvPl.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx158709-WFA0RHloDvPl.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/158709-ZGCammGG4F9a.jpg",
-    "studio": "ENGI",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551761,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291142,
-    "mediaId": 170130,
-    "title": {
-      "romaji": "Lv2 Kara Cheat datta Moto Yuusha Kouho no Mattari Isekai Life",
-      "english": "Chillin' in Another World with Level 2 Super Cheat Powers",
-      "native": "Lv2からチートだった元勇者候補のまったり異世界ライフ"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "The Magical Kingdom of Klyrode summons hundreds of heroes from other worlds every year to fight in their war against the Dark One and his army of powerful demons. Banaza is one of those heroes, summoned from the Royal Capital Paluma, but something’s not right—Banaza is only an average merchant. He has no magic, no fighting ability, and his stats are abysmal. Worse, a mishap leaves him unable to return home! Rejected as a hero and stranded in another world, abandoned to the far reaches of the kingdom by a cruel king who just wants him gone, Banaza’s fate looks pretty bleak. But what will happen once the failed hero candidate finds himself with super cheat powers once he hits level two?<br>\n<br>\n(Source: J-Novel Club)",
-    "popularity": 80849,
-    "averageScore": 68,
-    "genres": [
-      "Adventure",
-      "Fantasy",
-      "Romance"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx170130-tvhn13WYQ2qM.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx170130-tvhn13WYQ2qM.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/170130-UfSdfrNR4BU8.jpg",
-    "studio": "OVERLAP",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551763,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1713692963,
-    "mediaId": 168138,
-    "title": {
-      "romaji": "Jii-san Baa-san Wakagaeru",
-      "english": "Grandpa and Grandma Turn Young Again",
-      "native": "じいさんばあさん若返る"
-    },
-    "episodes": 11,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "The story of <i>Jii-san Baa-san Wakagaeru</i> follows Shouzou and Ine, an elderly couple who are living a quiet life in a farming village in Aomori Prefecture. After eating a mysterious apple that they discover on their apple farm, Shozo and Ine spontaneously regain their youth, but even after being reinvigorated they continue to live life at a grandparent-ly pace.<br>\n<br>\n(Source: Crunchyroll News, edited)",
-    "popularity": 45403,
-    "averageScore": 71,
-    "genres": [
-      "Comedy",
-      "Fantasy",
-      "Romance",
-      "Slice of Life"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx168138-jgMSP1rDkJhs.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx168138-jgMSP1rDkJhs.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/168138-eOsNTWgeiHH7.jpg",
-    "studio": "KADOKAWA",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551767,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1714108783,
-    "mediaId": 166715,
-    "title": {
-      "romaji": "Kuroshitsuji: Kishuku Gakkou-hen",
-      "english": "Black Butler: Public School Arc",
-      "native": "黒執事 寄宿学校編"
-    },
-    "episodes": 11,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "Continuation of the <i>Kuroshitsuji</i> anime adaptation.<br>\n<br>\nAt the request of Queen Victoria, Earl Ciel Phantomhive goes to Weston College—a prestigious public academy for boys, known for its traditions and outstanding curriculum—to search for a relative of hers who has not returned home in months. Thanks to his noble status, the 13-year-old Ciel is swiftly able to enroll as a student, while his devilish butler Sebastian Michaelis assumes a teaching position at the school.<br>\n<br>\nCiel does not anticipate being unable to locate the Queen's relative on campus. To make matters worse, he cannot request a meeting with the headmaster of the college, who may be the only person that knows anything pertaining to the disappearance. The only ones in frequent contact with the headmaster are the heads of the college dormitories, known as the Prefect 4 (P4): Edgar Redmond, Lawrence Bluewer, Herman Greenhill, and Gregory Violet.<br>\n<br>\nCiel must concoct a plan to get in the P4's good graces if he wants to use their connections to succeed in his mission. But the distinguished college and its students hide much that is unseen, making this task more improbable than he could imagine.<br>\n<br>\n(Source: MAL Rewrite)",
-    "popularity": 29032,
-    "averageScore": 78,
-    "genres": [
-      "Action",
-      "Comedy",
-      "Fantasy",
-      "Mystery",
-      "Supernatural"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx166715-humnzscIw7SC.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx166715-humnzscIw7SC.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/166715-0sYIhm6yOOPJ.jpg",
-    "studio": "CloverWorks",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551768,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1713692941,
-    "mediaId": 164702,
-    "title": {
-      "romaji": "Tensei Kizoku, Kantei Skill de Nariagaru",
-      "english": "As a Reincarnated Aristocrat, I'll Use My Appraisal Skill to Rise in the World",
-      "native": "転生貴族、鑑定スキルで成り上がる"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "Our protagonist, Ars Louvent, was reincarnated in another world as the young son of a minor noble who owns a small domain. Ars was not particularly strong or intelligent, but he was born with the Appraisal Skill that's able to see others' abilities and statuses. He uses his skill to find the best hidden talents in the world to make their small, weak domain into the best. An isekai tale about unification is about to start, featuring the kind-hearted Ars and the unique talents he manages to find!<br><br>\n(Source: Crunchyroll)",
-    "popularity": 61760,
-    "averageScore": 71,
-    "genres": [
-      "Adventure",
-      "Fantasy"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx164702-FjpM96MPdzVm.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx164702-FjpM96MPdzVm.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/164702-WbVDTm2MFHaL.jpg",
-    "studio": "studio MOTHER",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551769,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291142,
-    "mediaId": 160090,
-    "title": {
-      "romaji": "Kaii to Otome to Kamikakushi",
-      "english": "Mysterious Disappearances",
-      "native": "怪異と乙女と神隠し"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "Sumireko Ogawa’s dream of becoming a novelist is reinvigorated with new rumors of mystical incidents. Now a clerk at a bookstore, she enlists her young coworker, Ren Adashino, to investigate urban legends, black magic, and ghost stories across the city. Sumireko has a knack for triggering magical events, and Ren has a dark secret of his own. Will they survive their investigation unscathed?<br><br>\n\n(Source: Crunchyroll)",
-    "popularity": 37384,
-    "averageScore": 66,
-    "genres": [
-      "Ecchi",
-      "Horror",
-      "Mystery",
-      "Supernatural"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx160090-EHP57CniSa7I.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx160090-EHP57CniSa7I.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/160090-epCcB263It09.jpg",
-    "studio": "KADOKAWA",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551770,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1714108784,
-    "mediaId": 170890,
-    "title": {
-      "romaji": "THE NEW GATE",
-      "english": "THE NEW GATE",
-      "native": "THE NEW GATE"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "When an online game turns real, trapping its players in its virtual space, the strongest of them, Shin, rises up to put a stop to the madness. But just moments after defeating the game’s final boss, Origin, and freeing everyone, Shin is transported 500 years into the future of the in-game world. Armed with unrivaled strength, the young swordsman embarks on a legendary journey.<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 49765,
-    "averageScore": 63,
-    "genres": [
-      "Action",
-      "Adventure",
-      "Fantasy"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx170890-XrggQYjAJAGa.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx170890-XrggQYjAJAGa.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/170890-fQBemeo8Z4CH.jpg",
-    "studio": "CLOUDHEARTS",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551771,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1713692948,
-    "mediaId": 159039,
-    "title": {
-      "romaji": "Seiyuu Radio no Uraomote",
-      "english": "The Many Sides of Voice Actor Radio",
-      "native": "声優ラジオのウラオモテ"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "Yuuhi Yugure and Yasumi Utatane, high school classmates and co-hosts of a weekly radio program, paint a picture-perfect friendship for their listeners. Yet, in reality, they couldn’t be more different. Their off-air dynamic is a whirlwind of chaos and insults. As their tumultuous relationship unfolds, they navigate the turbulent waters of friendship and rivalry in the cutthroat realm of showbiz. <br><br>\n(Source: Crunchyroll, edited)",
-    "popularity": 25762,
-    "averageScore": 74,
-    "genres": [
-      "Comedy",
-      "Drama",
-      "Slice of Life"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx159039-88kPltmhTzqU.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx159039-88kPltmhTzqU.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/159039-pS8nlIsLwzBr.jpg",
-    "studio": "CONNECT",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551905,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291142,
-    "mediaId": 174653,
-    "title": {
-      "romaji": "Kenka Dokugaku",
-      "english": "Viral Hit",
-      "native": "喧嘩独学"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "Scrawny high school student Hobin Yu is probably the last guy you’d expect to star in a NewTube channel that revolves around fighting. But after following some advice from a mysterious NewTube channel, Hobin is soon knocking out guys stronger than him and raking in more money than he could have ever dreamed of. Can Hobin keep this up, or will he eventually meet his match?\n<br><br>\n(Source: WEBTOON)",
-    "popularity": 33753,
-    "averageScore": 71,
-    "genres": [
-      "Action",
-      "Comedy"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx174653-OsnK4BuENjUT.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx174653-OsnK4BuENjUT.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/174653-Rq9ikE3MDb4x.jpg",
-    "studio": "Okuruto Noboru",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551906,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291141,
-    "mediaId": 170604,
-    "title": {
-      "romaji": "Vampire Dormitory",
-      "english": "Vampire Dormitory",
-      "native": "ヴァンパイア男子寮"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "<i>“I want to become your thrall…!”</i><br>\n<br>\nA crossdressing girl and doting vampire’s dangerous cohabitation is about to begin!<br>\n<br>\nAfter losing her parents and being abandoned by her relatives, Mito is left all alone in the world. When she’s kicked out of the restaurant where she works with no money and no place to live, she is taken in by Ruka, a vampire. In exchange for giving Ruka her blood as his “food,” she ends up living with him in a boys’ dorm full of beautiful boys with unique personalities…?!<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 18189,
-    "averageScore": 59,
-    "genres": [
-      "Romance",
-      "Supernatural"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx170604-VwLdBL8Gip9Z.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx170604-VwLdBL8Gip9Z.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/170604-2Ljw3APzUY4z.jpg",
-    "studio": "Studio Blanc",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551907,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1712476118,
-    "mediaId": 166828,
-    "title": {
-      "romaji": "Henjin no Salad Bowl",
-      "english": "A Salad Bowl of Eccentrics",
-      "native": "変人のサラダボウル"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "Sousuke Kaburaya, an impoverished detective, met Sara, a princess from another world with magical powers.\n<br><br>\nSara began living with Sousuke, and she quickly adjusted to life in modern Japan.<br>\nMeanwhile, Livia, a female knight who came from the same world as Sara, found herself lost and homeless, but surprisingly enjoyed her days here.\n<br><br>\nThese two people, who live a positive life despite their situation, began to have an impact on Sousuke and the other oddballs in the neighborhood, including a devilish lawyer, a divorce agent, and a cult leader. <br><br>\n(Source: Shogakukan, translated)",
-    "popularity": 25525,
-    "averageScore": 71,
-    "genres": [
-      "Comedy",
-      "Fantasy",
-      "Slice of Life"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx166828-iDbw5IGYR40D.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx166828-iDbw5IGYR40D.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/166828-1pKrew8OLgvb.jpg",
-    "studio": "SynergySP",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551910,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291141,
-    "mediaId": 169698,
-    "title": {
-      "romaji": "Tadaima, Okaeri",
-      "english": "Tadaima, Okaeri",
-      "native": "ただいま、おかえり"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "Masaki Fujiyoshi is a stay-at-home spouse and parent. He has fought long and hard with feelings of being a burden to his loving husband, Hiromu, due to his status as an omega—and the difficulty they faced to achieve this domesticity. When their son, Hikari, was born, the family moved to an area better suited for raising children.<br>\n<br>\nDespite their newfound domestic bliss, the family's ties to their past are in tatters. There are people they left behind to pursue the creation of their happy family, and when they begin to return, Masaki and Hiromu aren't quite sure they have good intentions.\n<br><br>\n(Source: Crunchyroll)",
-    "popularity": 14382,
-    "averageScore": 74,
-    "genres": [
-      "Drama",
-      "Romance",
-      "Slice of Life"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx169698-pmIhuxlGufON.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx169698-pmIhuxlGufON.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/169698-bMhXndCIlAOu.jpg",
-    "studio": "Studio DEEN",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551911,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1712476116,
-    "mediaId": 152302,
-    "title": {
-      "romaji": "HIGHSPEED Étoile",
-      "english": "HIGHSPEED Étoile",
-      "native": "HIGHSPEED Étoile"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "Rin Rindou, who once dreamt of becoming a ballet dancer before being sidelined by injury, is embracing a quiet life with her grandmother until she is unexpectedly thrust into the high-speed world of racing. Now, she faces a new adrenaline-fueled reality in the NEX Race, a revolutionary motorsport event exceeding speeds of 500 km/h.<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 7285,
-    "averageScore": 52,
-    "genres": [
-      "Sports"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx152302-afLOVyltWMSq.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx152302-afLOVyltWMSq.jpg"
-    },
-    "bannerImage": null,
-    "studio": "King Records",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 399551913,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1712476116,
-    "mediaId": 170503,
-    "title": {
-      "romaji": "Karasu wa Aruji wo Erabanai",
-      "english": "YATAGARASU: The Raven Does Not Choose Its Master",
-      "native": "烏は主を選ばない"
-    },
-    "episodes": 20,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2024,
-    "description": "Welcome to Yamauchi, a world inhabited by the Yatagarasu, a race of three-legged ravens who shapeshift into humans. The land is divided into four regions—North, South, East, and West—each ruled by a noble family. Yukiya, the son of a leader in the North, is shocked by a call to attend to the Imperial Prince. Murder, mysteries, and an invasion from an unexpected enemy await in this epic fantasy.<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 19614,
-    "averageScore": 78,
-    "genres": [
-      "Action",
-      "Drama",
-      "Fantasy",
-      "Supernatural"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx170503-PCr24JL8F8f9.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx170503-PCr24JL8F8f9.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/170503-oFeGjPss0HIZ.jpg",
-    "studio": "NHK",
-    "nextAiringEpisode": null
-  },
-  {
     "entryId": 399551941,
     "listStatus": "CURRENT",
     "progress": 0,
@@ -44888,103 +45418,6 @@
     },
     "bannerImage": null,
     "studio": "Creative House Pocket",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 408834312,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1716554715,
-    "mediaId": 115142,
-    "title": {
-      "romaji": "Watanuki-san Chi no",
-      "english": null,
-      "native": "四月一日さん家の"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2019,
-    "description": "In the district of Monzen-Nakacho of Koutou in Tokyo, three sisters live in one house. The Watanuki sisters had a life of hardships, a life without a mother, who died in their early childhood and now without a father, who died just a year ago. Now alone and becoming the inheritors of the Watanuki house, the sisters have to endure several situations in their everyday lives; whether those are happy, sad or special, they will test the sisters' bonds as a family.<br><br>\n(Source: Virtual YouTuber FANDOM)",
-    "popularity": 965,
-    "averageScore": 45,
-    "genres": [
-      "Slice of Life"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx115142-QTJw0rbhHAgR.png",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx115142-QTJw0rbhHAgR.png"
-    },
-    "bannerImage": null,
-    "studio": "Helo",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 408834322,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1716554729,
-    "mediaId": 115654,
-    "title": {
-      "romaji": "Watanuki-san Chi to",
-      "english": null,
-      "native": "四月一日さん家と"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SPRING",
-    "seasonYear": 2020,
-    "description": "The second season of <i>Watanuki-san Chi no</i>.",
-    "popularity": 706,
-    "averageScore": 46,
-    "genres": [
-      "Drama",
-      "Slice of Life"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx115654-9nQBxGRaPQQw.png",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx115654-9nQBxGRaPQQw.png"
-    },
-    "bannerImage": null,
-    "studio": "TV Tokyo",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 411272267,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1717922389,
-    "mediaId": 129277,
-    "title": {
-      "romaji": "Shinigami Bocchan to Kuro Maid",
-      "english": "The Duke of Death and His Maid",
-      "native": "死神坊ちゃんと黒メイド"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SUMMER",
-    "seasonYear": 2021,
-    "description": "How can you fall in love when you can’t even hold hands? Due to a childhood curse, anything that the Duke touches will die—which makes his flirty maid’s behavior all the more shocking! Is there a way for the Duke and his companions to somehow break the curse, or is he doomed to a life where love is forever out of his reach?<br>\n<br>\n(Source: Funimation)",
-    "popularity": 77448,
-    "averageScore": 74,
-    "genres": [
-      "Comedy",
-      "Drama",
-      "Romance",
-      "Supernatural"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx129277-ou64knqN2eQT.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx129277-ou64knqN2eQT.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/129277-qlbNHKGvfr8f.jpg",
-    "studio": "J.C.STAFF",
     "nextAiringEpisode": null
   },
   {
@@ -45340,41 +45773,6 @@
     "nextAiringEpisode": null
   },
   {
-    "entryId": 413823693,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291342,
-    "mediaId": 153406,
-    "title": {
-      "romaji": "Kami no Tou: Tower of God 2nd Season",
-      "english": "Tower of God Season 2",
-      "native": "神之塔 -Tower of God- 第2期"
-    },
-    "episodes": 26,
-    "mediaStatus": "FINISHED",
-    "season": "SUMMER",
-    "seasonYear": 2024,
-    "description": "The second season of <i>Kami no Tou: Tower of God</i>.\n<br><br>\nJa Wangnan can’t seem to pass the 20th Floor. Even after failing time and time again, he refuses to give up. On his journey, he meets a mysterious and powerful character named Viole. Wangnan invites Viole to join his team of Regulars. Their journey continues with new challenges at every turn.\n<br><br>\n(Source: Crunchyroll)",
-    "popularity": 110587,
-    "averageScore": 66,
-    "genres": [
-      "Action",
-      "Adventure",
-      "Drama",
-      "Fantasy",
-      "Mystery"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx153406-dU2RLKgMUF2U.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx153406-dU2RLKgMUF2U.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/153406-wP0TEqBVxY0V.jpg",
-    "studio": "Crunchyroll",
-    "nextAiringEpisode": null
-  },
-  {
     "entryId": 413823696,
     "listStatus": "CURRENT",
     "progress": 0,
@@ -45404,39 +45802,6 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/174788-0ZM9g7npJH8X.jpg",
     "studio": "Studio Durian",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 413823701,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291344,
-    "mediaId": 139825,
-    "title": {
-      "romaji": "Kimi to Boku no Saigo no Senjou, Arui wa Sekai ga Hajimaru Seisen Season II",
-      "english": "Our Last Crusade or the Rise of a New World Season 2",
-      "native": "キミと僕の最後の戦場、あるいは世界が始まる聖戦 Season II"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SUMMER",
-    "seasonYear": 2024,
-    "description": "The second season of <i>Kimi to Boku no Saigo no Senjou, Aruiwa Sekai ga Hajimaru Seisen</i>.<br><br>\nIska guards Sisbell, sparking Alice's jealousy. Amid a conspiracy, can they thwart personal disputes and war?<br><br>\n(Source: Crunchyroll News)",
-    "popularity": 37533,
-    "averageScore": 67,
-    "genres": [
-      "Action",
-      "Fantasy",
-      "Romance"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx139825-rFlrzdRZmlYK.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx139825-rFlrzdRZmlYK.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/139825-skAduSjC86v6.jpg",
-    "studio": "SILVER LINK.",
     "nextAiringEpisode": null
   },
   {
@@ -45539,41 +45904,6 @@
     "nextAiringEpisode": null
   },
   {
-    "entryId": 413823707,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291347,
-    "mediaId": 152137,
-    "title": {
-      "romaji": "Isekai Shikkaku",
-      "english": "No Longer Allowed in Another World",
-      "native": "異世界失格"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SUMMER",
-    "seasonYear": 2024,
-    "description": "Pulled into an otherworldly adventure with cute sidekicks and superpowers, you’d think Osamu hit the jackpot. Nope! From a time before pixels, the early 20th-century gloomy author just wants to find a quiet place to meet his maker, not to rack up XP. Sadly, his poetic demise is constantly thwarted by inconvenient heroics. Dive into the hilariously tragic life of the most reluctant hero!<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 80170,
-    "averageScore": 71,
-    "genres": [
-      "Comedy",
-      "Fantasy",
-      "Romance",
-      "Slice of Life",
-      "Supernatural"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx152137-JpefyFlYa03R.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx152137-JpefyFlYa03R.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/152137-8zhxj4nTFUmC.jpg",
-    "studio": "KADOKAWA",
-    "nextAiringEpisode": null
-  },
-  {
     "entryId": 413823709,
     "listStatus": "CURRENT",
     "progress": 4,
@@ -45639,107 +45969,6 @@
     "nextAiringEpisode": null
   },
   {
-    "entryId": 413823714,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291350,
-    "mediaId": 154963,
-    "title": {
-      "romaji": "ATRI: My Dear Moments",
-      "english": "ATRI -My Dear Moments-",
-      "native": "ATRI -My Dear Moments-"
-    },
-    "episodes": 13,
-    "mediaStatus": "FINISHED",
-    "season": "SUMMER",
-    "seasonYear": 2024,
-    "description": "In the near future, a sudden and unexplained sea rise has left much of human civilization underwater. Ikaruga Natsuki, a boy who lost his mother and one of his legs in an accident some years earlier, returns disillusioned from a harsh life in the big city to find his old countryside home half-swallowed by the sea. Left without a family, all he has to his name is the ship and submarine left to him by his oceanologist grandmother, and her debts. His only hope to restore the dreams for the future that he has lost is to take up an opportunity presented to him by the suspicious debt collector Catherine. They set sail to search the sunken ruins of his grandmother's laboratory in order to find a treasure rumor says she left there. But what they find is not riches or jewels; it is a strange girl lying asleep in a coffin at the bottom of the sea, Atri. Atri is a robot, but her appearance and her wealth of emotions would fool anyone into thinking she's a living, breathing human being. In gratitude for being salvaged, she makes a declaration to Natsuki.<br><br>\n(Source: Crunchyroll)",
-    "popularity": 29228,
-    "averageScore": 70,
-    "genres": [
-      "Drama",
-      "Romance",
-      "Sci-Fi"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx154963-Ju6Ey3P5YHs2.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx154963-Ju6Ey3P5YHs2.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/154963-sDMgZTrrsT70.jpg",
-    "studio": "TROYCA",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 413823718,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291351,
-    "mediaId": 173694,
-    "title": {
-      "romaji": "Hazure Waku no [Joutai Ijou Skill] de Saikyou ni Natta Ore ga Subete wo Juurin Suru made",
-      "english": "Failure Frame: I Became the Strongest and Annihilated Everything with Low-Level Spells",
-      "native": "ハズレ枠の【状態異常スキル】で最強になった俺がすべてを蹂躙するまで"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SUMMER",
-    "seasonYear": 2024,
-    "description": "Touka always faded into the background at school. And when he’s summoned to another world with his classmates, that still doesn’t change! They all acquire top-rank skills, except Touka, who’s deemed a failure and cast to ancient ruins by the goddess Vicius. Turns out, his low-rank skills may not be so useless after all. Now, he seeks revenge against the goddess, and his true nature is revealed.<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 78604,
-    "averageScore": 63,
-    "genres": [
-      "Action",
-      "Adventure",
-      "Drama",
-      "Fantasy"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx173694-XcwGOMBxboOO.png",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx173694-XcwGOMBxboOO.png"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/173694-zkZHpXUKouoC.jpg",
-    "studio": "Seven Arcs",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 413823721,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291351,
-    "mediaId": 166477,
-    "title": {
-      "romaji": "Megami no Café Terrace 2nd Season",
-      "english": "The Café Terrace and Its Goddesses Season 2",
-      "native": "女神のカフェテラス 第2期"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SUMMER",
-    "seasonYear": 2024,
-    "description": "The second season of <i>Megami no Café Terrace</i>. <br><br>\n\nThe Familia Café Terrace opens once again, with a rival restaurant opening right next door!<br><br>\n(Source: Crunchyroll News, edited)",
-    "popularity": 25491,
-    "averageScore": 73,
-    "genres": [
-      "Comedy",
-      "Drama",
-      "Ecchi",
-      "Romance"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx166477-Q5jKn2WpDQ6z.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx166477-Q5jKn2WpDQ6z.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/166477-odXUre8yGjQe.jpg",
-    "studio": "Tezuka Productions",
-    "nextAiringEpisode": null
-  },
-  {
     "entryId": 413823722,
     "listStatus": "CURRENT",
     "progress": 0,
@@ -45772,74 +46001,6 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/151117-6rtgumwWfoju.jpg",
     "studio": "Twin Engine",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 413823724,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291353,
-    "mediaId": 167419,
-    "title": {
-      "romaji": "Naze Boku no Sekai wo Daremo Oboeteinai no ka?",
-      "english": "Why Does Nobody Remember Me in This World?",
-      "native": "なぜ僕の世界を誰も覚えていないのか？"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SUMMER",
-    "seasonYear": 2024,
-    "description": "In a world where humans triumphed in a great war, Kai guards sealed crypts containing their enemies. But when “World Rebirth” overwrites history, he’s thrust into an alternate reality where humanity lost the war and he’s been forgotten by everyone he knows. Now, this lost hero must rise to restore the world’s balance!<br>\n<br>\n(Source: Crunchyroll)",
-    "popularity": 49516,
-    "averageScore": 62,
-    "genres": [
-      "Action",
-      "Adventure",
-      "Fantasy",
-      "Sci-Fi"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx167419-yesWtncEBD9N.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx167419-yesWtncEBD9N.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/167419-KHPHxLWEZmlg.jpg",
-    "studio": "project No.9",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 413823725,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291354,
-    "mediaId": 173584,
-    "title": {
-      "romaji": "Maou Gun Saikyou no Majutsushi wa Ningen datta",
-      "english": "The Strongest Magician in the Demon Lord's Army was a Human",
-      "native": "魔王軍最強の魔術師は人間だった"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SUMMER",
-    "seasonYear": 2024,
-    "description": "Ike is a powerful magician and the leader of the Immortal Brigade, part of the Seventh Corps of the Demon Lord’s Army. He single-handedly conquers fortresses and pushes back the armies of humanity. Neither Dairokuten, the Demon Lord, nor Ike’s loyal soldiers know his darkest secret—he is a human in hiding! But can he keep his secret safe and bring peaceful coexistence to demons and humans?<br><br>\n(Source: Crunchyroll)",
-    "popularity": 49245,
-    "averageScore": 62,
-    "genres": [
-      "Action",
-      "Adventure",
-      "Drama",
-      "Fantasy"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx173584-nyZElmr8218W.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx173584-nyZElmr8218W.jpg"
-    },
-    "bannerImage": null,
-    "studio": "studio A-CAT",
     "nextAiringEpisode": null
   },
   {
@@ -45876,39 +46037,6 @@
     "nextAiringEpisode": null
   },
   {
-    "entryId": 413823729,
-    "listStatus": "CURRENT",
-    "progress": 3,
-    "score": 0,
-    "updatedAt": 1722949103,
-    "mediaId": 171457,
-    "title": {
-      "romaji": "Make Heroine ga Oosugiru!",
-      "english": "Makeine: Too Many Losing Heroines!",
-      "native": "負けヒロインが多すぎる！"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SUMMER",
-    "seasonYear": 2024,
-    "description": "Kazuhiko Nukumizu is a high school boy content to blend in with the background mob, until he witnessed his more popular classmate Anna Yanami get dumped by her childhood friend. He felt like he had to try to comfort Yanami, but this led him to become entangled with other girls who have met defeat at love?",
-    "popularity": 110894,
-    "averageScore": 81,
-    "genres": [
-      "Comedy",
-      "Romance",
-      "Slice of Life"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx171457-nmMIk0gNiWsm.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx171457-nmMIk0gNiWsm.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/171457-VBH6gmvCKHwV.jpg",
-    "studio": "Aniplex",
-    "nextAiringEpisode": null
-  },
-  {
     "entryId": 413823732,
     "listStatus": "CURRENT",
     "progress": 1,
@@ -45940,70 +46068,6 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/170938-JXkhQeJvTnp1.jpg",
     "studio": "bones",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 413823733,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291357,
-    "mediaId": 167144,
-    "title": {
-      "romaji": "Koi wa Futago de Warikirenai",
-      "english": "Love Is Indivisible by Twins",
-      "native": "恋は双子で割り切れない"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SUMMER",
-    "seasonYear": 2024,
-    "description": "Jun Shirasaki’s love life takes a wild turn when he finds himself caught between the Jinguji twins—his childhood friends who are as different as night and day. Rumi, the older sister, pairs a boyish charm with a maiden’s heart, while Naori combines girlish looks with her deep love for otaku culture. As feelings grow and confusion mounts, Jun must navigate this unexpected love triangle next door.<br><br>\n\n(Source: Crunchyroll)",
-    "popularity": 25399,
-    "averageScore": 61,
-    "genres": [
-      "Romance"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx167144-tKDxH7M9z1Hb.png",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx167144-tKDxH7M9z1Hb.png"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/167144-45Bw1hPsZFuk.jpg",
-    "studio": "KADOKAWA",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 413823734,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291357,
-    "mediaId": 170891,
-    "title": {
-      "romaji": "Na-Nare Hana-Nare",
-      "english": "Narenare -Cheer for you!-",
-      "native": "菜なれ花なれ"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SUMMER",
-    "seasonYear": 2024,
-    "description": "Misora Kanata is a first-year student on the Takanosaki High School cheerleading team. She won a national championship in middle school, but can’t jump after a mistake in a competition. She befriends Suzuha, Shion, Anna, Nodoka, and Megumi to form the PoMPoMs. Their new team goes beyond cheerleading to reach the hearts of the people they cheer on. They might just change the world!<br><br>\n(Source: Crunchyroll, edited)",
-    "popularity": 15994,
-    "averageScore": 61,
-    "genres": [
-      "Drama",
-      "Slice of Life",
-      "Sports"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx170891-Bhxn5y4a86Q0.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx170891-Bhxn5y4a86Q0.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/170891-4OuuElPLL20Q.jpg",
-    "studio": "P.A.WORKS",
     "nextAiringEpisode": null
   },
   {
@@ -46136,38 +46200,6 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/171031-DkFHrK8n7gKt.jpg",
     "studio": "EMT Squared",
-    "nextAiringEpisode": null
-  },
-  {
-    "entryId": 413824100,
-    "listStatus": "CURRENT",
-    "progress": 0,
-    "score": 0,
-    "updatedAt": 1719291552,
-    "mediaId": 171748,
-    "title": {
-      "romaji": "SHY: Tokyo Dakkan-hen",
-      "english": "SHY Season 2",
-      "native": "SHY 東京奪還編 "
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "SUMMER",
-    "seasonYear": 2024,
-    "description": "Shy has grown up a little after fighting against the 'Amalareik,' led by the mysterious boy Stigma. When she returns to Japan, she meets a girl named Ai Tennouji who has run away from her ninja village. Ai tells Shy that she left the village to chase a member of the 'Amalareik.' Meanwhile, an incident occurs in which Tokyo is suddenly enveloped in a black ball and disappears. The heroes are dispatched to rescue Tokyo.\n<br><br>\n(Source: Official Site, translated)",
-    "popularity": 11554,
-    "averageScore": 68,
-    "genres": [
-      "Action",
-      "Drama"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx171748-yigmfmsgq6SR.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx171748-yigmfmsgq6SR.jpg"
-    },
-    "bannerImage": null,
-    "studio": "8-bit",
     "nextAiringEpisode": null
   },
   {
@@ -47095,9 +47127,9 @@
   {
     "entryId": 451154933,
     "listStatus": "CURRENT",
-    "progress": 4,
+    "progress": 8,
     "score": 0,
-    "updatedAt": 1774735300,
+    "updatedAt": 1774746889,
     "mediaId": 172019,
     "title": {
       "romaji": "Dr. STONE: SCIENCE FUTURE",
@@ -51505,38 +51537,6 @@
     "nextAiringEpisode": null
   },
   {
-    "entryId": 526705129,
-    "listStatus": "CURRENT",
-    "progress": 11,
-    "score": 0,
-    "updatedAt": 1774732246,
-    "mediaId": 187942,
-    "title": {
-      "romaji": "Mayonaka Heart Tune",
-      "english": "Tune In to the Midnight Heart",
-      "native": "真夜中ハートチューン"
-    },
-    "episodes": 12,
-    "mediaStatus": "FINISHED",
-    "season": "WINTER",
-    "seasonYear": 2026,
-    "description": "When Arisu Yamabuki was all alone in bed at night, he was able to find solace in the voice of a radio host who went by “Apollo.” However, one day, she simply stopped broadcasting without any explanation. Years then passed, and Arisu is now a second-year high-schooler. He makes it his mission to search for Apollo, as there is something he wants to tell her. He doesn’t know what she looks like, or even what her real name is, but he manages to get some leads on her in his school’s broadcasting club. That’s where he meets four girls who all dream to get a job where they can make full use of their voices! Just who is Apollo, and how will those four’s dreams pan out?\n<br><br>\n(Source: K Manga)",
-    "popularity": 30851,
-    "averageScore": 71,
-    "genres": [
-      "Comedy",
-      "Romance"
-    ],
-    "format": "TV",
-    "coverImage": {
-      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx187942-c2cZvunJGfiE.jpg",
-      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx187942-c2cZvunJGfiE.jpg"
-    },
-    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/187942-tUpZo1VxashN.jpg",
-    "studio": "Gekkou",
-    "nextAiringEpisode": null
-  },
-  {
     "entryId": 526705136,
     "listStatus": "CURRENT",
     "progress": 0,
@@ -52043,5 +52043,41 @@
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/185514-I19hOYFDzU1X.jpg",
     "studio": "Qzil.la",
     "nextAiringEpisode": null
+  },
+  {
+    "entryId": 545162273,
+    "listStatus": "CURRENT",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1774745720,
+    "mediaId": 190143,
+    "title": {
+      "romaji": "Shunkashuutou Daikousha: Haru no Mai",
+      "english": "Agents of the Four Seasons: Dance of Spring",
+      "native": "春夏秋冬代行者 春の舞"
+    },
+    "episodes": 14,
+    "mediaStatus": "RELEASING",
+    "season": "SPRING",
+    "seasonYear": 2026,
+    "description": "When the Agent of Spring, Hinagiku Kayo, is abducted, spring itself vanishes—plunging the world into unending winter. Refusing to give up, her devoted guard, Sakura Himedaka, searches for her for years. When Hinagiku suddenly returns, the two set out to restore the lost season, face the past that tore them apart, and reclaim the warmth they refuse to lose again.\n<br><br>\n(Source: Crunchyroll)",
+    "popularity": 10156,
+    "averageScore": null,
+    "genres": [
+      "Drama",
+      "Fantasy",
+      "Romance"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx190143-IqqbkMAF0GOo.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx190143-IqqbkMAF0GOo.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/190143-0Ffw9Tb9Sjdo.jpg",
+    "studio": "Aniplex",
+    "nextAiringEpisode": {
+      "episode": 2,
+      "airingAt": 1775314800
+    }
   }
 ]

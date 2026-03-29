@@ -18,6 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnMinus = document.getElementById('btn-minus');
     const btnPlus = document.getElementById('btn-plus');
     const btnSync = document.getElementById('btn-sync');
+    const btnShowInLibrary = document.getElementById('btn-show-in-library');
+    const btnPlayPause = document.getElementById('btn-play-pause');
+    const btnPlayNext = document.getElementById('btn-play-next');
+    const btnPlayPrev = document.getElementById('btn-play-prev');
+    const svgPlay = document.getElementById('svg-play');
+    const svgPause = document.getElementById('svg-pause');
     const animeGrid = document.getElementById('anime-grid');
     const filterName = document.getElementById('filter-name');
     const filterSeason = document.getElementById('filter-season');
@@ -130,6 +136,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnMoveTo = document.getElementById('btn-move-to');
     const moveToDropdown = document.getElementById('move-to-dropdown');
     const btnBulkSync = document.getElementById('btn-bulk-sync');
+
+    // Resume Elements
+    const resumeContainer = document.getElementById('resume-container');
+    const resumeFilename = document.getElementById('resume-filename');
+    const btnResumeLast = document.getElementById('btn-resume-last');
 
     // Change Log Modal Elements
     const changelogModal = document.getElementById('changelog-modal');
@@ -867,12 +878,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     npStudio.textContent = details.studio || '';
 
                     // Summary
-                    const summary = details.description || '';
+                    const summary = (details.description || '').replace(/<[^>]+>/g, '');
                     if (summary) {
-                        npSummary.textContent = summary.replace(/<[^>]+>/g, '');
-                        npSummary.classList.remove('expanded');
-                        npSummaryToggle.textContent = 'See more';
-                        npSummaryToggle.style.display = 'block';
+                        npSummary.textContent = summary;
+                        npSummaryToggle.style.display = (summary.length > 150) ? 'block' : 'none';
                     } else {
                         npSummary.textContent = '';
                         npSummaryToggle.style.display = 'none';
@@ -891,14 +900,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     const coverUrl = getCachedImageUrl(rawCoverUrl);
                     const bannerUrl = getCachedImageUrl(rawBannerUrl);
                     npCover.src = coverUrl;
-                    npBanner.style.backgroundImage = bannerUrl ? `url(${bannerUrl})` : '';
+                    
+                    // Fixed background banner
+                    if (bannerUrl) {
+                        npBanner.style.backgroundImage = `url(${bannerUrl})`;
+                    } else {
+                        npBanner.style.backgroundImage = '';
+                    }
 
                     // Attach click targets
                     npCover.style.cursor = rawCoverUrl ? 'pointer' : 'default';
                     npCover.onclick = () => { if (rawCoverUrl) window.open(rawCoverUrl, '_blank'); };
-                    npBanner.style.cursor = rawBannerUrl ? 'pointer' : 'default';
-                    npBanner.onclick = () => { if (rawBannerUrl) window.open(rawBannerUrl, '_blank'); };
                 }
+
+                // Media Control States
+                if (btnPlayPause) {
+                    if (data.paused) {
+                        svgPlay.classList.remove('hidden');
+                        svgPause.classList.add('hidden');
+                    } else {
+                        svgPlay.classList.add('hidden');
+                        svgPause.classList.remove('hidden');
+                    }
+                }
+                if (btnPlayNext) btnPlayNext.disabled = !data.can_next;
+                if (btnPlayPrev) btnPlayPrev.disabled = !data.can_prev;
 
                 // Determine total: prefer AniList episode count, then local folder count
                 const total = data.anilist_total_episodes || data.total_episodes || 0;
@@ -928,6 +954,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 npBanner.style.backgroundImage = '';
                 npCover.src = '';
                 npStudio.textContent = '';
+
+                // Handle Resume Button
+                if (data.last_played_file) {
+                    resumeFilename.textContent = data.last_played_title || 'Last Video';
+                    resumeContainer.classList.remove('hidden');
+                } else {
+                    resumeContainer.classList.add('hidden');
+                }
             }
         } catch (error) {
             console.error('Error fetching status:', error);
@@ -964,6 +998,95 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             npStudio.textContent = '';
         }
+    }
+
+    // ===== Media Controls =====
+    btnPlayPause.addEventListener('click', async () => {
+        try {
+            const res = await fetch('/api/play_pause');
+            const data = await res.json();
+            if (data.success) {
+                // UI will update on next poll
+            }
+        } catch (e) { console.error(e); }
+    });
+
+    btnPlayNext.addEventListener('click', async () => {
+        try {
+            await fetch('/api/play_next');
+        } catch (e) { console.error(e); }
+    });
+
+    btnPlayPrev.addEventListener('click', async () => {
+        try {
+            await fetch('/api/play_prev');
+        } catch (e) { console.error(e); }
+    });
+
+    // ===== Show in Library =====
+    btnShowInLibrary.addEventListener('click', () => {
+        if (!latestStatus || !latestStatus.selected_media_id) return;
+        showInLibrary(latestStatus.selected_media_id);
+    });
+
+    btnResumeLast.addEventListener('click', async () => {
+        try {
+            btnResumeLast.disabled = true;
+            const res = await fetch('/api/resume', { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                // UI will update on next poll
+            }
+        } catch (e) {
+            console.error('Failed to resume:', e);
+        } finally {
+            btnResumeLast.disabled = false;
+        }
+    });
+
+    async function showInLibrary(mediaId) {
+        // 1. Switch tab
+        switchTab('LIBRARY');
+        
+        // 2. Wait for library to load if it's not loaded
+        if (libraryData.length === 0) {
+            await fetchLibrary();
+        }
+
+        // 3. Find the item in the tree
+        try {
+            const anime = animeList.find(a => a.mediaId == mediaId);
+            const title = anime?.title?.romaji || anime?.title?.english;
+            
+            // Search libraryData for the path
+            const treeItems = document.querySelectorAll('.library-item');
+            let foundElt = null;
+            for (const item of treeItems) {
+                const text = item.textContent.toLowerCase();
+                if (title && text.includes(title.toLowerCase())) {
+                    foundElt = item;
+                    break;
+                }
+            }
+
+            if (foundElt) {
+                // Expand parents
+                let parent = foundElt.closest('.directory-content');
+                while (parent) {
+                    const row = parent.previousElementSibling;
+                    const toggle = row?.querySelector('.directory-toggle');
+                    if (toggle && !toggle.classList.contains('expanded')) {
+                        toggle.click();
+                    }
+                    parent = parent.parentElement.closest('.directory-content');
+                }
+
+                // Scroll to and highlight
+                foundElt.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                foundElt.classList.add('library-item-highlight');
+                setTimeout(() => foundElt.classList.remove('library-item-highlight'), 3000);
+            }
+        } catch (e) { console.error('Show in library failed:', e); }
     }
 
     // ===== Episode Adjustment =====
@@ -1335,6 +1458,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return true;
         });
+
+        // Global Priority: Move currently playing anime to the front
+        if (latestStatus && latestStatus.running && latestStatus.selected_media_id) {
+            const playingId = latestStatus.selected_media_id;
+            const playingIndex = filtered.findIndex(a => a.mediaId == playingId);
+            if (playingIndex !== -1) {
+                const playingAnime = filtered.splice(playingIndex, 1)[0];
+                filtered.unshift(playingAnime);
+            }
+        }
 
         // Sort
         if (sortBy) {
@@ -2458,6 +2591,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const formatPop = formatPopularity(anime.popularity || 0);
                 const score = anime.averageScore ? anime.averageScore + '%' : '-';
                 const selectedClass = selectedAnime.has(anime.mediaId.toString()) ? 'selected' : '';
+                const playingClass = (latestStatus && latestStatus.running && latestStatus.selected_media_id == anime.mediaId) ? 'now-playing-highlight' : '';
 
                 // Seasonal BG Logic
                 const seasons = getAnimeSeasons(anime);
@@ -2510,7 +2644,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (viewMode === 'grid') {
                     return `
-                        <div class="anime-card ${seasonalClass} ${selectedClass}" data-media-id="${anime.mediaId}" style="cursor: pointer;">
+                        <div class="anime-card ${seasonalClass} ${selectedClass} ${playingClass}" data-media-id="${anime.mediaId}" style="cursor: pointer;">
                             ${liveLabel}
                             ${seasonTag}
                             <div class="anime-card-cover" style="background-image: url('${cover}')">
@@ -2531,7 +2665,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 } else if (viewMode === 'list') {
                     return `
-                        <div class="anime-list-item ${seasonalClass} ${selectedClass}" data-media-id="${anime.mediaId}" style="cursor: pointer;">
+                        <div class="anime-list-item ${seasonalClass} ${selectedClass} ${playingClass}" data-media-id="${anime.mediaId}" style="cursor: pointer;">
                             <img src="${cover}" class="anime-list-cover" alt="cover">
                             ${liveLabel ? liveLabel.replace('card-live-indicator', 'card-live-indicator list-live-indicator') : ''}
                             <div class="list-info">
@@ -2552,7 +2686,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 } else {
                     return `
-                        <tr class="details-row ${seasonalClass} ${selectedClass}" data-media-id="${anime.mediaId}" style="cursor: pointer;">
+                        <tr class="details-row ${seasonalClass} ${selectedClass} ${playingClass}" data-media-id="${anime.mediaId}" style="cursor: pointer;">
                             <td>
                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                                     ${liveLabel ? `<div class="card-live-dot" style="position: static; transform: scale(0.8);"></div>` : ''}

@@ -23,6 +23,13 @@ class MPVWatcher(BaseWatcher):
     def is_connected(self) -> bool:
         return self._is_connected
 
+    @property
+    def is_paused(self) -> bool:
+        if self.mpv and self.is_connected:
+            try: return self.mpv.pause
+            except: pass
+        return False
+
     def connect(self) -> bool:
         # On Unix, check if the socket file exists first
         # On Windows, named pipes can't be checked with os.path.exists
@@ -93,3 +100,24 @@ class MPVWatcher(BaseWatcher):
         # We can improve this by checking standard video extensions
         video_exts = ['.mkv', '.mp4', '.avi']
         return any(filename.lower().endswith(ext) for ext in video_exts)  # type: ignore
+
+    def toggle_pause(self):
+        if self.mpv:
+            try:
+                self.mpv.pause = not self.mpv.pause
+            except Exception as e:
+                print(f"Error toggling pause: {e}")
+
+    def next_episode(self):
+        if self.mpv:
+            try:
+                self.mpv.command("playlist-next")
+            except Exception as e:
+                print(f"Error skipping to next: {e}")
+
+    def previous_episode(self):
+        if self.mpv:
+            try:
+                self.mpv.command("playlist-prev")
+            except Exception as e:
+                print(f"Error skipping to previous: {e}")

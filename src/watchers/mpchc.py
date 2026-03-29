@@ -15,6 +15,10 @@ class MPCHCWatcher(BaseWatcher):
     def is_connected(self) -> bool:
         return self._is_connected
 
+    @property
+    def is_paused(self) -> bool:
+        return getattr(self, '_state', 2) == 1
+
     def connect(self) -> bool:
         try:
             response = requests.get(self.url, timeout=1)
@@ -52,7 +56,11 @@ class MPCHCWatcher(BaseWatcher):
         # Extract position and duration
         pos_match = re.search(r'id="position">(\d+)<', html)
         dur_match = re.search(r'id="duration">(\d+)<', html)
+        state_match = re.search(r'id="state">(\d+)<', html)
         
+        if state_match:
+            self._state = int(state_match.group(1))
+
         if pos_match and dur_match:
             pos = int(pos_match.group(1))
             dur = int(dur_match.group(1))
@@ -68,4 +76,21 @@ class MPCHCWatcher(BaseWatcher):
 
     def get_percent_pos(self) -> float:
         return self._percent_pos
+
+    def toggle_pause(self):
+        # MPC-HC web interface uses /wm_command.html with specific IDs
+        # 887: Play/Pause, 920: Next, 919: Previous
+        try:
+            requests.get(f"http://localhost:{self.port}/wm_command.html?wm_command=887", timeout=1)
+        except: pass
+
+    def next_episode(self):
+        try:
+            requests.get(f"http://localhost:{self.port}/wm_command.html?wm_command=920", timeout=1)
+        except: pass
+
+    def previous_episode(self):
+        try:
+            requests.get(f"http://localhost:{self.port}/wm_command.html?wm_command=919", timeout=1)
+        except: pass
 

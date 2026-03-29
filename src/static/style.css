@@ -3738,9 +3738,307 @@ input:not(:placeholder-shown) + .clear-input-btn {
 }
 
 .tier-pill.active {
-    background: var(--accent);
-    border-color: var(--accent);
     color: white;
     box-shadow: 0 0 12px var(--accent-glow);
 }
 
+/* Now Playing Modern Overhaul */
+.modern-overhaul {
+    position: relative;
+    border: none !important;
+    overflow: hidden !important;
+    color: white;
+    border-radius: var(--radius-lg);
+}
+
+.np-background-banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    filter: blur(25px) brightness(0.35);
+    transform: scale(1.1);
+    z-index: 0;
+    transition: background-image 0.8s ease-in-out;
+}
+
+.np-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.85));
+    z-index: 1;
+}
+
+.np-badge {
+    box-shadow: 0 2px 8px rgba(var(--accent-rgb), 0.4);
+    letter-spacing: 0.5px;
+}
+
+.np-summary-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.9);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+}
+
+.np-summary-text.expanded {
+    -webkit-line-clamp: unset;
+    overflow-y: auto;
+    max-height: 120px;
+}
+
+.np-summary-toggle {
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+.icon-btn-premium {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: white;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-btn-premium:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(var(--accent-rgb), 0.3);
+}
+
+.media-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+}
+
+.media-btn:hover:not(:disabled) {
+    color: var(--accent);
+    transform: scale(1.15);
+    opacity: 1;
+}
+
+.media-btn:disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.main-play-btn {
+    background: white;
+    color: black;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    padding: 0;
+    opacity: 1;
+}
+
+.main-play-btn:hover {
+    background: var(--accent);
+    color: white;
+    transform: scale(1.05) translateY(-2px);
+}
+
+.icon-btn-minimal {
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.icon-btn-minimal:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.5);
+}
+
+.np-season-selector-modern select {
+    background: rgba(255,255,255,0.08);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.np-season-selector-modern select:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.3);
+}
+
+.sync-btn-modern {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3);
+}
+
+.sync-btn-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(var(--accent-rgb), 0.4);
+}
+
+.np-stat-tag {
+    background: rgba(255,255,255,0.12);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+}
+
+/* Global Priority & Highlighting */
+.anime-card.now-playing-highlight,
+.anime-list-item.now-playing-highlight,
+.details-row.now-playing-highlight {
+    border: 2px solid var(--accent) !important;
+    box-shadow: 0 0 25px rgba(var(--accent-rgb), 0.25) !important;
+    position: relative;
+    z-index: 5;
+}
+
+.now-playing-highlight::after {
+    content: 'LIVE';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: var(--accent);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+
+
+/* Resume Button */
+.resume-btn-premium {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 400px;
+    margin: 2rem auto 0;
+    text-align: left;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.resume-btn-premium:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    box-shadow: 0 8px 24px rgba(var(--accent-rgb), 0.2);
+    background: var(--bg-hover);
+}
+
+.resume-btn-premium::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent);
+    opacity: 0.8;
+}
+
+.resume-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(var(--accent-rgb), 0.1);
+    color: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.resume-btn-premium:hover .resume-icon {
+    background: var(--accent);
+    color: white;
+    transform: scale(1.1);
+}
+
+.resume-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.resume-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+.resume-filename {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}

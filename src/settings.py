@@ -106,3 +106,11 @@ class SettingsManager:
     def get_media_folder(self, media_id: int) -> str:
         mapping = self.media_folders_map
         return mapping.get(str(media_id), self.default_download_dir)
+
+    @property
+    def last_played_file(self) -> Optional[str]:
+        return self.get("last_played_file")
+
+    @last_played_file.setter
+    def last_played_file(self, value: str):
+        self.set("last_played_file", value)

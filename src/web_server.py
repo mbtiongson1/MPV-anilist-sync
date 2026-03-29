@@ -69,10 +69,38 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             selected_media = None
             season_options = []
             media_details = None
+            is_paused = False
+            can_next = False
+            can_prev = False
 
             if self.agent and self.agent.active_watcher and self.agent.active_watcher.is_connected:
+                is_paused = self.agent.active_watcher.is_paused
                 filename = self.agent.active_watcher.get_current_filename()
                 if filename:
+                    # Check for next/prev files in same directory
+                    try:
+                        folder = os.path.dirname(os.path.abspath(filename))
+                        if os.path.exists(folder):
+                            from src.parser import AnimeParser
+                            video_exts = ('.mkv', '.mp4', '.avi')
+                            files = [f for f in os.listdir(folder) if f.lower().endswith(video_exts)]
+                            parsed_files = []
+                            for f in files:
+                                p = AnimeParser.parse_filename(f)
+                                if p and p.get('episode') is not None:
+                                    ep = p.get('episode')
+                                    if isinstance(ep, list): ep = ep[-1]
+                                    parsed_files.append(ep)
+                            
+                            current_p = AnimeParser.parse_filename(os.path.basename(filename))
+                            current_ep = current_p.get('episode') if current_p else None
+                            if isinstance(current_ep, list): current_ep = current_ep[-1]
+                            
+                            if current_ep is not None:
+                                can_next = any(e > current_ep for e in parsed_files)
+                                can_prev = any(e < current_ep for e in parsed_files)
+                    except: pass
+
                     total_episodes = self._get_total_episodes(filename)
 
                     from src.parser import AnimeParser  # type: ignore
@@ -196,6 +224,11 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                 "selected_media_id": getattr(self.agent, 'selected_media_id', None),
                 "season_options": season_options,
                 "media_details": media_details,
+                "paused": is_paused,
+                "can_next": can_next,
+                "can_prev": can_prev,
+                "last_played_file": self.agent.settings.last_played_file,
+                "last_played_title": os.path.basename(self.agent.settings.last_played_file) if self.agent.settings.last_played_file else None,
             }
             self.wfile.write(json.dumps(response).encode('utf-8'))
         elif self.path == '/api/animelist':
@@ -512,6 +545,68 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
                     success = True
                 except Exception as e:
                     print(f"Failed to open folder: {e}")
+            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+
+        elif self.path.startswith('/api/play_pause'):
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            success = False
+            if self.agent:
+                # 1. Try active watcher first
+                if self.agent.active_watcher and self.agent.active_watcher.is_connected:
+                    self.agent.active_watcher.toggle_pause()
+                    success = True
+                
+                # 2. General multimedia action for macOS as fallback or additional action
+                if sys.platform == 'darwin':
+                    try:
+                        # This sends a "Space" key press which works for most players
+                        subprocess.call(['osascript', '-e', 'tell application "System Events" to key code 49'])
+                        success = True
+                    except: pass
+            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+
+        elif self.path.startswith('/api/play_next'):
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            success = False
+            if self.agent and self.agent.active_watcher and self.agent.active_watcher.is_connected:
+                self.agent.active_watcher.next_episode()
+                success = True
+            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+
+        elif self.path.startswith('/api/play_prev'):
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            success = False
+            if self.agent and self.agent.active_watcher and self.agent.active_watcher.is_connected:
+                self.agent.active_watcher.previous_episode()
+                success = True
+            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+
+        elif self.path == '/api/resume':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            success = False
+            last_file = self.agent.settings.last_played_file
+            if last_file and os.path.exists(last_file):
+                try:
+                    import sys
+                    import subprocess
+                    if sys.platform == 'win32': os.startfile(last_file)
+                    elif sys.platform == 'darwin': subprocess.call(['open', last_file])
+                    else: subprocess.call(['xdg-open', last_file])
+                    success = True
+                except Exception as e:
+                    print(f"Failed to resume last file: {e}")
             self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
 
         elif self.path.startswith('/api/play_latest'):
