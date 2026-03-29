@@ -3738,8 +3738,15 @@ input:not(:placeholder-shown) + .clear-input-btn {
 }
 
 .tier-pill.active {
+    background: var(--accent);
+    border-color: var(--accent);
     color: white;
     box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.tier-pill.active:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
 }
 
 /* Now Playing Modern Overhaul */
@@ -3786,6 +3793,7 @@ input:not(:placeholder-shown) + .clear-input-btn {
     color: rgba(255,255,255,0.9);
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     transition: max-height 0.4s ease;
@@ -3793,6 +3801,7 @@ input:not(:placeholder-shown) + .clear-input-btn {
 
 .np-summary-text.expanded {
     -webkit-line-clamp: unset;
+    line-clamp: unset;
     overflow-y: auto;
     max-height: 120px;
 }
