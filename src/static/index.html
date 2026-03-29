@@ -272,8 +272,8 @@
             </div>
             <h2>Waiting for media player...</h2>
             <p>Open a video file in MPV or MPC-HC to start tracking automatically.</p>
-            <div id="resume-container" class="hidden" style="margin-top: 2rem;">
-                <button id="btn-resume-last" class="resume-btn-premium">
+            <div id="resume-container" class="hidden" style="margin-top: 2rem; display: flex; align-items: stretch; gap: 0.5rem; max-width: 460px; margin-left: auto; margin-right: auto;">
+                <button id="btn-resume-last" class="resume-btn-premium" style="margin: 0; flex: 1;">
                     <div class="resume-icon">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                     </div>
@@ -281,6 +281,9 @@
                         <span class="resume-label">Resume Last Played</span>
                         <span id="resume-filename" class="resume-filename">—</span>
                     </div>
+                </button>
+                <button id="btn-open-folder" class="resume-folder-btn" title="Open Folder">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                 </button>
             </div>
         </section>

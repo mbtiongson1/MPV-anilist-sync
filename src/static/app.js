@@ -142,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resumeContainer = document.getElementById('resume-container');
     const resumeFilename = document.getElementById('resume-filename');
     const btnResumeLast = document.getElementById('btn-resume-last');
+    const btnOpenFolder = document.getElementById('btn-open-folder');
 
     // Change Log Modal Elements
     const changelogModal = document.getElementById('changelog-modal');
@@ -804,10 +805,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Attach folder events globally (since we populate them here)
         listContainer.querySelectorAll('.btn-open-folder').forEach(btn => {
-            btn.onclick = (e) => {
+            btn.onclick = async (e) => {
                 e.stopPropagation();
                 const mediaId = btn.getAttribute('data-media-id');
-                fetch('/api/open_folder?mediaId=' + mediaId).catch(console.error);
+                try {
+                    await fetch('/api/open_folder', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mediaId })
+                    });
+                } catch (err) {
+                    console.error('Failed to open folder:', err);
+                }
             };
         });
     }
@@ -1036,14 +1045,37 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/resume', { method: 'POST' });
             const data = await res.json();
             if (data.success) {
-                // UI will update on next poll
+                showToast("Opening last played file...", "info");
+            } else {
+                showToast("Failed to open file. Path may be invalid or not found.", "error");
             }
         } catch (e) {
             console.error('Failed to resume:', e);
+            showToast("Error communicating with server", "error");
         } finally {
             btnResumeLast.disabled = false;
         }
     });
+
+    if (btnOpenFolder) {
+        btnOpenFolder.addEventListener('click', async () => {
+            try {
+                btnOpenFolder.disabled = true;
+                const res = await fetch('/api/open_folder', { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    showToast("Opening containing folder...", "info");
+                } else {
+                    showToast("Failed to open folder.", "error");
+                }
+            } catch (e) {
+                console.error('Failed to open folder:', e);
+                showToast("Error opening folder", "error");
+            } finally {
+                btnOpenFolder.disabled = false;
+            }
+        });
+    }
 
     async function showInLibrary(mediaId) {
         // 1. Switch tab

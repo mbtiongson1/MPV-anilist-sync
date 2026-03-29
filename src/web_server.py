@@ -597,16 +597,89 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             success = False
             last_file = self.agent.settings.last_played_file
+            print(f"DEBUG: Attempting to resume file: {last_file}")
+            
+            if last_file:
+                # Normalizing path for the OS
+                last_file = os.path.normpath(last_file)
+                if os.path.exists(last_file):
+                    try:
+                        import sys
+                        import subprocess
+                        abs_path = os.path.abspath(last_file)
+                        print(f"DEBUG: OS: {sys.platform}, Normalized path: {abs_path}")
+                        
+                        if sys.platform == 'win32': 
+                            os.startfile(abs_path)
+                            success = True
+                        elif sys.platform == 'darwin': 
+                            # On macOS, using 'open' with Popen.
+                            # We'll use shlex for safety if needed, but Popen list is usually fine.
+                            proc = subprocess.Popen(['open', abs_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                            stdout, stderr = proc.communicate()
+                            if proc.returncode == 0:
+                                success = True
+                                print("DEBUG: Successfully launched 'open' command.")
+                            else:
+                                print(f"DEBUG: 'open' command failed with code {proc.returncode}. Stderr: {stderr.decode()}")
+                        else: 
+                            subprocess.Popen(['xdg-open', abs_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                            success = True
+                    except Exception as e:
+                        print(f"DEBUG: Exception during resume: {e}")
+                else:
+                    print(f"DEBUG: File does not exist on disk: {last_file}")
+            else:
+                print("DEBUG: last_played_file is empty in settings.")
+            self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
+
+        elif self.path == '/api/open_folder':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            
+            # Handle both POST (with possible mediaId body) and GET (with query param)
+            media_id = None
+            content_length = int(self.headers.get('Content-Length', 0))
+            if content_length > 0:
+                try:
+                    data = json.loads(self.rfile.read(content_length).decode('utf-8'))
+                    media_id = data.get('mediaId')
+                except: pass
+            
+            if not media_id and '?' in self.path:
+                from urllib.parse import parse_qs, urlparse
+                query = parse_qs(urlparse(self.path).query)
+                if 'mediaId' in query: media_id = query['mediaId'][0]
+
+            success = False
+            last_file = None
+            
+            if media_id:
+                # Find file path for this specific mediaId if possible from cache/history
+                # For now, let's stick to the "last_played_file" if it matches or if no media_id provided
+                # Actually, the user's library list uses mediaId. We need to find where that path is stored.
+                # If we don't have a per-anime path cache, we fallback to last_played if relevant.
+                last_file = self.agent.settings.last_played_file
+            else:
+                last_file = self.agent.settings.last_played_file
+
+            print(f"DEBUG: Attempting to open folder for: {last_file}")
             if last_file and os.path.exists(last_file):
                 try:
                     import sys
                     import subprocess
-                    if sys.platform == 'win32': os.startfile(last_file)
-                    elif sys.platform == 'darwin': subprocess.call(['open', last_file])
-                    else: subprocess.call(['xdg-open', last_file])
+                    abs_path = os.path.abspath(last_file)
+                    if sys.platform == 'win32':
+                        subprocess.Popen(['explorer', '/select,', abs_path])
+                    elif sys.platform == 'darwin':
+                        subprocess.Popen(['open', '-R', abs_path])
+                    else:
+                        subprocess.Popen(['xdg-open', os.path.dirname(abs_path)])
                     success = True
                 except Exception as e:
-                    print(f"Failed to resume last file: {e}")
+                    print(f"DEBUG: Failed to open folder: {e}")
             self.wfile.write(json.dumps({"success": success}).encode('utf-8'))
 
         elif self.path.startswith('/api/play_latest'):

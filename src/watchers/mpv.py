@@ -42,7 +42,7 @@ class MPVWatcher(BaseWatcher):
             self._is_connected = True
             
             # Setup property observers
-            @mpv_instance.property_observer('filename')
+            @mpv_instance.property_observer('path')
             def on_filename_change(_name, value):
                 self.current_filename = value
                 

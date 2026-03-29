@@ -3738,15 +3738,16 @@ input:not(:placeholder-shown) + .clear-input-btn {
 }
 
 .tier-pill.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: white;
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: #fff !important;
     box-shadow: 0 0 12px var(--accent-glow);
+    background-image: none !important;
 }
 
 .tier-pill.active:hover {
-    background: var(--accent-hover);
-    border-color: var(--accent-hover);
+    background: var(--accent-hover) !important;
+    border-color: var(--accent-hover) !important;
 }
 
 /* Now Playing Modern Overhaul */
@@ -4007,6 +4008,29 @@ input:not(:placeholder-shown) + .clear-input-btn {
     height: 100%;
     background: var(--accent);
     opacity: 0.8;
+}
+
+.resume-folder-btn {
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+}
+
+.resume-folder-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(var(--accent-rgb), 0.2);
 }
 
 .resume-icon {
