@@ -12,7 +12,7 @@ class AnimeParser:
             return None
             
         # Optional: guessit is very good out of the box, but we can enforce anime parsing
-        guess = guessit.guessit(filename, options={'type': 'episode'})
+        guess = guessit.guessit(filename)
         
         # We need at minimum a title to search Anilist
         if 'title' not in guess:
