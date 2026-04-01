@@ -14,7 +14,7 @@ def update_version(target):
         
     # Read the old version
     try:
-        with open(version_file_path, "r") as f:
+        with open(version_file_path, "r", encoding="utf-8") as f:
             old_version = f.read().strip()
     except FileNotFoundError:
         print(f"Error: {version_file_path} not found.")
@@ -45,7 +45,7 @@ def update_version(target):
         
     # Update VERSION file
     print(f"Updating VERSION: {old_version} -> {new_version}")
-    with open(version_file_path, "w") as f:
+    with open(version_file_path, "w", encoding="utf-8") as f:
         f.write(new_version + "\n")
         
     # Update README.md
@@ -55,7 +55,7 @@ def update_version(target):
         
     if os.path.exists(readme_path):
         print(f"Updating README.md: Searching for v{old_version} and {old_version}")
-        with open(readme_path, "r") as f:
+        with open(readme_path, "r", encoding="utf-8") as f:
             readme_content = f.read()
             
         # Replace occurrences with 'v' prefix
@@ -67,7 +67,7 @@ def update_version(target):
         if updated_readme == readme_content:
             print("Warning: No changes made to README.md. Old version not found with 'v' prefix.")
             
-        with open(readme_path, "w") as f:
+        with open(readme_path, "w", encoding="utf-8") as f:
             f.write(updated_readme)
         print("Successfully updated README.md.")
     else:
