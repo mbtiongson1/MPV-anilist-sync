@@ -21,8 +21,12 @@ class TrackerStateHandler(http.server.SimpleHTTPRequestHandler):
     manual_episode_override: Optional[int] = None
     
     def __init__(self, *args, **kwargs):
-        # Serve files from the static directory by default
-        super().__init__(*args, directory=os.path.join(os.path.dirname(__file__), 'static'), **kwargs)
+        # Serve files from the frontend build output, falling back to legacy static dir
+        base_dir = os.path.dirname(os.path.dirname(__file__))
+        frontend_dist = os.path.join(base_dir, 'frontend', 'dist')
+        static_dir = os.path.join(os.path.dirname(__file__), 'static')
+        serve_dir = frontend_dist if os.path.isdir(frontend_dist) else static_dir
+        super().__init__(*args, directory=serve_dir, **kwargs)
 
     def _set_cors_headers(self):
         self.send_header('Access-Control-Allow-Origin', '*')
