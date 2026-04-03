@@ -1,12 +1,5 @@
 [
   {
-    "name": "AI201_2S2025-26_PA3_Neural_Network",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/AI201_2S2025-26_PA3_Neural_Network",
-    "size": 224,
-    "children": []
-  },
-  {
     "name": "Akuyaku Reijou wa Ringoku no Outaishi ni Dekiai sareru",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Akuyaku Reijou wa Ringoku no Outaishi ni Dekiai sareru",
@@ -89,13 +82,6 @@
         "episode": 25
       }
     ]
-  },
-  {
-    "name": "Chi Chikyuu no Undou ni Tsuite",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Chi Chikyuu no Undou ni Tsuite",
-    "size": 96,
-    "children": []
   },
   {
     "name": "Chikyuu no Undou ni Tsuite",
@@ -659,23 +645,12 @@
     "name": "Mayonaka Heart Tune",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Mayonaka Heart Tune",
-    "size": 378013912,
+    "size": 128,
     "mediaId": 187942,
     "listStatus": "COMPLETED",
     "progress": 12,
-    "children": [
-      {
-        "name": "[ASW] Mayonaka Heart Tune - 12 [1080p HEVC][6439B8C3].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Mayonaka Heart Tune/[ASW] Mayonaka Heart Tune - 12 [1080p HEVC][6439B8C3].mkv",
-        "size": 378013912,
-        "mediaId": 187942,
-        "listStatus": "COMPLETED",
-        "progress": 12,
-        "episode": 12
-      }
-    ],
-    "localEpisodeCount": 1
+    "children": [],
+    "localEpisodeCount": 0
   },
   {
     "name": "Nigetsuri",
@@ -723,23 +698,12 @@
     "name": "Oshi no Ko",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Oshi no Ko",
-    "size": 522569106,
+    "size": 160,
     "mediaId": 150672,
     "listStatus": "COMPLETED",
     "progress": 11,
-    "children": [
-      {
-        "name": "[ASW] Oshi no Ko S3 - 11 [1080p HEVC][6C15FBBB].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Oshi no Ko/[ASW] Oshi no Ko S3 - 11 [1080p HEVC][6C15FBBB].mkv",
-        "size": 522569106,
-        "mediaId": 150672,
-        "listStatus": "COMPLETED",
-        "progress": 11,
-        "episode": 11
-      }
-    ],
-    "localEpisodeCount": 1
+    "children": [],
+    "localEpisodeCount": 0
   },
   {
     "name": "Reincarnation no Kaben",
@@ -854,81 +818,11 @@
     "name": "Sousou no Frieren",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Sousou no Frieren",
-    "size": 5764185468,
+    "size": 3139411919,
     "mediaId": 154587,
     "listStatus": "COMPLETED",
     "progress": 28,
     "children": [
-      {
-        "name": "[ASW] Sousou no Frieren - 22 [1080p HEVC][D7EF4CF2].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Sousou no Frieren/[ASW] Sousou no Frieren - 22 [1080p HEVC][D7EF4CF2].mkv",
-        "size": 376573678,
-        "mediaId": 154587,
-        "listStatus": "COMPLETED",
-        "progress": 28,
-        "episode": 22
-      },
-      {
-        "name": "[ASW] Sousou no Frieren - 23 [1080p HEVC][6E312AF4].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Sousou no Frieren/[ASW] Sousou no Frieren - 23 [1080p HEVC][6E312AF4].mkv",
-        "size": 371239990,
-        "mediaId": 154587,
-        "listStatus": "COMPLETED",
-        "progress": 28,
-        "episode": 23
-      },
-      {
-        "name": "[ASW] Sousou no Frieren - 24 [1080p HEVC][DD58A3D7].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Sousou no Frieren/[ASW] Sousou no Frieren - 24 [1080p HEVC][DD58A3D7].mkv",
-        "size": 331022865,
-        "mediaId": 154587,
-        "listStatus": "COMPLETED",
-        "progress": 28,
-        "episode": 24
-      },
-      {
-        "name": "[ASW] Sousou no Frieren - 25 [1080p HEVC][8B3A576C].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Sousou no Frieren/[ASW] Sousou no Frieren - 25 [1080p HEVC][8B3A576C].mkv",
-        "size": 385908143,
-        "mediaId": 154587,
-        "listStatus": "COMPLETED",
-        "progress": 28,
-        "episode": 25
-      },
-      {
-        "name": "[ASW] Sousou no Frieren - 26 [1080p HEVC][38E1BD7C].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Sousou no Frieren/[ASW] Sousou no Frieren - 26 [1080p HEVC][38E1BD7C].mkv",
-        "size": 453834461,
-        "mediaId": 154587,
-        "listStatus": "COMPLETED",
-        "progress": 28,
-        "episode": 26
-      },
-      {
-        "name": "[ASW] Sousou no Frieren - 27 [1080p HEVC][0A4FAA9E].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Sousou no Frieren/[ASW] Sousou no Frieren - 27 [1080p HEVC][0A4FAA9E].mkv",
-        "size": 321528590,
-        "mediaId": 154587,
-        "listStatus": "COMPLETED",
-        "progress": 28,
-        "episode": 27
-      },
-      {
-        "name": "[ASW] Sousou no Frieren - 28 [1080p HEVC][FD18CFA0].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Sousou no Frieren/[ASW] Sousou no Frieren - 28 [1080p HEVC][FD18CFA0].mkv",
-        "size": 384665822,
-        "mediaId": 154587,
-        "listStatus": "COMPLETED",
-        "progress": 28,
-        "episode": 28
-      },
       {
         "name": "[ASW] Sousou no Frieren S2 - 05 [1080p HEVC][6B87E0D0].mkv",
         "type": "file",
@@ -990,7 +884,7 @@
         "episode": 10
       }
     ],
-    "localEpisodeCount": 13
+    "localEpisodeCount": 6
   },
   {
     "name": "Sousou no Frieren S2",
@@ -1269,12 +1163,5 @@
         "size": 513195633
       }
     ]
-  },
-  {
-    "name": "[ASW]",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/[ASW]",
-    "size": 1856,
-    "children": []
   }
 ]

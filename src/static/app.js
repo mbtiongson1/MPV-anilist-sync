@@ -4990,8 +4990,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     const statusBadge = files[0].listStatus === 'COMPLETED' 
                         ? '<span style="font-size: 0.7rem; background: #f59e0b; color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 600;">COMPLETED</span>'
                         : '<span style="font-size: 0.7rem; background: #10b981; color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 600;">EP ' + files[0].progress + '</span>';
-                    header.innerHTML = `<span>${escapeHtml(title)}</span>${statusBadge}`;
+                    header.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" class="group-cleanup-checkbox custom-checkbox" checked style="cursor: pointer;" title="Select all for ${escapeHtml(title)}">
+                            <span>${escapeHtml(title)}</span>
+                        </div>
+                        ${statusBadge}
+                    `;
                     group.appendChild(header);
+                    
+                    const groupCheckbox = header.querySelector('.group-cleanup-checkbox');
+                    groupCheckbox.addEventListener('change', (e) => {
+                        const fileCheckboxes = group.querySelectorAll('.file-cleanup-checkbox');
+                        fileCheckboxes.forEach(cb => { cb.checked = e.target.checked; });
+                        updateFileCleanupSummary();
+                    });
                     
                     files.forEach(file => {
                         const item = document.createElement('div');
@@ -5005,7 +5018,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         checkbox.dataset.size = file.size || 0;
                         checkbox.className = 'file-cleanup-checkbox';
                         checkbox.style.cursor = 'pointer';
-                        checkbox.addEventListener('change', updateFileCleanupSummary);
+                        checkbox.addEventListener('change', () => {
+                            const fileCheckboxes = group.querySelectorAll('.file-cleanup-checkbox');
+                            const checkedCount = Array.from(fileCheckboxes).filter(cb => cb.checked).length;
+                            if (groupCheckbox) {
+                                groupCheckbox.checked = checkedCount === fileCheckboxes.length;
+                                groupCheckbox.indeterminate = checkedCount > 0 && checkedCount < fileCheckboxes.length;
+                            }
+                            updateFileCleanupSummary();
+                        });
                         
                         const label = document.createElement('div');
                         label.style.cssText = 'flex: 1; min-width: 0;';
@@ -5050,6 +5071,12 @@ document.addEventListener('DOMContentLoaded', () => {
         fileCleanupSelectAll.addEventListener('change', () => {
             const checkboxes = fileCleanupContainer.querySelectorAll('.file-cleanup-checkbox');
             checkboxes.forEach(cb => { cb.checked = fileCleanupSelectAll.checked; });
+            
+            const groupCheckboxes = fileCleanupContainer.querySelectorAll('.group-cleanup-checkbox');
+            groupCheckboxes.forEach(gcb => {
+                gcb.checked = fileCleanupSelectAll.checked;
+                gcb.indeterminate = false;
+            });
             updateFileCleanupSummary();
         });
     }
