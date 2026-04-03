@@ -138,12 +138,31 @@ async def resume(request: Request):
 
 @router.post('/api/move_to_trash')
 async def move_to_trash(request: Request, body: PathsRequest):
-    from send2trash import send2trash
     success_count = 0
     for p in body.paths:
         if os.path.exists(p):
             try:
-                send2trash(p)
+                try:
+                    from send2trash import send2trash
+                    send2trash(p)
+                except ImportError:
+                    print(f"Warning: 'send2trash' module not found. Falling back to native OS commands or permanent deletion for: {p}")
+                    abs_p = os.path.abspath(p)
+                    if sys.platform == 'darwin':
+                        safe_path = abs_p.replace('"', '\\"')
+                        subprocess.run(['osascript', '-e', f'tell application "Finder" to move POSIX file "{safe_path}" to trash'], check=True)
+                    elif sys.platform.startswith('linux'):
+                        import shutil
+                        try:
+                            subprocess.run(['gio', 'trash', abs_p], check=True)
+                        except Exception:
+                            if os.path.isdir(abs_p): shutil.rmtree(abs_p)
+                            else: os.remove(abs_p)
+                    else:
+                        # Fallback to permanent deletion on Windows/other if send2trash is missing
+                        import shutil
+                        if os.path.isdir(abs_p): shutil.rmtree(abs_p)
+                        else: os.remove(abs_p)
                 success_count += 1
             except Exception as e:
                 print(f"Failed to trash {p}: {e}")

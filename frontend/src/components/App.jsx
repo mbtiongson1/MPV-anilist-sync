@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'preact/hooks';
-import { animeList, activeTab, viewMode, selectedAnime, sortBy, sortDirection, currentPage, userSettings, sidebarCollapsed, selectedSidebarSeasons, selectedGenres, showToast, setViewMode, setActiveTab, pendingApiRequests, apiErrorMessages } from '../store';
+import { animeList, activeTab, viewMode, selectedAnime, sortBy, sortDirection, currentPage, userSettings, sidebarCollapsed, selectedSidebarSeasons, selectedGenres, showToast, setViewMode, setActiveTab, pendingApiRequests, apiErrorMessages, libraryData } from '../store';
 import { fuzzyMatch, getAnimeSeasons, getDisplayTitle } from '../utils';
 import * as api from '../api';
 
@@ -54,14 +54,20 @@ export function App() {
     // Refresh handler
     const handleRefresh = useCallback(async () => {
         try {
-            const list = await api.fetchAnimeList();
-            animeList.value = list || [];
-            localStorage.setItem('lastAnilistSync', Date.now().toString());
-            showToast('List refreshed');
+            if (activeTab.value === 'LIBRARY') {
+                const data = await api.fetchLibrary(true);
+                libraryData.value = data || [];
+                showToast('Library refreshed');
+            } else {
+                const list = await api.fetchAnimeList();
+                animeList.value = list || [];
+                localStorage.setItem('lastAnilistSync', Date.now().toString());
+                showToast('List refreshed');
+            }
         } catch (e) {
             showToast('Refresh failed', 'error');
         }
-    }, []);
+    }, [activeTab.value]);
 
     // Settings saved handler
     const handleSettingsSaved = useCallback(async () => {
@@ -154,6 +160,15 @@ export function App() {
 
         return filtered;
     }, [animeList.value, activeTab.value, filterName, filterSeason, filterFormat, filterYear, sortBy.value, sortDirection.value, selectedSidebarSeasons.value, selectedGenres.value, userSettings.value]);
+
+    // Fetch library when tab is selected
+    useEffect(() => {
+        if (activeTab.value === 'LIBRARY' && (!libraryData.value || libraryData.value.length === 0)) {
+            api.fetchLibrary().then(data => {
+                libraryData.value = data || [];
+            }).catch(e => console.error('Failed to fetch library:', e));
+        }
+    }, [activeTab.value]);
 
     const tab = activeTab.value;
     const isListTab = ['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED'].includes(tab);

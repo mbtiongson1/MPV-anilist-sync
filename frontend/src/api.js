@@ -41,8 +41,10 @@ export const fetchUpcoming = (refresh = false, season = null, year = null) => {
 };
 
 // ===== Library =====
-export const fetchLibrary = (forceRefresh = false) =>
-    request('/api/library' + (forceRefresh ? '?force_refresh=true' : ''));
+export const fetchLibrary = async (forceRefresh = false) => {
+    const res = await request('/api/library' + (forceRefresh ? '?force_refresh=true' : ''));
+    return res.success !== undefined ? res.data : res;
+};
 
 export const fetchLibraryExclusions = () => request('/api/library/exclusions');
 

@@ -4021,6 +4021,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 libraryContent.innerHTML = '<div class="empty-state"><p>No library found or scanned yet.</p></div>';
             }
         } catch (e) {
+            console.error('Error rendering/fetching library:', e);
             if (!silent) {
                 libraryContent.innerHTML = '<div class="empty-state"><p>Network error scanning library.</p></div>';
             }
@@ -4431,8 +4432,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return nodeEl;
         }
         
-        const rootNode = renderNode(libraryData, 0);
-        if (rootNode) libraryContent.appendChild(rootNode);
+        if (Array.isArray(libraryData)) {
+            libraryData.forEach(node => {
+                const el = renderNode(node, 0);
+                if (el) root.appendChild(el);
+            });
+            libraryContent.appendChild(root);
+        } else {
+            const rootNode = renderNode(libraryData, 0);
+            if (rootNode) libraryContent.appendChild(rootNode);
+        }
 
         // Add footer for managing exclusions if any exist
         if (libraryExclusions && libraryExclusions.length > 0) {

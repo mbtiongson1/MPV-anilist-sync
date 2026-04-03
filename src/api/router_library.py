@@ -51,7 +51,7 @@ async def get_settings(request: Request):
             'preferred_resolution': agent.settings.preferred_resolution,
             'default_download_dir': agent.settings.default_download_dir,
             'base_anime_folder': agent.settings.base_anime_folder,
-            'title_overrides': agent.settings.title_overrides
+            'title_overrides': agent.settings.title_overrides or {}
         }
     return settings
 
@@ -187,7 +187,7 @@ async def get_library_exclusions(request: Request):
     agent = request.app.state.agent
     exclusions = []
     if agent and hasattr(agent, 'settings'):
-        exclusions = agent.settings.library_exclusions
+        exclusions = agent.settings.library_exclusions or []
     return exclusions
 
 @router.post('/api/library/exclude')
@@ -277,10 +277,116 @@ async def sync_progress(request: Request):
                 success = True
     return {"success": success}
 
+@router.get('/api/library/cleanup_candidates')
+async def cleanup_candidates(request: Request):
+    agent = request.app.state.agent
+    candidates = []
+    if not agent or not hasattr(agent, 'settings'):
+        return []
+        
+    base_dir = agent.settings.base_anime_folder
+    if not base_dir or not os.path.exists(base_dir):
+        return []
+    
+    from src.parser import AnimeParser
+    video_exts = ('.mkv', '.mp4', '.avi')
+    
+    # Load AniList cache for matching
+    anilist_entries = []
+    if hasattr(agent, 'anilist'):
+        anilist_entries = agent.anilist._load_list_cache() or []
+    
+    # Map mediaId to list status/progress
+    anilist_map = {e.get('mediaId'): e for e in anilist_entries if isinstance(e, dict)}
+    
+    # Scan both directories and loose files
+    candidates = []
+    try:
+        items_to_check = os.listdir(base_dir)
+    except Exception:
+        return []
+    
+    for item in items_to_check:
+        item_path = os.path.join(base_dir, item)
+        if item.startswith('.'): continue
+            
+        is_dir = os.path.isdir(item_path)
+        is_file = os.path.isfile(item_path) and item.lower().endswith(video_exts)
+        
+        if not is_dir and not is_file: continue
+            
+        # Match search term
+        match_search = item if is_dir else item
+        parsed = None
+        try:
+            parsed = AnimeParser.parse_filename(match_search)
+        except Exception:
+            pass
+        matched_entry = None
+        
+        if parsed and parsed.get('title'):
+            title = parsed['title']
+            # Search overrides first
+            overrides = agent.settings.title_overrides or {}
+            for mid_str, custom_title in overrides.items():
+                if custom_title.lower() == title.lower():
+                    matched_entry = anilist_map.get(int(mid_str))
+                    break
+            
+            if not matched_entry:
+                for e in anilist_entries:
+                    romaji = e.get('title', {}).get('romaji') or ''
+                    english = e.get('title', {}).get('english') or ''
+                    if (romaji and romaji.lower() == title.lower()) or (english and english.lower() == title.lower()):
+                        matched_entry = e
+                        break
+        
+        if matched_entry:
+            status = matched_entry.get('listStatus')
+            progress = matched_entry.get('progress') or 0
+            
+            # Sub-files if it's a directory, or just the file itself
+            files_to_eval = []
+            if is_dir:
+                try:
+                    files_to_eval = [(f, os.path.join(item_path, f)) for f in os.listdir(item_path) if f.lower().endswith(video_exts)]
+                except: pass
+            else:
+                files_to_eval = [(item, item_path)]
+                
+            for filename, f_path in files_to_eval:
+                p_file = None
+                try:
+                    p_file = AnimeParser.parse_filename(filename)
+                except Exception:
+                    pass
+                if p_file and p_file.get('episode') is not None:
+                    ep = p_file.get('episode')
+                    if isinstance(ep, list): ep = ep[-1]
+                    
+                    is_candidate = False
+                    if status == 'COMPLETED':
+                        is_candidate = True
+                    elif status == 'CURRENT' and ep <= progress:
+                        is_candidate = True
+                        
+                    if is_candidate:
+                        try:
+                            size = os.path.getsize(f_path)
+                            candidates.append({
+                                'path': f_path,
+                                'size': size,
+                                'animeTitle': matched_entry.get('title', {}).get('romaji') or item,
+                                'listStatus': status,
+                                'progress': progress,
+                                'episode': ep
+                            })
+                        except: pass
+                        
+    return candidates
+
 @router.get('/api/library')
 async def get_library(request: Request, force_refresh: str = 'false'):
-    # Note: Library scan is highly simplified here to fit token contexts securely
-    # using cache if available.
     agent = request.app.state.agent
     force_refresh = force_refresh.lower() == 'true'
     cache_file = 'library_cache.json'
@@ -288,10 +394,128 @@ async def get_library(request: Request, force_refresh: str = 'false'):
     if not force_refresh and os.path.exists(cache_file):
         try:
             with open(cache_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
+                return {"success": True, "data": json.load(f)}
         except: pass
 
-    return {"success": False, "data": []}
+    if not agent or not hasattr(agent, 'settings'):
+        return {"success": False, "data": []}
+
+    base_dir = agent.settings.base_anime_folder
+    if not base_dir or not os.path.exists(base_dir):
+        return {"success": False, "data": []}
+
+    from src.parser import AnimeParser
+    video_exts = ('.mkv', '.mp4', '.avi')
+    exclusions = agent.settings.library_exclusions or []
+    
+    # Load AniList cache for matching
+    anilist_entries = []
+    if hasattr(agent, 'anilist'):
+        anilist_entries = agent.anilist._load_list_cache() or []
+    anilist_map = {e.get('mediaId'): e for e in anilist_entries if isinstance(e, dict)}
+
+    def scan_node(node_path, level=0):
+        if node_path in exclusions: return None
+        
+        name = os.path.basename(node_path)
+        if name.startswith('.'): return None
+        
+        is_dir = os.path.isdir(node_path)
+        is_file = os.path.isfile(node_path) and name.lower().endswith(video_exts)
+        
+        if not is_dir and not is_file: return None
+        
+        try:
+            stat = os.stat(node_path)
+            size = stat.st_size
+        except: return None
+        
+        node = {
+            'name': name,
+            'type': 'directory' if is_dir else 'file',
+            'path': node_path,
+            'size': size
+        }
+
+        # Attempt to match to AniList (for both folders and loose files)
+        parsed = None
+        try:
+            parsed = AnimeParser.parse_filename(name)
+        except Exception:
+            pass
+        if parsed and parsed.get('title'):
+            title = parsed['title']
+            matched = None
+            
+            # Check overrides
+            overrides = agent.settings.title_overrides or {}
+            for mid_str, custom_title in overrides.items():
+                if custom_title.lower() == title.lower():
+                    matched = anilist_map.get(int(mid_str))
+                    break
+            
+            if not matched:
+                for e in anilist_entries:
+                    romaji = e.get('title', {}).get('romaji') or ''
+                    english = e.get('title', {}).get('english') or ''
+                    if (romaji and romaji.lower() == title.lower()) or (english and english.lower() == title.lower()):
+                        matched = e
+                        break
+            
+            if matched:
+                node['mediaId'] = matched.get('mediaId')
+                node['listStatus'] = matched.get('listStatus')
+                node['progress'] = matched.get('progress') or 0
+                if not is_dir:
+                    node['episode'] = parsed.get('episode')
+
+        if is_dir:
+            node['children'] = []
+            # Only scan 1 level deep for files inside folders
+            if level <= 1:
+                try:
+                    items = sorted(os.listdir(node_path))
+                    for item in items:
+                        child = scan_node(os.path.join(node_path, item), level + 1)
+                        if child: node['children'].append(child)
+                except: pass
+                
+            # Calculate total size of directory
+            if node['children']:
+                node['size'] = sum(c['size'] for c in node['children'])
+            
+            # Count local episodes if matched
+            if 'mediaId' in node:
+                ep_count = 0
+                for c in node['children']:
+                    if c['type'] == 'file' and c['name'].lower().endswith(video_exts):
+                        p_file = None
+                        try:
+                            p_file = AnimeParser.parse_filename(c['name'])
+                        except Exception:
+                            pass
+                        if p_file and p_file.get('episode') is not None:
+                            ep_count += 1
+                node['localEpisodeCount'] = ep_count
+        
+        return node
+
+    # Build the tree
+    library_tree = []
+    try:
+        for item in sorted(os.listdir(base_dir)):
+            node = scan_node(os.path.join(base_dir, item), 1)
+            if node: library_tree.append(node)
+    except Exception as e:
+        print(f"Error accessing base directory: {e}")
+        
+    # Save to cache
+    try:
+        with open(cache_file, 'w', encoding='utf-8') as f:
+            json.dump(library_tree, f, ensure_ascii=False, indent=2)
+    except: pass
+
+    return {"success": True, "data": library_tree}
 
 @router.get('/api/image')
 async def get_image(url: str):
