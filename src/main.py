@@ -383,12 +383,14 @@ class TrackerAgent:
         result = self.anilist.search_anime(title)
         if not result:
             return
+            
+        first_match = result[0] if isinstance(result, list) and len(result) > 0 else result
 
         # Build a map of related seasons/entries and choose the best media for the current episode.
-        self.current_media_map = self._build_media_map(result)
+        self.current_media_map = self._build_media_map(first_match)
 
         # Default selected media to what our filename maps to (for season rollover).
-        resolved_media, _ = self._resolve_episode_to_media(result, episode)
+        resolved_media, _ = self._resolve_episode_to_media(first_match, episode)
         self.selected_media_id = resolved_media.get('id')
 
         media_id = self.selected_media_id
@@ -421,7 +423,9 @@ class TrackerAgent:
                 if not result:
                     print("No matching anime found on Anilist.")
                     return
-                target_media, _ = self._resolve_episode_to_media(result, override_episode)
+                    
+                first_match = result[0] if isinstance(result, list) and len(result) > 0 else result
+                target_media, _ = self._resolve_episode_to_media(first_match, override_episode)
 
             if not target_media:
                 print("Could not determine which media to sync to.")
