@@ -1,4 +1,4 @@
-# 🎬 MPV Anilist Tracker (v3.1.2)
+# 🎬 MPV Anilist Tracker (v4.0.0)
 
 A lightweight, background Python agent for Windows and macOS that detects when an anime video is being played, extracts the title and episode from the filename, and automatically syncs your watch progress to your **Anilist.co** account.
 
@@ -12,6 +12,8 @@ A lightweight, background Python agent for Windows and macOS that detects when a
 - **🌐 Web UI**: Modern beige/earth-toned browser interface to manage your watch list and track progress.
 - **🔍 Nyaa Integration**: Search for missing episodes directly from the Web UI using Nyaa.si.
 - **💾 Local Caching**: Works offline or with limited API calls by caching your AniList entries locally.
+- **🗑️ Smart Cleanup**: Suggest completed or watched files for cleanup, automatically calculating disk savings and allowing bulk trashing.
+- **📁 Library Manager**: Interactive explorer with multi-select checkboxes for bulk file management directly from the browser.
 - **⚙️ Settings Management**: Configure folder paths, refresh intervals, and more via the UI.
 - **🖥️ Cross-Platform**: Full support for both Windows and macOS with native UI elements.
 
@@ -81,7 +83,7 @@ The project uses a central `VERSION` file in the root directory. This version is
 
 To update the version:
 
-1. Modify the string in `VERSION` (e.g., `0.1.1`).
+1. Modify the string in `VERSION` (e.g., `4.0.1`).
 2. Re-run the build process.
 
 ### Building Standalone Apps
