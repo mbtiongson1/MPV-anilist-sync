@@ -102,6 +102,16 @@ To update the version:
 1. Modify the string in `VERSION` (e.g., `4.0.1`).
 2. Re-run the build process.
 
+### Building the Frontend
+
+If you make changes to the React UI in `frontend/src`, you must rebuild the static files so the Python backend can serve them from `frontend/dist`.
+
+1. **Navigate to the frontend directory**: `cd frontend`
+2. **Install dependencies**: `npm install`
+3. **Build the app**: `npm run build`
+
+Alternatively, use the provided workflow: `/build_frontend`
+
 ### Building Standalone Apps
 
 You can package the application into a standalone distribution (.exe or .app):

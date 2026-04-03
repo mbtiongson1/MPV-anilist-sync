@@ -34,6 +34,10 @@ export function NowPlaying({ onOpenDetails }) {
     const selectedMediaId = data.selected_media_id;
     let displayTitle = data.base_title || data.title;
 
+    if (displayTitle && (displayTitle.includes('/') || displayTitle.includes('\\'))) {
+        displayTitle = displayTitle.split(/[\\/]/).pop();
+    }
+
     if (selectedMediaId && userSettings.value?.title_overrides?.[selectedMediaId]) {
         displayTitle = userSettings.value.title_overrides[selectedMediaId];
     }
@@ -191,6 +195,10 @@ export function NowPlaying({ onOpenDetails }) {
 function IdleState({ status }) {
     const data = status;
     const hasResume = data?.last_played_file;
+    let lastTitle = data?.last_played_title || 'Last Video';
+    if (lastTitle && (lastTitle.includes('/') || lastTitle.includes('\\'))) {
+        lastTitle = lastTitle.split(/[\\/]/).pop();
+    }
 
     return (
         <div id="idle-state" class="idle-state">
@@ -205,7 +213,7 @@ function IdleState({ status }) {
             </div>
             {hasResume && (
                 <div id="resume-container" class="resume-container">
-                    <span id="resume-filename" class="resume-filename">{data.last_played_title || 'Last Video'}</span>
+                    <span id="resume-filename" class="resume-filename">{lastTitle}</span>
                     <div style="display: flex; gap: 0.5rem;">
                         <button id="btn-resume-last" class="primary-btn btn-resume-last" onClick={() => api.resumePlay()} title="Resume Last Video">
                             Resume

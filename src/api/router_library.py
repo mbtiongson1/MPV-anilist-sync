@@ -518,7 +518,7 @@ async def get_library(request: Request, force_refresh: str = 'false'):
     return {"success": True, "data": library_tree}
 
 @router.get('/api/image')
-async def get_image(url: str):
+def get_image(url: str):
     if not url:
         return Response(status_code=400)
 
@@ -531,7 +531,10 @@ async def get_image(url: str):
     
     if not os.path.exists(cache_path):
         try:
-            r = requests.get(url, timeout=5)
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
+            }
+            r = requests.get(url, headers=headers, timeout=5)
             r.raise_for_status()
             content_type = r.headers.get('content-type', 'image/jpeg')
             with open(cache_path, 'wb') as f:
@@ -539,7 +542,8 @@ async def get_image(url: str):
             with open(cache_path + '.meta', 'w') as f:
                 f.write(content_type)
         except Exception:
-            return Response(status_code=500)
+            # Fallback to redirecting the client to the original URL if proxy/caching fails
+            return Response(status_code=302, headers={"Location": url})
     
     try:
         with open(cache_path + '.meta', 'r') as f:
@@ -552,4 +556,4 @@ async def get_image(url: str):
             content = f.read()
         return Response(content=content, media_type=content_type, headers={'Cache-Control': 'public, max-age=31536000'})
     except Exception:
-        return Response(status_code=500)
+        return Response(status_code=302, headers={"Location": url})
