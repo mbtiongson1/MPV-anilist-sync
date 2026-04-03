@@ -13,6 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const npSummary = document.getElementById('np-summary');
     const npSummaryToggle = document.getElementById('np-summary-toggle');
     const btnEditNowPlaying = document.getElementById('btn-edit-nowplaying');
+    const btnManualOverride = document.getElementById('btn-manual-override');
+    const overrideModal = document.getElementById('override-modal');
+    const overrideModalClose = document.getElementById('override-modal-close');
+    const btnOverrideCancel = document.getElementById('override-cancel');
+    const overrideCurrentTitle = document.getElementById('override-current-title');
+    const overrideSearch = document.getElementById('override-search');
+    const overrideResults = document.getElementById('override-results');
     const npProgressLabel = document.getElementById('np-progress-label');
     const npProgressSegments = document.getElementById('np-progress-segments');
     const btnMinus = document.getElementById('btn-minus');
@@ -1202,6 +1209,111 @@ document.addEventListener('DOMContentLoaded', () => {
     modalOverlay.addEventListener('click', () => detailsModal.classList.add('hidden'));
     modalClose.addEventListener('click', () => detailsModal.classList.add('hidden'));
     modalCloseBtn.addEventListener('click', () => detailsModal.classList.add('hidden'));
+
+    // ===== Manual Override Modal =====
+    function openOverrideModal() {
+        if (!latestStatus || !latestStatus.base_title) {
+            showToast('No active video found to map.', 'error');
+            return;
+        }
+        
+        overrideCurrentTitle.textContent = latestStatus.base_title;
+        overrideSearch.value = '';
+        renderOverrideResults(animeList);
+        
+        overrideModal.classList.remove('hidden');
+        setTimeout(() => overrideSearch.focus(), 100);
+    }
+
+    function renderOverrideResults(list) {
+        overrideResults.innerHTML = '';
+        
+        const sorted = [...list].sort((a, b) => {
+            if (a.listStatus === 'CURRENT' && b.listStatus !== 'CURRENT') return -1;
+            if (b.listStatus === 'CURRENT' && a.listStatus !== 'CURRENT') return 1;
+            return (b.updatedAt || 0) - (a.updatedAt || 0);
+        });
+
+        const results = sorted.slice(0, 50);
+
+        if (results.length === 0) {
+            overrideResults.innerHTML = '<div style="padding: 10px; color: var(--text-muted); text-align: center;">No anime found.</div>';
+            return;
+        }
+
+        results.forEach(anime => {
+            const title = anime.title?.romaji || anime.title?.english || 'Unknown Title';
+            const item = document.createElement('div');
+            item.className = 'override-result-item';
+            
+            item.style.cssText = `
+                display: flex; gap: 10px; align-items: center; padding: 8px; 
+                background: rgba(255,255,255,0.03); border-radius: 4px; cursor: pointer;
+                transition: background 0.2s; border: 1px solid transparent;
+            `;
+            item.onmouseover = () => { item.style.background = 'rgba(255,255,255,0.08)'; item.style.borderColor = 'var(--accent)'; };
+            item.onmouseout = () => { item.style.background = 'rgba(255,255,255,0.03)'; item.style.borderColor = 'transparent'; };
+
+            const statusColor = statusColors[anime.listStatus] || '#ccc';
+
+            item.innerHTML = `
+                <img src="${getCachedImageUrl(anime.coverImage?.medium || anime.coverImage?.large)}" style="width: 32px; height: 48px; object-fit: cover; border-radius: 4px;" onerror="this.src=''" />
+                <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+                    <span style="font-weight: 500; font-size: 0.9rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(title)}</span>
+                    <div style="display: flex; gap: 6px; align-items: center; font-size: 0.75rem; color: var(--text-muted);">
+                        <span style="font-weight: 700; color: ${statusColor};">${anime.listStatus}</span>
+                        <span>• Ep ${anime.progress || 0}/${anime.episodes || '?'}</span>
+                    </div>
+                </div>
+            `;
+
+            item.onclick = async () => {
+                if (!latestStatus || !latestStatus.base_title) return;
+                
+                try {
+                    const res = await fetch('/api/update_title_override', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mediaId: anime.mediaId, customTitle: latestStatus.base_title })
+                    });
+                    
+                    if (res.ok) {
+                        showToast('Title override saved! Matching...', 'success');
+                        overrideModal.classList.add('hidden');
+                        checkStatus(); // immediate sync
+                        setTimeout(() => checkStatus(), 1500); // backup check
+                    } else {
+                        showToast('Failed to save override.', 'error');
+                    }
+                } catch (e) {
+                    showToast('Error saving override.', 'error');
+                }
+            };
+
+            overrideResults.appendChild(item);
+        });
+    }
+
+    if (btnManualOverride) btnManualOverride.addEventListener('click', openOverrideModal);
+    if (overrideModalClose) overrideModalClose.addEventListener('click', () => overrideModal.classList.add('hidden'));
+    if (btnOverrideCancel) btnOverrideCancel.addEventListener('click', () => overrideModal.classList.add('hidden'));
+    
+    if (overrideSearch) {
+        overrideSearch.addEventListener('input', (e) => {
+            const query = e.target.value.trim().toLowerCase();
+            if (!query) {
+                renderOverrideResults(animeList);
+            } else {
+                const filtered = animeList.filter(a => {
+                    const tl = (a.title?.romaji || '').toLowerCase();
+                    const te = (a.title?.english || '').toLowerCase();
+                    const ts = (a.title?.synonyms || []).join(' ').toLowerCase();
+                    return fuzzyMatch(query, tl) || fuzzyMatch(query, te) || fuzzyMatch(query, ts) || tl.includes(query) || te.includes(query);
+                });
+                renderOverrideResults(filtered);
+            }
+        });
+    }
 
     // ===== Anime List Fetching =====
     async function fetchAnimeList() {
