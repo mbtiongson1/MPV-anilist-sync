@@ -4,7 +4,7 @@ import subprocess
 import time
 import asyncio
 
-def start_web_server(agent, port: int = 8082):
+def start_web_server(agent, port: int = 8080):
     try:
         import uvicorn
         from fastapi.staticfiles import StaticFiles
@@ -53,7 +53,7 @@ def start_web_server(agent, port: int = 8082):
         print(f"Failed to start FastAPI server: {e}")
         # fallback simple http missing here for brevity
 
-def run_server_in_background(agent, port: int = 8082):
+def run_server_in_background(agent, port: int = 8080):
     thread = threading.Thread(target=start_web_server, args=(agent, port), daemon=True)
     thread.start()
     return thread
