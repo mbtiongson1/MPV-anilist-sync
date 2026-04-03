@@ -1,68 +1,37 @@
-# 🛡️ Codebase Audit Report
+# 🛡️ MPV Anilist Tracker - Audit Report
 
-## 📋 Summary
-This audit identifies several key areas of improvement, primarily focusing on the decomposition of `web_server.py`, consolidation of configuration/cache management, and improvement of test coverage.
+This document outlines the findings of a comprehensive audit of the `MPV Anilist Tracker` codebase, covering Architecture, Security, Performance, and Maintainability.
 
-## 🏗️ Architecture Findings
+## 1. 🏗️ Architecture
+- **Modularity:** 
+  - `web_server.py` is quite large (1,500+ lines). It currently handles HTTP routing, business logic, CORS boilerplate, file system parsing, and more in a single massive handler class. There is a strong need to break this down into specific route modules.
+- **Separation of Concerns:** 
+  - Business logic is heavily mixed with API response generation in `web_server.py`. Functions for OS interactions (opening folders, trashing files) are hardcoded into the router rather than cleanly separated into an OS utility service.
+- **State Management:**
+  - `TrackerAgent` correctly orchestrates state between `Anilist`, `Nyaa`, and the local `Settings`, holding the system state seamlessly for UI API endpoints.
 
-### 1. **Decomposition of `web_server.py`**
-- **Issue**: `web_server.py` is a 1400-line "God file". It handles HTTP routing, business logic, file system operations (moving/renaming files), process management (port cleanup), and image caching.
-- **Impact**: High technical debt, difficult to test, and prone to side-effect bugs.
-- **Recommendation**: Split `web_server.py` into:
-  - `web_server.py`: Only handles the HTTP server and routing.
-  - `api_handlers.py`: Logic for individual API endpoints.
-  - `file_manager.py`: File system operations (moving/renaming/library scanning).
-  - `process_utils.py`: Port cleanup and process management logic.
+## 2. 🔒 Security
+- **Bandit Analysis Results:**
+  - `High/Medium Severity:` Bandit revealed 6 action items related to `subprocess` invocations. `subprocess.call` and `subprocess.Popen` are used heavily in `web_server.py` across OS commands. Need to ensure all paths supplied to standard execution hooks are correctly wrapped or sanitized.
+  - `Low Severity:` Using the default `http.server.SimpleHTTPRequestHandler` is not fundamentally designed to withstand production network setups.
+- **Error Swallowing:** 
+  - Constant use of `try ... except Exception: pass` found within the server loop. This masks critical security or syntax failures and artificially obscures root causes when diagnosing bugs.
 
-### 2. **Dual Frontends**
-- **Issue**: The project maintains both a Tkinter UI (`ui.py`) and a Web UI (`src/static/`).
-- **Impact**: Duplicate effort to maintain feature parity.
-- **Recommendation**: Standardize on the Web UI and treat the Tkinter/Python side as a headless agent + tray icon.
+## 3. ⚡ Performance
+- **Caching Mechanisms:** 
+  - The implementation of `library_cache` and `list_cache` functions well and mitigates continuous remote hitting to the AniList API.
+- **Concurrency:** 
+  - Fetching search torrents and concurrently watching for saves would greatly benefit if transitioned to an asynchronous web framework such as `FastAPI`. Large operations like `/api/nyaa_batch_search` still utilize threading to bypass server blocking.
+- **Frontend Optimization:** 
+  - `Preact` handles DOM updates effectively via lightweight footprint sizes.
 
-### 3. **Shared Configuration File**
-- **Issue**: Both `SettingsManager` and `AnilistClient` write to `config.json` independently.
-- **Impact**: Potential race conditions and data loss during concurrent writes.
-- **Recommendation**: Centralize all configuration management into `SettingsManager` and have `AnilistClient` use it.
+## 4. 🧹 Maintainability
+- **Flake8 Quality Checks:**
+  - Found `616` PEP-8 style violations across `src/`.
+  - Extremely high frequency of `E501 (Line too long)` - lines continuously exceed the standard 80-character limit, especially iterating payload endpoints.
+  - Usage of `E722 (Bare except)` is prevalent. Standardizing exception handles to at least catch explicit exceptions and securely logging them ensures much better longevity.
+  - Duplicated manual CORS header declarations in `web_server.py`.
 
-## 🔒 Security Findings
-
-### 1. **Missing Timeouts**
-- **Issue**: `AnilistClient._execute_query` uses `requests.post` without a timeout.
-- **Impact**: The application could hang indefinitely if the AniList API is unresponsive.
-- **Recommendation**: Add a default timeout (e.g., 10 seconds) to all `requests` calls.
-
-### 2. **Token Persistence**
-- **Issue**: The AniList token is stored in `config.json`. While ignored in `.gitignore`, this is a standard JSON file.
-- **Impact**: Minimal security risk for a local app, but could be improved.
-- **Recommendation**: Consider using system keychain for tokens if higher security is desired.
-
-## ⚡ Performance Findings
-
-### 1. **Manual Cache Management**
-- **Issue**: Multiple JSON files (`list_cache.json`, `library_cache.json`, `upcoming_cache.json`) are managed manually across files.
-- **Impact**: Inconsistent caching logic and code duplication.
-- **Recommendation**: Create a unified `CacheManager` or utilize a local database (e.g., SQLite) for structured metadata.
-
-### 2. **Image Caching**
-- **Issue**: Image caching in `web_server.py` is manually implemented with `.meta` files.
-- **Impact**: Complex and error-prone.
-- **Recommendation**: Use a more robust caching library or simplify the metadata storage.
-
-## 🧹 Maintainability Findings
-
-### 1. **Low Test Coverage**
-- **Issue**: Core components like `web_server.py`, `main.py`, and `nyaa.py` have zero automated tests.
-- **Impact**: High risk of regressions during refactoring.
-- **Recommendation**: Implement integration tests for the API endpoints and unit tests for `nyaa.py`.
-
-### 2. **Error Handling**
-- **Issue**: Many `try/except Exception:` blocks exist, catching too broadly.
-- **Impact**: Masks specific errors and makes debugging difficult.
-- **Recommendation**: Refactor to catch specific exceptions (e.g., `FileNotFoundError`, `requests.RequestException`).
-
-## 🚀 Action Plan
-
-1. **Immediate**: Add timeouts to `AnilistClient` and `NyaaInterface`.
-2. **Short-term**: Refactor `SettingsManager` to own the AniList token persistence.
-3. **Mid-term**: Decouple file system logic from `web_server.py`.
-4. **Long-term**: Consolidate frontends and increase test coverage.
+---
+**Verdict:**
+The application correctly resolves its main problem of offline media tracking to a centralized AniList database, yet suffers mainly from monolithic scripts (`web_server.py`) and older manual concurrency handling. Refactoring server logic to an async layout will greatly clean up the codebase.

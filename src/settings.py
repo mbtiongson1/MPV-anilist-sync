@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 class SettingsManager:
     def __init__(self, settings_file: str = "config.json"):

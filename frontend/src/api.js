@@ -1,11 +1,17 @@
+import { showApiError } from './store';
+
 // Unified API client — replaces 25+ scattered fetch() calls
 
 async function request(url, options = {}) {
     try {
         const res = await fetch(url, options);
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
         return await res.json();
     } catch (err) {
         console.error(`API error (${url}):`, err);
+        showApiError(`Failed to fetch ${url}: ${err.message}`);
         throw err;
     }
 }

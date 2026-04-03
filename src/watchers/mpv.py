@@ -71,11 +71,7 @@ class MPVWatcher(BaseWatcher):
     def check_connection(self) -> bool:
         """Actively ping MPV to verify the socket hasn't silently died."""
         mpv = self.mpv
-    
-    
-    
-    
-    
+
         if not self.is_connected or mpv is None:
             return False
             

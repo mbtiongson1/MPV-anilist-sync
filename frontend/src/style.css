@@ -2823,6 +2823,64 @@ footer {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* API Errors Global Floating Notification */
+.api-errors-container {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.api-error-toast {
+    background: var(--bg-card);
+    border-left: 4px solid var(--warning);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    width: 320px;
+    pointer-events: auto;
+    animation: slideRightIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-top: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.api-error-toast svg {
+    color: var(--warning);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.api-error-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.api-error-content strong {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+.api-error-content span {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+@keyframes slideRightIn {
+    from { opacity: 0; transform: translateX(50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
 /* Toast Notification Styles */
 .toast {
     position: fixed;

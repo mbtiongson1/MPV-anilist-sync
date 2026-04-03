@@ -461,9 +461,14 @@
                         </button>
                         <a id="link-edit-path" href="#" style="font-size: 0.75rem; color: var(--accent); text-decoration: none;">Edit library path</a>
                     </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                    <button id="btn-cleanup-files" class="secondary-btn" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; display: flex; align-items: center; gap: 0.4rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" title="Cleanup watched/completed files">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> Cleanup Files
+                    </button>
                     <button id="btn-organize-folders" class="secondary-btn" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; display: flex; align-items: center; gap: 0.4rem;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg> Automatically organize anime folders
                     </button>
+                </div>
                 </div>
                 <div class="library-search-container" style="margin-bottom: 1rem; padding: 0 0.5rem;">
                     <div class="filter-search">
@@ -681,6 +686,34 @@
                     <button id="cleanup-cancel" class="secondary-btn">Cancel</button>
                     <button id="cleanup-next" class="primary-btn">Find Anime</button>
                     <button id="cleanup-confirm" class="primary-btn hidden" style="background-color: var(--status-dropped); border-color: var(--status-dropped);">Drop Selected</button>
+                </footer>
+            </div>
+        </div>
+
+        <!-- File Cleanup Modal -->
+        <div id="file-cleanup-modal" class="modal hidden" role="dialog" aria-modal="true">
+            <div class="modal-overlay" id="file-cleanup-modal-overlay"></div>
+            <div class="modal-content">
+                <header class="modal-header">
+                    <h2>Cleanup Watched Files</h2>
+                    <button id="file-cleanup-modal-close" class="icon-btn">✕</button>
+                </header>
+                <div class="modal-body" style="max-height: 450px; overflow-y: auto;">
+                    <p style="margin-bottom: 15px; color: var(--text-muted); line-height: 1.5;">
+                        These files have been watched or belong to completed anime. Select files to move to trash.
+                    </p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border);">
+                        <span id="file-cleanup-summary" style="font-size: 0.85rem; color: var(--text-muted);"></span>
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; cursor: pointer; user-select: none;">
+                            <input type="checkbox" id="file-cleanup-select-all" checked style="cursor: pointer;" />
+                            <strong>Select All</strong>
+                        </label>
+                    </div>
+                    <div id="file-cleanup-container" class="changelog-container"></div>
+                </div>
+                <footer class="modal-footer">
+                    <button id="file-cleanup-cancel" class="secondary-btn">Cancel</button>
+                    <button id="file-cleanup-confirm" class="primary-btn" style="background-color: #ef4444; border-color: #ef4444;">Move to Trash</button>
                 </footer>
             </div>
         </div>

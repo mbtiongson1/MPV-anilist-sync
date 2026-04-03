@@ -70,6 +70,17 @@ export function showToast(message, type = 'success') {
     }, 3500);
 }
 
+// ===== API Errors =====
+export const apiErrorMessages = signal([]);
+
+export function showApiError(message) {
+    const id = Date.now() + Math.random();
+    apiErrorMessages.value = [...apiErrorMessages.value, { id, message }];
+    setTimeout(() => {
+        apiErrorMessages.value = apiErrorMessages.value.filter(e => e.id !== id);
+    }, 5000);
+}
+
 // ===== Pending Changes =====
 export function recordApiRequest(type, mediaId, data, label) {
     const existing = pendingApiRequests.value;

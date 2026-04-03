@@ -803,22 +803,7 @@ document.addEventListener('DOMContentLoaded', () => {
             listContainer.appendChild(el);
         });
 
-        // Attach folder events globally (since we populate them here)
-        listContainer.querySelectorAll('.btn-open-folder').forEach(btn => {
-            btn.onclick = async (e) => {
-                e.stopPropagation();
-                const mediaId = btn.getAttribute('data-media-id');
-                try {
-                    await fetch('/api/open_folder', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ mediaId })
-                    });
-                } catch (err) {
-                    console.error('Failed to open folder:', err);
-                }
-            };
-        });
+        // Note: folder onclick is already set inline when creating elements above
     }
 
     // ===== Now Playing Status (2s poll) =====
@@ -868,9 +853,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             return `<option value="${opt.mediaId}" ${opt.mediaId === selectedMediaId ? 'selected' : ''}>${escapeHtml(label)}</option>`;
                         })
                         .join('');
-                    npSeason.closest('.np-season-selector').style.display = 'flex';
+                    const seasonContainer = npSeason.closest('.np-season-selector-modern') || npSeason.closest('.np-season-selector');
+                    if (seasonContainer) seasonContainer.style.display = 'flex';
                 } else {
-                    npSeason.closest('.np-season-selector').style.display = 'none';
+                    const seasonContainer = npSeason.closest('.np-season-selector-modern') || npSeason.closest('.np-season-selector');
+                    if (seasonContainer) seasonContainer.style.display = 'none';
                 }
 
                 // Stats
@@ -1042,7 +1029,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnResumeLast.addEventListener('click', async () => {
         try {
             btnResumeLast.disabled = true;
-            const res = await fetch('/api/resume', { method: 'POST' });
+            const res = await fetch('/api/resume');
             const data = await res.json();
             if (data.success) {
                 showToast("Opening last played file...", "info");
@@ -1061,7 +1048,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnOpenFolder.addEventListener('click', async () => {
             try {
                 btnOpenFolder.disabled = true;
-                const res = await fetch('/api/open_folder', { method: 'POST' });
+                const res = await fetch('/api/open_folder');
                 const data = await res.json();
                 if (data.success) {
                     showToast("Opening containing folder...", "info");
@@ -4139,7 +4126,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     'DROPPED': 'Dropped',
                     'PAUSED': 'Paused'
                 };
-                sublabel.textContent = statusMap[node.listStatus] || node.listStatus;
+                
+                // GREEN/GREY logic for In Progress anime
+                let statusLabel = statusMap[node.listStatus] || node.listStatus;
+                if (node.listStatus === 'CURRENT') {
+                    const localEps = node.localEpisodeCount || 0;
+                    const progress = node.progress || 0;
+                    const hasUnwatched = localEps > 0 && progress < localEps;
+                    if (hasUnwatched) {
+                        sublabel.style.color = '#10b981'; // Green - unwatched available
+                        statusLabel = `In Progress (${localEps - progress} unwatched)`;
+                    } else {
+                        sublabel.style.color = '#94a3b8'; // Grey - all caught up
+                        statusLabel = 'In Progress (caught up)';
+                    }
+                }
+                sublabel.textContent = statusLabel;
                 
                 const blockLink = document.createElement('span');
                 blockLink.className = 'tree-block-link';
@@ -4226,6 +4228,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 labelContainer.removeChild(label);
                 titleRow.appendChild(label);
                 titleRow.appendChild(openFolder);
+
+                // Edit button for matched anime folders
+                if (node.mediaId) {
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'tree-action-btn';
+                    editBtn.title = 'Edit Anime Details';
+                    editBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"/></svg>';
+                    editBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        const anime = animeList.find(a => a.mediaId == node.mediaId);
+                        if (anime) {
+                            openAnimeDetailsModal(anime);
+                        } else {
+                            showToast('Anime not found in list. Try refreshing.', 'error');
+                        }
+                    };
+                    titleRow.appendChild(editBtn);
+                }
+
                 labelContainer.prepend(titleRow);
                 
                 const searchTorrents = document.createElement('button');
@@ -4787,4 +4808,169 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', () => {
         document.querySelectorAll('.add-dropdown.show').forEach(d => d.classList.remove('show'));
     });
+
+    // ===== Library File Cleanup Feature =====
+    const fileCleanupModal = document.getElementById('file-cleanup-modal');
+    const fileCleanupOverlay = document.getElementById('file-cleanup-modal-overlay');
+    const fileCleanupClose = document.getElementById('file-cleanup-modal-close');
+    const fileCleanupCancel = document.getElementById('file-cleanup-cancel');
+    const fileCleanupConfirm = document.getElementById('file-cleanup-confirm');
+    const fileCleanupContainer = document.getElementById('file-cleanup-container');
+    const fileCleanupSelectAll = document.getElementById('file-cleanup-select-all');
+    const fileCleanupSummary = document.getElementById('file-cleanup-summary');
+    const btnCleanupFiles = document.getElementById('btn-cleanup-files');
+
+    function closeFileCleanupModal() {
+        if (fileCleanupModal) fileCleanupModal.classList.add('hidden');
+    }
+
+    if (fileCleanupClose) fileCleanupClose.addEventListener('click', closeFileCleanupModal);
+    if (fileCleanupOverlay) fileCleanupOverlay.addEventListener('click', closeFileCleanupModal);
+    if (fileCleanupCancel) fileCleanupCancel.addEventListener('click', closeFileCleanupModal);
+
+    if (btnCleanupFiles) {
+        btnCleanupFiles.addEventListener('click', async () => {
+            if (!fileCleanupModal || !fileCleanupContainer) return;
+            
+            fileCleanupContainer.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Scanning for cleanup candidates...</p></div>';
+            fileCleanupModal.classList.remove('hidden');
+            
+            try {
+                const resp = await fetch('/api/library/cleanup_candidates');
+                const candidates = await resp.json();
+                
+                if (!candidates || candidates.length === 0) {
+                    fileCleanupContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">No watched or completed files found for cleanup.</p>';
+                    if (fileCleanupConfirm) fileCleanupConfirm.classList.add('hidden');
+                    if (fileCleanupSummary) fileCleanupSummary.textContent = '';
+                    return;
+                }
+                
+                if (fileCleanupConfirm) fileCleanupConfirm.classList.remove('hidden');
+                
+                // Group by anime title
+                const grouped = {};
+                let totalSize = 0;
+                candidates.forEach(c => {
+                    if (!grouped[c.animeTitle]) grouped[c.animeTitle] = [];
+                    grouped[c.animeTitle].push(c);
+                    totalSize += c.size || 0;
+                });
+                
+                fileCleanupContainer.innerHTML = '';
+                
+                Object.entries(grouped).forEach(([title, files]) => {
+                    const group = document.createElement('div');
+                    group.style.marginBottom = '1rem';
+                    
+                    const header = document.createElement('div');
+                    header.style.cssText = 'font-weight: 700; font-size: 0.9rem; color: var(--accent); margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(99, 102, 241, 0.1); border-radius: 6px; display: flex; justify-content: space-between; align-items: center;';
+                    const statusBadge = files[0].listStatus === 'COMPLETED' 
+                        ? '<span style="font-size: 0.7rem; background: #f59e0b; color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 600;">COMPLETED</span>'
+                        : '<span style="font-size: 0.7rem; background: #10b981; color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 600;">EP ' + files[0].progress + '</span>';
+                    header.innerHTML = `<span>${escapeHtml(title)}</span>${statusBadge}`;
+                    group.appendChild(header);
+                    
+                    files.forEach(file => {
+                        const item = document.createElement('div');
+                        item.className = 'changelog-item';
+                        item.style.cssText = 'display: flex; align-items: center; gap: 10px; padding: 0.5rem 0.75rem;';
+                        
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.checked = true;
+                        checkbox.dataset.path = file.path;
+                        checkbox.dataset.size = file.size || 0;
+                        checkbox.className = 'file-cleanup-checkbox';
+                        checkbox.style.cursor = 'pointer';
+                        checkbox.addEventListener('change', updateFileCleanupSummary);
+                        
+                        const label = document.createElement('div');
+                        label.style.cssText = 'flex: 1; min-width: 0;';
+                        const epLabel = file.episode !== null ? `<span style="color: ${file.isWatched ? '#10b981' : '#f59e0b'}; font-weight: 600; font-size: 0.75rem;">E${file.episode}</span> ` : '';
+                        const sizeLabel = file.size ? `<span style="color: var(--text-muted); font-size: 0.75rem; margin-left: 0.5rem;">${formatBytes(file.size)}</span>` : '';
+                        label.innerHTML = `${epLabel}<span style="font-size: 0.85rem; color: var(--text-primary);">${escapeHtml(file.filename)}</span>${sizeLabel}`;
+                        
+                        item.appendChild(checkbox);
+                        item.appendChild(label);
+                        group.appendChild(item);
+                    });
+                    
+                    fileCleanupContainer.appendChild(group);
+                });
+                
+                updateFileCleanupSummary();
+                
+            } catch (err) {
+                console.error('Failed to fetch cleanup candidates:', err);
+                fileCleanupContainer.innerHTML = '<p style="text-align: center; color: var(--error); padding: 2rem;">Failed to scan files.</p>';
+            }
+        });
+    }
+
+    function updateFileCleanupSummary() {
+        const checkboxes = fileCleanupContainer.querySelectorAll('.file-cleanup-checkbox');
+        const checked = fileCleanupContainer.querySelectorAll('.file-cleanup-checkbox:checked');
+        let totalCheckedSize = 0;
+        checked.forEach(cb => { totalCheckedSize += parseInt(cb.dataset.size || '0'); });
+        
+        if (fileCleanupSummary) {
+            fileCleanupSummary.textContent = `${checked.length} of ${checkboxes.length} files selected (${formatBytes(totalCheckedSize)})`;
+        }
+        
+        if (fileCleanupSelectAll) {
+            fileCleanupSelectAll.checked = checked.length === checkboxes.length;
+            fileCleanupSelectAll.indeterminate = checked.length > 0 && checked.length < checkboxes.length;
+        }
+    }
+
+    if (fileCleanupSelectAll) {
+        fileCleanupSelectAll.addEventListener('change', () => {
+            const checkboxes = fileCleanupContainer.querySelectorAll('.file-cleanup-checkbox');
+            checkboxes.forEach(cb => { cb.checked = fileCleanupSelectAll.checked; });
+            updateFileCleanupSummary();
+        });
+    }
+
+    if (fileCleanupConfirm) {
+        fileCleanupConfirm.addEventListener('click', async () => {
+            const checked = fileCleanupContainer.querySelectorAll('.file-cleanup-checkbox:checked');
+            if (checked.length === 0) {
+                showToast('No files selected.', 'error');
+                return;
+            }
+            
+            const paths = Array.from(checked).map(cb => cb.dataset.path);
+            
+            if (!confirm(`Move ${paths.length} file(s) to trash? This cannot be easily undone.`)) {
+                return;
+            }
+            
+            fileCleanupConfirm.disabled = true;
+            fileCleanupConfirm.textContent = 'Moving...';
+            
+            try {
+                const resp = await fetch('/api/move_to_trash', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ paths })
+                });
+                const result = await resp.json();
+                
+                if (result.success) {
+                    showToast(`Moved ${result.count || paths.length} file(s) to trash.`, 'info');
+                    closeFileCleanupModal();
+                    fetchLibrary(true); // Refresh library
+                } else {
+                    showToast(result.error || 'Failed to move files to trash.', 'error');
+                }
+            } catch (err) {
+                console.error('Failed to move files to trash:', err);
+                showToast('Error communicating with server.', 'error');
+            } finally {
+                fileCleanupConfirm.disabled = false;
+                fileCleanupConfirm.textContent = 'Move to Trash';
+            }
+        });
+    }
 });

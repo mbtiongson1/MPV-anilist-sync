@@ -171,6 +171,26 @@
         "listStatus": "COMPLETED"
       },
       {
+        "name": "Oshi no Ko",
+        "path": "/Users/marcotiongson/Downloads/Oshi no Ko",
+        "type": "directory",
+        "children": [
+          {
+            "name": "[ASW] Oshi no Ko S3 - 11 [1080p HEVC][6C15FBBB].mkv",
+            "path": "/Users/marcotiongson/Downloads/Oshi no Ko/[ASW] Oshi no Ko S3 - 11 [1080p HEVC][6C15FBBB].mkv",
+            "type": "file",
+            "mtime": 1775183255.461035,
+            "size": 522569106,
+            "episode": null
+          }
+        ],
+        "has_video": true,
+        "size": 522569106,
+        "mediaId": 150672,
+        "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx150672-WqmmwZ4nMzAy.png",
+        "listStatus": "COMPLETED"
+      },
+      {
         "name": "Shibou Yuugi de Meshi wo Kuu",
         "path": "/Users/marcotiongson/Downloads/Shibou Yuugi de Meshi wo Kuu",
         "type": "directory",
@@ -307,6 +327,31 @@
         "listStatus": "COMPLETED"
       },
       {
+        "name": "Still Shining",
+        "path": "/Users/marcotiongson/Downloads/Still Shining",
+        "type": "directory",
+        "children": [
+          {
+            "name": "Still.Shining.S01E05.1080p.NF.WEB-DL.AAC2.0.H.264-MrHulk.mkv",
+            "path": "/Users/marcotiongson/Downloads/Still Shining/Still.Shining.S01E05.1080p.NF.WEB-DL.AAC2.0.H.264-MrHulk.mkv",
+            "type": "file",
+            "mtime": 1774186544.4904084,
+            "size": 2842414198,
+            "episode": 5
+          },
+          {
+            "name": "Still.Shining.S01E06.1080p.NF.WEB-DL.AAC2.0.H.264-MrHulk.mkv",
+            "path": "/Users/marcotiongson/Downloads/Still Shining/Still.Shining.S01E06.1080p.NF.WEB-DL.AAC2.0.H.264-MrHulk.mkv",
+            "type": "file",
+            "mtime": 1774186538.4437635,
+            "size": 2869496579,
+            "episode": 6
+          }
+        ],
+        "has_video": true,
+        "size": 5711910777
+      },
+      {
         "name": "Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita",
         "path": "/Users/marcotiongson/Downloads/Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita",
         "type": "directory",
@@ -365,6 +410,6 @@
       }
     ],
     "has_video": true,
-    "size": 13805124389
+    "size": 20039604272
   }
 }
