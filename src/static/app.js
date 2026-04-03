@@ -4175,6 +4175,71 @@ document.addEventListener('DOMContentLoaded', () => {
         libraryContent.innerHTML = '';
         libraryContent.className = 'library-tree-container';
         
+        const trashBar = document.createElement('div');
+        trashBar.id = 'library-trash-bar';
+        trashBar.className = 'hidden';
+        trashBar.style.cssText = 'position: sticky; top: 0; background: var(--bg-card); padding: 10px 15px; border-bottom: 1px solid var(--border); z-index: 10; display: flex; justify-content: space-between; align-items: center; border-radius: 6px; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);';
+        trashBar.innerHTML = `
+            <span id="library-trash-count" style="font-weight: 600; color: var(--text-primary);">0 item(s) selected</span>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-secondary" id="btn-library-uncheck-all">Deselect All</button>
+                <button class="primary-btn" style="background: #ef4444; border-color: #ef4444; color: white;" id="btn-library-trash-selected">Move to Trash</button>
+            </div>
+        `;
+        libraryContent.appendChild(trashBar);
+        
+        trashBar.querySelector('#btn-library-uncheck-all').onclick = () => {
+            libraryContent.querySelectorAll('.library-trash-checkbox:checked').forEach(cb => cb.checked = false);
+            updateLibraryTrashBar();
+        };
+        
+        trashBar.querySelector('#btn-library-trash-selected').onclick = async () => {
+            const checked = libraryContent.querySelectorAll('.library-trash-checkbox:checked');
+            if (checked.length === 0) return;
+            
+            const paths = Array.from(checked).map(cb => cb.dataset.path);
+            if (!confirm(`Move ${paths.length} item(s) to trash? This cannot be easily undone.`)) return;
+            
+            const btn = document.getElementById('btn-library-trash-selected');
+            btn.disabled = true;
+            btn.textContent = 'Moving...';
+            
+            try {
+                const resp = await fetch('/api/move_to_trash', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ paths })
+                });
+                const result = await resp.json();
+                
+                if (result.success) {
+                    showToast(`Moved ${result.count || paths.length} item(s) to trash.`, 'info');
+                    fetchLibrary(true);
+                } else {
+                    showToast(result.error || 'Failed to move items to trash.', 'error');
+                }
+            } catch (err) {
+                console.error('Failed to move items to trash:', err);
+                showToast('Error communicating with server.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Move to Trash';
+            }
+        };
+
+        function updateLibraryTrashBar() {
+            const checked = libraryContent.querySelectorAll('.library-trash-checkbox:checked');
+            const bar = document.getElementById('library-trash-bar');
+            const countSpan = document.getElementById('library-trash-count');
+            if (!bar || !countSpan) return;
+            if (checked.length > 0) {
+                bar.classList.remove('hidden');
+                countSpan.textContent = `${checked.length} item(s) selected`;
+            } else {
+                bar.classList.add('hidden');
+            }
+        }
+        
         const root = document.createElement('div');
         root.className = 'tree-root';
 
@@ -4207,6 +4272,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const chevron = document.createElement('div');
             chevron.className = `tree-chevron ${node.type === 'directory' ? '' : 'leaf'}`;
             chevron.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'library-trash-checkbox custom-checkbox';
+            checkbox.dataset.path = node.path;
+            checkbox.style.marginRight = '8px';
+            checkbox.onclick = (e) => e.stopPropagation();
+            checkbox.onchange = () => updateLibraryTrashBar();
             
             const icon = document.createElement('div');
             icon.className = 'tree-icon';
@@ -4398,6 +4471,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             itemEl.appendChild(chevron);
+            itemEl.appendChild(checkbox);
             itemEl.appendChild(icon);
             itemEl.appendChild(labelContainer);
             itemEl.appendChild(meta);
@@ -5029,10 +5103,26 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                         
                         const label = document.createElement('div');
-                        label.style.cssText = 'flex: 1; min-width: 0;';
-                        const epLabel = file.episode !== null ? `<span style="color: ${file.isWatched ? '#10b981' : '#f59e0b'}; font-weight: 600; font-size: 0.75rem;">E${file.episode}</span> ` : '';
-                        const sizeLabel = file.size ? `<span style="color: var(--text-muted); font-size: 0.75rem; margin-left: 0.5rem;">${formatBytes(file.size)}</span>` : '';
-                        label.innerHTML = `${epLabel}<span style="font-size: 0.85rem; color: var(--text-primary);">${escapeHtml(file.filename)}</span>${sizeLabel}`;
+                        label.style.cssText = 'flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;';
+                        
+                        const filename = file.path ? file.path.split(/[/\\]/).pop() : 'Unknown';
+                        const reason = file.listStatus === 'COMPLETED' ? 'Completed' : 'Watched';
+                        
+                        const epLabel = file.episode !== null ? `<span style="color: #10b981; font-weight: 600; font-size: 0.75rem;">E${file.episode}</span> ` : '';
+                        const sizeLabel = file.size ? `<span style="color: var(--text-muted); font-size: 0.75rem;">${formatBytes(file.size)}</span>` : '';
+                        const reasonBadge = `<span style="font-size: 0.65rem; background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 2px 6px; border-radius: 4px; font-weight: 600; white-space: nowrap;">Reason: ${reason}</span>`;
+                        
+                        label.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                ${epLabel}
+                                <span style="font-size: 0.85rem; color: var(--text-primary); font-weight: 600; word-break: break-all;">${escapeHtml(filename)}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                ${reasonBadge}
+                                ${sizeLabel}
+                                <span style="font-size: 0.7rem; color: var(--text-muted); word-break: break-all;" title="${escapeHtml(file.path)}">${escapeHtml(file.path)}</span>
+                            </div>
+                        `;
                         
                         item.appendChild(checkbox);
                         item.appendChild(label);

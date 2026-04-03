@@ -66,31 +66,6 @@
     "localEpisodeCount": 1
   },
   {
-    "name": "Chi",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Chi",
-    "size": 339340147,
-    "children": [
-      {
-        "name": "[EMBER] Chi - Chikyuu no Undou ni Tsuite - 25.mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Chi/[EMBER] Chi - Chikyuu no Undou ni Tsuite - 25.mkv",
-        "size": 339340147,
-        "mediaId": 151514,
-        "listStatus": "CURRENT",
-        "progress": 24,
-        "episode": 25
-      }
-    ]
-  },
-  {
-    "name": "Chikyuu no Undou ni Tsuite",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Chikyuu no Undou ni Tsuite",
-    "size": 96,
-    "children": []
-  },
-  {
     "name": "Chitose-kun wa Ramune Bin no Naka",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Chitose-kun wa Ramune Bin no Naka",
@@ -133,149 +108,6 @@
     "localEpisodeCount": 3
   },
   {
-    "name": "Detective Conan",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Detective Conan",
-    "size": 184451596,
-    "children": [
-      {
-        "name": "[ASW] Detective Conan - 1195 [1080p HEVC][614410E9].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Detective Conan/[ASW] Detective Conan - 1195 [1080p HEVC][614410E9].mkv",
-        "size": 184451596
-      }
-    ]
-  },
-  {
-    "name": "Dorohedoro",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Dorohedoro",
-    "size": 1251572323,
-    "children": [
-      {
-        "name": "[ASW] Dorohedoro S2 - 01 [1080p HEVC][978C71C6].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Dorohedoro/[ASW] Dorohedoro S2 - 01 [1080p HEVC][978C71C6].mkv",
-        "size": 418462771
-      },
-      {
-        "name": "[ASW] Dorohedoro S2 - 02 [1080p HEVC][9A4F3287].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Dorohedoro/[ASW] Dorohedoro S2 - 02 [1080p HEVC][9A4F3287].mkv",
-        "size": 430224990
-      },
-      {
-        "name": "[ASW] Dorohedoro S2 - 03 [1080p HEVC][6E7D46AE].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Dorohedoro/[ASW] Dorohedoro S2 - 03 [1080p HEVC][6E7D46AE].mkv",
-        "size": 402884562
-      }
-    ]
-  },
-  {
-    "name": "Dr Stone",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Dr Stone",
-    "size": 3901467119,
-    "children": [
-      {
-        "name": "[ASW] Dr. Stone S4 - 16 [1080p HEVC][2A6C2831].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Dr Stone/[ASW] Dr. Stone S4 - 16 [1080p HEVC][2A6C2831].mkv",
-        "size": 542662242,
-        "mediaId": 105333,
-        "listStatus": "COMPLETED",
-        "progress": 24,
-        "episode": 16
-      },
-      {
-        "name": "[ASW] Dr. Stone S4 - 17 [1080p HEVC][70AF7304].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Dr Stone/[ASW] Dr. Stone S4 - 17 [1080p HEVC][70AF7304].mkv",
-        "size": 598169484,
-        "mediaId": 105333,
-        "listStatus": "COMPLETED",
-        "progress": 24,
-        "episode": 17
-      },
-      {
-        "name": "[ASW] Dr. Stone S4 - 18 [1080p HEVC][E5A7D00D].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Dr Stone/[ASW] Dr. Stone S4 - 18 [1080p HEVC][E5A7D00D].mkv",
-        "size": 504809160,
-        "mediaId": 105333,
-        "listStatus": "COMPLETED",
-        "progress": 24,
-        "episode": 18
-      },
-      {
-        "name": "[ASW] Dr. Stone S4 - 19 [1080p HEVC][6728221E].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Dr Stone/[ASW] Dr. Stone S4 - 19 [1080p HEVC][6728221E].mkv",
-        "size": 558126534,
-        "mediaId": 105333,
-        "listStatus": "COMPLETED",
-        "progress": 24,
-        "episode": 19
-      },
-      {
-        "name": "[ASW] Dr. Stone S4 - 21 [1080p HEVC][A63D9F91].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Dr Stone/[ASW] Dr. Stone S4 - 21 [1080p HEVC][A63D9F91].mkv",
-        "size": 542107032,
-        "mediaId": 105333,
-        "listStatus": "COMPLETED",
-        "progress": 24,
-        "episode": 21
-      },
-      {
-        "name": "[ASW] Dr. Stone S4 - 22 [1080p HEVC][90B11E52].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Dr Stone/[ASW] Dr. Stone S4 - 22 [1080p HEVC][90B11E52].mkv",
-        "size": 637470737,
-        "mediaId": 105333,
-        "listStatus": "COMPLETED",
-        "progress": 24,
-        "episode": 22
-      },
-      {
-        "name": "[ASW] Dr. Stone S4 - 24 [1080p HEVC][ABFEE83F].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Dr Stone/[ASW] Dr. Stone S4 - 24 [1080p HEVC][ABFEE83F].mkv",
-        "size": 518121930,
-        "mediaId": 105333,
-        "listStatus": "COMPLETED",
-        "progress": 24,
-        "episode": 24
-      }
-    ]
-  },
-  {
-    "name": "Dr. Stone S4",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Dr. Stone S4",
-    "size": 288,
-    "mediaId": 105333,
-    "listStatus": "COMPLETED",
-    "progress": 24,
-    "children": [],
-    "localEpisodeCount": 0
-  },
-  {
-    "name": "Enen no Shouboutai",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Enen no Shouboutai",
-    "size": 519863226,
-    "children": [
-      {
-        "name": "[ASW] Enen no Shouboutai S3 - 24 [1080p HEVC][D7670DC4].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Enen no Shouboutai/[ASW] Enen no Shouboutai S3 - 24 [1080p HEVC][D7670DC4].mkv",
-        "size": 519863226
-      }
-    ]
-  },
-  {
     "name": "Fate Strange Fake",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Fate Strange Fake",
@@ -290,58 +122,36 @@
     ]
   },
   {
-    "name": "Fumetsu no Anata e",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Fumetsu no Anata e",
-    "size": 672792663,
-    "children": [
-      {
-        "name": "[ASW] Fumetsu no Anata e S3 - 21 [1080p HEVC][B2B4AA01].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Fumetsu no Anata e/[ASW] Fumetsu no Anata e S3 - 21 [1080p HEVC][B2B4AA01].mkv",
-        "size": 298291023
-      },
-      {
-        "name": "[ASW] Fumetsu no Anata e S3 - 22 [1080p HEVC][1599ABAA].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Fumetsu no Anata e/[ASW] Fumetsu no Anata e S3 - 22 [1080p HEVC][1599ABAA].mkv",
-        "size": 374501640
-      }
-    ]
-  },
-  {
     "name": "Ganbare Nakamura-kun",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Ganbare Nakamura-kun",
     "size": 605660964,
+    "mediaId": 180228,
+    "listStatus": "CURRENT",
+    "progress": 0,
     "children": [
       {
         "name": "[ASW] Ganbare! Nakamura-kun!! - 01 [1080p HEVC][16F96C4E].mkv",
         "type": "file",
         "path": "/Users/marcotiongson/Downloads/Ganbare Nakamura-kun/[ASW] Ganbare! Nakamura-kun!! - 01 [1080p HEVC][16F96C4E].mkv",
-        "size": 294159251
+        "size": 294159251,
+        "mediaId": 180228,
+        "listStatus": "CURRENT",
+        "progress": 0,
+        "episode": 1
       },
       {
         "name": "[ASW] Ganbare! Nakamura-kun!! - 02 [1080p HEVC][47F20C43].mkv",
         "type": "file",
         "path": "/Users/marcotiongson/Downloads/Ganbare Nakamura-kun/[ASW] Ganbare! Nakamura-kun!! - 02 [1080p HEVC][47F20C43].mkv",
-        "size": 311501713
+        "size": 311501713,
+        "mediaId": 180228,
+        "listStatus": "CURRENT",
+        "progress": 0,
+        "episode": 2
       }
-    ]
-  },
-  {
-    "name": "Golden Kamuy",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Golden Kamuy",
-    "size": 543892351,
-    "children": [
-      {
-        "name": "[ASW] Golden Kamuy - 62 [1080p HEVC][E14D8958].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Golden Kamuy/[ASW] Golden Kamuy - 62 [1080p HEVC][E14D8958].mkv",
-        "size": 543892351
-      }
-    ]
+    ],
+    "localEpisodeCount": 2
   },
   {
     "name": "Haibara-kun no Tsuyokute Seishun New Game",
@@ -366,20 +176,6 @@
     "localEpisodeCount": 1
   },
   {
-    "name": "Hime-sama Goumon no Jikan desu",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Hime-sama Goumon no Jikan desu",
-    "size": 371030862,
-    "children": [
-      {
-        "name": "[ASW] Hime-sama Goumon no Jikan desu - 24 [1080p HEVC][DD3D6249].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Hime-sama Goumon no Jikan desu/[ASW] Hime-sama Goumon no Jikan desu - 24 [1080p HEVC][DD3D6249].mkv",
-        "size": 371030862
-      }
-    ]
-  },
-  {
     "name": "Ikoku Nikki",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Ikoku Nikki",
@@ -400,20 +196,6 @@
       }
     ],
     "localEpisodeCount": 1
-  },
-  {
-    "name": "Iseleve - OVA",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Iseleve - OVA",
-    "size": 769824486,
-    "children": [
-      {
-        "name": "[ASW] Iseleve - OVA [1080p HEVC][1E41BE3A].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Iseleve - OVA/[ASW] Iseleve - OVA [1080p HEVC][1E41BE3A].mkv",
-        "size": 769824486
-      }
-    ]
   },
   {
     "name": "Jidou Hanbaiki ni Umarekawatta Ore wa Meikyuu wo Samayou",
@@ -518,100 +300,116 @@
     "localEpisodeCount": 1
   },
   {
-    "name": "Kizoku Tensei",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Kizoku Tensei",
-    "size": 215158603,
-    "children": [
-      {
-        "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 01 [1080p HEVC][5CFA9CC1].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Kizoku Tensei/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 01 [1080p HEVC][5CFA9CC1].mkv",
-        "size": 215158603
-      }
-    ]
-  },
-  {
-    "name": "Kizoku Tensei - Megumareta",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta",
-    "size": 416,
-    "children": []
-  },
-  {
     "name": "Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru",
     "size": 2330886343,
+    "mediaId": 185993,
+    "listStatus": "CURRENT",
+    "progress": 3,
     "children": [
       {
         "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 03 [1080p HEVC][A98351EB].mkv",
         "type": "file",
         "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 03 [1080p HEVC][A98351EB].mkv",
-        "size": 199004987
+        "size": 199004987,
+        "mediaId": 185993,
+        "listStatus": "CURRENT",
+        "progress": 3,
+        "episode": 3
       },
       {
         "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 04 [1080p HEVC][6721D2F1].mkv",
         "type": "file",
         "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 04 [1080p HEVC][6721D2F1].mkv",
-        "size": 217086083
+        "size": 217086083,
+        "mediaId": 185993,
+        "listStatus": "CURRENT",
+        "progress": 3,
+        "episode": 4
       },
       {
         "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 05 [1080p HEVC][BDA34996].mkv",
         "type": "file",
         "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 05 [1080p HEVC][BDA34996].mkv",
-        "size": 229699944
+        "size": 229699944,
+        "mediaId": 185993,
+        "listStatus": "CURRENT",
+        "progress": 3,
+        "episode": 5
       },
       {
         "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 06 [1080p HEVC][D8CCF2BD].mkv",
         "type": "file",
         "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 06 [1080p HEVC][D8CCF2BD].mkv",
-        "size": 176809333
+        "size": 176809333,
+        "mediaId": 185993,
+        "listStatus": "CURRENT",
+        "progress": 3,
+        "episode": 6
       },
       {
         "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 07 [1080p HEVC][F50B0BC8].mkv",
         "type": "file",
         "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 07 [1080p HEVC][F50B0BC8].mkv",
-        "size": 257031600
+        "size": 257031600,
+        "mediaId": 185993,
+        "listStatus": "CURRENT",
+        "progress": 3,
+        "episode": 7
       },
       {
         "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 08 [1080p HEVC][2C0660D8].mkv",
         "type": "file",
         "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 08 [1080p HEVC][2C0660D8].mkv",
-        "size": 265529605
+        "size": 265529605,
+        "mediaId": 185993,
+        "listStatus": "CURRENT",
+        "progress": 3,
+        "episode": 8
       },
       {
         "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 09 [1080p HEVC][A1CC0698].mkv",
         "type": "file",
         "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 09 [1080p HEVC][A1CC0698].mkv",
-        "size": 226084082
+        "size": 226084082,
+        "mediaId": 185993,
+        "listStatus": "CURRENT",
+        "progress": 3,
+        "episode": 9
       },
       {
         "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 10 [1080p HEVC][EDAA263A].mkv",
         "type": "file",
         "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 10 [1080p HEVC][EDAA263A].mkv",
-        "size": 251991614
+        "size": 251991614,
+        "mediaId": 185993,
+        "listStatus": "CURRENT",
+        "progress": 3,
+        "episode": 10
       },
       {
         "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 11 [1080p HEVC][49400194].mkv",
         "type": "file",
         "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 11 [1080p HEVC][49400194].mkv",
-        "size": 306762303
+        "size": 306762303,
+        "mediaId": 185993,
+        "listStatus": "CURRENT",
+        "progress": 3,
+        "episode": 11
       },
       {
         "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 12 [1080p HEVC][90FE3F7B].mkv",
         "type": "file",
         "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 12 [1080p HEVC][90FE3F7B].mkv",
-        "size": 200886792
+        "size": 200886792,
+        "mediaId": 185993,
+        "listStatus": "CURRENT",
+        "progress": 3,
+        "episode": 12
       }
-    ]
-  },
-  {
-    "name": "Kizoku Tensei Megumareta Umare kara Saikyou no Chikara wo Eru",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Kizoku Tensei Megumareta Umare kara Saikyou no Chikara wo Eru",
-    "size": 96,
-    "children": []
+    ],
+    "localEpisodeCount": 10
   },
   {
     "name": "Maid-san wa Taberu Dake",
@@ -642,17 +440,6 @@
     ]
   },
   {
-    "name": "Mayonaka Heart Tune",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Mayonaka Heart Tune",
-    "size": 128,
-    "mediaId": 187942,
-    "listStatus": "COMPLETED",
-    "progress": 12,
-    "children": [],
-    "localEpisodeCount": 0
-  },
-  {
     "name": "Nigetsuri",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Nigetsuri",
@@ -681,20 +468,6 @@
     ]
   },
   {
-    "name": "Orb On the Movements of the Earth",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Orb On the Movements of the Earth",
-    "size": 96,
-    "children": []
-  },
-  {
-    "name": "Oshi no",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Oshi no",
-    "size": 96,
-    "children": []
-  },
-  {
     "name": "Oshi no Ko",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Oshi no Ko",
@@ -716,40 +489,6 @@
         "type": "file",
         "path": "/Users/marcotiongson/Downloads/Reincarnation no Kaben/[ASW] Reincarnation no Kaben - 01 [1080p HEVC][160B7D8A].mkv",
         "size": 455953017
-      }
-    ]
-  },
-  {
-    "name": "Release that Witch",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Release that Witch",
-    "size": 563903805,
-    "children": [
-      {
-        "name": "[ASW] Release that Witch - 05 [1080p HEVC][74E54CF3].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Release that Witch/[ASW] Release that Witch - 05 [1080p HEVC][74E54CF3].mkv",
-        "size": 281951776
-      },
-      {
-        "name": "[ASW] Release that Witch - 05v2 [1080p HEVC][35F56BAD].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Release that Witch/[ASW] Release that Witch - 05v2 [1080p HEVC][35F56BAD].mkv",
-        "size": 281952029
-      }
-    ]
-  },
-  {
-    "name": "SI-VIS - The Sound of Heroes",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/SI-VIS - The Sound of Heroes",
-    "size": 395724840,
-    "children": [
-      {
-        "name": "[ASW] SI-VIS - The Sound of Heroes - 24 [1080p HEVC][C0509331].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/SI-VIS - The Sound of Heroes/[ASW] SI-VIS - The Sound of Heroes - 24 [1080p HEVC][C0509331].mkv",
-        "size": 395724840
       }
     ]
   },
@@ -806,13 +545,6 @@
         "size": 288734530
       }
     ]
-  },
-  {
-    "name": "Shunkashuutou Daikousha Haru no Mai",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Shunkashuutou Daikousha Haru no Mai",
-    "size": 96,
-    "children": []
   },
   {
     "name": "Sousou no Frieren",
@@ -978,20 +710,6 @@
     "localEpisodeCount": 1
   },
   {
-    "name": "Vigilante - Boku no Hero Academia Illegals",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Vigilante - Boku no Hero Academia Illegals",
-    "size": 396062332,
-    "children": [
-      {
-        "name": "[ASW] Vigilante - Boku no Hero Academia Illegals S2 - 13 [1080p HEVC][1A8BC681].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Vigilante - Boku no Hero Academia Illegals/[ASW] Vigilante - Boku no Hero Academia Illegals S2 - 13 [1080p HEVC][1A8BC681].mkv",
-        "size": 396062332
-      }
-    ]
-  },
-  {
     "name": "Visual Studio Code.app",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Visual Studio Code.app",
@@ -1005,13 +723,6 @@
         "children": []
       }
     ]
-  },
-  {
-    "name": "Youkoso Jitsuryoku",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Youkoso Jitsuryoku",
-    "size": 192,
-    "children": []
   },
   {
     "name": "Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e",
@@ -1140,27 +851,6 @@
         "listStatus": "CURRENT",
         "progress": 7,
         "episode": 13
-      }
-    ]
-  },
-  {
-    "name": "Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita.",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita.",
-    "size": 256,
-    "children": []
-  },
-  {
-    "name": "Yuusha no Kuzu",
-    "type": "directory",
-    "path": "/Users/marcotiongson/Downloads/Yuusha no Kuzu",
-    "size": 513195633,
-    "children": [
-      {
-        "name": "[ASW] Yuusha no Kuzu - 12 [1080p HEVC][4B4BEFB2].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Yuusha no Kuzu/[ASW] Yuusha no Kuzu - 12 [1080p HEVC][4B4BEFB2].mkv",
-        "size": 513195633
       }
     ]
   }

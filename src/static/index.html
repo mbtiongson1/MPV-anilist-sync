@@ -695,14 +695,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
-                                Matches your filters. Uncheck any to KEEP.
-                            </p>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
                             <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; cursor: pointer; user-select: none;">
                                 <input type="checkbox" id="cleanup-select-all" checked style="cursor: pointer;" />
                                 <strong>Select All</strong>
                             </label>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">
+                                Uncheck any to KEEP.
+                            </p>
                         </div>
                         <div id="cleanup-container" class="changelog-container">
                             <!-- Populated by JS -->
@@ -729,8 +729,7 @@
                     <p style="margin-bottom: 15px; color: var(--text-muted); line-height: 1.5;">
                         These files have been watched or belong to completed anime. Select files to move to trash.
                     </p>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border);">
-                        <span id="file-cleanup-summary" style="font-size: 0.85rem; color: var(--text-muted);"></span>
+                    <div style="display: flex; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border);">
                         <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; cursor: pointer; user-select: none;">
                             <input type="checkbox" id="file-cleanup-select-all" checked style="cursor: pointer;" />
                             <strong>Select All</strong>
@@ -739,6 +738,7 @@
                     <div id="file-cleanup-container" class="changelog-container"></div>
                 </div>
                 <footer class="modal-footer">
+                    <span id="file-cleanup-summary" style="font-size: 0.85rem; color: var(--text-muted); margin-right: auto;"></span>
                     <button id="file-cleanup-cancel" class="secondary-btn">Cancel</button>
                     <button id="file-cleanup-confirm" class="primary-btn" style="background-color: #ef4444; border-color: #ef4444;">Move to Trash</button>
                 </footer>
