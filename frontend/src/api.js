@@ -31,8 +31,14 @@ export const fetchStatus = () => request('/api/status');
 export const fetchAnimeList = () => request('/api/animelist');
 
 // ===== Upcoming =====
-export const fetchUpcoming = (refresh = false) =>
-    request('/api/upcoming' + (refresh ? '?refresh=true' : ''));
+export const fetchUpcoming = (refresh = false, season = null, year = null) => {
+    const params = new URLSearchParams();
+    if (refresh) params.append('refresh', 'true');
+    if (season) params.append('season', season);
+    if (year) params.append('year', year);
+    const qs = params.toString();
+    return request('/api/upcoming' + (qs ? '?' + qs : ''));
+};
 
 // ===== Library =====
 export const fetchLibrary = (forceRefresh = false) =>

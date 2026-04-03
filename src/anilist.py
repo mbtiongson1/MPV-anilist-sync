@@ -520,10 +520,26 @@ class AnilistClient:
             print(f"Error changing status: {e}")
             return False
 
-    def get_upcoming_anime(self, force_refresh: bool = False) -> list[dict[str, Any]]:
-        """Fetch currently airing and next season's anime, with local caching."""
-        cache_file = 'upcoming_cache.json'
+    def get_upcoming_anime(self, force_refresh: bool = False, season: Optional[str] = None, year: Optional[int] = None) -> list[dict[str, Any]]:
+        """Fetch airing anime or specific season's anime, with local caching."""
         
+        from datetime import datetime
+        now = datetime.now()
+        
+        # Determine target season if not provided
+        if not season or not year:
+            month = now.month
+            year = year or now.year
+            seasons = ["WINTER", "SPRING", "SUMMER", "FALL"]
+            current_season_idx = (month - 1) // 3
+            season = season or seasons[current_season_idx]
+        
+        cache_file = f'upcoming_cache_{season}_{year}.json'
+        # Also maintain a global "airing" cache for the main view
+        is_default = not season and not year
+        if is_default:
+            cache_file = 'upcoming_cache_airing.json'
+
         # Load from cache if it exists and we're not forcing a refresh
         if not force_refresh and os.path.exists(cache_file):
             try:
@@ -532,34 +548,119 @@ class AnilistClient:
             except Exception as e:
                 print(f"Error loading upcoming cache: {e}")
 
-        from datetime import datetime
-        now = datetime.now()
-        month = now.month
-        year = now.year
-
-        seasons = ["WINTER", "SPRING", "SUMMER", "FALL"]
-        # AniList: WINTER(1,2,3), SPRING(4,5,6), SUMMER(7,8,9), FALL(10,11,12) approx
-        current_season_idx = (month - 1) // 3
-        current_season = seasons[current_season_idx]
+        # Build the query
+        # If we just want a specific season, we use one Page
+        # If we want the default "Discovery" view, we fetch Airing + Next Season
         
-        next_season_idx = (current_season_idx + 1) % 4
-        next_season = seasons[next_season_idx]
-        next_year = year + 1 if next_season_idx == 0 else year
+        if not season or season == "AIRING":
+            # Default discovery view: Trending Airing + Next Season
+            month = now.month
+            y = now.year
+            seasons = ["WINTER", "SPRING", "SUMMER", "FALL"]
+            curr_idx = (month - 1) // 3
+            next_idx = (curr_idx + 1) % 4
+            next_season = seasons[next_idx]
+            next_year = y + (1 if next_idx == 0 else 0)
 
-        query = '''
-        query ($season: MediaSeason, $year: Int, $nextSeason: MediaSeason, $nextYear: Int) {
-          airing: Page(perPage: 50) {
-            media(status: RELEASING, type: ANIME, sort: POPULARITY_DESC) {
-              ...mediaFields
+            query = '''
+            query ($nextSeason: MediaSeason, $nextYear: Int) {
+              airing: Page(perPage: 50) {
+                media(status: RELEASING, type: ANIME, sort: POPULARITY_DESC) {
+                  ...mediaFields
+                }
+              }
+              upcoming: Page(perPage: 50) {
+                media(season: $nextSeason, seasonYear: $nextYear, type: ANIME, sort: POPULARITY_DESC) {
+                  ...mediaFields
+                }
+              }
             }
-          }
-          upcoming: Page(perPage: 50) {
-            media(season: $nextSeason, seasonYear: $nextYear, type: ANIME, sort: POPULARITY_DESC) {
-              ...mediaFields
+            ''' + self._get_media_fields_fragment()
+            variables = {
+                'nextSeason': next_season,
+                'nextYear': next_year
             }
-          }
-        }
+        else:
+            # Specific season view
+            query = '''
+            query ($season: MediaSeason, $year: Int) {
+              page: Page(perPage: 50) {
+                media(season: $season, seasonYear: $year, type: ANIME, sort: POPULARITY_DESC) {
+                  ...mediaFields
+                }
+              }
+            }
+            ''' + self._get_media_fields_fragment()
+            variables = {
+                'season': season,
+                'year': year
+            }
+        
+        try:
+            result = self._execute_query(query, variables)
+            data = result.get('data', {})
+            
+            combined = []
+            seen_ids = set()
 
+            def format_media(media):
+                if not media or media['id'] in seen_ids:
+                    return None
+                seen_ids.add(media['id'])
+                
+                studios_nodes = media.get('studios', {}).get('nodes', [])
+                studio_name = studios_nodes[0]['name'] if studios_nodes else None
+                next_airing = media.get('nextAiringEpisode')
+
+                return {
+                    'mediaId': media.get('id'),
+                    'title': media.get('title', {}),
+                    'episodes': media.get('episodes'),
+                    'mediaStatus': media.get('status'),
+                    'season': media.get('season'),
+                    'seasonYear': media.get('seasonYear'),
+                    'description': media.get('description'),
+                    'popularity': media.get('popularity'),
+                    'averageScore': media.get('averageScore'),
+                    'genres': media.get('genres', []),
+                    'format': media.get('format'),
+                    'coverImage': media.get('coverImage', {}),
+                    'bannerImage': media.get('bannerImage'),
+                    'studio': studio_name,
+                    'isAdult': 'Hentai' in media.get('genres', []) or 'Ecchi' in media.get('genres', []),
+                    'nextAiringEpisode': {
+                        'episode': next_airing.get('episode'),
+                        'airingAt': next_airing.get('airingAt'),
+                    } if next_airing else None,
+                }
+
+            if 'airing' in data:
+                for m in data['airing'].get('media', []):
+                    fmt = format_media(m)
+                    if fmt: combined.append(fmt)
+            if 'upcoming' in data:
+                for m in data['upcoming'].get('media', []):
+                    fmt = format_media(m)
+                    if fmt: combined.append(fmt)
+            if 'page' in data:
+                for m in data['page'].get('media', []):
+                    fmt = format_media(m)
+                    if fmt: combined.append(fmt)
+                
+            # Save to cache
+            try:
+                with open(cache_file, 'w', encoding='utf-8') as f:
+                    json.dump(combined, f, ensure_ascii=False, indent=2)
+            except Exception as e:
+                print(f"Error saving upcoming cache: {e}")
+
+            return combined
+        except Exception as e:
+            print(f"Error fetching upcoming anime: {e}")
+            return []
+
+    def _get_media_fields_fragment(self) -> str:
+        return '''
         fragment mediaFields on Media {
           id
           title {
@@ -593,70 +694,4 @@ class AnilistClient:
           }
         }
         '''
-        variables = {
-            'season': current_season,
-            'year': year,
-            'nextSeason': next_season,
-            'nextYear': next_year
-        }
-        
-        try:
-            result = self._execute_query(query, variables)
-            data = result.get('data', {})
-            airing = data.get('airing', {}).get('media', [])
-            upcoming = data.get('upcoming', {}).get('media', [])
-            
-            # Combine and deduplicate
-            seen_ids = set()
-            combined = []
-            
-            # Format combined list to match user list structure for frontend consistency
-            def format_media(media):
-                if media['id'] in seen_ids:
-                    return None
-                seen_ids.add(media['id'])
-                
-                studios_nodes = media.get('studios', {}).get('nodes', [])
-                studio_name = studios_nodes[0]['name'] if studios_nodes else None
-                next_airing = media.get('nextAiringEpisode')
 
-                return {
-                    'mediaId': media.get('id'),
-                    'title': media.get('title', {}),
-                    'episodes': media.get('episodes'),
-                    'mediaStatus': media.get('status'),
-                    'season': media.get('season'),
-                    'seasonYear': media.get('seasonYear'),
-                    'description': media.get('description'),
-                    'popularity': media.get('popularity'),
-                    'averageScore': media.get('averageScore'),
-                    'genres': media.get('genres', []),
-                    'format': media.get('format'),
-                    'coverImage': media.get('coverImage', {}),
-                    'bannerImage': media.get('bannerImage'),
-                    'studio': studio_name,
-                    'isAdult': 'Hentai' in media.get('genres', []) or 'Ecchi' in media.get('genres', []),
-                    'nextAiringEpisode': {
-                        'episode': next_airing.get('episode'),
-                        'airingAt': next_airing.get('airingAt'),
-                    } if next_airing else None,
-                }
-
-            for m in airing:
-                fmt = format_media(m)
-                if fmt: combined.append(fmt)
-            for m in upcoming:
-                fmt = format_media(m)
-                if fmt: combined.append(fmt)
-                
-            # Save to cache
-            try:
-                with open(cache_file, 'w', encoding='utf-8') as f:
-                    json.dump(combined, f, ensure_ascii=False, indent=2)
-            except Exception as e:
-                print(f"Error saving upcoming cache: {e}")
-
-            return combined
-        except Exception as e:
-            print(f"Error fetching upcoming anime: {e}")
-            return []

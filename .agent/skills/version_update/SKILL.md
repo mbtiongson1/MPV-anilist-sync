@@ -11,6 +11,7 @@ This skill allows the agent to update the version number across the project cons
 
 - When the user asks to "bump the version", "update the version", or "set version to X.Y.Z".
 - Before packaging or releasing a new build.
+- **Note**: This skill automatically triggers the `Publish` skill/script after a successful update.
 
 ## 📋 Required Files
 
@@ -25,17 +26,23 @@ This skill allows the agent to update the version number across the project cons
    - Use `patch` for small bug fixes (e.g. `1.0.0` -> `1.0.1`).
 
 2. **Run the update script** or request the update:
+
    - To perform a **minor** bump (default):
+
      ```bash
      python3 .agent/skills/version_update/scripts/update_version.py
      ```
+
    - To perform a **major** bump:
+
      ```bash
      python3 .agent/skills/version_update/scripts/update_version.py major
      ```
+
    - To set a **specific version** (e.g. `0.2.5`):
+
      ```bash
-     python3 .agent/skills/version_update/scripts/update_version.py 0.2.5
+     python3 .agent/scripts/version_update/scripts/update_version.py 0.2.5
      ```
 
 3. **Verify** both `VERSION` and `README.md` were updated correctly.

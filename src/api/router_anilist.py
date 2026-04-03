@@ -20,13 +20,17 @@ async def get_animelist(request: Request):
     return entries
 
 @router_anilist.get('/api/upcoming')
-async def get_upcoming(request: Request, refresh: str = "false"):
+async def get_upcoming(request: Request, refresh: str = "false", season: Optional[str] = None, year: Optional[int] = None):
     agent = request.app.state.agent
     entries = []
     if agent and hasattr(agent, 'anilist'):
         try:
             force_refresh = refresh.lower() == 'true'
-            entries = agent.anilist.get_upcoming_anime(force_refresh=force_refresh)
+            entries = agent.anilist.get_upcoming_anime(
+                force_refresh=force_refresh,
+                season=season,
+                year=year
+            )
         except Exception as e:
             print(f"Error fetching upcoming anime: {e}")
     return entries

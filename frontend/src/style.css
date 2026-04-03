@@ -3684,6 +3684,72 @@ input:not(:placeholder-shown) + .clear-input-btn {
 .status-completed { background: var(--status-completed); color: white; }
 .status-not-in-list { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.1); }
 
+.upcoming-header .header-left h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+}
+
+.season-selector {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0 2rem 1.25rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.season-selector::-webkit-scrollbar { display: none; }
+
+.season-tab {
+    padding: 0.5rem 1.1rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all var(--transition);
+    user-select: none;
+}
+
+.season-tab:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--border-light);
+    color: var(--text-primary);
+}
+
+.season-tab.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.spinner-small {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.no-results {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-align: center;
+}
+
 /* Add Button Dropdown */
 .upcoming-add-wrapper {
     position: absolute;
@@ -3703,13 +3769,13 @@ input:not(:placeholder-shown) + .clear-input-btn {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    transition: all 0.2s ease;
+    transition: all var(--transition);
+    box-shadow: 0 4px 12px var(--accent-glow);
 }
 
 .btn-upcoming-add:hover {
-    transform: rotate(90deg) scale(1.1);
     background: var(--accent-hover);
+    transform: rotate(90deg) scale(1.1);
 }
 
 .add-dropdown {
@@ -3718,18 +3784,35 @@ input:not(:placeholder-shown) + .clear-input-btn {
     right: 0;
     margin-top: 0.5rem;
     background: var(--bg-card);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-light);
     border-radius: var(--radius-md);
-    min-width: 140px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-    display: none;
+    min-width: 160px;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    transition: all 0.2s ease;
     overflow: hidden;
-    z-index: 20;
 }
 
 .add-dropdown.show {
-    display: block;
-    animation: slideUp 0.2s ease;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.add-option {
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.add-option:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--accent);
 }
 
 @keyframes slideUp {

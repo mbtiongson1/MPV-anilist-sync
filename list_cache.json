@@ -52043,5 +52043,220 @@
       "episode": 2,
       "airingAt": 1775314800
     }
+  },
+  {
+    "entryId": 546700793,
+    "listStatus": "CURRENT",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1775203545,
+    "mediaId": 173172,
+    "title": {
+      "romaji": "Dorohedoro Season 2",
+      "english": "Dorohedoro Season 2",
+      "native": "ドロヘドロ Season 2"
+    },
+    "episodes": 11,
+    "mediaStatus": "RELEASING",
+    "season": "SPRING",
+    "seasonYear": 2026,
+    "description": "The second season of <i>Dorohedoro</i>. <br><br>\n\nThe anarchy continues as Caiman inches closer to the truth behind his cursed appearance and the mystery around the Cross-Eyes' boss begins to unravel. <br><br> \n\n(Source: Netflix Anime)",
+    "popularity": 21805,
+    "averageScore": 77,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Comedy",
+      "Fantasy",
+      "Horror",
+      "Mystery"
+    ],
+    "format": "ONA",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx173172-404XnuOS0DhR.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx173172-404XnuOS0DhR.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/173172-tkPQqLzfnxYN.jpg",
+    "studio": "MAPPA",
+    "nextAiringEpisode": {
+      "episode": 4,
+      "airingAt": 1775656800
+    }
+  },
+  {
+    "entryId": 546700809,
+    "listStatus": "CURRENT",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1775203553,
+    "mediaId": 171110,
+    "title": {
+      "romaji": "Honzuki no Gekokujou: Ryoushu no Youjo",
+      "english": "Ascendance of a Bookworm: Adopted Daughter of an Archduke",
+      "native": "本好きの下剋上 領主の養女"
+    },
+    "episodes": null,
+    "mediaStatus": "NOT_YET_RELEASED",
+    "season": "SPRING",
+    "seasonYear": 2026,
+    "description": "Anime adaptation of Part 3 of <i>Honzuki no Gekokujou</i>.\n<br><br>\nFollowing a disastrous encounter with a noble, Myne finally resolves to say goodbye to her family and friends in the lower city, changing her name to “Rozemyne” and beginning her new life as the adopted daughter of Ehrenfest’s archduke. However, her days as an archnoble in noble society are brutal, as she is put through rigorous etiquette and magic training on top of her duties as High Bishop and forewoman. It all proves too much for a weak little seven-year-old girl... Or it would have, had the High Priest not offered her the keys to the temple’s book room as a reward. If she could get her hands on those, she’d be able to read all sorts of precious books! Her name may have changed, but Rozemyne’s passion for books remains the same as she charges into a whole new world! The detailed setting expands as the printing industry grows in size. Here begins Part 3 of this biblio-fantasy for book lovers everywhere!\n<br><br>\n(Source: J-Novel Club) ",
+    "popularity": 17683,
+    "averageScore": null,
+    "genres": [
+      "Drama",
+      "Fantasy",
+      "Slice of Life"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx171110-7zOdInS6DQNL.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx171110-7zOdInS6DQNL.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/171110-lgtmKokpevUM.jpg",
+    "studio": "WIT STUDIO",
+    "nextAiringEpisode": {
+      "episode": 1,
+      "airingAt": 1775291400
+    }
+  },
+  {
+    "entryId": 546700823,
+    "listStatus": "CURRENT",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1775203557,
+    "mediaId": 184492,
+    "title": {
+      "romaji": "Mairimashita! Iruma-kun 4",
+      "english": "Welcome to Demon School! Iruma-kun Season 4",
+      "native": "魔入りました！入間くん 第4シリーズ"
+    },
+    "episodes": 24,
+    "mediaStatus": "NOT_YET_RELEASED",
+    "season": "SPRING",
+    "seasonYear": 2026,
+    "description": "The fourth season of <i>Mairimashita! Iruma-kun.</i>\n<br><br>\nSuzuki Iruma and all thirteen students of the Misfit Class must perform to reach Rank 4 at the Music Festival.<br><br>\n(Source: Crunchyroll News)",
+    "popularity": 17525,
+    "averageScore": null,
+    "genres": [
+      "Comedy",
+      "Fantasy",
+      "Supernatural"
+    ],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx184492-KUVFGieuMaOx.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx184492-KUVFGieuMaOx.jpg"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/184492-JsZazzn4Acqf.jpg",
+    "studio": "Bandai Namco Pictures",
+    "nextAiringEpisode": {
+      "episode": 1,
+      "airingAt": 1775294760
+    }
+  },
+  {
+    "entryId": 546700830,
+    "listStatus": "CURRENT",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1775203566,
+    "mediaId": 204356,
+    "title": {
+      "romaji": "Boku no Hero Academia No. 170+1: More",
+      "english": "My Hero Academia Special Episode “More”",
+      "native": "僕のヒーローアカデミア No. 170+1 「More」"
+    },
+    "episodes": 1,
+    "mediaStatus": "NOT_YET_RELEASED",
+    "season": "SPRING",
+    "seasonYear": 2026,
+    "description": "\"More,\" a new story by Kohei Horikoshi, is being adapted into an anime! It tells the story of Deku and friends after the final episode, published in the 42nd and final volume of the original manga.<br><br>\n\n(Source: Official Website, translated)",
+    "popularity": 16178,
+    "averageScore": null,
+    "genres": [
+      "Action",
+      "Adventure"
+    ],
+    "format": "SPECIAL",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx204356-1in4XnaKX9n0.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx204356-1in4XnaKX9n0.jpg"
+    },
+    "bannerImage": null,
+    "studio": null,
+    "nextAiringEpisode": {
+      "episode": 1,
+      "airingAt": 1777710600
+    }
+  },
+  {
+    "entryId": 546700841,
+    "listStatus": "CURRENT",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1775203575,
+    "mediaId": 197824,
+    "title": {
+      "romaji": "Isekai Nonbiri Nouka 2",
+      "english": "Farming Life in Another World 2",
+      "native": "異世界のんびり農家２"
+    },
+    "episodes": 12,
+    "mediaStatus": "NOT_YET_RELEASED",
+    "season": "SPRING",
+    "seasonYear": 2026,
+    "description": "The second season of <i>Isekai Nonbiri Nouka</i>.",
+    "popularity": 15448,
+    "averageScore": null,
+    "genres": [],
+    "format": "TV",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx197824-k9Uyef8g49hB.png",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx197824-k9Uyef8g49hB.png"
+    },
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/197824-rS7XjJQ0CZs2.jpg",
+    "studio": "Zero-G",
+    "nextAiringEpisode": {
+      "episode": 1,
+      "airingAt": 1775482200
+    }
+  },
+  {
+    "entryId": 546700865,
+    "listStatus": "CURRENT",
+    "progress": 0,
+    "score": 0,
+    "updatedAt": 1775203587,
+    "mediaId": 178707,
+    "title": {
+      "romaji": "Mahouka Koukou no Rettousei: Yotsuba Keishou-hen",
+      "english": null,
+      "native": "劇場版 魔法科高校の劣等生 四葉継承編"
+    },
+    "episodes": null,
+    "mediaStatus": "NOT_YET_RELEASED",
+    "season": "SPRING",
+    "seasonYear": 2026,
+    "description": "Movie adaptation of <i>Mahouka Koukou no Rettousei's</i> Yotsuba Succession Arc.<br>\n<br>\nThe invitation has arrived. It is time for the New Year’s Reception at the Yotsuba family residence. This year, Miyuki and other candidates will gather there to decide who will be the next leader of their powerful clan. If chosen as the successor, she would never have to see her brother live as a pariah ever again. At the same time, such a position surely entails a political marriage, plunging her mind into complete turmoil. Complicating matters, the current head of their family sows doubt with the shocking claim that Miyuki is not Tatsuya’s sister. When the new year comes, their relationship may be changed forever...<br>\n<br>\n(Source: Yen Press)",
+    "popularity": 12723,
+    "averageScore": null,
+    "genres": [
+      "Action",
+      "Romance",
+      "Sci-Fi",
+      "Supernatural"
+    ],
+    "format": "MOVIE",
+    "coverImage": {
+      "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx178707-Ys8zvR7BLECi.jpg",
+      "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx178707-Ys8zvR7BLECi.jpg"
+    },
+    "bannerImage": null,
+    "studio": "Aniplex",
+    "nextAiringEpisode": {
+      "episode": 1,
+      "airingAt": 1778166000
+    }
   }
 ]

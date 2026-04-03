@@ -79,7 +79,16 @@ def update_version(target):
 if __name__ == "__main__":
     target = sys.argv[1] if len(sys.argv) > 1 else None
     if update_version(target):
-        # We don't print the new version here yet because update_version already prints it.
-        pass
+        # Automatically trigger publish script if version bump is successful
+        # Path logic:
+        # __file__ is .agent/skills/version_update/scripts/update_version.py
+        # root is 4 levels up
+        publish_script = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../scripts/publish.py"))
+        if os.path.exists(publish_script):
+            print(f"🚀 Version updated. Automatically publishing changes using {publish_script}...")
+            import subprocess
+            subprocess.run([sys.executable, publish_script])
+        else:
+            print(f"⚠️ Warning: Could not find publish.py script at {publish_script}")
     else:
         sys.exit(1)
