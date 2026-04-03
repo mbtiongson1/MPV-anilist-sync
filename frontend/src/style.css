@@ -4216,3 +4216,204 @@ input:not(:placeholder-shown) + .clear-input-btn {
     text-overflow: ellipsis;
     display: block;
 }
+
+
+/* --- Now Playing Redesign --- */
+.now-playing.redesign .np-content {
+    display: flex;
+    gap: 2rem;
+    padding: 0 2rem 2rem;
+    margin-top: -60px;
+    align-items: flex-start;
+}
+
+.now-playing.redesign .np-cover-wrapper {
+    flex-shrink: 0;
+}
+
+.now-playing.redesign .np-cover {
+    width: 140px;
+    height: 200px;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 3px solid var(--bg-card);
+    background-color: var(--bg-card);
+    object-fit: cover;
+    transition: transform var(--transition);
+}
+
+.now-playing.redesign .np-cover:hover {
+    transform: scale(1.02);
+}
+
+.now-playing.redesign .np-details {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 65px;
+}
+
+.now-playing.redesign .np-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.now-playing.redesign .np-quick-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.quick-action-btn:hover:not(:disabled) {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.quick-action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.now-playing.redesign .np-title {
+    font-size: 1.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.now-playing.redesign .np-studio {
+    font-size: 0.9rem;
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.now-playing.redesign .np-summary {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0.5rem 0;
+    background: rgba(0,0,0,0.2);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+}
+
+.now-playing.redesign .np-bottom-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    background: var(--bg-body);
+    padding: 1rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+}
+
+.now-playing.redesign .np-progress-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.now-playing.redesign .np-progress-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.now-playing.redesign .np-progress-label {
+    font-weight: 700;
+    font-size: 1rem;
+    min-width: 65px;
+}
+
+.now-playing.redesign .np-progress-segments {
+    flex: 1;
+}
+
+.now-playing.redesign .np-ep-adjust {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.now-playing.redesign .btn-sync {
+    margin-left: 0.5rem;
+    padding: 0.4rem 1rem;
+}
+
+.now-playing.redesign .np-media-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    background: var(--bg-card);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border);
+}
+
+.now-playing.redesign .play-pause-btn {
+    width: 48px;
+    height: 48px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.4);
+}
+
+.now-playing.redesign .play-pause-btn:hover {
+    transform: scale(1.05);
+    background: var(--accent-hover);
+}
+
+.resume-btn-premium .resume-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.resume-btn-premium .resume-label {
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.1rem;
+}
+
+.resume-btn-premium .resume-filename {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+}
