@@ -126,7 +126,7 @@ async def get_status(request: Request):
                 else:
                     title = f"{base_title} - E{display_episode}"
             else:
-                title = filename
+                title = os.path.basename(filename)
                 display_episode = episode
                 agent.manual_episode_override = None
 
