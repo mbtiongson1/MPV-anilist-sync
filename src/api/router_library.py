@@ -156,7 +156,7 @@ async def get_folders(request: Request):
                 print(f"Error listing folders: {e}")
     return folders
 
-@router.get('/api/organize_folders')
+@router.post('/api/organize_folders')
 async def organize_folders(request: Request):
     agent = request.app.state.agent
     results = []

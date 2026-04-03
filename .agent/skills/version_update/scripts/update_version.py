@@ -83,7 +83,7 @@ if __name__ == "__main__":
         # Path logic:
         # __file__ is .agent/skills/version_update/scripts/update_version.py
         # root is 4 levels up
-        publish_script = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../scripts/publish.py"))
+        publish_script = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../.agent/scripts/publish.py"))
         if os.path.exists(publish_script):
             print(f"🚀 Version updated. Automatically publishing changes using {publish_script}...")
             import subprocess

@@ -3681,6 +3681,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (result.success) {
                     if (result.results && result.results.length > 0) {
                         alert(`Organized ${result.results.length} files:\n` + result.results.join('\n'));
+                        fetchLibrary(true);
                     } else {
                         alert('No loose valid video files were found to organize.');
                     }
