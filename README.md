@@ -4,6 +4,22 @@ A lightweight, background Python agent for Windows and macOS that detects when a
 
 ---
 
+## 📖 About the App
+
+MPV Anilist Tracker is a comprehensive, local-first anime tracking ecosystem designed to bridge the gap between your offline media library and your online AniList profile. 
+
+Instead of manually updating your watch progress after finishing an episode, this agent seamlessly monitors your local video players (MPV, MPC-HC, VLC) or browser windows. When it detects an anime is playing, it automatically identifies the show and episode using advanced filename parsing, matches it against your AniList, and syncs your progress.
+
+Beyond simple tracking, it features a **powerful Web UI** that serves as your personal anime dashboard:
+- **Watch Dashboard:** View your in-progress, planned, and completed anime lists with rich metadata, seasonal info, and live airing countdowns.
+- **Local Library Management:** Scan your local anime folders, view your files in a structured tree, and let the app automatically organize loose video files into cleanly named folders.
+- **Smart Storage Cleanup:** Automatically identify and batch-delete video files for episodes you've already watched to free up disk space.
+- **Nyaa.si Integration:** Built-in torrent search and auto-scanning. It checks your currently airing shows and helps you find missing episodes directly from the dashboard.
+- **Advanced Statistics:** Visualize your watching habits with weekly activity heatmaps, genre distribution (Pareto charts), and watch-time statistics.
+- **Pending Changes System:** Work offline or queue up progress/status changes, and bulk-sync them to AniList when you are ready.
+
+---
+
 ## ✨ Features
 
 - **Multi-Player Support**: Detects playback in MPV, MPC-HC, VLC, and browser window titles on Windows.
