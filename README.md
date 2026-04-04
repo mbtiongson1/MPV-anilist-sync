@@ -78,6 +78,22 @@ python src/main.py
 - **First Launch**: A browser window will open for you to authenticate with AniList.
 - **Web UI**: Access the control panel at `http://localhost:8080`.
 
+### 4. Running via Docker (GitHub Packages)
+
+You can also run the tracker as a headless background container using our pre-built Docker images, straight from GitHub Container Registry:
+
+```bash
+# Pull the latest version
+docker pull ghcr.io/mbtiongson1/mpv-anilist-sync:latest
+
+# Run the container (be sure to mount your media folders and config mappings)
+docker run -d -p 8080:8080 \
+  -v /path/to/your/anime:/app/anime \
+  name mpv-anilist-sync \
+  ghcr.io/mbtiongson1/mpv-anilist-sync:latest
+```
+*Note: The Docker container acts primarily as a headless library manager and Web UI; it may not automatically detect local host video players via IPC natively without additional network configuration.*
+
 ---
 
 ## 📂 Project Structure
