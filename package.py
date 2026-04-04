@@ -20,8 +20,9 @@ def build_frontend():
         print("Warning: frontend/package.json not found, skipping frontend build.")
         return
     print("Building frontend...")
-    subprocess.check_call(['npm', 'install'], cwd=frontend_dir)
-    subprocess.check_call(['npm', 'run', 'build'], cwd=frontend_dir)
+    is_windows = platform.system() == "Windows"
+    subprocess.check_call(['npm', 'install'], cwd=frontend_dir, shell=is_windows)
+    subprocess.check_call(['npm', 'run', 'build'], cwd=frontend_dir, shell=is_windows)
     print("Frontend build complete.")
 
 def run_pyinstaller(spec_file):
