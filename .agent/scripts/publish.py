@@ -66,13 +66,22 @@ def publish(custom_msg=None):
         print(f"📝 Committing: {msg}")
         run_command(f'git commit -m "{msg}"')
         
-    # 4. Push
-    print("⬆️ Pushing to remote...")
-    if run_command("git push") is None:
+    # 4. Tagging and Push
+    version_changed = "VERSION" in (run_command("git diff HEAD~1 --name-only") or "")
+    version = get_current_version()
+    
+    if version_changed:
+        print(f"🏷️ Version change detected. Creating tag v{version}...")
+        run_command(f'git tag -a v{version} -m "Release v{version}"')
+        
+    print("⬆️ Pushing to remote (including tags)...")
+    if run_command("git push --follow-tags") is None:
         print("❌ Git push failed. Ensure origin is set up correctly.")
         return False
         
     print("✅ Successfully published!")
+    if version_changed:
+        print(f"🚀 Release v{version} triggered on GitHub Actions!")
     return True
 
 if __name__ == "__main__":
