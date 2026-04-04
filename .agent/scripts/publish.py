@@ -48,9 +48,21 @@ def publish(custom_msg=None):
     
     # 1. Pull changes
     print("🔄 Pulling latest changes (rebase)...")
+    # Stash local changes to allow rebase if dirty
+    is_dirty = run_command("git status --porcelain") != ""
+    if is_dirty:
+        print("📥 Stashing local changes...")
+        run_command("git stash")
+        
     if run_command("git pull --rebase") is None:
         print("❌ Git pull failed. Please resolve conflicts manually.")
+        if is_dirty:
+            run_command("git stash pop")
         return False
+        
+    if is_dirty:
+        print("📤 Popping stashed changes...")
+        run_command("git stash pop")
         
     # 2. Add changes
     print("➕ Staging all changes...")

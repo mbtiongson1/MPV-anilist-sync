@@ -54,20 +54,29 @@ def build_macos():
         print("Creating DMG (Requires dmgbuild to be installed...)")
         try:
             import dmgbuild
-            settings = {
-                'format': 'UDBZ',
-                'title': 'MPV Anilist Tracker',
-                'icon': 'build/app_icon.icns',
-                'background': 'builtin-arrow',
-                'window_rect': ((100, 100), (600, 400)),
-                'icon_size': 128,
-                'contents': [
-                    {'x': 140, 'y': 120, 'type': 'app', 'path': app_path},
-                    {'x': 450, 'y': 120, 'type': 'link', 'path': '/Applications'}
-                ]
-            }
+            # Write a temporary settings file for dmgbuild
+            settings_file_content = f"""
+format = 'UDBZ'
+title = 'MPV Anilist Tracker'
+icon = 'build/app_icon.icns'
+background = 'builtin-arrow'
+window_rect = ((100, 100), (600, 400))
+icon_size = 128
+contents = [
+    {{'x': 140, 'y': 120, 'type': 'app', 'path': '{app_path}'}},
+    {{'x': 450, 'y': 120, 'type': 'link', 'path': '/Applications'}}
+]
+"""
+            temp_settings = 'build/dmg_settings.py'
+            with open(temp_settings, 'w') as f:
+                f.write(settings_file_content)
+
             dmg_file = 'MPV_Anilist_Tracker.dmg'
-            dmgbuild.build_dmg(dmg_file, 'MPV Anilist Tracker', settings_dict=settings)
+            try:
+                dmgbuild.build_dmg(dmg_file, 'MPV Anilist Tracker', settings_file=temp_settings)
+            finally:
+                if os.path.exists(temp_settings):
+                    os.remove(temp_settings)
             
             # move to dist 
             if os.path.exists(dmg_file):
