@@ -85,57 +85,84 @@ export function LibraryView() {
     const renderNode = (node, depth = 0) => {
         const isDir = node.type === 'directory' || (node.children && node.children.length > 0);
         const excluded = isExcluded(node.path);
-        const expanded = expandedDirs.has(node.path);
-        const padLeft = depth * 16;
+        
+        // Expand if it's root, or if user expanded, or if searching matches children
+        const expanded = depth === 0 || expandedDirs.has(node.path) || (search && node.children?.some(c => filterTree([c]).length > 0));
 
-        if (isDir) {
-            let children = node.children || [];
-            if (search) children = filterTree(children);
-            const fileCount = children.filter(c => c.type !== 'directory').length;
-            const dirCount = children.filter(c => c.type === 'directory').length;
+        const padLeft = depth * 16 + 8;
+        const isVideo = !isDir && ['mkv', 'mp4', 'avi', 'webm', 'flv', 'mov', 'ts'].includes((node.name || '').split('.').pop().toLowerCase());
 
-            return (
-                <div key={node.path}>
-                    <div class={`library-row library-dir ${excluded ? 'excluded' : ''}`}
-                        style={`padding-left: ${padLeft + 8}px;`}
-                        onClick={() => toggleDir(node.path)}>
-                        <div class="library-expand">
-                            <ChevronIcon size={10} style={expanded ? 'transform: rotate(90deg);' : ''} />
-                        </div>
-                        <FolderIcon size={14} />
-                        <span class="library-name" title={node.name}>{escapeHtml(node.name)}</span>
-                        <span class="library-count">{fileCount} file{fileCount !== 1 ? 's' : ''}{dirCount > 0 ? `, ${dirCount} folder${dirCount !== 1 ? 's' : ''}` : ''}</span>
-                        <div class="library-actions" onClick={e => e.stopPropagation()}>
-                            <button class="icon-btn" onClick={() => handleOpenFolder(node.path)} title="Open in Explorer"><FolderIcon size={12} /></button>
-                            {excluded ? (
-                                <button class="icon-btn" onClick={() => handleInclude(node.path)} title="Include">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>
-                                </button>
-                            ) : (
-                                <button class="icon-btn" onClick={() => handleExclude(node.path)} title="Exclude">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                    {expanded && children.map(child => renderNode(child, depth + 1))}
+        const handleCheckbox = (e) => {
+            e.stopPropagation();
+            if (excluded) handleInclude(node.path);
+            else handleExclude(node.path);
+        };
+
+        const itemContent = (
+            <div class="tree-item" style={{ paddingLeft: `${padLeft}px`, opacity: excluded ? 0.5 : 1 }} onClick={() => isDir && toggleDir(node.path)}>
+                <div class={`tree-chevron ${isDir ? '' : 'leaf'} ${expanded ? 'expanded' : ''}`}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </div>
-            );
-        }
+                <input type="checkbox" class="library-trash-checkbox custom-checkbox" checked={!excluded} onChange={handleCheckbox} style={{ marginRight: '8px' }} onClick={e => e.stopPropagation()} />
+                <div class="tree-icon">
+                    {isDir ? (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+                    ) : (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
+                    )}
+                </div>
+                
+                <div class="tree-label-container">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div class="tree-label" style={node.mediaId ? { fontWeight: '700', color: 'var(--accent)' } : {}}>
+                            {escapeHtml(node.name)}
+                        </div>
+                        
+                        {isDir && (
+                            <button class="tree-action-btn" title="Open Folder" onClick={(e) => { e.stopPropagation(); handleOpenFolder(node.path); }}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                            </button>
+                        )}
+                        
+                        {!isDir && isVideo && (
+                            <button class="tree-action-btn play-btn" title="Play File" onClick={(e) => { e.stopPropagation(); handlePlay(node.path); }}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg>
+                            </button>
+                        )}
+                    </div>
 
-        // File node
-        const ext = (node.name || '').split('.').pop().toLowerCase();
-        const isVideo = ['mkv', 'mp4', 'avi', 'webm', 'flv', 'mov', 'ts'].includes(ext);
+                    {node.mediaId && node.listStatus && (
+                        <div class="tree-sublabel" style={{ color: node.listStatus === 'CURRENT' ? '#10b981' : '#94a3b8' }}>
+                            {node.listStatus === 'CURRENT' ? 'In Progress' : node.listStatus.charAt(0) + node.listStatus.slice(1).toLowerCase()}
+                        </div>
+                    )}
+                    {isDir && !node.mediaId && node.name !== 'Downloads' && (
+                        <div class="tree-sublabel not-matched">Not in library</div>
+                    )}
+                </div>
+                
+                <div class="tree-meta">
+                    {!isDir ? formatBytes(node.size || 0) : `${formatBytes(node.size || 0)} (${node.children?.length || 0} items)`}
+                </div>
+                
+                <div class="tree-actions">
+                    {isDir && (
+                        <button class="tree-action-btn" title="Search Torrents" onClick={(e) => { e.stopPropagation(); }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        </button>
+                    )}
+                </div>
+            </div>
+        );
 
         return (
-            <div key={node.path} class={`library-row library-file ${excluded ? 'excluded' : ''}`}
-                style={`padding-left: ${padLeft + 28}px;`}>
-                {isVideo ? <VideoIcon size={14} /> : <span style="width:14px;" />}
-                <span class="library-name" title={node.name}>{escapeHtml(node.name)}</span>
-                {node.size && <span class="library-size">{formatBytes(node.size)}</span>}
-                <div class="library-actions">
-                    {isVideo && <button class="icon-btn" onClick={() => handlePlay(node.path)} title="Play"><PlayIcon size={12} /></button>}
-                </div>
+            <div key={node.path} class="tree-node">
+                {itemContent}
+                {isDir && node.children && (
+                    <div class={`tree-children ${expanded ? 'expanded' : ''}`}>
+                        {filterTree(node.children).map(child => renderNode(child, depth + 1))}
+                    </div>
+                )}
             </div>
         );
     };

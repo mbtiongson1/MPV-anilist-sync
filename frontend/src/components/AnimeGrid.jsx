@@ -134,7 +134,7 @@ export function AnimeGrid({ viewMode, onViewModeChange, filteredList, filterName
                 </div>
             </div>
 
-            <div id="anime-grid" class={`anime-grid ${viewMode === 'grid' ? 'grid-view' : viewMode === 'list' ? 'list-view' : ''}`}>
+            <div id="anime-grid" class={`anime-grid ${viewMode === 'grid' ? 'grid-view' : viewMode === 'details' ? 'details-view' : 'list-view'}`}>
                 {viewMode === 'details' ? (
                     <table class="details-table">
                         <thead>
