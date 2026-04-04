@@ -2,6 +2,7 @@ import os
 import platform
 import subprocess
 import shutil
+import sys
 
 def get_version():
     try:
@@ -25,13 +26,13 @@ def build_frontend():
 
 def run_pyinstaller(spec_file):
     print(f"Running PyInstaller with {spec_file}...")
-    subprocess.check_call(["python", "-m", "PyInstaller", spec_file, "--noconfirm", "--clean"])
+    subprocess.check_call([sys.executable, "-m", "PyInstaller", spec_file, "--noconfirm", "--clean"])
 
 def build_windows():
     print(f"Building for Windows (v{VERSION})...")
     build_frontend()
     # Ensure icons are converted
-    subprocess.check_call(["python", "build/convert_icon.py"])
+    subprocess.check_call([sys.executable, "build/convert_icon.py"])
     run_pyinstaller("build/windows.spec")
     
     # Rename output for versioning if it's a single file or directory
@@ -43,7 +44,7 @@ def build_macos():
     print(f"Building for macOS (v{VERSION})...")
     build_frontend()
     # Ensure icons are converted
-    subprocess.check_call(["python", "build/convert_icon.py"])
+    subprocess.check_call([sys.executable, "build/convert_icon.py"])
     run_pyinstaller("build/macos.spec")
     
     app_path = "dist/MPV Anilist Tracker.app"
