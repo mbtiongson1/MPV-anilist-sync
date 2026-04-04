@@ -7,6 +7,11 @@ class BaseWatcher(ABC):
     def is_connected(self) -> bool:
         ...
 
+    @property
+    @abstractmethod
+    def is_paused(self) -> bool:
+        ...
+
     @abstractmethod
     def connect(self) -> bool:
         ...
@@ -25,4 +30,16 @@ class BaseWatcher(ABC):
 
     @abstractmethod
     def get_percent_pos(self) -> float:
+        ...
+
+    @abstractmethod
+    def toggle_pause(self):
+        ...
+
+    @abstractmethod
+    def next_episode(self):
+        ...
+
+    @abstractmethod
+    def previous_episode(self):
         ...

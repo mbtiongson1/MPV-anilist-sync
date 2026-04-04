@@ -1,17 +1,35 @@
-# 🎬 MPV Anilist Tracker
+# 🎬 MPV Anilist Tracker (v4.2.0)
 
 A lightweight, background Python agent for Windows and macOS that detects when an anime video is being played, extracts the title and episode from the filename, and automatically syncs your watch progress to your **Anilist.co** account.
+
+---
+
+## 📖 About the App
+
+MPV Anilist Tracker is a comprehensive, local-first anime tracking ecosystem designed to bridge the gap between your offline media library and your online AniList profile. 
+
+Instead of manually updating your watch progress after finishing an episode, this agent seamlessly monitors your local video players (MPV, MPC-HC, VLC) or browser windows. When it detects an anime is playing, it automatically identifies the show and episode using advanced filename parsing, matches it against your AniList, and syncs your progress.
+
+Beyond simple tracking, it features a **powerful Web UI** that serves as your personal anime dashboard:
+- **Watch Dashboard:** View your in-progress, planned, and completed anime lists with rich metadata, seasonal info, and live airing countdowns.
+- **Local Library Management:** Scan your local anime folders, view your files in a structured tree, and let the app automatically organize loose video files into cleanly named folders.
+- **Smart Storage Cleanup:** Automatically identify and batch-delete video files for episodes you've already watched to free up disk space.
+- **Nyaa.si Integration:** Built-in torrent search and auto-scanning. It checks your currently airing shows and helps you find missing episodes directly from the dashboard.
+- **Advanced Statistics:** Visualize your watching habits with weekly activity heatmaps, genre distribution (Pareto charts), and watch-time statistics.
+- **Pending Changes System:** Work offline or queue up progress/status changes, and bulk-sync them to AniList when you are ready.
 
 ---
 
 ## ✨ Features
 
 - **Multi-Player Support**: Detects playback in MPV, MPC-HC, VLC, and browser window titles on Windows.
-- **🚀 Auto-Sync**: Automatically updates your watch list when you close a playing file or stop playback.
+- **🚀 Manual Sync**: You have full control. Sync your progress to AniList manually with a single click when you're ready.
 - **🧠 Smart Parsing**: Cleans up complicated filenames (e.g. `[SubsPlease] Sousou no Frieren - 01 (1080p).mkv`) accurately using `guessit`.
 - **🌐 Web UI**: Modern beige/earth-toned browser interface to manage your watch list and track progress.
 - **🔍 Nyaa Integration**: Search for missing episodes directly from the Web UI using Nyaa.si.
 - **💾 Local Caching**: Works offline or with limited API calls by caching your AniList entries locally.
+- **🗑️ Smart Cleanup**: Suggest completed or watched files for cleanup, automatically calculating disk savings and allowing bulk trashing.
+- **📁 Library Manager**: Interactive explorer with multi-select checkboxes for bulk file management directly from the browser.
 - **⚙️ Settings Management**: Configure folder paths, refresh intervals, and more via the UI.
 - **🖥️ Cross-Platform**: Full support for both Windows and macOS with native UI elements.
 
@@ -81,8 +99,18 @@ The project uses a central `VERSION` file in the root directory. This version is
 
 To update the version:
 
-1. Modify the string in `VERSION` (e.g., `0.1.1`).
+1. Modify the string in `VERSION` (e.g., `4.0.1`).
 2. Re-run the build process.
+
+### Building the Frontend
+
+If you make changes to the React UI in `frontend/src`, you must rebuild the static files so the Python backend can serve them from `frontend/dist`.
+
+1. **Navigate to the frontend directory**: `cd frontend`
+2. **Install dependencies**: `npm install`
+3. **Build the app**: `npm run build`
+
+Alternatively, use the provided workflow: `/build_frontend`
 
 ### Building Standalone Apps
 

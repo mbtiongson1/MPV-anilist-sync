@@ -214,55 +214,57 @@ class AnilistClient:
         # Fallback if the loop finishes without returning or raising
         raise Exception("Failed to execute query after multiple retries.")
 
-    def get_authenticated_user(self) -> Optional[int]:
+    def get_authenticated_user(self) -> Optional[Dict[str, Any]]:
         if not self.token:
             return None
-        if self.user_id:
-            return self.user_id
 
         query = '''
         query {
             Viewer {
                 id
                 name
+                avatar {
+                    large
+                }
             }
         }
         '''
         try:
             result = self._execute_query(query)
-            user = result.get('data', {}).get('Viewer')
-            if user:
-                self.user_id = user['id']
-                return self.user_id
+            return result.get('data', {}).get('Viewer')
         except Exception as e:
             print(f"Error getting authenticated user: {e}")
-        return None
+            return None
 
-    def search_anime(self, title: str) -> Optional[Dict[str, Any]]:
-        # This query includes relation edges so we can resolve season/series sequels when
-        # the parsed episode number exceeds the first entry's episode count.
+    def search_anime(self, title: str) -> list[Dict[str, Any]]:
+        # Return a list of matches for manual search
         query = '''
         query ($search: String) {
-            Media (search: $search, type: ANIME) {
-                id
-                title {
-                    romaji
-                    english
-                    native
-                }
-                episodes
-                status
-                relations {
-                    edges {
-                        relationType
-                        node {
-                            id
-                            title {
-                                romaji
-                                english
-                                native
-                            }
-                            episodes
+            Page (perPage: 10) {
+                media (search: $search, type: ANIME) {
+                    id
+                    title {
+                        romaji
+                        english
+                        native
+                    }
+                    episodes
+                    status
+                    season
+                    seasonYear
+                    description(asHtml: false)
+                    popularity
+                    averageScore
+                    genres
+                    format
+                    coverImage {
+                        large
+                        medium
+                    }
+                    bannerImage
+                    studios(isMain: true) {
+                        nodes {
+                            name
                         }
                     }
                 }
@@ -272,10 +274,10 @@ class AnilistClient:
         variables = {'search': title}
         try:
             result = self._execute_query(query, variables)
-            return result.get('data', {}).get('Media')
+            return result.get('data', {}).get('Page', {}).get('media', [])
         except Exception as e:
             print(f"Error searching anime '{title}': {e}")
-            return None
+            return []
 
     def _load_list_cache(self, statuses: list[str] | None = None) -> list[dict[str, Any]]:
         try:
@@ -290,8 +292,8 @@ class AnilistClient:
         return []
 
     def get_list_entry(self, media_id: int) -> Optional[Dict[str, Any]]:
-        user_id = self.get_authenticated_user()
-        if not user_id:
+        viewer = self.get_authenticated_user()
+        if not viewer:
             # Fallback to cache
             cached = self._load_list_cache()
             for entry in cached:
@@ -303,6 +305,7 @@ class AnilistClient:
                     }
             return None
 
+        user_id = viewer.get('id')
         query = '''
         query ($userId: Int, $mediaId: Int) {
             MediaList (userId: $userId, mediaId: $mediaId) {
@@ -326,29 +329,30 @@ class AnilistClient:
 
     def get_user_anime_list(self, statuses: list[str] | None = None) -> list[dict[str, Any]]:
         """Fetch the authenticated user's anime list with full metadata.
-        
+
         Args:
             statuses: List of AniList MediaListStatus values to filter by.
                       e.g. ['CURRENT', 'PLANNING']. If None, fetches all.
-        
+
         Returns:
             A flat list of dicts, each containing media metadata + list entry info.
         """
-        user_id = self.get_authenticated_user()
-        if not user_id:
+        viewer = self.get_authenticated_user()
+        if not viewer:
             return self._load_list_cache(statuses)
 
+        user_id = viewer.get('id')
         query = '''
         query ($userId: Int, $type: MediaType, $statusIn: [MediaListStatus]) {
             MediaListCollection(userId: $userId, type: $type, status_in: $statusIn) {
                 lists {
                     name
                     status
-                    entries {
-                        id
+                    entries {                        id
                         status
                         progress
                         score
+                        updatedAt
                         media {
                             id
                             title {
@@ -412,6 +416,7 @@ class AnilistClient:
                         'listStatus': entry.get('status') or list_status,
                         'progress': entry.get('progress', 0),
                         'score': entry.get('score', 0),
+                        'updatedAt': entry.get('updatedAt', 0),
                         'mediaId': media.get('id'),
                         'title': media.get('title', {}),
                         'episodes': media.get('episodes'),
@@ -440,6 +445,11 @@ class AnilistClient:
                 print(f"Error saving list cache: {e}")
 
             return flat_entries
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code in (400, 401, 403):
+                raise
+            print(f"HTTP Error fetching user anime list: {e}")
+            return self._load_list_cache(statuses)
         except Exception as e:
             print(f"Error fetching user anime list: {e}")
             return self._load_list_cache(statuses)
@@ -451,8 +461,8 @@ class AnilistClient:
 
         # Check existing entry
         entry = self.get_list_entry(media_id)
-        if entry and (entry.get('progress') or 0) >= episode:
-            print(f"Anilist already at or past episode {episode} (Current: {entry.get('progress')})")
+        if entry and (entry.get('progress') or 0) == episode:
+            print(f"Anilist progress already set to episode {episode}")
             return True
 
         mutation = '''
@@ -480,3 +490,208 @@ class AnilistClient:
         except Exception as e:
             print(f"Error updating progress: {e}")
             return False
+
+    def change_status(self, media_id: int, status: str, progress: Optional[int] = None) -> bool:
+        if not self.is_authenticated():
+            print("Not authenticated.")
+            return False
+
+        mutation = '''
+        mutation ($mediaId: Int, $status: MediaListStatus, $progress: Int) {
+            SaveMediaListEntry (mediaId: $mediaId, status: $status, progress: $progress) {
+                id
+                status
+                progress
+            }
+        }
+        '''
+        variables: Dict[str, Any] = {
+            'mediaId': media_id,
+            'status': status
+        }
+        if progress is not None:
+            variables['progress'] = progress
+        
+        try:
+            self._execute_query(mutation, variables)
+            print(f"Successfully updated status for media {media_id} to {status}" + (f" and progress to {progress}" if progress is not None else ""))
+            return True
+        except Exception as e:
+            print(f"Error changing status: {e}")
+            return False
+
+    def get_upcoming_anime(self, force_refresh: bool = False, season: Optional[str] = None, year: Optional[int] = None) -> list[dict[str, Any]]:
+        """Fetch airing anime or specific season's anime, with local caching."""
+        
+        from datetime import datetime
+        now = datetime.now()
+        
+        # Determine target season if not provided
+        if not season or not year:
+            month = now.month
+            year = year or now.year
+            seasons = ["WINTER", "SPRING", "SUMMER", "FALL"]
+            current_season_idx = (month - 1) // 3
+            season = season or seasons[current_season_idx]
+        
+        cache_file = f'upcoming_cache_{season}_{year}.json'
+        # Also maintain a global "airing" cache for the main view
+        is_default = not season and not year
+        if is_default:
+            cache_file = 'upcoming_cache_airing.json'
+
+        # Load from cache if it exists and we're not forcing a refresh
+        if not force_refresh and os.path.exists(cache_file):
+            try:
+                with open(cache_file, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            except Exception as e:
+                print(f"Error loading upcoming cache: {e}")
+
+        # Build the query
+        # If we just want a specific season, we use one Page
+        # If we want the default "Discovery" view, we fetch Airing + Next Season
+        
+        if not season or season == "AIRING":
+            # Default discovery view: Trending Airing + Next Season
+            month = now.month
+            y = now.year
+            seasons = ["WINTER", "SPRING", "SUMMER", "FALL"]
+            curr_idx = (month - 1) // 3
+            next_idx = (curr_idx + 1) % 4
+            next_season = seasons[next_idx]
+            next_year = y + (1 if next_idx == 0 else 0)
+
+            query = '''
+            query ($nextSeason: MediaSeason, $nextYear: Int) {
+              airing: Page(perPage: 50) {
+                media(status: RELEASING, type: ANIME, sort: POPULARITY_DESC) {
+                  ...mediaFields
+                }
+              }
+              upcoming: Page(perPage: 50) {
+                media(season: $nextSeason, seasonYear: $nextYear, type: ANIME, sort: POPULARITY_DESC) {
+                  ...mediaFields
+                }
+              }
+            }
+            ''' + self._get_media_fields_fragment()
+            variables = {
+                'nextSeason': next_season,
+                'nextYear': next_year
+            }
+        else:
+            # Specific season view
+            query = '''
+            query ($season: MediaSeason, $year: Int) {
+              page: Page(perPage: 50) {
+                media(season: $season, seasonYear: $year, type: ANIME, sort: POPULARITY_DESC) {
+                  ...mediaFields
+                }
+              }
+            }
+            ''' + self._get_media_fields_fragment()
+            variables = {
+                'season': season,
+                'year': year
+            }
+        
+        try:
+            result = self._execute_query(query, variables)
+            data = result.get('data', {})
+            
+            combined = []
+            seen_ids = set()
+
+            def format_media(media):
+                if not media or media['id'] in seen_ids:
+                    return None
+                seen_ids.add(media['id'])
+                
+                studios_nodes = media.get('studios', {}).get('nodes', [])
+                studio_name = studios_nodes[0]['name'] if studios_nodes else None
+                next_airing = media.get('nextAiringEpisode')
+
+                return {
+                    'mediaId': media.get('id'),
+                    'title': media.get('title', {}),
+                    'episodes': media.get('episodes'),
+                    'mediaStatus': media.get('status'),
+                    'season': media.get('season'),
+                    'seasonYear': media.get('seasonYear'),
+                    'description': media.get('description'),
+                    'popularity': media.get('popularity'),
+                    'averageScore': media.get('averageScore'),
+                    'genres': media.get('genres', []),
+                    'format': media.get('format'),
+                    'coverImage': media.get('coverImage', {}),
+                    'bannerImage': media.get('bannerImage'),
+                    'studio': studio_name,
+                    'isAdult': 'Hentai' in media.get('genres', []) or 'Ecchi' in media.get('genres', []),
+                    'nextAiringEpisode': {
+                        'episode': next_airing.get('episode'),
+                        'airingAt': next_airing.get('airingAt'),
+                    } if next_airing else None,
+                }
+
+            if 'airing' in data:
+                for m in data['airing'].get('media', []):
+                    fmt = format_media(m)
+                    if fmt: combined.append(fmt)
+            if 'upcoming' in data:
+                for m in data['upcoming'].get('media', []):
+                    fmt = format_media(m)
+                    if fmt: combined.append(fmt)
+            if 'page' in data:
+                for m in data['page'].get('media', []):
+                    fmt = format_media(m)
+                    if fmt: combined.append(fmt)
+                
+            # Save to cache
+            try:
+                with open(cache_file, 'w', encoding='utf-8') as f:
+                    json.dump(combined, f, ensure_ascii=False, indent=2)
+            except Exception as e:
+                print(f"Error saving upcoming cache: {e}")
+
+            return combined
+        except Exception as e:
+            print(f"Error fetching upcoming anime: {e}")
+            return []
+
+    def _get_media_fields_fragment(self) -> str:
+        return '''
+        fragment mediaFields on Media {
+          id
+          title {
+            romaji
+            english
+            native
+          }
+          episodes
+          status
+          season
+          seasonYear
+          description(asHtml: false)
+          popularity
+          averageScore
+          genres
+          format
+          coverImage {
+            large
+            medium
+          }
+          bannerImage
+          studios(isMain: true) {
+            nodes {
+              name
+              isAnimationStudio
+            }
+          }
+          nextAiringEpisode {
+            episode
+            airingAt
+          }
+        }
+        '''
+

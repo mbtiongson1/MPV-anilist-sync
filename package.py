@@ -12,12 +12,24 @@ def get_version():
 
 VERSION = get_version()
 
+def build_frontend():
+    """Build the Preact frontend before packaging."""
+    frontend_dir = os.path.join(os.path.dirname(__file__), 'frontend')
+    if not os.path.exists(os.path.join(frontend_dir, 'package.json')):
+        print("Warning: frontend/package.json not found, skipping frontend build.")
+        return
+    print("Building frontend...")
+    subprocess.check_call(['npm', 'install'], cwd=frontend_dir)
+    subprocess.check_call(['npm', 'run', 'build'], cwd=frontend_dir)
+    print("Frontend build complete.")
+
 def run_pyinstaller(spec_file):
     print(f"Running PyInstaller with {spec_file}...")
     subprocess.check_call(["python", "-m", "PyInstaller", spec_file, "--noconfirm", "--clean"])
 
 def build_windows():
     print(f"Building for Windows (v{VERSION})...")
+    build_frontend()
     run_pyinstaller("build/windows.spec")
     
     # Rename output for versioning if it's a single file or directory
@@ -27,6 +39,7 @@ def build_windows():
 
 def build_macos():
     print(f"Building for macOS (v{VERSION})...")
+    build_frontend()
     run_pyinstaller("build/macos.spec")
     
     app_path = "dist/MPV Anilist Tracker.app"

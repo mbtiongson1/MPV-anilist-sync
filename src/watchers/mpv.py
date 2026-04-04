@@ -23,6 +23,13 @@ class MPVWatcher(BaseWatcher):
     def is_connected(self) -> bool:
         return self._is_connected
 
+    @property
+    def is_paused(self) -> bool:
+        if self.mpv and self.is_connected:
+            try: return self.mpv.pause
+            except: pass
+        return False
+
     def connect(self) -> bool:
         # On Unix, check if the socket file exists first
         # On Windows, named pipes can't be checked with os.path.exists
@@ -35,7 +42,7 @@ class MPVWatcher(BaseWatcher):
             self._is_connected = True
             
             # Setup property observers
-            @mpv_instance.property_observer('filename')
+            @mpv_instance.property_observer('path')
             def on_filename_change(_name, value):
                 self.current_filename = value
                 
@@ -47,6 +54,9 @@ class MPVWatcher(BaseWatcher):
             return True
         except Exception as e:
             # Maybe socket exists but mpv is not running or listening
+            if sys.platform == "darwin" and not os.path.exists(self.socket_path):
+                print(f"MPV detected as possibly running but IPC socket {self.socket_path} is missing.")
+                print("Tip: Start MPV with --input-ipc-server=/tmp/mpvsocket or add it to your mpv.conf")
             self._is_connected = False
             return False
 
@@ -61,11 +71,7 @@ class MPVWatcher(BaseWatcher):
     def check_connection(self) -> bool:
         """Actively ping MPV to verify the socket hasn't silently died."""
         mpv = self.mpv
-    
-    
-    
-    
-    
+
         if not self.is_connected or mpv is None:
             return False
             
@@ -93,3 +99,24 @@ class MPVWatcher(BaseWatcher):
         # We can improve this by checking standard video extensions
         video_exts = ['.mkv', '.mp4', '.avi']
         return any(filename.lower().endswith(ext) for ext in video_exts)  # type: ignore
+
+    def toggle_pause(self):
+        if self.mpv:
+            try:
+                self.mpv.pause = not self.mpv.pause
+            except Exception as e:
+                print(f"Error toggling pause: {e}")
+
+    def next_episode(self):
+        if self.mpv:
+            try:
+                self.mpv.command("playlist-next")
+            except Exception as e:
+                print(f"Error skipping to next: {e}")
+
+    def previous_episode(self):
+        if self.mpv:
+            try:
+                self.mpv.command("playlist-prev")
+            except Exception as e:
+                print(f"Error skipping to previous: {e}")

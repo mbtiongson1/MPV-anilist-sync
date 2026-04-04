@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 class SettingsManager:
     def __init__(self, settings_file: str = "config.json"):
@@ -57,8 +57,46 @@ class SettingsManager:
         self.set("default_download_dir", value)
 
     @property
+    def base_anime_folder(self) -> str:
+        import sys
+        if sys.platform == "win32":
+            default_path = os.path.join(os.path.expanduser("~"), "Videos", "Anime")
+        else:
+            default_path = os.path.join(os.path.expanduser("~"), "Downloads")
+        return self.get("base_anime_folder", default_path)
+
+    @base_anime_folder.setter
+    def base_anime_folder(self, value: str):
+        self.set("base_anime_folder", value)
+
+    @property
     def media_folders_map(self) -> Dict[str, str]:
         return self.get("media_folders_map", {})
+
+    @property
+    def title_overrides(self) -> Dict[str, str]:
+        return self.get("title_overrides", {})
+
+    def update_title_override(self, media_id: int, custom_title: str):
+        mapping = self.title_overrides
+        mapping[str(media_id)] = custom_title
+        self.set("title_overrides", mapping)
+
+    @property
+    def library_exclusions(self) -> List[str]:
+        return self.get("library_exclusions", [])
+
+    def add_library_exclusion(self, path: str):
+        exclusions = self.library_exclusions
+        if path not in exclusions:
+            exclusions.append(path)
+            self.set("library_exclusions", exclusions)
+
+    def remove_library_exclusion(self, path: str):
+        exclusions = self.library_exclusions
+        if path in exclusions:
+            exclusions.remove(path)
+            self.set("library_exclusions", exclusions)
 
     def update_media_folder(self, media_id: int, folder_path: str):
         mapping = self.media_folders_map
@@ -68,3 +106,11 @@ class SettingsManager:
     def get_media_folder(self, media_id: int) -> str:
         mapping = self.media_folders_map
         return mapping.get(str(media_id), self.default_download_dir)
+
+    @property
+    def last_played_file(self) -> Optional[str]:
+        return self.get("last_played_file")
+
+    @last_played_file.setter
+    def last_played_file(self, value: str):
+        self.set("last_played_file", value)

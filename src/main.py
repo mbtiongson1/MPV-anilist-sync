@@ -69,11 +69,34 @@ class TrackerAgent:
 
     @staticmethod
     @staticmethod
-    def _resolve_episode_to_media(media: Dict[str, Any], global_episode: int) -> tuple[Dict[str, Any], int]:
+    def _resolve_episode_to_media(media: Dict[str, Any], global_episode: int, target_season: Optional[int] = None) -> tuple[Dict[str, Any], int]:
         """Resolve a global episode number into the correct AniList media and local episode."""
+        if global_episode is None:
+            # Fallback for filenames where parsing episode failed
+            return media, 1
+        
         remaining: int = int(global_episode)
         visited = set()
         current: Any = media
+        
+        # Season offset: If we have a specific season from filename, we should
+        # skip to that season first before counting episodes.
+        # Note: We assume the search result or starting point is Season 1.
+        if target_season and target_season > 1:
+            seasons_to_skip = int(target_season) - 1
+            while seasons_to_skip > 0 and current:
+                relations = current.get('relations', {}).get('edges', []) or []
+                next_media = None
+                for edge in relations:
+                    if edge.get('relationType') == 'SEQUEL' and isinstance(edge.get('node'), dict):
+                        next_media = edge.get('node')
+                        break
+                if next_media:
+                    visited.add(current.get('id'))
+                    current = next_media
+                    seasons_to_skip -= 1
+                else:
+                    break
 
         while current and isinstance(current, dict):
             media_id = current.get('id')
@@ -109,9 +132,13 @@ class TrackerAgent:
             remaining = new_remaining
             current = next_media
 
+        if not isinstance(media, dict):
+            # Should not happen if API result is valid, but logging shows it does
+            return {}, 1
+
         fallback_episodes = media.get('episodes')
-        f_ep = int(fallback_episodes) if fallback_episodes and str(fallback_episodes).isdigit() else int(global_episode)
-        return media, min(int(global_episode), f_ep)
+        f_ep = int(fallback_episodes) if fallback_episodes and str(fallback_episodes).isdigit() else (int(global_episode) if global_episode else 1)
+        return media, min(int(global_episode) if global_episode else 1, f_ep)
 
     @staticmethod
     def _build_media_map(media: Dict[str, Any]) -> Dict[int, Dict[str, Any]]:
@@ -175,8 +202,8 @@ class TrackerAgent:
                     else:
                         # Connected but nothing playing
                         if self.active_filename:
-                            print(f"Playback stopped on {active.__class__.__name__}. Syncing: {self.active_filename}")
-                            self.sync_progress(self.active_filename)
+                            print(f"Playback stopped on {active.__class__.__name__}. Manual sync required: {self.active_filename}")
+                            # Auto-sync disabled as per user request
                             self.active_filename = None
                         
                         # We stay with this watcher for a bit or look for others?
@@ -186,7 +213,7 @@ class TrackerAgent:
                     watcher_name = active.__class__.__name__
                     print(f"Watcher {watcher_name} disconnected.")
                     if self.active_filename:
-                        self.sync_progress(self.active_filename)
+                        # Auto-sync disabled
                         self.active_filename = None
                     self.active_watcher = None
 
@@ -198,13 +225,18 @@ class TrackerAgent:
                         watcher.connect()
                     
                     if watcher.is_connected and watcher.check_connection():
-                        filename = watcher.get_current_filename()
-                        if filename:
-                            print(f"Detected activity on {watcher.__class__.__name__}: {filename}")
-                            self.active_watcher = watcher
-                            self._process_active_file(filename)
-                            found_active = True
-                            break
+                        try:
+                            filename = watcher.get_current_filename()
+                            if filename:
+                                print(f"Detected activity on {watcher.__class__.__name__}: {filename}")
+                                self.active_watcher = watcher
+                                self._process_active_file(filename)
+                                found_active = True
+                                break
+                        except Exception as e:
+                            print(f"Error processing file from {watcher.__class__.__name__}: {e}")
+                            # Keep polling, do not crash the agent
+                            continue
             
             # Sleep a bit to prevent CPU spinning
             time.sleep(2 if not found_active else 1)
@@ -212,11 +244,12 @@ class TrackerAgent:
     def _process_active_file(self, filename: str):
         """Internal helper to handle filename changes and progress fetching."""
         if self.active_filename and self.active_filename != filename:
-            print(f"File changed. Syncing previous file: {self.active_filename}")
-            self.sync_progress(self.active_filename)
+            print(f"File changed from: {self.active_filename}")
+            # Auto-sync disabled
             
         if self.active_filename != filename:
             self.active_filename = filename
+            self.settings.last_played_file = filename  # Persist for resume feature
             self._fetch_current_anilist_progress(filename)
 
     def _sync_to_media(self, media_id: int, episode: int) -> bool:
@@ -247,24 +280,68 @@ class TrackerAgent:
 
         title = parsed['title']
         episode = parsed.get('episode', 1)  # Default to 1 if it can't be found (e.g. movies)
+        season = parsed.get('season')
 
         # In guessit, episode might be a list if it's a batch, we take the last one or the only one
         if isinstance(episode, list):
             episode = episode[-1]
 
-        print(f"Matched Anime: '{title}', Episode: {episode}")
+        print(f"Matched Anime: '{title}', Episode: {episode}, Season: {season or 1}")
 
-        # Search Anilist
-        print(f"Searching Anilist for '{title}'...")
-        result = self.anilist.search_anime(title)
+        # Check for user title overrides
+        overrides = self.settings.title_overrides
+        matched_media_id = None
+        for mid_str, custom_title in overrides.items():
+            if custom_title.lower() == title.lower():
+                matched_media_id = int(mid_str)
+                print(f"Found title override for '{title}' -> Media ID {matched_media_id}")
+                break
+        
+        # Search Anilist if no override found
+        result = None
+        if matched_media_id:
+            # Try to get media object from cache
+            if hasattr(self, 'current_media_map') and matched_media_id in self.current_media_map:
+                result = self.current_media_map[matched_media_id]
+            else:
+                # Direct lookup if not in cache (requires a new AnilistClient method or use search_anime as fallback)
+                # For simplicity, if not in cache, we still search but use the ID to filter
+                # Or we can just search for the custom_title on Anilist
+                result = self.anilist.search_anime(title)
+        
+        # Original search logic if no match yet
+        if not result:
+            # Primary search: Try Title + Season if season > 1
+            if season and int(season) > 1:
+                search_title = f"{title} Season {season}"
+                print(f"Searching Anilist for '{search_title}'...")
+                result = self.anilist.search_anime(search_title)
+                
+                if not result:
+                    # Try common variations
+                    search_title = f"{title} {season}"
+                    print(f"Trying fallback search for '{search_title}'...")
+                    result = self.anilist.search_anime(search_title)
+
+        if not result:
+            print(f"Searching Anilist for '{title}'...")
+            result = self.anilist.search_anime(title)
+
         if not result:
             print("No matching anime found on Anilist.")
+            return
+
+        # Handle list of results (Anilist search returns a list, but we usually want the first one)
+        # Note: search_anime returns the list directly.
+        first_match = result[0] if isinstance(result, list) and len(result) > 0 else result
+        if not first_match:
+            print("No matching anime found on Anilist (empty list).")
             return
 
         # If the parsed episode exceeds the first media's episode count, attempt to
         # resolve to the correct sequel (e.g. "E16" in a 10-episode show should map to
         # season 2 episode 6).
-        target_media, target_episode = self._resolve_episode_to_media(result, episode)
+        target_media, target_episode = self._resolve_episode_to_media(first_match, episode, season)
         media_id = target_media.get('id')
         if not isinstance(media_id, int):
             print(f"Error: media_id {media_id} is not an integer.")
@@ -306,12 +383,14 @@ class TrackerAgent:
         result = self.anilist.search_anime(title)
         if not result:
             return
+            
+        first_match = result[0] if isinstance(result, list) and len(result) > 0 else result
 
         # Build a map of related seasons/entries and choose the best media for the current episode.
-        self.current_media_map = self._build_media_map(result)
+        self.current_media_map = self._build_media_map(first_match)
 
         # Default selected media to what our filename maps to (for season rollover).
-        resolved_media, _ = self._resolve_episode_to_media(result, episode)
+        resolved_media, _ = self._resolve_episode_to_media(first_match, episode)
         self.selected_media_id = resolved_media.get('id')
 
         media_id = self.selected_media_id
@@ -344,7 +423,9 @@ class TrackerAgent:
                 if not result:
                     print("No matching anime found on Anilist.")
                     return
-                target_media, _ = self._resolve_episode_to_media(result, override_episode)
+                    
+                first_match = result[0] if isinstance(result, list) and len(result) > 0 else result
+                target_media, _ = self._resolve_episode_to_media(first_match, override_episode)
 
             if not target_media:
                 print("Could not determine which media to sync to.")
