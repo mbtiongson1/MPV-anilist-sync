@@ -63,6 +63,9 @@ icon = 'build/app_icon.icns'
 background = 'builtin-arrow'
 window_rect = ((100, 100), (600, 400))
 icon_size = 128
+files = ['{app_path}']
+symlinks = {{ 'Applications': '/Applications' }}
+hide = ['.fseventsd', '.Trashes']
 contents = [
     {{'x': 140, 'y': 120, 'type': 'app', 'path': '{app_path}'}},
     {{'x': 450, 'y': 120, 'type': 'link', 'path': '/Applications'}}
