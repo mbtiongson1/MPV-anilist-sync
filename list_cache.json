@@ -51121,7 +51121,7 @@
       "native": "炎炎ノ消防隊 参ノ章 第2クール"
     },
     "episodes": 13,
-    "mediaStatus": "RELEASING",
+    "mediaStatus": "FINISHED",
     "season": "WINTER",
     "seasonYear": 2026,
     "description": "The second cour of <i>Enen no Shouboutai: San no Shou</i>.<br><br> \n\nAs chaos spreads, Shinra and Company 8 fight to stop a final, world-ending blaze.<br><br> \n\n(Source: Crunchyroll News)",
@@ -51140,10 +51140,7 @@
     },
     "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/179062-ZnxW4uWEsV3H.jpg",
     "studio": "David Production",
-    "nextAiringEpisode": {
-      "episode": 13,
-      "airingAt": 1775235180
-    }
+    "nextAiringEpisode": null
   },
   {
     "entryId": 526705087,

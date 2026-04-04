@@ -5,7 +5,7 @@ import { EditIcon, FolderIcon, SearchIcon, ResumeIcon, SeasonIcon } from '../ico
 import { Pagination } from './Pagination';
 import * as api from '../api';
 
-export function AnimeGrid({ viewMode, filteredList, filterName, filterSeason, filterSort, onFilterNameChange, onFilterSeasonChange, onFilterSortChange, onOpenDetails, onCleanup, tab }) {
+export function AnimeGrid({ viewMode, onViewModeChange, filteredList, filterName, filterSeason, filterSort, onFilterNameChange, onFilterSeasonChange, onFilterSortChange, onOpenDetails, onCleanup, tab }) {
     const settings = userSettings.value;
     const iPerPage = parseInt(localStorage.getItem('mpvItemsPerPage')) || 20;
     const page = currentPage.value;
@@ -109,7 +109,7 @@ export function AnimeGrid({ viewMode, filteredList, filterName, filterSeason, fi
                     <option value="SUMMER">Summer</option>
                     <option value="FALL">Fall</option>
                 </select>
-                <input type="number" id="filter-year" placeholder="Year" class="filter-input" style="width: 80px;" />
+                <input type="number" id="filter-year" placeholder="Year" class="filter-input" style={{ width: '80px' }} />
                 <select id="filter-sort" class="filter-select" value={sortBy.value} onChange={(e) => onFilterSortChange(e.target.value)}>
                     <option value="progress">Progress</option>
                     <option value="title">Title</option>
@@ -119,12 +119,19 @@ export function AnimeGrid({ viewMode, filteredList, filterName, filterSeason, fi
                     <option value="studio">Studio</option>
                     <option value="updatedAt">Updated</option>
                 </select>
-                {showCleanup && (
-                    <button id="btn-cleanup-progress" class="secondary-btn" onClick={onCleanup} style="display: inline-flex;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
-                        <span>Cleanup</span>
+                <div class="view-toggle-group" style={{ display: 'flex', gap: '0.25rem', marginLeft: 'auto' }}>
+                    {showCleanup && (
+                        <button id="btn-cleanup-progress" class="view-toggle-btn" onClick={onCleanup} title="Cleanup unwatched anime" style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.2)' }}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
+                        </button>
+                    )}
+                    <button id="btn-view-grid" class={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`} onClick={() => onViewModeChange?.('grid')} title="Grid View">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                     </button>
-                )}
+                    <button id="btn-view-list" class={`view-toggle-btn ${viewMode === 'details' ? 'active' : ''}`} onClick={() => onViewModeChange?.('details')} title="Details View">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                    </button>
+                </div>
             </div>
 
             <div id="anime-grid" class={`anime-grid ${viewMode === 'grid' ? 'grid-view' : viewMode === 'list' ? 'list-view' : ''}`}>
