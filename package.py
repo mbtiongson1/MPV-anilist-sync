@@ -30,6 +30,8 @@ def run_pyinstaller(spec_file):
 def build_windows():
     print(f"Building for Windows (v{VERSION})...")
     build_frontend()
+    # Ensure icons are converted
+    subprocess.check_call(["python", "build/convert_icon.py"])
     run_pyinstaller("build/windows.spec")
     
     # Rename output for versioning if it's a single file or directory
@@ -40,6 +42,8 @@ def build_windows():
 def build_macos():
     print(f"Building for macOS (v{VERSION})...")
     build_frontend()
+    # Ensure icons are converted
+    subprocess.check_call(["python", "build/convert_icon.py"])
     run_pyinstaller("build/macos.spec")
     
     app_path = "dist/MPV Anilist Tracker.app"
