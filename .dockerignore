@@ -1,0 +1,17 @@
+.git
+.github
+.agent
+frontend/node_modules/
+node_modules/
+dist/
+build/
+venv/
+.venv/
+__pycache__/
+*.pyc
+.vscode/
+image_cache/
+library_cache.json
+list_cache.json
+tracker_output.log
+tracker_error.log
