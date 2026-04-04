@@ -22,7 +22,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend source
 COPY src/ ./src/
-COPY config.json ./config.json
 COPY VERSION ./VERSION
 
 # Copy frontend statically built assets
