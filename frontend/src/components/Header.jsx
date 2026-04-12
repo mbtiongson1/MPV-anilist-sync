@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'preact/hooks';
-import { pendingApiRequests, animeList, showToast, activeTab } from '../store';
+import { pendingApiRequests, animeList, showToast, activeTab, latestStatus } from '../store';
 import { getRelativeTime } from '../utils';
 import * as api from '../api';
 
@@ -91,6 +91,8 @@ export function Header({ viewMode, onViewModeChange, onOpenSettings, onShowUpcom
     };
 
     const showFilterBar = !['TORRENTS', 'STATS', 'LIBRARY'].includes(tab);
+    const status = latestStatus.value;
+    const isPlaying = status?.running && status?.title;
 
     return (
         <header id="app-header">
@@ -131,9 +133,9 @@ export function Header({ viewMode, onViewModeChange, onOpenSettings, onShowUpcom
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                     <span>Settings</span>
                 </button>
-                <div id="status-indicator" class="status-bubble offline">
+                <div id="status-indicator" class={`status-bubble ${isPlaying ? 'online' : 'offline'}`}>
                     <div class="pulse"></div>
-                    <span id="status-text">Nothing Playing</span>
+                    <span id="status-text">{isPlaying ? 'Now Playing' : 'Nothing Playing'}</span>
                 </div>
             </div>
         </header>

@@ -193,7 +193,10 @@ input:not(:checked) + .slider .sun-icon {
 .app-container {
     flex: 1;
     max-width: 1200px;
-    margin: 0 auto;
+    /* Remove auto-centering so the container fills available flex space next to the sidebar
+       (prevents layout shrink/overflow that made the Now Playing card expand and tabs appear
+       too narrow). */
+    margin: 0;
     padding: 1.5rem 2rem 3rem;
     display: flex;
     flex-direction: column;

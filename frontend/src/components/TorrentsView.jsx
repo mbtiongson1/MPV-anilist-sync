@@ -177,7 +177,7 @@ export function TorrentsView() {
     const getSortIndicator = (col) => sortCol === col ? (sortDir === 1 ? ' ▲' : ' ▼') : '';
 
     return (
-        <div id="anime-grid" class="anime-grid torrents-view">
+        <div id="torrents-results-view" class="torrents-view">
             {/* Toolbar */}
             <div class="torrents-toolbar">
                 <div class="torrents-search">

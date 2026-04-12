@@ -144,13 +144,19 @@ class AnilistClient:
     def authenticate(self) -> bool:
         client_id = 37267
 
-        server = AnilistHTTPServer(('localhost', 54321), AnilistAuthHandler)
-        server.token = None
-        
-        # Anilist requires the redirect URI to be exact, so we set it up in the Dev Console as http://localhost:54321/auth
         auth_url = f"https://anilist.co/api/v2/oauth/authorize?client_id={client_id}&response_type=token"
         print(f"Opening browser for authentication: {auth_url}")
         
+        try:
+            server = AnilistHTTPServer(('localhost', 54321), AnilistAuthHandler)
+            server.token = None
+        except OSError as e:
+            if "Address already in use" in str(e) or e.errno in (48, 98):
+                print("Auth server already running. Re-using existing auth thread.")
+                webbrowser.open(auth_url)
+                return False
+            raise e
+
         webbrowser.open(auth_url)
         
         # Block until the local server receives the token and shuts down

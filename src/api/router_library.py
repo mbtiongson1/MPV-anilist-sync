@@ -125,13 +125,20 @@ async def play_file(request: Request, path: Optional[str] = None):
             print(f"Failed to play file securely: {e}")
     return {"success": success}
 
-@router.get('/api/clear_cache')
+@router.post('/api/clear_cache')
 async def clear_cache():
+    import glob
+    
     if os.path.exists('library_cache.json'):
         try: os.remove('library_cache.json')
         except: pass
-    if os.path.exists('upcoming_cache.json'):
-        try: os.remove('upcoming_cache.json')
+        
+    for f in glob.glob('upcoming_cache*.json'):
+        try: os.remove(f)
+        except: pass
+    
+    if os.path.exists('list_cache.json'):
+        try: os.remove('list_cache.json')
         except: pass
     
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
@@ -240,7 +247,7 @@ async def reset_title_overrides(request: Request):
         success = True
     return {"success": success}
 
-@router.get('/api/full_refresh')
+@router.post('/api/full_refresh')
 async def full_refresh(request: Request):
     agent = request.app.state.agent
     if agent:
@@ -256,9 +263,20 @@ async def full_refresh(request: Request):
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
     cache_dir = os.path.join(base_dir, 'image_cache')
     if os.path.exists(cache_dir): shutil.rmtree(cache_dir, ignore_errors=True)
+    
     if os.path.exists('library_cache.json'):
         try: os.remove('library_cache.json')
         except: pass
+        
+    import glob
+    for f in glob.glob('upcoming_cache*.json'):
+        try: os.remove(f)
+        except: pass
+        
+    if os.path.exists('list_cache.json'):
+        try: os.remove('list_cache.json')
+        except: pass
+        
     setattr(agent, 'manual_episode_override', None)
     return {"success": True}
 
