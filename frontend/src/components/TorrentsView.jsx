@@ -10,6 +10,8 @@ export function TorrentsView() {
     const [selectedTorrents, setSelectedTorrents] = useState(new Set());
     const [sortCol, setSortCol] = useState(torrentCache.value.sortBy || 'date');
     const [sortDir, setSortDir] = useState(torrentCache.value.sortDir || -1);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(20);
 
     const searchRef = useRef(null);
     const filters = torrentFilters.value;
@@ -176,6 +178,12 @@ export function TorrentsView() {
 
     const getSortIndicator = (col) => sortCol === col ? (sortDir === 1 ? ' ▲' : ' ▼') : '';
 
+    const totalPages = Math.max(1, Math.ceil(displayItems.length / itemsPerPage));
+    const validCurrentPage = Math.min(currentPage, totalPages);
+    if (currentPage !== validCurrentPage) setCurrentPage(validCurrentPage);
+
+    const paginatedItems = displayItems.slice((validCurrentPage - 1) * itemsPerPage, validCurrentPage * itemsPerPage);
+
     return (
         <div id="torrents-results-view" class="torrents-view">
             {/* Toolbar */}
@@ -263,10 +271,11 @@ export function TorrentsView() {
                     </div>
                 )}
                 {!loading && displayItems.length > 0 && (
-                    <table class="torrent-table">
+                    <>
+                    <table class="torrents-table">
                         <thead>
                             <tr>
-                                <th style="width: 30px;"><input type="checkbox" onChange={(e) => e.target.checked ? selectRemaining() : setSelectedTorrents(new Set())} checked={selectedTorrents.size === displayItems.length && displayItems.length > 0} /></th>
+                                <th style="width: 30px;"><input type="checkbox" onChange={(e) => e.target.checked ? selectRemaining() : setSelectedTorrents(new Set())} checked={selectedTorrents.size === displayItems.length && displayItems.length > 0} title="Select All" /></th>
                                 <th style="cursor:pointer;" onClick={() => toggleSort('title')}>Title{getSortIndicator('title')}</th>
                                 <th style="cursor:pointer;width:80px;" onClick={() => toggleSort('size')}>Size{getSortIndicator('size')}</th>
                                 <th style="cursor:pointer;width:60px;" onClick={() => toggleSort('date')}>Date{getSortIndicator('date')}</th>
@@ -276,12 +285,13 @@ export function TorrentsView() {
                             </tr>
                         </thead>
                         <tbody>
-                            {displayItems.map((item, idx) => {
+                            {paginatedItems.map((item, localIdx) => {
+                                const globalIdx = (validCurrentPage - 1) * itemsPerPage + localIdx;
                                 const t = item.torrent || {};
                                 const isTrusted = t.category === 'trusted';
                                 return (
-                                    <tr key={idx} class={`${selectedTorrents.has(idx) ? 'selected' : ''} ${isTrusted ? 'trusted-row' : ''}`}>
-                                        <td><input type="checkbox" checked={selectedTorrents.has(idx)} onChange={() => toggleSelect(idx)} /></td>
+                                    <tr key={globalIdx} class={`${selectedTorrents.has(globalIdx) ? 'selected' : ''} ${isTrusted ? 'trusted-row' : ''}`}>
+                                        <td><input type="checkbox" checked={selectedTorrents.has(globalIdx)} onChange={() => toggleSelect(globalIdx)} /></td>
                                         <td class="torrent-title-cell">
                                             <div class="torrent-title">
                                                 {item.animeTitle && <span class="torrent-anime-tag">{escapeHtml(item.animeTitle)}</span>}
@@ -303,6 +313,25 @@ export function TorrentsView() {
                             })}
                         </tbody>
                     </table>
+                    <div class="torrents-pagination" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'var(--bg-card)', border: '1px solid var(--border)', borderTop: 'none', borderRadius: '0 0 var(--radius-md) var(--radius-md)' }}>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                            Showing {(validCurrentPage - 1) * itemsPerPage + 1} - {Math.min(displayItems.length, validCurrentPage * itemsPerPage)} of {displayItems.length}
+                        </div>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <select class="filter-select" style={{ fontSize: '0.8rem', padding: '0.2rem 1.5rem 0.2rem 0.5rem', minHeight: 'auto' }} value={itemsPerPage} onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}>
+                                <option value="10">10 / page</option>
+                                <option value="20">20 / page</option>
+                                <option value="50">50 / page</option>
+                                <option value="100">100 / page</option>
+                            </select>
+                            <div style={{ display: 'flex', gap: '0.25rem' }}>
+                                <button class="refresh-btn" style={{ padding: '0.3rem 0.6rem' }} onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={validCurrentPage === 1}>Prev</button>
+                                <span style={{ display: 'flex', alignItems: 'center', padding: '0 0.5rem', fontSize: '0.85rem', fontWeight: 600 }}>{validCurrentPage} / {totalPages}</span>
+                                <button class="refresh-btn" style={{ padding: '0.3rem 0.6rem' }} onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={validCurrentPage === totalPages}>Next</button>
+                            </div>
+                        </div>
+                    </div>
+                    </>
                 )}
             </div>
 
