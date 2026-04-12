@@ -276,12 +276,12 @@ export function TorrentsView() {
                         <thead>
                             <tr>
                                 <th style="width: 30px;"><input type="checkbox" onChange={(e) => e.target.checked ? selectRemaining() : setSelectedTorrents(new Set())} checked={selectedTorrents.size === displayItems.length && displayItems.length > 0} title="Select All" /></th>
-                                <th style="cursor:pointer;" onClick={() => toggleSort('title')}>Title{getSortIndicator('title')}</th>
-                                <th style="cursor:pointer;width:80px;" onClick={() => toggleSort('size')}>Size{getSortIndicator('size')}</th>
-                                <th style="cursor:pointer;width:60px;" onClick={() => toggleSort('date')}>Date{getSortIndicator('date')}</th>
-                                <th style="cursor:pointer;width:30px;" onClick={() => toggleSort('seeders')}>S{getSortIndicator('seeders')}</th>
-                                <th style="cursor:pointer;width:30px;" onClick={() => toggleSort('leechers')}>L{getSortIndicator('leechers')}</th>
-                                <th style="width:70px;">Actions</th>
+                                <th style="cursor:pointer; width: 100%; text-align: left;" onClick={() => toggleSort('title')}>Title{getSortIndicator('title')}</th>
+                                <th style="cursor:pointer;width:80px; text-align: right;" onClick={() => toggleSort('size')}>Size{getSortIndicator('size')}</th>
+                                <th style="cursor:pointer;width:90px; text-align: right;" onClick={() => toggleSort('date')}>Date{getSortIndicator('date')}</th>
+                                <th style="cursor:pointer;width:40px; text-align: right;" onClick={() => toggleSort('seeders')}>S{getSortIndicator('seeders')}</th>
+                                <th style="cursor:pointer;width:40px; text-align: right;" onClick={() => toggleSort('leechers')}>L{getSortIndicator('leechers')}</th>
+                                <th style="width:70px; text-align: right;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -292,18 +292,18 @@ export function TorrentsView() {
                                 return (
                                     <tr key={globalIdx} class={`${selectedTorrents.has(globalIdx) ? 'selected' : ''} ${isTrusted ? 'trusted-row' : ''}`}>
                                         <td><input type="checkbox" checked={selectedTorrents.has(globalIdx)} onChange={() => toggleSelect(globalIdx)} /></td>
-                                        <td class="torrent-title-cell">
-                                            <div class="torrent-title">
-                                                {item.animeTitle && <span class="torrent-anime-tag">{escapeHtml(item.animeTitle)}</span>}
-                                                <span title={t.title}>{escapeHtml(t.title || '')}</span>
+                                        <td class="torrent-title-cell" style="text-align: left;">
+                                            <div class="torrent-title" style="display: flex; flex-direction: column; gap: 2px;">
+                                                {item.animeTitle && !item._fromSearch && <div><span class="torrent-anime-tag">{escapeHtml(item.animeTitle)}</span></div>}
+                                                <span title={t.title} style="font-size: 0.85rem; font-weight: 500; line-height: 1.4;">{escapeHtml(t.title || '')}</span>
                                             </div>
                                         </td>
-                                        <td>{t.size || '-'}</td>
-                                        <td class="torrent-date-cell">{t.timestamp ? getRelativeTime(t.timestamp) : '-'}</td>
-                                        <td class="seeders">{t.seeders ?? '-'}</td>
-                                        <td class="leechers">{t.leechers ?? '-'}</td>
-                                        <td>
-                                            <div style="display:flex;gap:4px;">
+                                        <td style="text-align: right; color: var(--text-secondary);">{t.size || '-'}</td>
+                                        <td class="torrent-date-cell" style="text-align: right; color: var(--text-secondary);">{t.timestamp ? getRelativeTime(t.timestamp) : '-'}</td>
+                                        <td class="seeders" style="text-align: right;">{t.seeders ?? '-'}</td>
+                                        <td class="leechers" style="text-align: right;">{t.leechers ?? '-'}</td>
+                                        <td style="text-align: right;">
+                                            <div style="display:flex; gap:6px; justify-content: flex-end;">
                                                 {t.link && <a href={t.link} target="_blank" rel="noopener" class="icon-btn" title="Open on Nyaa"><ExternalLinkIcon size={12} /></a>}
                                                 <button class="icon-btn" title="Download" onClick={() => handleDownload([item])}><DownloadIcon size={12} /></button>
                                             </div>
