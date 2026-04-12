@@ -65,6 +65,9 @@ pip install -r requirements.txt
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+
+# Note: If you plan to develop the tracker, install the dev requirements instead:
+# pip install -r requirements-dev.txt
 ```
 
 ### 3. Running the Tracker
@@ -75,8 +78,17 @@ Start the Python script from the terminal:
 python src/main.py
 ```
 
+> **Note**: For `src/main.py` to display the UI, you must first build the frontend by running `cd frontend && npm install && npm run build`.
+
+If you are developing or making changes, use the unified development runner instead, which will automatically build and start the UI and auto-reload the backend:
+
+```bash
+# Requires `pip install -r requirements-dev.txt`
+python dev.py
+```
+
 - **First Launch**: A browser window will open for you to authenticate with AniList.
-- **Web UI**: Access the control panel at `http://localhost:8080`.
+- **Web UI**: Access the control panel at `http://localhost:8080` (or `http://localhost:5173` if using `dev.py`).
 
 ### 4. Running via Docker (GitHub Packages)
 
@@ -126,7 +138,7 @@ If you make changes to the React UI in `frontend/src`, you must rebuild the stat
 2. **Install dependencies**: `npm install`
 3. **Build the app**: `npm run build`
 
-Alternatively, use the provided workflow: `/build_frontend`
+Alternatively, you can just run `python dev.py` which will run Vite and the backend dynamically with hot-reloading. Build workflows such as `/build_frontend` are also available.
 
 ### Building Standalone Apps
 

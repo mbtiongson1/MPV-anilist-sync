@@ -1,6 +1,6 @@
 #!/bin/bash
 # Wrapper script to start the MPV Anilist Tracker in the background
-cd /Users/marcotiongson/Documents/MPV
+cd "$(dirname "$0")"
 source venv/bin/activate
 
 # Loop to ensure the app stays running

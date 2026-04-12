@@ -3,6 +3,7 @@ import threading
 import subprocess
 import time
 import asyncio
+import sys
 
 def start_web_server(agent, port: int = 8080):
     try:
@@ -14,31 +15,34 @@ def start_web_server(agent, port: int = 8080):
         
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         frontend_dist = os.path.join(base_dir, 'frontend', 'dist')
-        static_dir = os.path.join(os.path.dirname(__file__), 'static')
-        serve_dir = frontend_dist if os.path.isdir(frontend_dist) else static_dir
 
-        # Try to kill existing port process if running
+        # Graceful port handling via PID file
+        pid_file = os.path.join(b'/tmp' if sys.platform != 'win32' else os.environ.get('TEMP', 'C:\\Temp').encode(), b'mpv-tracker.pid')
+        current_pid = os.getpid()
+        if os.path.exists(pid_file):
+            try:
+                with open(pid_file, 'r') as f:
+                    old_pid = int(f.read().strip())
+                if sys.platform != 'win32':
+                    subprocess.call(["kill", "-15", str(old_pid)], stderr=subprocess.DEVNULL)
+                else:
+                    subprocess.call(["taskkill", "/F", "/PID", str(old_pid)], stderr=subprocess.DEVNULL)
+            except Exception:
+                pass
+        
         try:
-            import sys
-            if sys.platform != "win32":
-                pids = subprocess.check_output(["lsof", "-ti", f":{port}"], stderr=subprocess.DEVNULL).decode().strip().split('\n')
-                for pid in pids:
-                    if pid: subprocess.call(["kill", "-9", pid])
-            else:
-                output = subprocess.check_output(f'netstat -ano | findstr :{port}', shell=True).decode()
-                for line in output.splitlines():
-                    if "LISTENING" in line:
-                        pid = line.strip().split()[-1]
-                        subprocess.call(["taskkill", "/F", "/PID", pid])
+            with open(pid_file, 'w') as f:
+                f.write(str(current_pid))
         except Exception:
             pass
 
-        time.sleep(0.5)
+        if os.path.isdir(frontend_dist):
+            app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="static")
+        else:
+            print("\n⚠️  WARNING: frontend/dist not found! The Web UI will not be available.\n"
+                  "Run 'cd frontend && npm install && npm run build' (or use dev.py) to build the frontend.\n", file=sys.stderr)
 
-        if os.path.exists(serve_dir):
-            app.mount("/", StaticFiles(directory=serve_dir, html=True), name="static")
-
-        print(f"UI Server started via FastAPI/Uvicorn at http://localhost:{port}")
+        print(f"API Server started via FastAPI/Uvicorn at http://localhost:{port}")
         
         config = uvicorn.Config(app, host="0.0.0.0", port=port, log_level="warning")
         server = uvicorn.Server(config)

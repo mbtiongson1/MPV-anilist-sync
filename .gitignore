@@ -1,8 +1,9 @@
 *.log
+# Contains AniList OAuth token — never commit
 config.json
 list_cache.json
 venv/
-.DS_Store
+.venv/
 __pycache__/
 *.pyc
 .DS_Store
