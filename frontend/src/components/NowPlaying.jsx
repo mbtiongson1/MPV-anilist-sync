@@ -102,14 +102,19 @@ export function NowPlaying({ onOpenDetails }) {
             <div class="details-modal-grid" style={{ padding: '1.5rem', position: 'relative', zIndex: 2, height: '100%', display: 'flex', gap: '1.5rem' }}>
                 <div class="details-modal-left" style={{ width: '140px', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
                     {coverUrl ? (
-                        <img
-                            id="np-cover"
-                            src={coverUrl}
-                            alt="Cover"
-                            style={{ width: '140px', height: '200px', borderRadius: '8px', objectFit: 'cover', boxShadow: '0 8px 24px rgba(0,0,0,0.5)', cursor: 'pointer', border: '2px solid rgba(255,255,255,0.15)', flexShrink: 0 }}
-                            onClick={() => rawCoverUrl && window.open(rawCoverUrl, '_blank')}
-                            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling && (e.target.nextSibling.style.display = 'flex'); }}
-                        />
+                        <>
+                            <img
+                                id="np-cover"
+                                src={coverUrl}
+                                alt="Cover"
+                                style={{ width: '140px', height: '200px', borderRadius: '8px', objectFit: 'cover', boxShadow: '0 8px 24px rgba(0,0,0,0.5)', cursor: 'pointer', border: '2px solid rgba(255,255,255,0.15)', flexShrink: 0 }}
+                                onClick={() => rawCoverUrl && window.open(rawCoverUrl, '_blank')}
+                                onError={(e) => { e.target.style.display = 'none'; e.target.nextElementSibling && (e.target.nextElementSibling.style.display = 'flex'); }}
+                            />
+                            <div class="np-cover-placeholder-fallback" style={{ display: 'none', width: '140px', height: '200px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)', border: '2px solid rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                            </div>
+                        </>
                     ) : (
                         <div id="np-cover-placeholder" style={{ width: '140px', height: '200px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)', border: '2px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
