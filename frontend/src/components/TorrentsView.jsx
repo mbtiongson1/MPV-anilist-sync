@@ -12,6 +12,7 @@ export function TorrentsView() {
     const [sortDir, setSortDir] = useState(torrentCache.value.sortDir || -1);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(20);
+    const [scanProgress, setScanProgress] = useState('');
 
     const searchRef = useRef(null);
     const filters = torrentFilters.value;
@@ -97,26 +98,55 @@ export function TorrentsView() {
     const loadBatchMissing = async () => {
         saveFilters();
         setLoading(true);
+        setScanProgress('Analyzing watching list...');
         setSelectedTorrents(new Set());
         try {
-            const p = new URLSearchParams({ airing_only: airingOnly ? 'true' : 'false', category, filter: nyaaFilter });
-            if (resolution) p.set('resolution', resolution);
-            const data = await api.batchSearchNyaa(p.toString());
-            const items = data.map(r => ({
-                torrent: r.torrent || r,
-                animeTitle: r.anime_title || r.title || '',
-                episode: r.episode,
-                _fromSearch: false,
-                media_id: r.media_id
-            }));
-            torrentCache.value = { items, query: null, isBatch: true, sortBy: sortCol, sortDir };
-            setResults(items);
-            if (items.length === 0) showToast('No missing episodes found. You\'re all caught up!');
+            const params = new URLSearchParams({ airing_only: airingOnly ? 'true' : 'false' });
+            const candidates = await api.batchSearchNyaaCandidates(params.toString());
+            
+            if (!candidates || candidates.length === 0) {
+                showToast('No missing episodes found. You\'re all caught up!');
+                torrentCache.value = { items: [], query: null, isBatch: true, sortBy: sortCol, sortDir };
+                setResults([]);
+                setLoading(false);
+                setScanProgress('');
+                return;
+            }
+
+            let foundItems = [];
+            for (let i = 0; i < candidates.length; i++) {
+                const c = candidates[i];
+                setScanProgress(`Searching ${i + 1}/${candidates.length}: ${c.anime_title} Ep ${c.episode}`);
+                
+                const p = new URLSearchParams({ 
+                    q: c.query, 
+                    episode: c.episode,
+                    category, 
+                    filter: nyaaFilter
+                });
+                if (resolution) p.set('resolution', resolution);
+                
+                const r = await api.searchNyaa(p.toString());
+                if (r && r.length > 0) {
+                    foundItems.push({
+                        torrent: r[0],
+                        animeTitle: c.anime_title,
+                        episode: c.episode,
+                        _fromSearch: false,
+                        media_id: c.media_id
+                    });
+                }
+            }
+
+            torrentCache.value = { items: foundItems, query: null, isBatch: true, sortBy: sortCol, sortDir };
+            setResults(foundItems);
+            if (foundItems.length === 0) showToast('No torrents found for the missing episodes on Nyaa.');
         } catch (e) {
             showToast('Batch scan failed', 'error');
             setResults([]);
         } finally {
             setLoading(false);
+            setScanProgress('');
         }
     };
 
@@ -263,7 +293,7 @@ export function TorrentsView() {
 
             {/* Results */}
             <div id="torrents-results">
-                {loading && <div class="loading-state"><div class="spinner" /><p>Searching Nyaa...</p></div>}
+                {loading && <div class="loading-state"><div class="spinner" /><p>{scanProgress || 'Searching Nyaa...'}</p></div>}
                 {!loading && displayItems.length === 0 && (
                     <div class="empty-state torrents-placeholder">
                         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
