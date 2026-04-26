@@ -17,19 +17,11 @@ VERSION = get_version()
 # Ensure the project root is in sys.path so we can use package-style imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-try:
-    from src.anilist import AnilistClient
-    from src.parser import AnimeParser
-    from src.watchers import MPVWatcher, MPCHCWatcher, VLCWatcher, WindowTitleWatcher, BaseWatcher
-    from src.settings import SettingsManager
-    from src.nyaa import NyaaInterface
-except ImportError:
-    # Fallback for if we're not running as a package
-    from anilist import AnilistClient
-    from parser import AnimeParser
-    from watchers import MPVWatcher, MPCHCWatcher, VLCWatcher, WindowTitleWatcher, BaseWatcher
-    from settings import SettingsManager
-    from nyaa import NyaaInterface
+from src.anilist import AnilistClient
+from src.parser import AnimeParser
+from src.watchers import MPVWatcher, MPCHCWatcher, VLCWatcher, WindowTitleWatcher, BaseWatcher
+from src.settings import SettingsManager
+from src.nyaa import NyaaInterface
 
 class TrackerAgent:
     def __init__(self):
@@ -67,7 +59,6 @@ class TrackerAgent:
         self.current_media_map: Dict[int, Dict[str, Any]] = {}
         self.selected_media_id: Optional[int] = None
 
-    @staticmethod
     @staticmethod
     def _resolve_episode_to_media(media: Dict[str, Any], global_episode: int, target_season: Optional[int] = None) -> tuple[Dict[str, Any], int]:
         """Resolve a global episode number into the correct AniList media and local episode."""
@@ -450,11 +441,7 @@ class TrackerAgent:
             watcher.disconnect()
 
 if __name__ == "__main__":
-    try:
-        from src.web_server import run_server_in_background
-    except ImportError:
-        # Fallback for if we're not running as a package
-        from web_server import run_server_in_background
+    from src.web_server import run_server_in_background
     
     agent = TrackerAgent()
     

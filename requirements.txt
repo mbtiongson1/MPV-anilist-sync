@@ -3,7 +3,6 @@ guessit
 python-mpv-jsonipc
 pystray
 Pillow
-watchdog
 anitopy
 fastapi
 uvicorn

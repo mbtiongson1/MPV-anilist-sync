@@ -43,16 +43,16 @@ async def get_user(request: Request):
         user = agent.anilist.get_authenticated_user()
     return user
 
-@router_anilist.get('/api/reauthorize')
+@router_anilist.post('/api/reauthorize')
 async def reauthorize(request: Request):
     agent = request.app.state.agent
-    success = False
     if agent and hasattr(agent, 'anilist'):
-        try:
-            success = agent.anilist.authenticate()
-        except Exception as e:
-            print(f"Reauthorization failed: {e}")
-    return {"success": success}
+        def auth():
+            agent.anilist.authenticate()
+        import threading
+        threading.Thread(target=auth, daemon=True).start()
+        return {"success": True}
+    return {"success": False}
 
 @router_nyaa.get('/api/nyaa_search')
 async def nyaa_search(

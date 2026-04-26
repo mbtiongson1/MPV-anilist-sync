@@ -10,6 +10,9 @@ export function TorrentsView() {
     const [selectedTorrents, setSelectedTorrents] = useState(new Set());
     const [sortCol, setSortCol] = useState(torrentCache.value.sortBy || 'date');
     const [sortDir, setSortDir] = useState(torrentCache.value.sortDir || -1);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(20);
+    const [scanProgress, setScanProgress] = useState('');
 
     const searchRef = useRef(null);
     const filters = torrentFilters.value;
@@ -95,26 +98,55 @@ export function TorrentsView() {
     const loadBatchMissing = async () => {
         saveFilters();
         setLoading(true);
+        setScanProgress('Analyzing watching list...');
         setSelectedTorrents(new Set());
         try {
-            const p = new URLSearchParams({ airing_only: airingOnly ? 'true' : 'false', category, filter: nyaaFilter });
-            if (resolution) p.set('resolution', resolution);
-            const data = await api.batchSearchNyaa(p.toString());
-            const items = data.map(r => ({
-                torrent: r.torrent || r,
-                animeTitle: r.anime_title || r.title || '',
-                episode: r.episode,
-                _fromSearch: false,
-                media_id: r.media_id
-            }));
-            torrentCache.value = { items, query: null, isBatch: true, sortBy: sortCol, sortDir };
-            setResults(items);
-            if (items.length === 0) showToast('No missing episodes found. You\'re all caught up!');
+            const params = new URLSearchParams({ airing_only: airingOnly ? 'true' : 'false' });
+            const candidates = await api.batchSearchNyaaCandidates(params.toString());
+            
+            if (!candidates || candidates.length === 0) {
+                showToast('No missing episodes found. You\'re all caught up!');
+                torrentCache.value = { items: [], query: null, isBatch: true, sortBy: sortCol, sortDir };
+                setResults([]);
+                setLoading(false);
+                setScanProgress('');
+                return;
+            }
+
+            let foundItems = [];
+            for (let i = 0; i < candidates.length; i++) {
+                const c = candidates[i];
+                setScanProgress(`Searching ${i + 1}/${candidates.length}: ${c.anime_title} Ep ${c.episode}`);
+                
+                const p = new URLSearchParams({ 
+                    q: c.query, 
+                    episode: c.episode,
+                    category, 
+                    filter: nyaaFilter
+                });
+                if (resolution) p.set('resolution', resolution);
+                
+                const r = await api.searchNyaa(p.toString());
+                if (r && r.length > 0) {
+                    foundItems.push({
+                        torrent: r[0],
+                        animeTitle: c.anime_title,
+                        episode: c.episode,
+                        _fromSearch: false,
+                        media_id: c.media_id
+                    });
+                }
+            }
+
+            torrentCache.value = { items: foundItems, query: null, isBatch: true, sortBy: sortCol, sortDir };
+            setResults(foundItems);
+            if (foundItems.length === 0) showToast('No torrents found for the missing episodes on Nyaa.');
         } catch (e) {
             showToast('Batch scan failed', 'error');
             setResults([]);
         } finally {
             setLoading(false);
+            setScanProgress('');
         }
     };
 
@@ -176,8 +208,14 @@ export function TorrentsView() {
 
     const getSortIndicator = (col) => sortCol === col ? (sortDir === 1 ? ' ▲' : ' ▼') : '';
 
+    const totalPages = Math.max(1, Math.ceil(displayItems.length / itemsPerPage));
+    const validCurrentPage = Math.min(currentPage, totalPages);
+    if (currentPage !== validCurrentPage) setCurrentPage(validCurrentPage);
+
+    const paginatedItems = displayItems.slice((validCurrentPage - 1) * itemsPerPage, validCurrentPage * itemsPerPage);
+
     return (
-        <div id="anime-grid" class="anime-grid torrents-view">
+        <div id="torrents-results-view" class="torrents-view">
             {/* Toolbar */}
             <div class="torrents-toolbar">
                 <div class="torrents-search">
@@ -255,7 +293,7 @@ export function TorrentsView() {
 
             {/* Results */}
             <div id="torrents-results">
-                {loading && <div class="loading-state"><div class="spinner" /><p>Searching Nyaa...</p></div>}
+                {loading && <div class="loading-state"><div class="spinner" /><p>{scanProgress || 'Searching Nyaa...'}</p></div>}
                 {!loading && displayItems.length === 0 && (
                     <div class="empty-state torrents-placeholder">
                         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
@@ -263,37 +301,39 @@ export function TorrentsView() {
                     </div>
                 )}
                 {!loading && displayItems.length > 0 && (
-                    <table class="torrent-table">
+                    <>
+                    <table class="torrents-table">
                         <thead>
                             <tr>
-                                <th style="width: 30px;"><input type="checkbox" onChange={(e) => e.target.checked ? selectRemaining() : setSelectedTorrents(new Set())} checked={selectedTorrents.size === displayItems.length && displayItems.length > 0} /></th>
-                                <th style="cursor:pointer;" onClick={() => toggleSort('title')}>Title{getSortIndicator('title')}</th>
-                                <th style="cursor:pointer;width:80px;" onClick={() => toggleSort('size')}>Size{getSortIndicator('size')}</th>
-                                <th style="cursor:pointer;width:60px;" onClick={() => toggleSort('date')}>Date{getSortIndicator('date')}</th>
-                                <th style="cursor:pointer;width:30px;" onClick={() => toggleSort('seeders')}>S{getSortIndicator('seeders')}</th>
-                                <th style="cursor:pointer;width:30px;" onClick={() => toggleSort('leechers')}>L{getSortIndicator('leechers')}</th>
-                                <th style="width:70px;">Actions</th>
+                                <th style="width: 30px;"><input type="checkbox" onChange={(e) => e.target.checked ? selectRemaining() : setSelectedTorrents(new Set())} checked={selectedTorrents.size === displayItems.length && displayItems.length > 0} title="Select All" /></th>
+                                <th style="cursor:pointer; width: 100%; text-align: left;" onClick={() => toggleSort('title')}>Title{getSortIndicator('title')}</th>
+                                <th style="cursor:pointer;width:80px; text-align: right;" onClick={() => toggleSort('size')}>Size{getSortIndicator('size')}</th>
+                                <th style="cursor:pointer;width:90px; text-align: right;" onClick={() => toggleSort('date')}>Date{getSortIndicator('date')}</th>
+                                <th style="cursor:pointer;width:40px; text-align: right;" onClick={() => toggleSort('seeders')}>S{getSortIndicator('seeders')}</th>
+                                <th style="cursor:pointer;width:40px; text-align: right;" onClick={() => toggleSort('leechers')}>L{getSortIndicator('leechers')}</th>
+                                <th style="width:70px; text-align: right;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {displayItems.map((item, idx) => {
+                            {paginatedItems.map((item, localIdx) => {
+                                const globalIdx = (validCurrentPage - 1) * itemsPerPage + localIdx;
                                 const t = item.torrent || {};
                                 const isTrusted = t.category === 'trusted';
                                 return (
-                                    <tr key={idx} class={`${selectedTorrents.has(idx) ? 'selected' : ''} ${isTrusted ? 'trusted-row' : ''}`}>
-                                        <td><input type="checkbox" checked={selectedTorrents.has(idx)} onChange={() => toggleSelect(idx)} /></td>
-                                        <td class="torrent-title-cell">
-                                            <div class="torrent-title">
-                                                {item.animeTitle && <span class="torrent-anime-tag">{escapeHtml(item.animeTitle)}</span>}
-                                                <span title={t.title}>{escapeHtml(t.title || '')}</span>
+                                    <tr key={globalIdx} class={`${selectedTorrents.has(globalIdx) ? 'selected' : ''} ${isTrusted ? 'trusted-row' : ''}`}>
+                                        <td><input type="checkbox" checked={selectedTorrents.has(globalIdx)} onChange={() => toggleSelect(globalIdx)} /></td>
+                                        <td class="torrent-title-cell" style="text-align: left;">
+                                            <div class="torrent-title" style="display: flex; flex-direction: column; gap: 2px;">
+                                                {item.animeTitle && !item._fromSearch && <div><span class="torrent-anime-tag">{escapeHtml(item.animeTitle)}</span></div>}
+                                                <span title={t.title} style="font-size: 0.85rem; font-weight: 500; line-height: 1.4;">{escapeHtml(t.title || '')}</span>
                                             </div>
                                         </td>
-                                        <td>{t.size || '-'}</td>
-                                        <td class="torrent-date-cell">{t.timestamp ? getRelativeTime(t.timestamp) : '-'}</td>
-                                        <td class="seeders">{t.seeders ?? '-'}</td>
-                                        <td class="leechers">{t.leechers ?? '-'}</td>
-                                        <td>
-                                            <div style="display:flex;gap:4px;">
+                                        <td style="text-align: right; color: var(--text-secondary);">{t.size || '-'}</td>
+                                        <td class="torrent-date-cell" style="text-align: right; color: var(--text-secondary);">{t.timestamp ? getRelativeTime(t.timestamp) : '-'}</td>
+                                        <td class="seeders" style="text-align: right;">{t.seeders ?? '-'}</td>
+                                        <td class="leechers" style="text-align: right;">{t.leechers ?? '-'}</td>
+                                        <td style="text-align: right;">
+                                            <div style="display:flex; gap:6px; justify-content: flex-end;">
                                                 {t.link && <a href={t.link} target="_blank" rel="noopener" class="icon-btn" title="Open on Nyaa"><ExternalLinkIcon size={12} /></a>}
                                                 <button class="icon-btn" title="Download" onClick={() => handleDownload([item])}><DownloadIcon size={12} /></button>
                                             </div>
@@ -303,6 +343,25 @@ export function TorrentsView() {
                             })}
                         </tbody>
                     </table>
+                    <div class="torrents-pagination" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'var(--bg-card)', border: '1px solid var(--border)', borderTop: 'none', borderRadius: '0 0 var(--radius-md) var(--radius-md)' }}>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                            Showing {(validCurrentPage - 1) * itemsPerPage + 1} - {Math.min(displayItems.length, validCurrentPage * itemsPerPage)} of {displayItems.length}
+                        </div>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <select class="filter-select" style={{ fontSize: '0.8rem', padding: '0.2rem 1.5rem 0.2rem 0.5rem', minHeight: 'auto' }} value={itemsPerPage} onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}>
+                                <option value="10">10 / page</option>
+                                <option value="20">20 / page</option>
+                                <option value="50">50 / page</option>
+                                <option value="100">100 / page</option>
+                            </select>
+                            <div style={{ display: 'flex', gap: '0.25rem' }}>
+                                <button class="refresh-btn" style={{ padding: '0.3rem 0.6rem' }} onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={validCurrentPage === 1}>Prev</button>
+                                <span style={{ display: 'flex', alignItems: 'center', padding: '0 0.5rem', fontSize: '0.85rem', fontWeight: 600 }}>{validCurrentPage} / {totalPages}</span>
+                                <button class="refresh-btn" style={{ padding: '0.3rem 0.6rem' }} onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={validCurrentPage === totalPages}>Next</button>
+                            </div>
+                        </div>
+                    </div>
+                    </>
                 )}
             </div>
 

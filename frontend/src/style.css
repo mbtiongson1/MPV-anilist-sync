@@ -188,12 +188,14 @@ input:not(:checked) + .slider .sun-icon {
 .app-layout {
     display: flex;
     min-height: 100vh;
+    width: 100%;
 }
 
 .app-container {
-    flex: 1;
-    max-width: 1200px;
-    margin: 0 auto;
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: none;
+    margin: 0;
     padding: 1.5rem 2rem 3rem;
     display: flex;
     flex-direction: column;
@@ -2684,6 +2686,15 @@ footer {
 
 .torrents-table tr:hover:not(.row-disabled) {
     background: rgba(255, 255, 255, 0.02);
+}
+
+.torrents-table tr.selected {
+    background: rgba(14, 165, 233, 0.08) !important;
+    border-left: 3px solid var(--accent);
+}
+
+.torrents-table tr.selected:hover:not(.row-disabled) {
+    background: rgba(14, 165, 233, 0.12) !important;
 }
 
 .row-disabled {

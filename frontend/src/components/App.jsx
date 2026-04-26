@@ -210,7 +210,7 @@ export function App() {
                     onOpenSettings={() => setShowSettings(true)}
                 />
 
-                <div class="top-dashboard-grid" style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: '450px 1fr', marginBottom: '2rem', alignItems: 'stretch', height: '350px' }}>
+                <div class="top-dashboard-grid" style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: 'minmax(280px, 380px) minmax(0, 1fr)', marginBottom: '2rem', alignItems: 'stretch', height: '350px' }}>
                     <section id="recent-anime" class="now-playing-card" style={{ display: 'flex', flexDirection: 'column', background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', overflow: 'hidden' }}>
                         <div class="section-header" style={{ padding: '1rem', borderBottom: '1px solid var(--border)', margin: 0, flexShrink: 0, justifyContent: 'flex-start', gap: '0.5rem' }}>
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 8v4l3 3M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z"/></svg>
@@ -221,7 +221,7 @@ export function App() {
                         </div>
                     </section>
 
-                    <div class="now-playing-wrapper" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                    <div class="now-playing-wrapper" style={{ display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0, overflow: 'hidden' }}>
                         <NowPlaying onOpenDetails={(a) => setDetailsAnime(a)} />
                     </div>
                 </div>

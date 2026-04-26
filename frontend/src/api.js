@@ -51,6 +51,9 @@ export const fetchLibraryExclusions = () => request('/api/library/exclusions');
 export const excludePath = (path) => post('/api/library/exclude', { path });
 
 export const includePath = (path) => post('/api/library/include', { path });
+export const fetchCleanupCandidates = () => request('/api/library/cleanup_candidates');
+export const moveToTrash = (paths) => post('/api/move_to_trash', { paths });
+export const openTrash = () => request('/api/open_trash');
 
 // ===== Progress & Status Updates =====
 export const updateProgress = (mediaId, episode) =>
@@ -90,7 +93,7 @@ export const organizeFolders = () => request('/api/organize_folders', { method: 
 
 // ===== Nyaa Torrents =====
 export const searchNyaa = (params) => request('/api/nyaa_search?' + params);
-export const batchSearchNyaa = (params) => request('/api/nyaa_batch_search?' + params);
+export const batchSearchNyaaCandidates = (params) => request('/api/nyaa_batch_search_candidates?' + params);
 export const downloadTorrents = (items) => post('/api/nyaa_download', { items });
 
 // ===== Settings =====

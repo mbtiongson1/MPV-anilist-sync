@@ -75,6 +75,82 @@ async def nyaa_search(
             
     return results
 
+@router.get('/api/nyaa_batch_search_candidates')
+async def nyaa_batch_search_candidates(
+    request: Request,
+    airing_only: str = 'false'
+):
+    agent = request.app.state.agent
+    if not agent or not hasattr(agent, 'anilist'):
+        return []
+
+    is_airing_only = airing_only.lower() == 'true'
+    try:
+        entries = agent.anilist.get_user_anime_list(['CURRENT'])
+    except Exception:
+        return []
+    
+    candidates = []
+
+    for entry in entries:
+        media_status = entry.get('mediaStatus')
+        if is_airing_only and media_status != 'RELEASING':
+            continue
+            
+        progress = entry.get('progress', 0)
+        total_eps = entry.get('episodes')
+        
+        target_ep = progress + 1
+        
+        if total_eps and target_ep > total_eps:
+            continue
+            
+        media_id = entry.get('mediaId')
+        
+        existing_eps = set()
+        if media_id:
+            try:
+                media_dir = agent.settings.get_media_folder(media_id)
+                if media_dir == agent.settings.default_download_dir:
+                    romaji = entry.get('title', {}).get('romaji') or ''
+                    english = entry.get('title', {}).get('english') or ''
+                    title_safe = "".join([c for c in (romaji or english) if c.isalnum() or c in (' ', '-', '_')]).strip()
+                    potential_dir = os.path.join(agent.settings.default_download_dir, title_safe)
+                    if os.path.exists(potential_dir): media_dir = potential_dir
+
+                if os.path.exists(media_dir):
+                    from src.parser import AnimeParser
+                    for f in os.listdir(media_dir):
+                        if f.lower().endswith(('.mkv', '.mp4', '.avi')):
+                            parsed = AnimeParser.parse_filename(f)
+                            if parsed:
+                                ep_val = parsed.get('episode')
+                                if isinstance(ep_val, list): ep_val = ep_val[-1]
+                                if ep_val:
+                                    try: existing_eps.add(int(ep_val))
+                                    except Exception: pass
+            except Exception:
+                pass
+                
+        while target_ep in existing_eps:
+            target_ep += 1
+            
+        if total_eps and target_ep > total_eps:
+            continue
+            
+        romaji = entry.get('title', {}).get('romaji') or ''
+        english = entry.get('title', {}).get('english') or ''
+        title_query = f"{romaji}|{english}" if english and english != romaji else romaji
+        
+        candidates.append({
+            'query': title_query,
+            'anime_title': romaji or english,
+            'episode': target_ep,
+            'media_id': media_id
+        })
+            
+    return candidates
+
 @router.post('/api/nyaa_download')
 async def nyaa_download(request: Request):
     agent = request.app.state.agent
