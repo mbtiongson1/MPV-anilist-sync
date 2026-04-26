@@ -106,6 +106,14 @@ docker run -d -p 8080:8080 \
 ```
 *Note: The Docker container acts primarily as a headless library manager and Web UI; it may not automatically detect local host video players via IPC natively without additional network configuration.*
 
+### 5. Running Unit Tests
+
+Run the backend unit tests from the project root using your virtualenv Python:
+
+```bash
+./venv/bin/python -m unittest discover -s tests -p "test_*.py" -v
+```
+
 ---
 
 ## 📂 Project Structure
