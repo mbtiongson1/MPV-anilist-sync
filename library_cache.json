@@ -3,67 +3,34 @@
     "name": "Haibara-kun no Tsuyokute Seishun New Game",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Haibara-kun no Tsuyokute Seishun New Game",
-    "size": 203130214,
+    "size": 64,
     "mediaId": 195333,
     "listStatus": "CURRENT",
     "progress": 0,
-    "children": [
-      {
-        "name": "[ASW] Haibara-kun no Tsuyokute Seishun New Game - 01 [1080p HEVC][394F41CD].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Haibara-kun no Tsuyokute Seishun New Game/[ASW] Haibara-kun no Tsuyokute Seishun New Game - 01 [1080p HEVC][394F41CD].mkv",
-        "size": 203130214,
-        "mediaId": 195333,
-        "listStatus": "CURRENT",
-        "progress": 0,
-        "episode": 1
-      }
-    ],
-    "localEpisodeCount": 1
+    "children": [],
+    "localEpisodeCount": 0
   },
   {
     "name": "Ikoku Nikki",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Ikoku Nikki",
-    "size": 166727027,
+    "size": 64,
     "mediaId": 177385,
     "listStatus": "CURRENT",
     "progress": 0,
-    "children": [
-      {
-        "name": "[ASW] Ikoku Nikki - 13 [1080p HEVC][F4A17BF1].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Ikoku Nikki/[ASW] Ikoku Nikki - 13 [1080p HEVC][F4A17BF1].mkv",
-        "size": 166727027,
-        "mediaId": 177385,
-        "listStatus": "CURRENT",
-        "progress": 0,
-        "episode": 13
-      }
-    ],
-    "localEpisodeCount": 1
+    "children": [],
+    "localEpisodeCount": 0
   },
   {
     "name": "Jidou Hanbaiki ni Umarekawatta Ore wa Meikyuu wo Samayou",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Jidou Hanbaiki ni Umarekawatta Ore wa Meikyuu wo Samayou",
-    "size": 318519434,
+    "size": 64,
     "mediaId": 153360,
     "listStatus": "DROPPED",
     "progress": 0,
-    "children": [
-      {
-        "name": "[ASW] Jidou Hanbaiki ni Umarekawatta Ore wa Meikyuu wo Samayou S3 - 01 [1080p HEVC][D164C4B5].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Jidou Hanbaiki ni Umarekawatta Ore wa Meikyuu wo Samayou/[ASW] Jidou Hanbaiki ni Umarekawatta Ore wa Meikyuu wo Samayou S3 - 01 [1080p HEVC][D164C4B5].mkv",
-        "size": 318519434,
-        "mediaId": 153360,
-        "listStatus": "DROPPED",
-        "progress": 0,
-        "episode": 1
-      }
-    ],
-    "localEpisodeCount": 1
+    "children": [],
+    "localEpisodeCount": 0
   },
   {
     "name": "Jigokuraku",
@@ -80,15 +47,8 @@
     "name": "Kanteishi Kari",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Kanteishi Kari",
-    "size": 191686027,
-    "children": [
-      {
-        "name": "[ASW] Kanteishi (Kari) - 01 [1080p HEVC][0BB58BFC].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Kanteishi Kari/[ASW] Kanteishi (Kari) - 01 [1080p HEVC][0BB58BFC].mkv",
-        "size": 191686027
-      }
-    ]
+    "size": 64,
+    "children": []
   },
   {
     "name": "Kaya-chan wa Kowakunai",
@@ -105,137 +65,54 @@
     "name": "Kirio Fanclub",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Kirio Fanclub",
-    "size": 240049187,
+    "size": 64,
     "mediaId": 181284,
     "listStatus": "CURRENT",
     "progress": 0,
-    "children": [
-      {
-        "name": "[ASW] Kirio Fanclub - 01 [1080p HEVC][CD0AC034].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Kirio Fanclub/[ASW] Kirio Fanclub - 01 [1080p HEVC][CD0AC034].mkv",
-        "size": 240049187,
-        "mediaId": 181284,
-        "listStatus": "CURRENT",
-        "progress": 0,
-        "episode": 1
-      }
-    ],
-    "localEpisodeCount": 1
+    "children": [],
+    "localEpisodeCount": 0
   },
   {
     "name": "Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru",
-    "size": 1249571221,
-    "children": [
-      {
-        "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 03 [1080p HEVC][A98351EB].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 03 [1080p HEVC][A98351EB].mkv",
-        "size": 199004987
-      },
-      {
-        "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 04 [1080p HEVC][6721D2F1].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 04 [1080p HEVC][6721D2F1].mkv",
-        "size": 217086083
-      },
-      {
-        "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 05 [1080p HEVC][BDA34996].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 05 [1080p HEVC][BDA34996].mkv",
-        "size": 229699944
-      },
-      {
-        "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 06 [1080p HEVC][D8CCF2BD].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 06 [1080p HEVC][D8CCF2BD].mkv",
-        "size": 176809333
-      },
-      {
-        "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 09 [1080p HEVC][A1CC0698].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 09 [1080p HEVC][A1CC0698].mkv",
-        "size": 226084082
-      },
-      {
-        "name": "[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 12 [1080p HEVC][90FE3F7B].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru/[ASW] Kizoku Tensei - Megumareta Umare kara Saikyou no Chikara wo Eru - 12 [1080p HEVC][90FE3F7B].mkv",
-        "size": 200886792
-      }
-    ]
+    "size": 64,
+    "children": []
   },
   {
     "name": "Maid-san wa Taberu Dake",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Maid-san wa Taberu Dake",
-    "size": 184090959,
-    "children": [
-      {
-        "name": "[ASW] Maid-san wa Taberu Dake - 01 [1080p HEVC][67014633].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Maid-san wa Taberu Dake/[ASW] Maid-san wa Taberu Dake - 01 [1080p HEVC][67014633].mkv",
-        "size": 184090959
-      }
-    ]
+    "size": 64,
+    "children": []
   },
   {
     "name": "Mata Korosarete Shimatta no desu ne Tantei-sama",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Mata Korosarete Shimatta no desu ne Tantei-sama",
-    "size": 253113453,
-    "children": [
-      {
-        "name": "[ASW] Mata Korosarete Shimatta no desu ne, Tantei-sama - 01 [1080p HEVC][5C737DA4].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Mata Korosarete Shimatta no desu ne Tantei-sama/[ASW] Mata Korosarete Shimatta no desu ne, Tantei-sama - 01 [1080p HEVC][5C737DA4].mkv",
-        "size": 253113453
-      }
-    ]
+    "size": 64,
+    "children": []
   },
   {
     "name": "Nigetsuri",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Nigetsuri",
-    "size": 267250282,
-    "children": [
-      {
-        "name": "[ASW] Nigetsuri - 01 [1080p HEVC][8CD12398].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Nigetsuri/[ASW] Nigetsuri - 01 [1080p HEVC][8CD12398].mkv",
-        "size": 267250282
-      }
-    ]
+    "size": 64,
+    "children": []
   },
   {
     "name": "Niwatori Fighter",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Niwatori Fighter",
-    "size": 514425716,
-    "children": [
-      {
-        "name": "[ASW] Niwatori Fighter - 03 [1080p HEVC][9103199F].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Niwatori Fighter/[ASW] Niwatori Fighter - 03 [1080p HEVC][9103199F].mkv",
-        "size": 514425716
-      }
-    ]
+    "size": 64,
+    "children": []
   },
   {
     "name": "Reincarnation no Kaben",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Reincarnation no Kaben",
-    "size": 455953017,
-    "children": [
-      {
-        "name": "[ASW] Reincarnation no Kaben - 01 [1080p HEVC][160B7D8A].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Reincarnation no Kaben/[ASW] Reincarnation no Kaben - 01 [1080p HEVC][160B7D8A].mkv",
-        "size": 455953017
-      }
-    ]
+    "size": 64,
+    "children": []
   },
   {
     "name": "Seihantai na Kimi to Boku",
@@ -252,97 +129,37 @@
     "name": "Shibou Yuugi de Meshi wo Kuu",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Shibou Yuugi de Meshi wo Kuu",
-    "size": 137533888,
-    "children": [
-      {
-        "name": "[ASW] Shibou Yuugi de Meshi wo Kuu. - 11 [1080p HEVC][91F83CA2].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Shibou Yuugi de Meshi wo Kuu/[ASW] Shibou Yuugi de Meshi wo Kuu. - 11 [1080p HEVC][91F83CA2].mkv",
-        "size": 137533888,
-        "mediaId": 180746,
-        "listStatus": "CURRENT",
-        "progress": 10,
-        "episode": 11
-      }
-    ]
+    "size": 64,
+    "children": []
   },
   {
     "name": "Shunkashuutou Daikousha - Haru no Mai",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Shunkashuutou Daikousha - Haru no Mai",
-    "size": 288734530,
-    "children": [
-      {
-        "name": "[ASW] Shunkashuutou Daikousha - Haru no Mai - 01 [1080p HEVC][44DFED18].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Shunkashuutou Daikousha - Haru no Mai/[ASW] Shunkashuutou Daikousha - Haru no Mai - 01 [1080p HEVC][44DFED18].mkv",
-        "size": 288734530
-      }
-    ]
+    "size": 64,
+    "children": []
   },
   {
     "name": "Sousou no Frieren",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Sousou no Frieren",
-    "size": 1489031621,
+    "size": 320,
     "mediaId": 154587,
     "listStatus": "COMPLETED",
     "progress": 28,
-    "children": [
-      {
-        "name": "[ASW] Sousou no Frieren S2 - 05 [1080p HEVC][6B87E0D0].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Sousou no Frieren/[ASW] Sousou no Frieren S2 - 05 [1080p HEVC][6B87E0D0].mkv",
-        "size": 615184411,
-        "mediaId": 154587,
-        "listStatus": "COMPLETED",
-        "progress": 28,
-        "episode": 5
-      },
-      {
-        "name": "[ASW] Sousou no Frieren S2 - 06 [1080p HEVC][D9DBDA18].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Sousou no Frieren/[ASW] Sousou no Frieren S2 - 06 [1080p HEVC][D9DBDA18].mkv",
-        "size": 422296692,
-        "mediaId": 154587,
-        "listStatus": "COMPLETED",
-        "progress": 28,
-        "episode": 6
-      },
-      {
-        "name": "[ASW] Sousou no Frieren S2 - 07 [1080p HEVC][A72385B1].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Sousou no Frieren/[ASW] Sousou no Frieren S2 - 07 [1080p HEVC][A72385B1].mkv",
-        "size": 451550518,
-        "mediaId": 154587,
-        "listStatus": "COMPLETED",
-        "progress": 28,
-        "episode": 7
-      }
-    ],
-    "localEpisodeCount": 3
+    "children": [],
+    "localEpisodeCount": 0
   },
   {
     "name": "The beginning after the end",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/The beginning after the end",
-    "size": 478423924,
+    "size": 96,
     "mediaId": 183161,
     "listStatus": "CURRENT",
     "progress": 0,
-    "children": [
-      {
-        "name": "[ASW] The Beginning After the End S2 - 01 [1080p HEVC][37755086].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/The beginning after the end/[ASW] The Beginning After the End S2 - 01 [1080p HEVC][37755086].mkv",
-        "size": 478423924,
-        "mediaId": 183161,
-        "listStatus": "CURRENT",
-        "progress": 0,
-        "episode": 1
-      }
-    ],
-    "localEpisodeCount": 1
+    "children": [],
+    "localEpisodeCount": 0
   },
   {
     "name": "Trigun Stargaze",
@@ -385,77 +202,204 @@
     "name": "Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e",
-    "size": 864349357,
+    "size": 64,
     "mediaId": 98659,
     "listStatus": "COMPLETED",
     "progress": 12,
-    "children": [
-      {
-        "name": "[ASW] Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e S4 - 01 [1080p HEVC][40BDA278].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e/[ASW] Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e S4 - 01 [1080p HEVC][40BDA278].mkv",
-        "size": 190381696,
-        "mediaId": 98659,
-        "listStatus": "COMPLETED",
-        "progress": 12,
-        "episode": 1
-      },
-      {
-        "name": "[ASW] Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e S4 - 02 [1080p HEVC][7DC7E87B].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e/[ASW] Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e S4 - 02 [1080p HEVC][7DC7E87B].mkv",
-        "size": 209428643,
-        "mediaId": 98659,
-        "listStatus": "COMPLETED",
-        "progress": 12,
-        "episode": 2
-      },
-      {
-        "name": "[ASW] Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e S4 - 03 [1080p HEVC][E94C2211].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e/[ASW] Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e S4 - 03 [1080p HEVC][E94C2211].mkv",
-        "size": 237465967,
-        "mediaId": 98659,
-        "listStatus": "COMPLETED",
-        "progress": 12,
-        "episode": 3
-      },
-      {
-        "name": "[ASW] Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e S4 - 04 [1080p HEVC][A64D2CCF].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e/[ASW] Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e S4 - 04 [1080p HEVC][A64D2CCF].mkv",
-        "size": 227073051,
-        "mediaId": 98659,
-        "listStatus": "COMPLETED",
-        "progress": 12,
-        "episode": 4
-      }
-    ],
-    "localEpisodeCount": 4
+    "children": [],
+    "localEpisodeCount": 0
   },
   {
     "name": "Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita",
-    "size": 1122848111,
+    "size": 64,
+    "children": []
+  },
+  {
+    "name": "[ASW] NEEDY GIRL OVERDOSE - 04 [1080p HEVC][BE569D6A].mkv",
+    "type": "file",
+    "path": "/Users/marcotiongson/Downloads/[ASW] NEEDY GIRL OVERDOSE - 04 [1080p HEVC][BE569D6A].mkv",
+    "size": 597971627,
+    "mediaId": 202102,
+    "listStatus": "CURRENT",
+    "progress": 3,
+    "episode": 4
+  },
+  {
+    "name": "[ASW] Tensei Shitara Slime Datta Ken S4 - 01 [1080p HEVC][0ADA655A].mkv",
+    "type": "file",
+    "path": "/Users/marcotiongson/Downloads/[ASW] Tensei Shitara Slime Datta Ken S4 - 01 [1080p HEVC][0ADA655A].mkv",
+    "size": 278831888,
+    "mediaId": 101280,
+    "listStatus": "COMPLETED",
+    "progress": 24,
+    "episode": 1
+  },
+  {
+    "name": "[ASW] Tensei Shitara Slime Datta Ken S4 - 02 [1080p HEVC][58A8511A].mkv",
+    "type": "file",
+    "path": "/Users/marcotiongson/Downloads/[ASW] Tensei Shitara Slime Datta Ken S4 - 02 [1080p HEVC][58A8511A].mkv",
+    "size": 282581529,
+    "mediaId": 101280,
+    "listStatus": "COMPLETED",
+    "progress": 24,
+    "episode": 2
+  },
+  {
+    "name": "[ASW] Tensei Shitara Slime Datta Ken S4 - 03 [1080p HEVC][D20BCC1E].mkv",
+    "type": "file",
+    "path": "/Users/marcotiongson/Downloads/[ASW] Tensei Shitara Slime Datta Ken S4 - 03 [1080p HEVC][D20BCC1E].mkv",
+    "size": 423058820,
+    "mediaId": 101280,
+    "listStatus": "COMPLETED",
+    "progress": 24,
+    "episode": 3
+  },
+  {
+    "name": "[ASW] Tensei Shitara Slime Datta Ken S4 - 04 [1080p HEVC][D8433F45].mkv",
+    "type": "file",
+    "path": "/Users/marcotiongson/Downloads/[ASW] Tensei Shitara Slime Datta Ken S4 - 04 [1080p HEVC][D8433F45].mkv",
+    "size": 273484971,
+    "mediaId": 101280,
+    "listStatus": "COMPLETED",
+    "progress": 24,
+    "episode": 4
+  },
+  {
+    "name": "[ASW] Tsue to Tsurugi no Wistoria S2 - 02 [1080p HEVC][BE027786].mkv",
+    "type": "file",
+    "path": "/Users/marcotiongson/Downloads/[ASW] Tsue to Tsurugi no Wistoria S2 - 02 [1080p HEVC][BE027786].mkv",
+    "size": 442030400,
+    "mediaId": 174576,
+    "listStatus": "COMPLETED",
+    "progress": 12,
+    "episode": 2
+  },
+  {
+    "name": "stitch_agent_habitat_simulator",
+    "type": "directory",
+    "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator",
+    "size": 128,
+    "children": []
+  },
+  {
+    "name": "stitch_agent_habitat_simulator 2",
+    "type": "directory",
+    "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator 2",
+    "size": 1952,
     "children": [
       {
-        "name": "[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 07 [1080p HEVC][8F07C62E].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita/[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 07 [1080p HEVC][8F07C62E].mkv",
-        "size": 402627881
+        "name": "2d_sanctuary_hub",
+        "type": "directory",
+        "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator 2/2d_sanctuary_hub",
+        "size": 128,
+        "children": []
       },
       {
-        "name": "[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 08 [1080p HEVC][8C2EABC6].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita/[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 08 [1080p HEVC][8C2EABC6].mkv",
-        "size": 378734538
+        "name": "8_bit_sanctuary_dashboard",
+        "type": "directory",
+        "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator 2/8_bit_sanctuary_dashboard",
+        "size": 128,
+        "children": []
       },
       {
-        "name": "[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 09 [1080p HEVC][C7F2C9E7].mkv",
-        "type": "file",
-        "path": "/Users/marcotiongson/Downloads/Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita/[ASW] Yuusha Party ni Kawaii Ko ga Ita node, Kokuhaku shitemita. - 09 [1080p HEVC][C7F2C9E7].mkv",
-        "size": 341485692
+        "name": "cosycircuit",
+        "type": "directory",
+        "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator 2/cosycircuit",
+        "size": 96,
+        "children": []
+      },
+      {
+        "name": "garden_social_hub",
+        "type": "directory",
+        "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator 2/garden_social_hub",
+        "size": 128,
+        "children": []
+      },
+      {
+        "name": "gourmet_kitchen",
+        "type": "directory",
+        "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator 2/gourmet_kitchen",
+        "size": 128,
+        "children": []
+      },
+      {
+        "name": "home_office_lounge",
+        "type": "directory",
+        "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator 2/home_office_lounge",
+        "size": 128,
+        "children": []
+      },
+      {
+        "name": "house_dashboard_bird_s_eye_1",
+        "type": "directory",
+        "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator 2/house_dashboard_bird_s_eye_1",
+        "size": 128,
+        "children": []
+      },
+      {
+        "name": "house_dashboard_bird_s_eye_2",
+        "type": "directory",
+        "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator 2/house_dashboard_bird_s_eye_2",
+        "size": 96,
+        "children": []
+      },
+      {
+        "name": "isometric_hearth",
+        "type": "directory",
+        "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator 2/isometric_hearth",
+        "size": 96,
+        "children": []
+      },
+      {
+        "name": "kitchen_reward_center",
+        "type": "directory",
+        "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator 2/kitchen_reward_center",
+        "size": 128,
+        "children": []
+      },
+      {
+        "name": "lounge_agent_workroom",
+        "type": "directory",
+        "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator 2/lounge_agent_workroom",
+        "size": 128,
+        "children": []
+      },
+      {
+        "name": "multi_agent_living_room_garden",
+        "type": "directory",
+        "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator 2/multi_agent_living_room_garden",
+        "size": 128,
+        "children": []
+      },
+      {
+        "name": "nursery_rest_customize",
+        "type": "directory",
+        "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator 2/nursery_rest_customize",
+        "size": 128,
+        "children": []
+      },
+      {
+        "name": "sanctuary_hub_2d",
+        "type": "directory",
+        "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator 2/sanctuary_hub_2d",
+        "size": 128,
+        "children": []
+      },
+      {
+        "name": "sanctuary_world_view",
+        "type": "directory",
+        "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator 2/sanctuary_world_view",
+        "size": 128,
+        "children": []
+      },
+      {
+        "name": "zen_bedroom_nursery",
+        "type": "directory",
+        "path": "/Users/marcotiongson/Downloads/stitch_agent_habitat_simulator 2/zen_bedroom_nursery",
+        "size": 128,
+        "children": []
       }
     ]
   }
