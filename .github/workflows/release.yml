@@ -44,6 +44,11 @@ jobs:
       - name: Build and Package
         run: python package.py
 
+      - name: Smoke Test Packaged App
+        env:
+          MPV_TRACKER_SMOKE_PORT: 18080
+        run: python build/smoke_test_packaged.py
+
       - name: Upload Windows Asset
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4

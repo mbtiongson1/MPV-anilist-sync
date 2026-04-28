@@ -4,10 +4,15 @@ import sys
 import threading
 from typing import Optional, Dict, Any, List, cast
 
+try:
+    from src.runtime_env import port_from_env, resolve_resource_path
+except ImportError:
+    from runtime_env import port_from_env, resolve_resource_path
+
 def get_version():
-    version_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "VERSION")
+    version_path = resolve_resource_path("VERSION")
     try:
-        with open(version_path, "r") as f:
+        with open(version_path, "r", encoding="utf-8") as f:
             return f.read().strip()
     except FileNotFoundError:
         return "unknown"
@@ -449,24 +454,28 @@ class TrackerAgent:
         for watcher in self.watchers:
             watcher.disconnect()
 
-if __name__ == "__main__":
+
+def run_tracker(port: Optional[int] = None):
     try:
-        from src.web_server import run_server_in_background
+        from src.web_server import start_web_server
     except ImportError:
-        # Fallback for if we're not running as a package
-        from web_server import run_server_in_background
-    
+        from web_server import start_web_server
+
     agent = TrackerAgent()
-    
+
     if not agent.anilist.is_authenticated():
         print("Warning: No valid AniList token found. Running in local cache mode.")
-        
-    # Start the web UI server on port 8080
-    run_server_in_background(agent, 8080)
-    
-    # Run Agent synchronously in the main thread (blocks forever)
+
+    actual_port = port if port is not None else port_from_env(8080)
+    agent_thread = threading.Thread(target=agent.start, daemon=True)
+    agent_thread.start()
+
     try:
-        agent.start()
+        start_web_server(agent, actual_port)
     except KeyboardInterrupt:
         print("\nStopping Tracker Agent...")
+    finally:
         agent.stop()
+
+if __name__ == "__main__":
+    run_tracker()

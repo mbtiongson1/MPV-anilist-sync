@@ -135,4 +135,11 @@ You can package the application into a standalone distribution (.exe or .app):
 1. **Install Build Dependencies**: `pip install Pillow pyinstaller dmgbuild`
 2. **Run Build**: `python package.py`
 
+Packaged desktop builds now open the local web UI automatically and store runtime files under the platform user-data directory instead of inside the app bundle:
+
+- macOS: `~/Library/Application Support/MPV Anilist Tracker`
+- Windows: `%APPDATA%\MPV Anilist Tracker`
+
+The release workflow also launches the freshly built app and verifies both `/` and `/api/status` before uploading the `.dmg` or `.exe`.
+
 Alternatively, use the provided workflow: `/package`
