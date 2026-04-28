@@ -38,6 +38,7 @@ export const torrentFilters = signal({
     group: '',
     episode: '',
     airingOnly: false,
+    hideArchived: false,
     dateFilter: 'all',
 });
 

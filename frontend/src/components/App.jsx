@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'preact/hooks';
 import { animeList, activeTab, viewMode, selectedAnime, sortBy, sortDirection, currentPage, userSettings, sidebarCollapsed, selectedSidebarSeasons, selectedGenres, showToast, setViewMode, setActiveTab, pendingApiRequests, apiErrorMessages, libraryData } from '../store';
-import { fuzzyMatch, getAnimeSeasons, getDisplayTitle } from '../utils';
+import { fuzzyMatch, getAnimeSeasons, getDisplayTitle, getRelativeTime } from '../utils';
 import * as api from '../api';
 
 import { Sidebar } from './Sidebar';

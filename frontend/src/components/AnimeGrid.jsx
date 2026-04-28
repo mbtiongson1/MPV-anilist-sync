@@ -1,4 +1,4 @@
-import { animeList, userSettings, selectedAnime, latestStatus, lastSelectedMediaId, sortBy, sortDirection, currentPage, toggleSelection, setSort, recordApiRequest, showToast, activeSearchTerm, setActiveTab } from '../store';
+import { animeList, userSettings, selectedAnime, latestStatus, lastSelectedMediaId, sortBy, sortDirection, currentPage, toggleSelection, setSort, recordApiRequest, showToast, activeSearchTerm, setActiveTab, torrentCache } from '../store';
 import { escapeHtml, formatPopularity, getCachedImageUrl, getAnimeSeasons, getDisplayTitle } from '../utils';
 import { ProgressBar } from './ProgressBar';
 import { EditIcon, FolderIcon, SearchIcon, ResumeIcon, SeasonIcon } from '../icons';
@@ -195,6 +195,7 @@ function ActionButtons({ anime, onEdit, settings }) {
             <button class="icon-btn btn-open-folder" onClick={(e) => { e.stopPropagation(); api.openFolder(anime.mediaId); }} title="Open Folder"><FolderIcon /></button>
             <button class="icon-btn btn-search-torrents" onClick={(e) => {
                 e.stopPropagation();
+                torrentCache.value = { ...torrentCache.value, mediaId: anime.mediaId, query: title };
                 activeSearchTerm.value = title;
                 setActiveTab('TORRENTS');
             }} title="Search Torrents"><SearchIcon size={14} /></button>

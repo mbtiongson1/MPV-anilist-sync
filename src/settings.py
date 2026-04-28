@@ -114,3 +114,19 @@ class SettingsManager:
     @last_played_file.setter
     def last_played_file(self, value: str):
         self.set("last_played_file", value)
+
+    @property
+    def torrent_archive(self) -> List[Dict[str, Any]]:
+        return self.get("torrent_archive", [])
+
+    def set_torrent_archive(self, items: List[Dict[str, Any]]):
+        self.set("torrent_archive", items)
+
+    def add_torrent_archive(self, item: Dict[str, Any]):
+        archive = self.torrent_archive
+        key = item.get("link") or item.get("url") or item.get("title")
+        if not key:
+            return
+        if not any((entry.get("link") or entry.get("url") or entry.get("title")) == key for entry in archive):
+            archive.append(item)
+            self.set_torrent_archive(archive)

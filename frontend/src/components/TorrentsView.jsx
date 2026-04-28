@@ -44,9 +44,10 @@ export function TorrentsView() {
     const [group, setGroup] = useState(filters.group);
     const [episode, setEpisode] = useState(filters.episode);
     const [airingOnly, setAiringOnly] = useState(filters.airingOnly);
+    const [showArchived, setShowArchived] = useState(!filters.hideArchived);
 
     const saveFilters = () => {
-        torrentFilters.value = { category, nyaaFilter, resolution, dateFilter, group, episode, airingOnly };
+        torrentFilters.value = { category, nyaaFilter, resolution, dateFilter, group, episode, airingOnly, hideArchived: !showArchived };
     };
 
     const parseEpisodeExpr = (expr) => {
@@ -63,10 +64,16 @@ export function TorrentsView() {
         return eps;
     };
 
+    const getTorrentUrl = (torrent) => torrent?.url || torrent?.link || torrent?.magnet || '';
+    const isArchivedItem = (item) => Boolean(item?.is_archived || item?.torrent?.is_archived);
+    const isDownloadedItem = (item) => Boolean(item?.is_downloaded || item?.torrent?.is_downloaded);
+    const isWatchedItem = (item) => Boolean(item?.is_watched || item?.torrent?.is_watched);
+
     const performSearch = async (query) => {
         saveFilters();
         setLoading(true);
         setSelectedTorrents(new Set());
+        const sourceMediaId = torrentCache.value.mediaId || null;
         const eps = parseEpisodeExpr(episode);
         try {
             let allItems = [];
@@ -75,7 +82,16 @@ export function TorrentsView() {
                 const searches = eps.map(ep => {
                     const p = new URLSearchParams({ q, category, filter: nyaaFilter, episode: ep });
                     if (resolution) p.set('resolution', resolution);
-                    return api.searchNyaa(p.toString()).then(r => r.map(t => ({ torrent: t, animeTitle: query, episode: ep, _fromSearch: true }))).catch(() => []);
+                    return api.searchNyaa(p.toString()).then(r => r.map(t => ({
+                        torrent: t,
+                        animeTitle: query,
+                        episode: ep,
+                        _fromSearch: true,
+                        mediaId: sourceMediaId,
+                        is_downloaded: t?.is_downloaded,
+                        is_watched: t?.is_watched,
+                        is_archived: t?.is_archived,
+                    }))).catch(() => []);
                 });
                 allItems = (await Promise.all(searches)).flat();
             } else {
@@ -83,9 +99,17 @@ export function TorrentsView() {
                 if (resolution) p.set('resolution', resolution);
                 if (eps.length === 1) p.set('episode', eps[0]);
                 const r = await api.searchNyaa(p.toString());
-                allItems = r.map(t => ({ torrent: t, animeTitle: query, _fromSearch: true }));
+                allItems = r.map(t => ({
+                    torrent: t,
+                    animeTitle: query,
+                    _fromSearch: true,
+                    mediaId: sourceMediaId,
+                    is_downloaded: t?.is_downloaded,
+                    is_watched: t?.is_watched,
+                    is_archived: t?.is_archived,
+                }));
             }
-            torrentCache.value = { items: allItems, query, isBatch: false, sortBy: sortCol, sortDir };
+            torrentCache.value = { items: allItems, query, mediaId: sourceMediaId, isBatch: false, sortBy: sortCol, sortDir };
             setResults(allItems);
         } catch (e) {
             setResults([]);
@@ -100,6 +124,7 @@ export function TorrentsView() {
         setLoading(true);
         setScanProgress('Analyzing watching list...');
         setSelectedTorrents(new Set());
+        torrentCache.value = { ...torrentCache.value, mediaId: null };
         try {
             const params = new URLSearchParams({ airing_only: airingOnly ? 'true' : 'false' });
             const candidates = await api.batchSearchNyaaCandidates(params.toString());
@@ -133,12 +158,14 @@ export function TorrentsView() {
                         animeTitle: c.anime_title,
                         episode: c.episode,
                         _fromSearch: false,
-                        media_id: c.media_id
+                        mediaId: c.media_id,
+                        is_downloaded: c.is_downloaded,
+                        is_archived: c.is_archived,
                     });
                 }
             }
 
-            torrentCache.value = { items: foundItems, query: null, isBatch: true, sortBy: sortCol, sortDir };
+            torrentCache.value = { items: foundItems, query: null, mediaId: null, isBatch: true, sortBy: sortCol, sortDir };
             setResults(foundItems);
             if (foundItems.length === 0) showToast('No torrents found for the missing episodes on Nyaa.');
         } catch (e) {
@@ -153,11 +180,14 @@ export function TorrentsView() {
     const handleDownload = async (items) => {
         try {
             const payload = items.map(i => ({
-                link: i.torrent?.link || i.torrent?.magnet,
-                title: i.torrent?.title || 'Unknown',
-                anime_title: i.animeTitle,
-                media_id: i.media_id
-            }));
+                url: getTorrentUrl(i.torrent),
+                mediaId: i.mediaId ?? i.media_id ?? torrentCache.value.mediaId ?? null,
+                animeTitle: i.animeTitle || i.anime_title || torrentCache.value.query || '',
+            })).filter(i => i.url);
+            if (payload.length === 0) {
+                showToast('No torrent URLs selected', 'error');
+                return;
+            }
             await api.downloadTorrents(payload);
             showToast(`Downloading ${payload.length} torrent${payload.length > 1 ? 's' : ''}!`);
         } catch (e) {
@@ -172,6 +202,9 @@ export function TorrentsView() {
 
     // Filter & sort results
     let displayItems = [...results];
+    if (!showArchived) {
+        displayItems = displayItems.filter(i => !isArchivedItem(i));
+    }
     if (dateFilter !== 'all') {
         const now = Date.now();
         const cutoff = { '24h': 86400000, '48h': 172800000, '7d': 604800000, '30d': 2592000000 }[dateFilter] || 0;
@@ -221,8 +254,16 @@ export function TorrentsView() {
                 <div class="torrents-search">
                     <SearchIcon size={16} class="search-icon" />
                     <input type="text" id="torrents-search-input" ref={searchRef} placeholder="Search Nyaa.si..." defaultValue={initialQuery}
+                        onInput={() => {
+                            if (torrentCache.value.mediaId) {
+                                torrentCache.value = { ...torrentCache.value, mediaId: null };
+                            }
+                        }}
                         onKeyDown={(e) => { if (e.key === 'Enter') performSearch(e.target.value); }} />
-                    <button class="clear-input-btn" onClick={() => { if (searchRef.current) searchRef.current.value = ''; }} title="Clear">
+                    <button class="clear-input-btn" onClick={() => {
+                        if (searchRef.current) searchRef.current.value = '';
+                        if (torrentCache.value.mediaId) torrentCache.value = { ...torrentCache.value, mediaId: null };
+                    }} title="Clear">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                     </button>
                     <button id="btn-search-go" class="search-go-btn" onClick={() => performSearch(searchRef.current?.value || '')} title="Search">
@@ -289,6 +330,13 @@ export function TorrentsView() {
                         <span class="toggle-slider" />
                     </label>
                 </div>
+                <div class="filter-group filter-toggle-group">
+                    <label class="filter-label">Show Archived</label>
+                    <label class="toggle-switch" title="Keep archived torrent candidates visible">
+                        <input type="checkbox" checked={showArchived} onChange={e => setShowArchived(e.target.checked)} />
+                        <span class="toggle-slider" />
+                    </label>
+                </div>
             </div>
 
             {/* Results */}
@@ -318,14 +366,22 @@ export function TorrentsView() {
                             {paginatedItems.map((item, localIdx) => {
                                 const globalIdx = (validCurrentPage - 1) * itemsPerPage + localIdx;
                                 const t = item.torrent || {};
+                                const downloaded = isDownloadedItem(item);
+                                const watched = isWatchedItem(item);
+                                const archived = isArchivedItem(item);
                                 const isTrusted = t.category === 'trusted';
                                 return (
-                                    <tr key={globalIdx} class={`${selectedTorrents.has(globalIdx) ? 'selected' : ''} ${isTrusted ? 'trusted-row' : ''}`}>
+                                    <tr key={globalIdx} class={`${selectedTorrents.has(globalIdx) ? 'selected' : ''} ${isTrusted ? 'trusted-row' : ''} ${downloaded ? 'row-downloaded' : ''} ${watched ? 'row-watched' : ''} ${archived ? 'row-archived' : ''}`}>
                                         <td><input type="checkbox" checked={selectedTorrents.has(globalIdx)} onChange={() => toggleSelect(globalIdx)} /></td>
                                         <td class="torrent-title-cell" style="text-align: left;">
                                             <div class="torrent-title" style="display: flex; flex-direction: column; gap: 2px;">
                                                 {item.animeTitle && !item._fromSearch && <div><span class="torrent-anime-tag">{escapeHtml(item.animeTitle)}</span></div>}
                                                 <span title={t.title} style="font-size: 0.85rem; font-weight: 500; line-height: 1.4;">{escapeHtml(t.title || '')}</span>
+                                                <div class="torrent-status-badges">
+                                                    {downloaded && <span class="status-badge downloaded">Downloaded</span>}
+                                                    {archived && <span class="status-badge archived">Archived</span>}
+                                                    {watched && <span class="status-badge watched">Watched</span>}
+                                                </div>
                                             </div>
                                         </td>
                                         <td style="text-align: right; color: var(--text-secondary);">{t.size || '-'}</td>
@@ -334,7 +390,7 @@ export function TorrentsView() {
                                         <td class="leechers" style="text-align: right;">{t.leechers ?? '-'}</td>
                                         <td style="text-align: right;">
                                             <div style="display:flex; gap:6px; justify-content: flex-end;">
-                                                {t.link && <a href={t.link} target="_blank" rel="noopener" class="icon-btn" title="Open on Nyaa"><ExternalLinkIcon size={12} /></a>}
+                                                {getTorrentUrl(t) && <a href={getTorrentUrl(t)} target="_blank" rel="noopener" class="icon-btn" title="Open on Nyaa"><ExternalLinkIcon size={12} /></a>}
                                                 <button class="icon-btn" title="Download" onClick={() => handleDownload([item])}><DownloadIcon size={12} /></button>
                                             </div>
                                         </td>
