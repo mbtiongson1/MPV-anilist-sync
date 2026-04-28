@@ -65,7 +65,6 @@ class TrackerAgent:
         self.selected_media_id: Optional[int] = None
 
     @staticmethod
-    @staticmethod
     def _resolve_episode_to_media(media: Dict[str, Any], global_episode: int, target_season: Optional[int] = None) -> tuple[Dict[str, Any], int]:
         """Resolve a global episode number into the correct AniList media and local episode."""
         if global_episode is None:

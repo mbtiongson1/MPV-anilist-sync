@@ -188,12 +188,14 @@ input:not(:checked) + .slider .sun-icon {
 .app-layout {
     display: flex;
     min-height: 100vh;
+    width: 100%;
 }
 
 .app-container {
-    flex: 1;
-    max-width: 1200px;
-    margin: 0 auto;
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: none;
+    margin: 0;
     padding: 1.5rem 2rem 3rem;
     display: flex;
     flex-direction: column;
@@ -2686,6 +2688,15 @@ footer {
     background: rgba(255, 255, 255, 0.02);
 }
 
+.torrents-table tr.selected {
+    background: rgba(14, 165, 233, 0.08) !important;
+    border-left: 3px solid var(--accent);
+}
+
+.torrents-table tr.selected:hover:not(.row-disabled) {
+    background: rgba(14, 165, 233, 0.12) !important;
+}
+
 .row-disabled {
     opacity: 0.5;
     background: rgba(0, 0, 0, 0.1);
@@ -2698,6 +2709,33 @@ footer {
 
 .row-recent:hover:not(.row-disabled) {
     background: rgba(16, 185, 129, 0.1);
+}
+
+.row-downloaded {
+    background: rgba(16, 185, 129, 0.05);
+    border-left: 3px solid var(--success);
+}
+
+.row-downloaded:hover:not(.row-disabled) {
+    background: rgba(16, 185, 129, 0.09);
+}
+
+.row-watched {
+    background: rgba(99, 102, 241, 0.05);
+    border-left: 3px solid var(--accent);
+}
+
+.row-watched:hover:not(.row-disabled) {
+    background: rgba(99, 102, 241, 0.09);
+}
+
+.row-archived {
+    background: rgba(245, 158, 11, 0.04);
+    border-left: 3px solid #f59e0b;
+}
+
+.row-archived:hover:not(.row-disabled) {
+    background: rgba(245, 158, 11, 0.08);
 }
 
 .status-badge {
@@ -2717,6 +2755,17 @@ footer {
 .status-badge.watched {
     background: rgba(99, 102, 241, 0.1);
     color: var(--accent);
+}
+
+.status-badge.archived {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.torrent-status-badges {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
 }
 
 .batch-download-bar {

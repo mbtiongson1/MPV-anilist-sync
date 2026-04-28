@@ -3,6 +3,7 @@ import re
 import requests
 import xml.etree.ElementTree as ET
 from typing import List, Dict, Any, Optional
+from src.library_index import normalize_title, sanitize_folder_name
 
 # Nyaa category codes
 NYAA_CATEGORIES = {
@@ -210,6 +211,7 @@ class NyaaInterface:
                     'episode': parsed_ep,
                     'is_batch': is_batch,
                     'pubDate': pd,
+                    'normalized_title': normalize_title(t),
                 })
 
             results.sort(key=lambda x: (x['score'], x['seeders']), reverse=True)

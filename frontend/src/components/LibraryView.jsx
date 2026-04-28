@@ -6,6 +6,7 @@ import * as api from '../api';
 
 export function LibraryView() {
     const [loading, setLoading] = useState(false);
+    const [libraryActionLoading, setLibraryActionLoading] = useState(false);
     const [search, setSearch] = useState('');
     const [expandedDirs, setExpandedDirs] = useState(new Set());
 
@@ -66,6 +67,58 @@ export function LibraryView() {
 
     const handleOpenFolder = (path) => {
         api.openFolderByPath(path);
+    };
+
+    const handleCleanupFiles = async () => {
+        if (libraryActionLoading) return;
+        setLibraryActionLoading(true);
+        try {
+            const candidates = await api.fetchCleanupCandidates();
+            if (!Array.isArray(candidates) || candidates.length === 0) {
+                showToast('No cleanup candidates found');
+                return;
+            }
+
+            const selectedPaths = candidates.map(c => c.path).filter(Boolean);
+            if (selectedPaths.length === 0) {
+                showToast('No cleanup candidates found');
+                return;
+            }
+
+            const shouldProceed = window.confirm(`Move ${selectedPaths.length} watched/completed files to Trash?`);
+            if (!shouldProceed) return;
+
+            const result = await api.moveToTrash(selectedPaths);
+            if (result?.success) {
+                showToast(`Moved ${result.count || selectedPaths.length} files to Trash`);
+                await fetchLibrary(true);
+            } else {
+                showToast('Failed to move some files to Trash', 'error');
+            }
+        } catch (e) {
+            showToast('Cleanup failed', 'error');
+        } finally {
+            setLibraryActionLoading(false);
+        }
+    };
+
+    const handleOrganizeFolders = async () => {
+        if (libraryActionLoading) return;
+        setLibraryActionLoading(true);
+        try {
+            const result = await api.organizeFolders();
+            if (result?.success) {
+                const movedCount = Array.isArray(result.results) ? result.results.length : 0;
+                showToast(movedCount > 0 ? `Organized ${movedCount} file${movedCount === 1 ? '' : 's'}` : 'No loose files to organize');
+                await fetchLibrary(true);
+            } else {
+                showToast('Failed to organize folders', 'error');
+            }
+        } catch (e) {
+            showToast('Failed to organize folders', 'error');
+        } finally {
+            setLibraryActionLoading(false);
+        }
     };
 
     // Filter library items by search
@@ -178,10 +231,10 @@ export function LibraryView() {
                     <a id="link-edit-path" href="#" style={{ fontSize: '0.75rem', color: 'var(--accent)', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); /* open settings */ }}>Edit library path</a>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button id="btn-cleanup-files" class="secondary-btn" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }} title="Cleanup watched/completed files">
+                    <button id="btn-cleanup-files" class="secondary-btn" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)', opacity: libraryActionLoading ? 0.7 : 1 }} title="Cleanup watched/completed files" onClick={handleCleanupFiles} disabled={libraryActionLoading}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> Cleanup Files
                     </button>
-                    <button id="btn-organize-folders" class="secondary-btn" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <button id="btn-organize-folders" class="secondary-btn" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', opacity: libraryActionLoading ? 0.7 : 1 }} onClick={handleOrganizeFolders} disabled={libraryActionLoading}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg> Automatically organize anime folders
                     </button>
                 </div>

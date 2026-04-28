@@ -1,5 +1,5 @@
 import { useEffect } from 'preact/hooks';
-import { latestStatus, userSettings, animeList, showToast, activeSearchTerm, recordApiRequest, setActiveTab } from '../store';
+import { latestStatus, userSettings, animeList, showToast, activeSearchTerm, recordApiRequest, setActiveTab, torrentCache } from '../store';
 import { escapeHtml, formatPopularity, getCachedImageUrl, getDisplayTitle } from '../utils';
 import { ProgressBar } from './ProgressBar';
 import { SearchIcon, FolderIcon } from '../icons';
@@ -89,19 +89,38 @@ export function NowPlaying({ onOpenDetails }) {
 
     const handleSearchTorrents = () => {
         if (data.base_title || data.title) {
+            torrentCache.value = { ...torrentCache.value, mediaId: selectedMediaId, query: data.base_title || data.title };
             activeSearchTerm.value = data.base_title || data.title;
             setActiveTab('TORRENTS');
         }
     };
 
     return (
-        <section id="now-playing" class="now-playing-card modern-overhaul" style={{ flex: 1, minHeight: '350px' }}>
+        <section id="now-playing" class="now-playing-card modern-overhaul" style={{ flex: 1, minHeight: '350px', minWidth: 0 }}>
             <div class="np-background-banner" id="np-banner" style={bannerUrl ? { backgroundImage: `url(${bannerUrl})` } : {}}></div>
             <div class="np-overlay"></div>
             
             <div class="details-modal-grid" style={{ padding: '1.5rem', position: 'relative', zIndex: 2, height: '100%', display: 'flex', gap: '1.5rem' }}>
-                <div class="details-modal-left" style={{ width: '200px', flexShrink: 0 }}>
-                    <img id="np-cover" class="details-modal-cover shadow-lg" src={coverUrl} alt="Cover" style={{ width: '100%', borderRadius: '8px', cursor: rawCoverUrl ? 'pointer' : 'default' }} onClick={() => rawCoverUrl && window.open(rawCoverUrl, '_blank')} />
+                <div class="details-modal-left" style={{ width: '140px', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+                    {coverUrl ? (
+                        <>
+                            <img
+                                id="np-cover"
+                                src={coverUrl}
+                                alt="Cover"
+                                style={{ width: '140px', height: '200px', borderRadius: '8px', objectFit: 'cover', boxShadow: '0 8px 24px rgba(0,0,0,0.5)', cursor: 'pointer', border: '2px solid rgba(255,255,255,0.15)', flexShrink: 0 }}
+                                onClick={() => rawCoverUrl && window.open(rawCoverUrl, '_blank')}
+                                onError={(e) => { e.target.style.display = 'none'; e.target.nextElementSibling && (e.target.nextElementSibling.style.display = 'flex'); }}
+                            />
+                            <div class="np-cover-placeholder-fallback" style={{ display: 'none', width: '140px', height: '200px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)', border: '2px solid rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                            </div>
+                        </>
+                    ) : (
+                        <div id="np-cover-placeholder" style={{ width: '140px', height: '200px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)', border: '2px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                        </div>
+                    )}
                 </div>
                 
                 <div class="details-modal-right" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1, minWidth: 0 }}>

@@ -10,6 +10,9 @@ export function TorrentsView() {
     const [selectedTorrents, setSelectedTorrents] = useState(new Set());
     const [sortCol, setSortCol] = useState(torrentCache.value.sortBy || 'date');
     const [sortDir, setSortDir] = useState(torrentCache.value.sortDir || -1);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(20);
+    const [scanProgress, setScanProgress] = useState('');
 
     const searchRef = useRef(null);
     const filters = torrentFilters.value;
@@ -41,9 +44,10 @@ export function TorrentsView() {
     const [group, setGroup] = useState(filters.group);
     const [episode, setEpisode] = useState(filters.episode);
     const [airingOnly, setAiringOnly] = useState(filters.airingOnly);
+    const [showArchived, setShowArchived] = useState(!filters.hideArchived);
 
     const saveFilters = () => {
-        torrentFilters.value = { category, nyaaFilter, resolution, dateFilter, group, episode, airingOnly };
+        torrentFilters.value = { category, nyaaFilter, resolution, dateFilter, group, episode, airingOnly, hideArchived: !showArchived };
     };
 
     const parseEpisodeExpr = (expr) => {
@@ -60,10 +64,16 @@ export function TorrentsView() {
         return eps;
     };
 
+    const getTorrentUrl = (torrent) => torrent?.url || torrent?.link || torrent?.magnet || '';
+    const isArchivedItem = (item) => Boolean(item?.is_archived || item?.torrent?.is_archived);
+    const isDownloadedItem = (item) => Boolean(item?.is_downloaded || item?.torrent?.is_downloaded);
+    const isWatchedItem = (item) => Boolean(item?.is_watched || item?.torrent?.is_watched);
+
     const performSearch = async (query) => {
         saveFilters();
         setLoading(true);
         setSelectedTorrents(new Set());
+        const sourceMediaId = torrentCache.value.mediaId || null;
         const eps = parseEpisodeExpr(episode);
         try {
             let allItems = [];
@@ -72,7 +82,16 @@ export function TorrentsView() {
                 const searches = eps.map(ep => {
                     const p = new URLSearchParams({ q, category, filter: nyaaFilter, episode: ep });
                     if (resolution) p.set('resolution', resolution);
-                    return api.searchNyaa(p.toString()).then(r => r.map(t => ({ torrent: t, animeTitle: query, episode: ep, _fromSearch: true }))).catch(() => []);
+                    return api.searchNyaa(p.toString()).then(r => r.map(t => ({
+                        torrent: t,
+                        animeTitle: query,
+                        episode: ep,
+                        _fromSearch: true,
+                        mediaId: sourceMediaId,
+                        is_downloaded: t?.is_downloaded,
+                        is_watched: t?.is_watched,
+                        is_archived: t?.is_archived,
+                    }))).catch(() => []);
                 });
                 allItems = (await Promise.all(searches)).flat();
             } else {
@@ -80,9 +99,17 @@ export function TorrentsView() {
                 if (resolution) p.set('resolution', resolution);
                 if (eps.length === 1) p.set('episode', eps[0]);
                 const r = await api.searchNyaa(p.toString());
-                allItems = r.map(t => ({ torrent: t, animeTitle: query, _fromSearch: true }));
+                allItems = r.map(t => ({
+                    torrent: t,
+                    animeTitle: query,
+                    _fromSearch: true,
+                    mediaId: sourceMediaId,
+                    is_downloaded: t?.is_downloaded,
+                    is_watched: t?.is_watched,
+                    is_archived: t?.is_archived,
+                }));
             }
-            torrentCache.value = { items: allItems, query, isBatch: false, sortBy: sortCol, sortDir };
+            torrentCache.value = { items: allItems, query, mediaId: sourceMediaId, isBatch: false, sortBy: sortCol, sortDir };
             setResults(allItems);
         } catch (e) {
             setResults([]);
@@ -95,37 +122,72 @@ export function TorrentsView() {
     const loadBatchMissing = async () => {
         saveFilters();
         setLoading(true);
+        setScanProgress('Analyzing watching list...');
         setSelectedTorrents(new Set());
+        torrentCache.value = { ...torrentCache.value, mediaId: null };
         try {
-            const p = new URLSearchParams({ airing_only: airingOnly ? 'true' : 'false', category, filter: nyaaFilter });
-            if (resolution) p.set('resolution', resolution);
-            const data = await api.batchSearchNyaa(p.toString());
-            const items = data.map(r => ({
-                torrent: r.torrent || r,
-                animeTitle: r.anime_title || r.title || '',
-                episode: r.episode,
-                _fromSearch: false,
-                media_id: r.media_id
-            }));
-            torrentCache.value = { items, query: null, isBatch: true, sortBy: sortCol, sortDir };
-            setResults(items);
-            if (items.length === 0) showToast('No missing episodes found. You\'re all caught up!');
+            const params = new URLSearchParams({ airing_only: airingOnly ? 'true' : 'false' });
+            const candidates = await api.batchSearchNyaaCandidates(params.toString());
+            
+            if (!candidates || candidates.length === 0) {
+                showToast('No missing episodes found. You\'re all caught up!');
+                torrentCache.value = { items: [], query: null, isBatch: true, sortBy: sortCol, sortDir };
+                setResults([]);
+                setLoading(false);
+                setScanProgress('');
+                return;
+            }
+
+            let foundItems = [];
+            for (let i = 0; i < candidates.length; i++) {
+                const c = candidates[i];
+                setScanProgress(`Searching ${i + 1}/${candidates.length}: ${c.anime_title} Ep ${c.episode}`);
+                
+                const p = new URLSearchParams({ 
+                    q: c.query, 
+                    episode: c.episode,
+                    category, 
+                    filter: nyaaFilter
+                });
+                if (resolution) p.set('resolution', resolution);
+                
+                const r = await api.searchNyaa(p.toString());
+                if (r && r.length > 0) {
+                    foundItems.push({
+                        torrent: r[0],
+                        animeTitle: c.anime_title,
+                        episode: c.episode,
+                        _fromSearch: false,
+                        mediaId: c.media_id,
+                        is_downloaded: c.is_downloaded,
+                        is_archived: c.is_archived,
+                    });
+                }
+            }
+
+            torrentCache.value = { items: foundItems, query: null, mediaId: null, isBatch: true, sortBy: sortCol, sortDir };
+            setResults(foundItems);
+            if (foundItems.length === 0) showToast('No torrents found for the missing episodes on Nyaa.');
         } catch (e) {
             showToast('Batch scan failed', 'error');
             setResults([]);
         } finally {
             setLoading(false);
+            setScanProgress('');
         }
     };
 
     const handleDownload = async (items) => {
         try {
             const payload = items.map(i => ({
-                link: i.torrent?.link || i.torrent?.magnet,
-                title: i.torrent?.title || 'Unknown',
-                anime_title: i.animeTitle,
-                media_id: i.media_id
-            }));
+                url: getTorrentUrl(i.torrent),
+                mediaId: i.mediaId ?? i.media_id ?? torrentCache.value.mediaId ?? null,
+                animeTitle: i.animeTitle || i.anime_title || torrentCache.value.query || '',
+            })).filter(i => i.url);
+            if (payload.length === 0) {
+                showToast('No torrent URLs selected', 'error');
+                return;
+            }
             await api.downloadTorrents(payload);
             showToast(`Downloading ${payload.length} torrent${payload.length > 1 ? 's' : ''}!`);
         } catch (e) {
@@ -140,6 +202,9 @@ export function TorrentsView() {
 
     // Filter & sort results
     let displayItems = [...results];
+    if (!showArchived) {
+        displayItems = displayItems.filter(i => !isArchivedItem(i));
+    }
     if (dateFilter !== 'all') {
         const now = Date.now();
         const cutoff = { '24h': 86400000, '48h': 172800000, '7d': 604800000, '30d': 2592000000 }[dateFilter] || 0;
@@ -176,15 +241,29 @@ export function TorrentsView() {
 
     const getSortIndicator = (col) => sortCol === col ? (sortDir === 1 ? ' ▲' : ' ▼') : '';
 
+    const totalPages = Math.max(1, Math.ceil(displayItems.length / itemsPerPage));
+    const validCurrentPage = Math.min(currentPage, totalPages);
+    if (currentPage !== validCurrentPage) setCurrentPage(validCurrentPage);
+
+    const paginatedItems = displayItems.slice((validCurrentPage - 1) * itemsPerPage, validCurrentPage * itemsPerPage);
+
     return (
-        <div id="anime-grid" class="anime-grid torrents-view">
+        <div id="torrents-results-view" class="torrents-view">
             {/* Toolbar */}
             <div class="torrents-toolbar">
                 <div class="torrents-search">
                     <SearchIcon size={16} class="search-icon" />
                     <input type="text" id="torrents-search-input" ref={searchRef} placeholder="Search Nyaa.si..." defaultValue={initialQuery}
+                        onInput={() => {
+                            if (torrentCache.value.mediaId) {
+                                torrentCache.value = { ...torrentCache.value, mediaId: null };
+                            }
+                        }}
                         onKeyDown={(e) => { if (e.key === 'Enter') performSearch(e.target.value); }} />
-                    <button class="clear-input-btn" onClick={() => { if (searchRef.current) searchRef.current.value = ''; }} title="Clear">
+                    <button class="clear-input-btn" onClick={() => {
+                        if (searchRef.current) searchRef.current.value = '';
+                        if (torrentCache.value.mediaId) torrentCache.value = { ...torrentCache.value, mediaId: null };
+                    }} title="Clear">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                     </button>
                     <button id="btn-search-go" class="search-go-btn" onClick={() => performSearch(searchRef.current?.value || '')} title="Search">
@@ -251,11 +330,18 @@ export function TorrentsView() {
                         <span class="toggle-slider" />
                     </label>
                 </div>
+                <div class="filter-group filter-toggle-group">
+                    <label class="filter-label">Show Archived</label>
+                    <label class="toggle-switch" title="Keep archived torrent candidates visible">
+                        <input type="checkbox" checked={showArchived} onChange={e => setShowArchived(e.target.checked)} />
+                        <span class="toggle-slider" />
+                    </label>
+                </div>
             </div>
 
             {/* Results */}
             <div id="torrents-results">
-                {loading && <div class="loading-state"><div class="spinner" /><p>Searching Nyaa...</p></div>}
+                {loading && <div class="loading-state"><div class="spinner" /><p>{scanProgress || 'Searching Nyaa...'}</p></div>}
                 {!loading && displayItems.length === 0 && (
                     <div class="empty-state torrents-placeholder">
                         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
@@ -263,38 +349,48 @@ export function TorrentsView() {
                     </div>
                 )}
                 {!loading && displayItems.length > 0 && (
-                    <table class="torrent-table">
+                    <>
+                    <table class="torrents-table">
                         <thead>
                             <tr>
-                                <th style="width: 30px;"><input type="checkbox" onChange={(e) => e.target.checked ? selectRemaining() : setSelectedTorrents(new Set())} checked={selectedTorrents.size === displayItems.length && displayItems.length > 0} /></th>
-                                <th style="cursor:pointer;" onClick={() => toggleSort('title')}>Title{getSortIndicator('title')}</th>
-                                <th style="cursor:pointer;width:80px;" onClick={() => toggleSort('size')}>Size{getSortIndicator('size')}</th>
-                                <th style="cursor:pointer;width:60px;" onClick={() => toggleSort('date')}>Date{getSortIndicator('date')}</th>
-                                <th style="cursor:pointer;width:30px;" onClick={() => toggleSort('seeders')}>S{getSortIndicator('seeders')}</th>
-                                <th style="cursor:pointer;width:30px;" onClick={() => toggleSort('leechers')}>L{getSortIndicator('leechers')}</th>
-                                <th style="width:70px;">Actions</th>
+                                <th style="width: 30px;"><input type="checkbox" onChange={(e) => e.target.checked ? selectRemaining() : setSelectedTorrents(new Set())} checked={selectedTorrents.size === displayItems.length && displayItems.length > 0} title="Select All" /></th>
+                                <th style="cursor:pointer; width: 100%; text-align: left;" onClick={() => toggleSort('title')}>Title{getSortIndicator('title')}</th>
+                                <th style="cursor:pointer;width:80px; text-align: right;" onClick={() => toggleSort('size')}>Size{getSortIndicator('size')}</th>
+                                <th style="cursor:pointer;width:90px; text-align: right;" onClick={() => toggleSort('date')}>Date{getSortIndicator('date')}</th>
+                                <th style="cursor:pointer;width:40px; text-align: right;" onClick={() => toggleSort('seeders')}>S{getSortIndicator('seeders')}</th>
+                                <th style="cursor:pointer;width:40px; text-align: right;" onClick={() => toggleSort('leechers')}>L{getSortIndicator('leechers')}</th>
+                                <th style="width:70px; text-align: right;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {displayItems.map((item, idx) => {
+                            {paginatedItems.map((item, localIdx) => {
+                                const globalIdx = (validCurrentPage - 1) * itemsPerPage + localIdx;
                                 const t = item.torrent || {};
+                                const downloaded = isDownloadedItem(item);
+                                const watched = isWatchedItem(item);
+                                const archived = isArchivedItem(item);
                                 const isTrusted = t.category === 'trusted';
                                 return (
-                                    <tr key={idx} class={`${selectedTorrents.has(idx) ? 'selected' : ''} ${isTrusted ? 'trusted-row' : ''}`}>
-                                        <td><input type="checkbox" checked={selectedTorrents.has(idx)} onChange={() => toggleSelect(idx)} /></td>
-                                        <td class="torrent-title-cell">
-                                            <div class="torrent-title">
-                                                {item.animeTitle && <span class="torrent-anime-tag">{escapeHtml(item.animeTitle)}</span>}
-                                                <span title={t.title}>{escapeHtml(t.title || '')}</span>
+                                    <tr key={globalIdx} class={`${selectedTorrents.has(globalIdx) ? 'selected' : ''} ${isTrusted ? 'trusted-row' : ''} ${downloaded ? 'row-downloaded' : ''} ${watched ? 'row-watched' : ''} ${archived ? 'row-archived' : ''}`}>
+                                        <td><input type="checkbox" checked={selectedTorrents.has(globalIdx)} onChange={() => toggleSelect(globalIdx)} /></td>
+                                        <td class="torrent-title-cell" style="text-align: left;">
+                                            <div class="torrent-title" style="display: flex; flex-direction: column; gap: 2px;">
+                                                {item.animeTitle && !item._fromSearch && <div><span class="torrent-anime-tag">{escapeHtml(item.animeTitle)}</span></div>}
+                                                <span title={t.title} style="font-size: 0.85rem; font-weight: 500; line-height: 1.4;">{escapeHtml(t.title || '')}</span>
+                                                <div class="torrent-status-badges">
+                                                    {downloaded && <span class="status-badge downloaded">Downloaded</span>}
+                                                    {archived && <span class="status-badge archived">Archived</span>}
+                                                    {watched && <span class="status-badge watched">Watched</span>}
+                                                </div>
                                             </div>
                                         </td>
-                                        <td>{t.size || '-'}</td>
-                                        <td class="torrent-date-cell">{t.timestamp ? getRelativeTime(t.timestamp) : '-'}</td>
-                                        <td class="seeders">{t.seeders ?? '-'}</td>
-                                        <td class="leechers">{t.leechers ?? '-'}</td>
-                                        <td>
-                                            <div style="display:flex;gap:4px;">
-                                                {t.link && <a href={t.link} target="_blank" rel="noopener" class="icon-btn" title="Open on Nyaa"><ExternalLinkIcon size={12} /></a>}
+                                        <td style="text-align: right; color: var(--text-secondary);">{t.size || '-'}</td>
+                                        <td class="torrent-date-cell" style="text-align: right; color: var(--text-secondary);">{t.timestamp ? getRelativeTime(t.timestamp) : '-'}</td>
+                                        <td class="seeders" style="text-align: right;">{t.seeders ?? '-'}</td>
+                                        <td class="leechers" style="text-align: right;">{t.leechers ?? '-'}</td>
+                                        <td style="text-align: right;">
+                                            <div style="display:flex; gap:6px; justify-content: flex-end;">
+                                                {getTorrentUrl(t) && <a href={getTorrentUrl(t)} target="_blank" rel="noopener" class="icon-btn" title="Open on Nyaa"><ExternalLinkIcon size={12} /></a>}
                                                 <button class="icon-btn" title="Download" onClick={() => handleDownload([item])}><DownloadIcon size={12} /></button>
                                             </div>
                                         </td>
@@ -303,6 +399,25 @@ export function TorrentsView() {
                             })}
                         </tbody>
                     </table>
+                    <div class="torrents-pagination" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'var(--bg-card)', border: '1px solid var(--border)', borderTop: 'none', borderRadius: '0 0 var(--radius-md) var(--radius-md)' }}>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                            Showing {(validCurrentPage - 1) * itemsPerPage + 1} - {Math.min(displayItems.length, validCurrentPage * itemsPerPage)} of {displayItems.length}
+                        </div>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <select class="filter-select" style={{ fontSize: '0.8rem', padding: '0.2rem 1.5rem 0.2rem 0.5rem', minHeight: 'auto' }} value={itemsPerPage} onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}>
+                                <option value="10">10 / page</option>
+                                <option value="20">20 / page</option>
+                                <option value="50">50 / page</option>
+                                <option value="100">100 / page</option>
+                            </select>
+                            <div style={{ display: 'flex', gap: '0.25rem' }}>
+                                <button class="refresh-btn" style={{ padding: '0.3rem 0.6rem' }} onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={validCurrentPage === 1}>Prev</button>
+                                <span style={{ display: 'flex', alignItems: 'center', padding: '0 0.5rem', fontSize: '0.85rem', fontWeight: 600 }}>{validCurrentPage} / {totalPages}</span>
+                                <button class="refresh-btn" style={{ padding: '0.3rem 0.6rem' }} onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={validCurrentPage === totalPages}>Next</button>
+                            </div>
+                        </div>
+                    </div>
+                    </>
                 )}
             </div>
 
