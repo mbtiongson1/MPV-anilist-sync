@@ -207,8 +207,11 @@ pip install Pillow pyinstaller dmgbuild
 python package.py
 ```
 
-Known caveats from the current packaging setup:
-- The frontend must build successfully first
-- The build specs bundle `frontend/dist`, so stale frontend output can produce a broken app
-- macOS DMG creation depends on `dmgbuild`
-- The README does not currently promise a working packaged installer because that path still needs work
+Packaged desktop builds now open the local web UI automatically and store runtime files under the platform user-data directory instead of inside the app bundle:
+
+- macOS: `~/Library/Application Support/MPV Anilist Tracker`
+- Windows: `%APPDATA%\MPV Anilist Tracker`
+
+The release workflow also launches the freshly built app and verifies both `/` and `/api/status` before uploading the `.dmg` or `.exe`.
+
+Alternatively, use the provided workflow: `/package`

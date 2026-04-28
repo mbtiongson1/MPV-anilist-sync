@@ -2,23 +2,28 @@
 
 import os
 import sys
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
 # Ensure build directory is correct for resolving relative paths
 spec_dir = os.path.dirname(os.path.abspath(SPEC))
 project_root = os.path.dirname(spec_dir)
+third_party_datas = collect_data_files('babelfish')
+third_party_hiddenimports = collect_submodules('babelfish.converters')
+
+with open(os.path.join(project_root, 'VERSION'), 'r', encoding='utf-8') as version_file:
+    version = version_file.read().strip()
 
 block_cipher = None
 
 a = Analysis(
-    [os.path.join(project_root, 'src', 'main.py')],
+    [os.path.join(project_root, 'src', 'desktop_launcher.py')],
     pathex=[project_root],
     binaries=[],
     datas=[
         (os.path.join(project_root, 'VERSION'), '.'),
         (os.path.join(project_root, 'frontend', 'dist'), 'frontend/dist'),
-        # Add any other static assets if needed
-    ],
-    hiddenimports=['PIL._imagingtk', 'PIL._tkinter_finder'],
+    ] + third_party_datas,
+    hiddenimports=['PIL._imagingtk', 'PIL._tkinter_finder'] + third_party_hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -34,11 +39,9 @@ pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
     [],
-    name='MPV_Anilist_Tracker_raw',
+    exclude_binaries=True,
+    name='MPV_Anilist_Tracker',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -53,13 +56,24 @@ exe = EXE(
     icon=os.path.join(project_root, 'build', 'app_icon.icns')
 )
 
-app = BUNDLE(
+coll = COLLECT(
     exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='MPV_Anilist_Tracker'
+)
+
+app = BUNDLE(
+    coll,
     name='MPV Anilist Tracker.app',
     icon=os.path.join(project_root, 'build', 'app_icon.icns'),
     bundle_identifier='com.mbtiongson.mpv-anilist-sync',
     info_plist={
-        'CFBundleShortVersionString': '4.2.0', # In production, sync this with VERSION
+        'CFBundleShortVersionString': version,
         'NSHighResolutionCapable': True,
     },
 )
