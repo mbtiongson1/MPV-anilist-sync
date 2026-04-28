@@ -1,4 +1,4 @@
-# 🎬 MPV Anilist Tracker (v4.2.11)
+# 🎬 MPV Anilist Tracker (v5.0.0)
 
 A lightweight, background Python agent for Windows and macOS that detects when an anime video is being played, extracts the title and episode from the filename, and automatically syncs your watch progress to your **Anilist.co** account.
 
