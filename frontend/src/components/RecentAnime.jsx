@@ -1,4 +1,4 @@
-import { animeList, userSettings, activeSearchTerm } from '../store';
+import { animeList, userSettings, activeSearchTerm, torrentCache } from '../store';
 import { statusColors, escapeHtml, getCachedImageUrl, getRelativeTime, getDisplayTitle } from '../utils';
 import { SearchIcon, FolderIcon } from '../icons';
 import { setActiveTab } from '../store';
@@ -56,6 +56,7 @@ export function RecentAnime({ onOpenDetails }) {
                                 title="Search Torrents"
                                 onClick={(e) => {
                                     e.stopPropagation();
+                                    torrentCache.value = { ...torrentCache.value, mediaId: anime.mediaId, query: title };
                                     activeSearchTerm.value = title;
                                     setActiveTab('TORRENTS');
                                 }}>

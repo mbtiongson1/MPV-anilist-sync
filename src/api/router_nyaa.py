@@ -1,8 +1,53 @@
 from fastapi import APIRouter, Request, Query
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 import os
+import re
+from src.library_index import (
+    build_library_index,
+    normalize_title,
+    sanitize_folder_name,
+)
 
 router = APIRouter()
+
+
+def _torrent_key(item: Dict[str, Any]) -> str:
+    return item.get('link') or item.get('url') or item.get('magnet') or item.get('title') or ''
+
+
+def _rank_torrent(torrent: Dict[str, Any], *, preferred_groups: List[str], category: str, nyaa_filter: str) -> tuple:
+    title = torrent.get('title', '')
+    title_lower = title.lower()
+    group_rank = 0
+    for idx, group in enumerate(preferred_groups or []):
+        group_clean = group.strip("[] ").lower()
+        if group_clean and group_clean in title_lower:
+            group_rank = 100 - idx
+            break
+    trusted = 1 if str(torrent.get('category', '')).lower() == 'trusted' else 0
+    if nyaa_filter == '2':
+        trusted = 100
+    if nyaa_filter == '1' and re.search(r'\b(remake|repack|v0)\b', title_lower):
+        trusted -= 25
+    size = torrent.get('seeders') or 0
+    return (
+        group_rank,
+        trusted,
+        size,
+        torrent.get('timestamp') or 0,
+    )
+
+
+def _is_archived(agent, torrent: Dict[str, Any]) -> bool:
+    archive = getattr(agent.settings, 'torrent_archive', []) or []
+    key = _torrent_key(torrent)
+    title = normalize_title(torrent.get('title', ''))
+    for entry in archive:
+        if _torrent_key(entry) == key:
+            return True
+        if title and normalize_title(entry.get('title', '')) == title:
+            return True
+    return False
 
 @router.get('/api/nyaa_search')
 async def nyaa_search(
@@ -33,40 +78,27 @@ async def nyaa_search(
             category=category,
             nyaa_filter=filter,
         )
-        
+
+        results = [r for r in results if not _is_archived(agent, r)]
+
         existing_eps = set()
         progress = 0
         if media_id:
             try:
                 mid = int(media_id)
                 progress = agent.get_progress_for_media(mid)
-                media_dir = agent.settings.get_media_folder(mid)
-                
-                if media_dir == agent.settings.default_download_dir:
-                    from src.parser import AnimeParser
-                    cached_list = agent.anilist._load_list_cache()
-                    anime_info = next((e for e in cached_list if e.get('mediaId') == mid), None)
-                    if anime_info:
-                        romaji = anime_info.get('title', {}).get('romaji') or ''
-                        english = anime_info.get('title', {}).get('english') or ''
-                        title = romaji or english
-                        title_safe = "".join([c for c in title if c.isalnum() or c in (' ', '-', '_')]).strip()
-                        potential_dir = os.path.join(agent.settings.default_download_dir, title_safe)
-                        if os.path.exists(potential_dir): media_dir = potential_dir
-
-                if os.path.exists(media_dir):
-                    from src.parser import AnimeParser
-                    for f in os.listdir(media_dir):
-                        if f.lower().endswith(('.mkv', '.mp4', '.avi')):
-                            parsed = AnimeParser.parse_filename(f)
-                            if parsed:
-                                ep_val = parsed.get('episode')
-                                if isinstance(ep_val, list): ep_val = ep_val[-1]
-                                if ep_val:
-                                    try: existing_eps.add(int(ep_val))
-                                    except Exception: pass
+                cached_list = agent.anilist._load_list_cache() if hasattr(agent, 'anilist') else []
+                index = build_library_index(
+                    agent.settings.default_download_dir,
+                    anilist_entries=cached_list or [],
+                    title_overrides=agent.settings.title_overrides or {},
+                )
+                availability = index.resolve_local_availability(agent.settings, media_id=mid)
+                existing_eps = availability['episode_numbers']
             except Exception as e:
                 print(f"Error scanning library for search: {e}")
+
+        results.sort(key=lambda t: _rank_torrent(t, preferred_groups=agent.settings.preferred_groups, category=category, nyaa_filter=filter), reverse=True)
 
         for r in results:
             ep = r.get('episode')
@@ -91,6 +123,11 @@ async def nyaa_batch_search_candidates(
         return []
     
     candidates = []
+    index = build_library_index(
+        agent.settings.default_download_dir,
+        anilist_entries=entries,
+        title_overrides=agent.settings.title_overrides or {},
+    )
 
     for entry in entries:
         media_status = entry.get('mediaStatus')
@@ -110,25 +147,8 @@ async def nyaa_batch_search_candidates(
         existing_eps = set()
         if media_id:
             try:
-                media_dir = agent.settings.get_media_folder(media_id)
-                if media_dir == agent.settings.default_download_dir:
-                    romaji = entry.get('title', {}).get('romaji') or ''
-                    english = entry.get('title', {}).get('english') or ''
-                    title_safe = "".join([c for c in (romaji or english) if c.isalnum() or c in (' ', '-', '_')]).strip()
-                    potential_dir = os.path.join(agent.settings.default_download_dir, title_safe)
-                    if os.path.exists(potential_dir): media_dir = potential_dir
-
-                if os.path.exists(media_dir):
-                    from src.parser import AnimeParser
-                    for f in os.listdir(media_dir):
-                        if f.lower().endswith(('.mkv', '.mp4', '.avi')):
-                            parsed = AnimeParser.parse_filename(f)
-                            if parsed:
-                                ep_val = parsed.get('episode')
-                                if isinstance(ep_val, list): ep_val = ep_val[-1]
-                                if ep_val:
-                                    try: existing_eps.add(int(ep_val))
-                                    except Exception: pass
+                availability = index.resolve_local_availability(agent.settings, media_id=media_id)
+                existing_eps = availability['episode_numbers']
             except Exception:
                 pass
                 
@@ -146,9 +166,9 @@ async def nyaa_batch_search_candidates(
             'query': title_query,
             'anime_title': romaji or english,
             'episode': target_ep,
-            'media_id': media_id
+            'media_id': media_id,
         })
-            
+
     return candidates
 
 @router.post('/api/nyaa_download')
@@ -156,37 +176,38 @@ async def nyaa_download(request: Request):
     agent = request.app.state.agent
     data = await request.json()
     items = data.get('items', [])
-    if not items and 'url' in data:
-        items = [{'url': data['url'], 'mediaId': data.get('mediaId'), 'animeTitle': data.get('animeTitle')}]
+    if not items and ('url' in data or 'link' in data):
+        items = [{
+            'url': data.get('url') or data.get('link'),
+            'mediaId': data.get('mediaId') or data.get('media_id'),
+            'animeTitle': data.get('animeTitle') or data.get('anime_title'),
+        }]
     
     results = []
     if agent and hasattr(agent, 'nyaa'):
         for item in items:
-            url = item.get('url')
-            media_id = item.get('mediaId')
-            anime_title = item.get('animeTitle')
+            url = item.get('url') or item.get('link')
+            media_id = item.get('mediaId') or item.get('media_id')
+            anime_title = item.get('animeTitle') or item.get('anime_title')
             
             if not url: continue
-
-            def _make_title_dir(title: str) -> str:
-                import re
-                safe = re.sub(r'[<>:"/\\|?*\x00-\x1f]', '', title).strip()
-                return safe or 'Downloads'
 
             if media_id:
                 configured = agent.settings.get_media_folder(int(media_id))
                 if configured != agent.settings.default_download_dir:
                     download_dir = configured
                 elif anime_title:
-                    download_dir = os.path.join(agent.settings.default_download_dir, _make_title_dir(anime_title))
+                    download_dir = os.path.join(agent.settings.default_download_dir, sanitize_folder_name(anime_title))
                 else:
                     download_dir = agent.settings.default_download_dir
             elif anime_title:
-                download_dir = os.path.join(agent.settings.default_download_dir, _make_title_dir(anime_title))
+                download_dir = os.path.join(agent.settings.default_download_dir, sanitize_folder_name(anime_title))
             else:
                 download_dir = agent.settings.default_download_dir
 
             path = agent.nyaa.download_torrent(url, download_dir)
-            results.append({"url": url, "success": bool(path)})
+            if path:
+                agent.settings.add_torrent_archive({"url": url, "title": anime_title or path})
+            results.append({"url": url, "success": bool(path), "download_dir": download_dir})
         
     return {"success": True, "results": results}

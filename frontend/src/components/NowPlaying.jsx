@@ -1,5 +1,5 @@
 import { useEffect } from 'preact/hooks';
-import { latestStatus, userSettings, animeList, showToast, activeSearchTerm, recordApiRequest, setActiveTab } from '../store';
+import { latestStatus, userSettings, animeList, showToast, activeSearchTerm, recordApiRequest, setActiveTab, torrentCache } from '../store';
 import { escapeHtml, formatPopularity, getCachedImageUrl, getDisplayTitle } from '../utils';
 import { ProgressBar } from './ProgressBar';
 import { SearchIcon, FolderIcon } from '../icons';
@@ -89,6 +89,7 @@ export function NowPlaying({ onOpenDetails }) {
 
     const handleSearchTorrents = () => {
         if (data.base_title || data.title) {
+            torrentCache.value = { ...torrentCache.value, mediaId: selectedMediaId, query: data.base_title || data.title };
             activeSearchTerm.value = data.base_title || data.title;
             setActiveTab('TORRENTS');
         }

@@ -94,6 +94,28 @@
     "children": []
   },
   {
+    "name": "NEEDY GIRL OVERDOSE",
+    "type": "directory",
+    "path": "/Users/marcotiongson/Downloads/NEEDY GIRL OVERDOSE",
+    "size": 597971627,
+    "mediaId": 202102,
+    "listStatus": "CURRENT",
+    "progress": 3,
+    "children": [
+      {
+        "name": "[ASW] NEEDY GIRL OVERDOSE - 04 [1080p HEVC][BE569D6A].mkv",
+        "type": "file",
+        "path": "/Users/marcotiongson/Downloads/NEEDY GIRL OVERDOSE/[ASW] NEEDY GIRL OVERDOSE - 04 [1080p HEVC][BE569D6A].mkv",
+        "size": 597971627,
+        "mediaId": 202102,
+        "listStatus": "CURRENT",
+        "progress": 3,
+        "episode": 4
+      }
+    ],
+    "localEpisodeCount": 1
+  },
+  {
     "name": "Nigetsuri",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/Nigetsuri",
@@ -151,6 +173,17 @@
     "localEpisodeCount": 0
   },
   {
+    "name": "Tensei Shitara Slime Datta Ken",
+    "type": "directory",
+    "path": "/Users/marcotiongson/Downloads/Tensei Shitara Slime Datta Ken",
+    "size": 96,
+    "mediaId": 101280,
+    "listStatus": "COMPLETED",
+    "progress": 24,
+    "children": [],
+    "localEpisodeCount": 0
+  },
+  {
     "name": "The beginning after the end",
     "type": "directory",
     "path": "/Users/marcotiongson/Downloads/The beginning after the end",
@@ -169,6 +202,17 @@
     "mediaId": 163144,
     "listStatus": "CURRENT",
     "progress": 0,
+    "children": [],
+    "localEpisodeCount": 0
+  },
+  {
+    "name": "Tsue to Tsurugi no Wistoria",
+    "type": "directory",
+    "path": "/Users/marcotiongson/Downloads/Tsue to Tsurugi no Wistoria",
+    "size": 64,
+    "mediaId": 174576,
+    "listStatus": "COMPLETED",
+    "progress": 12,
     "children": [],
     "localEpisodeCount": 0
   },
@@ -215,66 +259,6 @@
     "path": "/Users/marcotiongson/Downloads/Yuusha Party ni Kawaii Ko ga Ita node Kokuhaku shitemita",
     "size": 64,
     "children": []
-  },
-  {
-    "name": "[ASW] NEEDY GIRL OVERDOSE - 04 [1080p HEVC][BE569D6A].mkv",
-    "type": "file",
-    "path": "/Users/marcotiongson/Downloads/[ASW] NEEDY GIRL OVERDOSE - 04 [1080p HEVC][BE569D6A].mkv",
-    "size": 597971627,
-    "mediaId": 202102,
-    "listStatus": "CURRENT",
-    "progress": 3,
-    "episode": 4
-  },
-  {
-    "name": "[ASW] Tensei Shitara Slime Datta Ken S4 - 01 [1080p HEVC][0ADA655A].mkv",
-    "type": "file",
-    "path": "/Users/marcotiongson/Downloads/[ASW] Tensei Shitara Slime Datta Ken S4 - 01 [1080p HEVC][0ADA655A].mkv",
-    "size": 278831888,
-    "mediaId": 101280,
-    "listStatus": "COMPLETED",
-    "progress": 24,
-    "episode": 1
-  },
-  {
-    "name": "[ASW] Tensei Shitara Slime Datta Ken S4 - 02 [1080p HEVC][58A8511A].mkv",
-    "type": "file",
-    "path": "/Users/marcotiongson/Downloads/[ASW] Tensei Shitara Slime Datta Ken S4 - 02 [1080p HEVC][58A8511A].mkv",
-    "size": 282581529,
-    "mediaId": 101280,
-    "listStatus": "COMPLETED",
-    "progress": 24,
-    "episode": 2
-  },
-  {
-    "name": "[ASW] Tensei Shitara Slime Datta Ken S4 - 03 [1080p HEVC][D20BCC1E].mkv",
-    "type": "file",
-    "path": "/Users/marcotiongson/Downloads/[ASW] Tensei Shitara Slime Datta Ken S4 - 03 [1080p HEVC][D20BCC1E].mkv",
-    "size": 423058820,
-    "mediaId": 101280,
-    "listStatus": "COMPLETED",
-    "progress": 24,
-    "episode": 3
-  },
-  {
-    "name": "[ASW] Tensei Shitara Slime Datta Ken S4 - 04 [1080p HEVC][D8433F45].mkv",
-    "type": "file",
-    "path": "/Users/marcotiongson/Downloads/[ASW] Tensei Shitara Slime Datta Ken S4 - 04 [1080p HEVC][D8433F45].mkv",
-    "size": 273484971,
-    "mediaId": 101280,
-    "listStatus": "COMPLETED",
-    "progress": 24,
-    "episode": 4
-  },
-  {
-    "name": "[ASW] Tsue to Tsurugi no Wistoria S2 - 02 [1080p HEVC][BE027786].mkv",
-    "type": "file",
-    "path": "/Users/marcotiongson/Downloads/[ASW] Tsue to Tsurugi no Wistoria S2 - 02 [1080p HEVC][BE027786].mkv",
-    "size": 442030400,
-    "mediaId": 174576,
-    "listStatus": "COMPLETED",
-    "progress": 12,
-    "episode": 2
   },
   {
     "name": "stitch_agent_habitat_simulator",

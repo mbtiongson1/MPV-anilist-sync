@@ -35,60 +35,99 @@ Beyond simple tracking, it features a **powerful Web UI** that serves as your pe
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quickstart
 
-### 1. Configure MPV (Optional)
+If you just want the app running, use the platform section below. The fastest supported path right now is the Python source checkout, not a packaged `.exe` or `.dmg`.
 
-The agent relies on Inter-Process Communication (IPC) for MPV. You must instruct MPV to open this socket.
+### Before You Start
 
-Add the following inside your `mpv.conf` file:
+1. Install Python 3.11+.
+2. Install Node.js 18+.
+3. Configure MPV IPC if you want reliable MPV detection.
+
+Add this to your `mpv.conf`:
 
 ```text
-# On Windows:
+# Windows
 input-ipc-server=\\.\pipe\mpvsocket
 
-# On macOS/Linux:
+# macOS / Linux
 input-ipc-server=/tmp/mpvsocket
 ```
 
-### 2. Install Dependencies
+### Windows Quickstart
 
-Make sure you are running Python 3. Initialize a virtual environment and install the required modules:
-
-```bash
-# Windows
+```powershell
+git clone <this-repo>
+cd MPV
 python -m venv venv
 .\venv\Scripts\activate
-pip install -r requirements.txt
-
-# macOS
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Note: If you plan to develop the tracker, install the dev requirements instead:
-# pip install -r requirements-dev.txt
-```
-
-### 3. Running the Tracker
-
-Start the Python script from the terminal:
-
-```bash
-python src/main.py
-```
-
-> **Note**: For `src/main.py` to display the UI, you must first build the frontend by running `cd frontend && npm install && npm run build`.
-
-If you are developing or making changes, use the unified development runner instead, which will automatically build and start the UI and auto-reload the backend:
-
-```bash
-# Requires `pip install -r requirements-dev.txt`
+pip install -r requirements-dev.txt
+cd frontend
+npm install
+cd ..
 python dev.py
 ```
 
-- **First Launch**: A browser window will open for you to authenticate with AniList.
-- **Web UI**: Access the control panel at `http://localhost:8080` (or `http://localhost:5173` if using `dev.py`).
+What this does:
+- Starts the backend on `http://localhost:8080`
+- Starts the frontend dev UI on `http://localhost:5173`
+- Auto-reloads the backend when Python files change
+
+If you do not want the dev server and only want the backend + built UI:
+
+```powershell
+.\venv\Scripts\activate
+cd frontend
+npm install
+npm run build
+cd ..
+python src/main.py
+```
+
+### macOS Quickstart
+
+```bash
+git clone <this-repo>
+cd MPV
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements-dev.txt
+cd frontend
+npm install
+cd ..
+./run.sh
+```
+
+What this does:
+- Starts the same dev environment as `python dev.py`
+- Streams startup output to the terminal
+- Saves the same output to `logs/run.log`
+
+If you only want the backend + built UI:
+
+```bash
+source venv/bin/activate
+cd frontend
+npm install
+npm run build
+cd ..
+python3 src/main.py
+```
+
+### What You Should See
+
+- Backend API: `http://localhost:8080`
+- Frontend UI while developing: usually `http://localhost:5173`
+- If port `5173` is already in use, Vite will move to the next free port such as `5174`
+- On first launch, AniList authentication may open in your browser
+
+### If Nothing Shows Up
+
+1. Check `logs/run.log` on macOS if you used `./run.sh`
+2. Check whether `5173` or `8080` are already in use
+3. If the frontend is blank, run `npm -C frontend run build` or restart `python dev.py`
+4. If MPV is not detected, verify `/tmp/mpvsocket` on macOS or `\\.\pipe\mpvsocket` on Windows
 
 ### 4. Running via Docker (GitHub Packages)
 
@@ -106,7 +145,7 @@ docker run -d -p 8080:8080 \
 ```
 *Note: The Docker container acts primarily as a headless library manager and Web UI; it may not automatically detect local host video players via IPC natively without additional network configuration.*
 
-### 5. Running Unit Tests
+### Running Unit Tests
 
 Run the backend unit tests from the project root using your virtualenv Python:
 
@@ -148,11 +187,28 @@ If you make changes to the React UI in `frontend/src`, you must rebuild the stat
 
 Alternatively, you can just run `python dev.py` which will run Vite and the backend dynamically with hot-reloading. Build workflows such as `/build_frontend` are also available.
 
-### Building Standalone Apps
+### Packaging Status
 
-You can package the application into a standalone distribution (.exe or .app):
+The packaging path is currently experimental.
 
-1. **Install Build Dependencies**: `pip install Pillow pyinstaller dmgbuild`
-2. **Run Build**: `python package.py`
+- The repo contains `package.py` plus PyInstaller spec files for Windows and macOS
+- The intended outputs are a Windows executable and a macOS `.app` / `.dmg`
+- At the moment, this is not a reliable supported install path
 
-Alternatively, use the provided workflow: `/package`
+Current reality:
+- Source checkout + Python virtualenv is the recommended way to run the app
+- `python package.py` may build partially, but you should expect breakage
+- The generated `.exe` / `.dmg` should be treated as work-in-progress, not release artifacts
+
+If you still want to try packaging:
+
+```bash
+pip install Pillow pyinstaller dmgbuild
+python package.py
+```
+
+Known caveats from the current packaging setup:
+- The frontend must build successfully first
+- The build specs bundle `frontend/dist`, so stale frontend output can produce a broken app
+- macOS DMG creation depends on `dmgbuild`
+- The README does not currently promise a working packaged installer because that path still needs work
