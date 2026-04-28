@@ -22,19 +22,11 @@ VERSION = get_version()
 # Ensure the project root is in sys.path so we can use package-style imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-try:
-    from src.anilist import AnilistClient
-    from src.parser import AnimeParser
-    from src.watchers import MPVWatcher, MPCHCWatcher, VLCWatcher, WindowTitleWatcher, BaseWatcher
-    from src.settings import SettingsManager
-    from src.nyaa import NyaaInterface
-except ImportError:
-    # Fallback for if we're not running as a package
-    from anilist import AnilistClient
-    from parser import AnimeParser
-    from watchers import MPVWatcher, MPCHCWatcher, VLCWatcher, WindowTitleWatcher, BaseWatcher
-    from settings import SettingsManager
-    from nyaa import NyaaInterface
+from src.anilist import AnilistClient
+from src.parser import AnimeParser
+from src.watchers import MPVWatcher, MPCHCWatcher, VLCWatcher, WindowTitleWatcher, BaseWatcher
+from src.settings import SettingsManager
+from src.nyaa import NyaaInterface
 
 class TrackerAgent:
     def __init__(self):
@@ -456,10 +448,7 @@ class TrackerAgent:
 
 
 def run_tracker(port: Optional[int] = None):
-    try:
-        from src.web_server import start_web_server
-    except ImportError:
-        from web_server import start_web_server
+    from src.web_server import start_web_server
 
     agent = TrackerAgent()
 

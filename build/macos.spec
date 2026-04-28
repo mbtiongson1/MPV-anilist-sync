@@ -2,12 +2,13 @@
 
 import os
 import sys
-from PyInstaller.utils.hooks import collect_data_files
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
 # Ensure build directory is correct for resolving relative paths
 spec_dir = os.path.dirname(os.path.abspath(SPEC))
 project_root = os.path.dirname(spec_dir)
 third_party_datas = collect_data_files('babelfish')
+third_party_hiddenimports = collect_submodules('babelfish.converters')
 
 with open(os.path.join(project_root, 'VERSION'), 'r', encoding='utf-8') as version_file:
     version = version_file.read().strip()
@@ -22,7 +23,7 @@ a = Analysis(
         (os.path.join(project_root, 'VERSION'), '.'),
         (os.path.join(project_root, 'frontend', 'dist'), 'frontend/dist'),
     ] + third_party_datas,
-    hiddenimports=['PIL._imagingtk', 'PIL._tkinter_finder'],
+    hiddenimports=['PIL._imagingtk', 'PIL._tkinter_finder'] + third_party_hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
