@@ -62,7 +62,7 @@ export function Sidebar({ filterYear, onFilterYearChange, filterFormat, onFilter
     return (
         <nav id="app-sidebar" class={collapsed ? 'collapsed' : ''}>
             <div class="sidebar-header">
-                <button class="sidebar-toggle" id="sidebar-toggle" title="Toggle Sidebar" onClick={toggleSidebar}>
+                <button class="sidebar-toggle" id="sidebar-toggle" title="Toggle Sidebar" aria-label="Toggle Sidebar" onClick={toggleSidebar}>
                     <svg id="sidebar-toggle-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         {collapsed
                             ? <><polyline points="13 17 18 12 13 7" /><polyline points="6 17 11 12 6 7" /></>
@@ -100,7 +100,7 @@ export function Sidebar({ filterYear, onFilterYearChange, filterFormat, onFilter
                 <div class="sidebar-section">
                     <div class="sidebar-section-title" style="display: flex; justify-content: space-between; align-items: center;">
                         <span>Filters</span>
-                        <button id="btn-reset-filters" class="icon-btn reset-filters-btn" title="Reset Filters to Default" onClick={resetFilters}>
+                        <button id="btn-reset-filters" class="icon-btn reset-filters-btn" title="Reset Filters to Default" aria-label="Reset Filters to Default" onClick={resetFilters}>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
                         </button>
                     </div>
