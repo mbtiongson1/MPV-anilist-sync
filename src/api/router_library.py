@@ -394,6 +394,25 @@ def get_image(url: str):
     if not url:
         return Response(status_code=400)
 
+    try:
+        import urllib.parse
+        parsed = urllib.parse.urlparse(url)
+        hostname = parsed.hostname
+        if not hostname:
+            return Response(status_code=400)
+
+        allowed = False
+        allowed_domains = ['anilist.co', 'nyaa.si', 'mpv-tracker.local']
+        for domain in allowed_domains:
+            if hostname == domain or hostname.endswith('.' + domain):
+                allowed = True
+                break
+
+        if not allowed:
+            return Response(status_code=403, content="Forbidden: Domain not allowed")
+    except Exception:
+        return Response(status_code=400)
+
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
     cache_dir = os.path.join(base_dir, 'image_cache')
     os.makedirs(cache_dir, exist_ok=True)
