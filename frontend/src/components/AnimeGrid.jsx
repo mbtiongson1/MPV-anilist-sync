@@ -99,7 +99,7 @@ export function AnimeGrid({ viewMode, onViewModeChange, filteredList, filterName
                     <input type="text" id="filter-name" placeholder="Search anime..." value={filterName}
                         onInput={(e) => onFilterNameChange(e.target.value)} />
                     {filterName && (
-                        <button id="btn-clear-search" class="btn-clear-search" onClick={() => onFilterNameChange('')}>×</button>
+                        <button id="btn-clear-search" class="btn-clear-search" aria-label="Clear Search" onClick={() => onFilterNameChange('')}>×</button>
                     )}
                 </div>
                 <select id="filter-season" class="filter-select" value={filterSeason} onChange={(e) => onFilterSeasonChange(e.target.value)}>
@@ -121,14 +121,14 @@ export function AnimeGrid({ viewMode, onViewModeChange, filteredList, filterName
                 </select>
                 <div class="view-toggle-group" style={{ display: 'flex', gap: '0.25rem', marginLeft: 'auto' }}>
                     {showCleanup && (
-                        <button id="btn-cleanup-progress" class="view-toggle-btn" onClick={onCleanup} title="Cleanup unwatched anime" style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.2)' }}>
+                        <button id="btn-cleanup-progress" class="view-toggle-btn" onClick={onCleanup} title="Cleanup unwatched anime" aria-label="Cleanup unwatched anime" style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.2)' }}>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
                         </button>
                     )}
-                    <button id="btn-view-grid" class={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`} onClick={() => onViewModeChange?.('grid')} title="Grid View">
+                    <button id="btn-view-grid" class={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`} onClick={() => onViewModeChange?.('grid')} title="Grid View" aria-label="Grid View">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                     </button>
-                    <button id="btn-view-list" class={`view-toggle-btn ${viewMode === 'details' ? 'active' : ''}`} onClick={() => onViewModeChange?.('details')} title="Details View">
+                    <button id="btn-view-list" class={`view-toggle-btn ${viewMode === 'details' ? 'active' : ''}`} onClick={() => onViewModeChange?.('details')} title="Details View" aria-label="Details View">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
                     </button>
                 </div>
@@ -192,14 +192,14 @@ function ActionButtons({ anime, onEdit, settings }) {
     const title = getDisplayTitle(anime, settings);
     return (
         <div style="display: flex; gap: 0.25rem; margin-left: auto;">
-            <button class="icon-btn btn-open-folder" onClick={(e) => { e.stopPropagation(); api.openFolder(anime.mediaId); }} title="Open Folder"><FolderIcon /></button>
+            <button class="icon-btn btn-open-folder" onClick={(e) => { e.stopPropagation(); api.openFolder(anime.mediaId); }} title="Open Folder" aria-label="Open Folder"><FolderIcon /></button>
             <button class="icon-btn btn-search-torrents" onClick={(e) => {
                 e.stopPropagation();
                 torrentCache.value = { ...torrentCache.value, mediaId: anime.mediaId, query: title };
                 activeSearchTerm.value = title;
                 setActiveTab('TORRENTS');
-            }} title="Search Torrents"><SearchIcon size={14} /></button>
-            <button class="icon-btn edit-btn" onClick={(e) => { e.stopPropagation(); onEdit(); }} title="Edit Progress"><EditIcon /></button>
+            }} title="Search Torrents" aria-label="Search Torrents"><SearchIcon size={14} /></button>
+            <button class="icon-btn edit-btn" onClick={(e) => { e.stopPropagation(); onEdit(); }} title="Edit Progress" aria-label="Edit Progress"><EditIcon /></button>
             {anime.listStatus === 'COMPLETED' && (
                 <button class="icon-btn btn-resume" onClick={(e) => {
                     e.stopPropagation();
@@ -211,7 +211,7 @@ function ActionButtons({ anime, onEdit, settings }) {
                     anime.progress = newProgress;
                     animeList.value = [...animeList.value];
                     showToast("Resume recorded (Pending Update)");
-                }} title="Move to In Progress"><ResumeIcon /></button>
+                }} title="Move to In Progress" aria-label="Move to In Progress"><ResumeIcon /></button>
             )}
         </div>
     );

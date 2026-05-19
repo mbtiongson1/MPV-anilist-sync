@@ -36,6 +36,7 @@ export function Pagination({ currentPage, totalItems, itemsPerPage, onPageChange
                 <button
                     id="btn-prev-page"
                     class="pagination-btn"
+                    aria-label="Previous Page"
                     disabled={currentPage === 1}
                     onClick={() => { onPageChange(currentPage - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 >
@@ -55,6 +56,7 @@ export function Pagination({ currentPage, totalItems, itemsPerPage, onPageChange
                 <button
                     id="btn-next-page"
                     class="pagination-btn"
+                    aria-label="Next Page"
                     disabled={currentPage >= totalPages}
                     onClick={() => { onPageChange(currentPage + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 >
