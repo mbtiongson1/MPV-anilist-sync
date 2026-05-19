@@ -6,6 +6,8 @@ import os
 import time
 import json
 import requests
+import httpx
+import asyncio
 import hashlib
 import shutil
 import urllib.parse
@@ -396,7 +398,7 @@ async def get_library(request: Request, force_refresh: str = 'false'):
     return {"success": True, "data": library_tree}
 
 @router.get('/api/image')
-def get_image(url: str):
+async def get_image(url: str):
     if not url:
         return Response(status_code=400)
 
@@ -439,11 +441,12 @@ def get_image(url: str):
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
             }
-            r = requests.get(url, headers=headers, timeout=5)
-            r.raise_for_status()
-            content_type = r.headers.get('content-type', 'image/jpeg')
-            with open(cache_path, 'wb') as f:
-                f.write(r.content)
+            async with httpx.AsyncClient(limits=httpx.Limits(max_connections=None, max_keepalive_connections=None)) as client:
+                r = await client.get(url, headers=headers, timeout=5)
+                r.raise_for_status()
+                content_type = r.headers.get('content-type', 'image/jpeg')
+                with open(cache_path, 'wb') as f:
+                    f.write(r.content)
             with open(cache_path + '.meta', 'w') as f:
                 f.write(content_type)
         except Exception:
