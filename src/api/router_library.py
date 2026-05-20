@@ -396,10 +396,18 @@ def get_image(url: str):
 
     try:
         import urllib.parse
+        import re
+
+        if '\\' in url:
+            return Response(status_code=400, content="Invalid URL format")
+
         parsed = urllib.parse.urlparse(url)
         hostname = parsed.hostname
         if not hostname:
             return Response(status_code=400)
+
+        if not re.match(r"^[a-zA-Z0-9.-]+$", hostname):
+            return Response(status_code=400, content="Invalid hostname characters")
 
         allowed = False
         allowed_domains = ['anilist.co', 'nyaa.si', 'mpv-tracker.local']
