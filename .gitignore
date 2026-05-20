@@ -10,3 +10,4 @@ __pycache__/
 image_cache/
 node_modules/
 frontend/dist/
+test_lib/
