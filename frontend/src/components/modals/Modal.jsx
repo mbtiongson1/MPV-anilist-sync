@@ -7,7 +7,7 @@ export function Modal({ id, title, visible, onClose, children, footer }) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 id="details-modal-title">{title}</h2>
-                    <button class="modal-close-btn" onClick={onClose}>×</button>
+                    <button class="modal-close-btn" aria-label="Close modal" onClick={onClose}>×</button>
                 </div>
                 <div id="modal-body" class="modal-body">
                     {children}
