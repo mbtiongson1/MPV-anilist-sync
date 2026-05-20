@@ -1,4 +1,4 @@
-## 2025-02-14 - Fix SSRF in /api/image endpoint
-**Vulnerability:** Server-Side Request Forgery (SSRF) allowed retrieving internal resources (like AWS IMDSv2 metadata via 169.254.169.254) by passing arbitrary URLs to the image proxy endpoint.
-**Learning:** External user inputs were passed blindly to `requests.get()` without proper host validation.
-**Prevention:** Implement an allowlist approach for expected external hosts using `urllib.parse.urlparse()`. Make sure to account for subdomains securely, for example by checking if the domain `endswith("." + allowed_domain)`.
+## 2026-05-20 - SSRF via Parser Differential
+**Vulnerability:** The `/api/image` endpoint was vulnerable to Server-Side Request Forgery (SSRF) bypassing domain allowlists.
+**Learning:** `urllib.parse.urlparse` and HTTP clients like `requests` differ in parsing URLs with non-standard characters like `\` or `@`. A URL like `http://127.0.0.1\.anilist.co` is interpreted as having the hostname `127.0.0.1\.anilist.co` by `urllib`, passing the `.anilist.co` suffix check. However, `requests` resolves this to `http://127.0.0.1/`, bypassing the intended restriction.
+**Prevention:** Always validate extracted hostnames using a strict character allowlist (e.g., `^[a-zA-Z0-9.-]+$`) and reject URLs containing characters known to cause parser confusion (e.g., `\`, `@`, `#` before the path) before passing them to HTTP clients.
