@@ -1,3 +1,3 @@
-## 2026-05-19 - React Stats Performance
-**Learning:** `StatsView` calculates very heavy metrics (heatmaps, mean score, Pareto charts) over the entire `animeList` on every render. This blocks the main thread when navigating tabs.
-**Action:** Always wrap heavy aggregation operations derived from global store signals in `useMemo` to prevent redundant recalculation.
+## 2024-05-20 - Redundant O(N) Title Matching Fallback
+**Learning:** In `src/library_index.py`, if a normalized candidate title failed to match against the `by_title` lookup dictionary, the code would fall back to an O(N) iteration over *all* entries, re-normalizing every candidate title again in a nested loop. Since `by_title` is populated comprehensively during initialization, this fallback loop would always fail and only acted as a massive performance bottleneck on cache misses.
+**Action:** When using dictionary-based lookup tables for fast O(1) matching, trust the lookup table. If a match fails, return early instead of falling back to O(N) exhaustive searches that are computationally expensive and redundant.
