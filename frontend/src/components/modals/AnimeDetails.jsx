@@ -83,7 +83,7 @@ export function AnimeDetailsModal({ anime, visible, onClose }) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Edit Anime</h2>
-                    <button class="modal-close-btn" onClick={onClose}>×</button>
+                    <button class="modal-close-btn" aria-label="Close modal" onClick={onClose}>×</button>
                 </div>
                 <div class="modal-body">
                     <div class="details-modal-grid">
@@ -131,7 +131,7 @@ export function AnimeDetailsModal({ anime, visible, onClose }) {
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <label style="font-weight: 600;">Set progress:</label>
                                 <div style="display: flex; align-items: center; gap: 4px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; padding: 2px;">
-                                    <button class="icon-btn" style="width: 28px; height: 28px; padding: 0;"
+                                    <button class="icon-btn" aria-label="Decrease progress" style="width: 28px; height: 28px; padding: 0;"
                                         onClick={() => setProgress(Math.max(0, progress - 1))}>-</button>
                                     <input
                                         type="number"
@@ -140,7 +140,7 @@ export function AnimeDetailsModal({ anime, visible, onClose }) {
                                         onInput={(e) => setProgress(parseInt(e.target.value) || 0)}
                                         style="width: 50px; padding: 4px; border: none; background: transparent; text-align: center; color: var(--text-primary); font-family: inherit; font-weight: 600;"
                                     />
-                                    <button class="icon-btn" style="width: 28px; height: 28px; padding: 0;"
+                                    <button class="icon-btn" aria-label="Increase progress" style="width: 28px; height: 28px; padding: 0;"
                                         onClick={() => setProgress(progress + 1)}>+</button>
                                 </div>
                             </div>
