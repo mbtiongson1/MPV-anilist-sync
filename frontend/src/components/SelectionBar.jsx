@@ -25,7 +25,7 @@ export function SelectionBar({ onShowReview }) {
                 <span id="selection-count">{count}</span> selected
             </div>
             <div class="selection-actions">
-                <button id="btn-select-none" class="icon-btn" onClick={clearSelection} title="Clear Selection">
+                <button id="btn-select-none" class="icon-btn" onClick={clearSelection} title="Clear Selection" aria-label="Clear Selection">
                     Clear
                 </button>
                 <div class="move-to-wrapper">

@@ -96,7 +96,7 @@ export function CleanupModal({ visible, onClose }) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Cleanup In Progress List</h2>
-                    <button class="modal-close-btn" onClick={onClose}>×</button>
+                    <button class="modal-close-btn" onClick={onClose} aria-label="Close">×</button>
                 </div>
                 <div class="modal-body">
                     {step === 1 && (

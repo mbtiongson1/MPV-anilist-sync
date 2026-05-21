@@ -141,10 +141,10 @@ export function NowPlaying({ onOpenDetails }) {
                             </p>
                         </div>
                         <div class="np-top-actions" style={{ display: 'flex', gap: '0.5rem' }}>
-                            <button id="btn-open-np-folder" class="icon-btn" style={{ padding: '0.5rem' }} onClick={handleOpenFolder} title="Open Folder">
+                            <button id="btn-open-np-folder" class="icon-btn" style={{ padding: '0.5rem' }} onClick={handleOpenFolder} title="Open Folder" aria-label="Open Folder">
                                 <FolderIcon size={16} />
                             </button>
-                            <button id="btn-search-np-torrents" class="icon-btn" style={{ padding: '0.5rem' }} onClick={handleSearchTorrents} title="Search Torrents">
+                            <button id="btn-search-np-torrents" class="icon-btn" style={{ padding: '0.5rem' }} onClick={handleSearchTorrents} title="Search Torrents" aria-label="Search Torrents">
                                 <SearchIcon size={16} />
                             </button>
                             <button id="btn-edit-nowplaying" class="icon-btn" style={{ padding: '0.5rem' }} onClick={() => {
@@ -152,7 +152,7 @@ export function NowPlaying({ onOpenDetails }) {
                                     const anime = animeList.value.find(a => a.mediaId == selectedMediaId);
                                     if (anime) onOpenDetails?.(anime);
                                 }
-                            }} title="Edit">
+                            }} title="Edit" aria-label="Edit">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" /></svg>
                             </button>
                         </div>
