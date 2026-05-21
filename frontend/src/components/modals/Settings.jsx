@@ -60,7 +60,7 @@ export function SettingsModal({ visible, onClose, onSaved }) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Settings</h2>
-                    <button class="modal-close-btn" id="settings-modal-close" onClick={onClose}>×</button>
+                    <button class="modal-close-btn" id="settings-modal-close" onClick={onClose} aria-label="Close">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="settings-group">

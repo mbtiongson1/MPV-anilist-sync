@@ -53,7 +53,7 @@ export function RecentAnime({ onOpenDetails }) {
                         </div>
                         {status === 'CURRENT' && (
                             <button class="icon-btn btn-search-torrents" style="padding: 0.3rem;"
-                                title="Search Torrents"
+                                title="Search Torrents" aria-label="Search Torrents"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     torrentCache.value = { ...torrentCache.value, mediaId: anime.mediaId, query: title };
@@ -64,7 +64,7 @@ export function RecentAnime({ onOpenDetails }) {
                             </button>
                         )}
                         <button class="icon-btn btn-open-folder" style="padding: 0.3rem;"
-                            title="Open folder"
+                            title="Open folder" aria-label="Open folder"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 api.openFolder(anime.mediaId);

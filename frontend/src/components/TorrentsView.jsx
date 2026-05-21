@@ -390,8 +390,8 @@ export function TorrentsView() {
                                         <td class="leechers" style="text-align: right;">{t.leechers ?? '-'}</td>
                                         <td style="text-align: right;">
                                             <div style="display:flex; gap:6px; justify-content: flex-end;">
-                                                {getTorrentUrl(t) && <a href={getTorrentUrl(t)} target="_blank" rel="noopener" class="icon-btn" title="Open on Nyaa"><ExternalLinkIcon size={12} /></a>}
-                                                <button class="icon-btn" title="Download" onClick={() => handleDownload([item])}><DownloadIcon size={12} /></button>
+                                                {getTorrentUrl(t) && <a href={getTorrentUrl(t)} target="_blank" rel="noopener" class="icon-btn" title="Open on Nyaa" aria-label="Open on Nyaa"><ExternalLinkIcon size={12} /></a>}
+                                                <button class="icon-btn" title="Download" aria-label="Download" onClick={() => handleDownload([item])}><DownloadIcon size={12} /></button>
                                             </div>
                                         </td>
                                     </tr>
