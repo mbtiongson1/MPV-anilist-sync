@@ -94,51 +94,45 @@ export function App() {
 
         if (!['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED'].includes(tab)) return [];
 
-        let filtered = list.filter(a => a.listStatus === tab);
+        const q = filterName ? filterName.toLowerCase() : null;
+        const targetYear = filterYear ? parseInt(filterYear) : null;
+        const filterFormatUpper = filterFormat ? filterFormat.toUpperCase() : null;
+        const activeGenresArr = activeGenres.size > 0 ? Array.from(activeGenres) : null;
 
-        // Name filter
-        if (filterName) {
-            const q = filterName.toLowerCase();
-            filtered = filtered.filter(a => {
+        const filtered = list.filter(a => {
+            if (a.listStatus !== tab) return false;
+
+            // Name filter
+            if (q) {
                 const title = getDisplayTitle(a, settings);
-                return fuzzyMatch(q, title) || fuzzyMatch(q, a.title?.english || '') || fuzzyMatch(q, a.title?.romaji || '');
-            });
-        }
+                if (!fuzzyMatch(q, title) && !fuzzyMatch(q, a.title?.english || '') && !fuzzyMatch(q, a.title?.romaji || '')) {
+                    return false;
+                }
+            }
 
-        // Season dropdown filter
-        if (filterSeason) {
-            filtered = filtered.filter(a => {
+            // Season filters (Dropdown and Pills)
+            if (filterSeason || activeSeasons.size < 4) {
                 const seasons = getAnimeSeasons(a);
-                return seasons.includes(filterSeason);
-            });
-        }
+                if (filterSeason && !seasons.includes(filterSeason)) return false;
+                if (activeSeasons.size < 4 && seasons.length > 0 && !seasons.some(s => activeSeasons.has(s))) return false;
+            }
 
-        // Format filter
-        if (filterFormat) {
-            filtered = filtered.filter(a => (a.format || '').toUpperCase() === filterFormat.toUpperCase());
-        }
+            // Format filter
+            if (filterFormatUpper && (a.format || '').toUpperCase() !== filterFormatUpper) return false;
 
-        // Year filter
-        if (filterYear) {
-            const yr = parseInt(filterYear);
-            filtered = filtered.filter(a => a.seasonYear === yr);
-        }
+            // Year filter
+            if (targetYear !== null && a.seasonYear !== targetYear) return false;
 
-        // Season pills filter
-        if (activeSeasons.size < 4) {
-            filtered = filtered.filter(a => {
-                const seasons = getAnimeSeasons(a);
-                return seasons.length === 0 || seasons.some(s => activeSeasons.has(s));
-            });
-        }
-
-        // Genre filter
-        if (activeGenres.size > 0) {
-            filtered = filtered.filter(a => {
+            // Genre filter
+            if (activeGenresArr) {
                 if (!a.genres) return false;
-                return Array.from(activeGenres).every(g => a.genres.includes(g));
-            });
-        }
+                for (let i = 0; i < activeGenresArr.length; i++) {
+                    if (!a.genres.includes(activeGenresArr[i])) return false;
+                }
+            }
+
+            return true;
+        });
 
         // Sort
         filtered.sort((a, b) => {
@@ -181,12 +175,13 @@ export function App() {
     // Update counts
     const counts = useMemo(() => {
         const list = animeList.value;
-        return {
-            CURRENT: list.filter(a => a.listStatus === 'CURRENT').length,
-            PLANNING: list.filter(a => a.listStatus === 'PLANNING').length,
-            COMPLETED: list.filter(a => a.listStatus === 'COMPLETED').length,
-            DROPPED: list.filter(a => a.listStatus === 'DROPPED').length,
-        };
+        return list.reduce((acc, a) => {
+            if (a.listStatus === 'CURRENT') acc.CURRENT++;
+            else if (a.listStatus === 'PLANNING') acc.PLANNING++;
+            else if (a.listStatus === 'COMPLETED') acc.COMPLETED++;
+            else if (a.listStatus === 'DROPPED') acc.DROPPED++;
+            return acc;
+        }, { CURRENT: 0, PLANNING: 0, COMPLETED: 0, DROPPED: 0 });
     }, [animeList.value]);
 
     const showReview = () => {
