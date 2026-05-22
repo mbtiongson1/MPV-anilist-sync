@@ -172,13 +172,13 @@ export function LibraryView() {
                         </div>
                         
                         {isDir && (
-                            <button class="tree-action-btn" title="Open Folder" onClick={(e) => { e.stopPropagation(); handleOpenFolder(node.path); }}>
+                            <button class="tree-action-btn" title="Open Folder" aria-label="Open Folder" onClick={(e) => { e.stopPropagation(); handleOpenFolder(node.path); }}>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                             </button>
                         )}
                         
                         {!isDir && isVideo && (
-                            <button class="tree-action-btn play-btn" title="Play File" onClick={(e) => { e.stopPropagation(); handlePlay(node.path); }}>
+                            <button class="tree-action-btn play-btn" title="Play File" aria-label="Play File" onClick={(e) => { e.stopPropagation(); handlePlay(node.path); }}>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg>
                             </button>
                         )}
@@ -200,7 +200,7 @@ export function LibraryView() {
                 
                 <div class="tree-actions">
                     {isDir && (
-                        <button class="tree-action-btn" title="Search Torrents" onClick={(e) => { e.stopPropagation(); }}>
+                        <button class="tree-action-btn" title="Search Torrents" aria-label="Search Torrents" onClick={(e) => { e.stopPropagation(); }}>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                         </button>
                     )}
@@ -225,7 +225,7 @@ export function LibraryView() {
             <div class="library-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', padding: '0 0.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)', margin: 0 }}>Local Library Tree</h3>
-                    <button id="btn-refresh-library" class="tree-action-btn" title="Refresh Library" style={{ opacity: 1 }} onClick={() => fetchLibrary(true)}>
+                    <button id="btn-refresh-library" class="tree-action-btn" title="Refresh Library" aria-label="Refresh Library" style={{ opacity: 1 }} onClick={() => fetchLibrary(true)}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2.66 15.57a10 10 0 0 0 17.68-1.27M21.34 8.43a10 10 0 0 0-17.68 1.27"/></svg>
                     </button>
                     <a id="link-edit-path" href="#" style={{ fontSize: '0.75rem', color: 'var(--accent)', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); /* open settings */ }}>Edit library path</a>
@@ -243,7 +243,7 @@ export function LibraryView() {
                 <div class="filter-search">
                     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="library-search-input" placeholder="Search files or folders..." style={{ width: '100%' }} value={search} onInput={e => setSearch(e.target.value)} />
-                    {search && <button id="btn-clear-library-search" class="clear-search-btn" title="Clear search" onClick={() => setSearch('')}>✕</button>}
+                    {search && <button id="btn-clear-library-search" class="clear-search-btn" title="Clear search" aria-label="Clear search" onClick={() => setSearch('')}>✕</button>}
                 </div>
             </div>
             <div id="library-tree-container">

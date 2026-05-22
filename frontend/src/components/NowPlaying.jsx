@@ -152,7 +152,7 @@ export function NowPlaying({ onOpenDetails }) {
                                     const anime = animeList.value.find(a => a.mediaId == selectedMediaId);
                                     if (anime) onOpenDetails?.(anime);
                                 }
-                            }} title="Edit" aria-label="Edit">
+                            }} title="Edit Progress" aria-label="Edit Progress">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" /></svg>
                             </button>
                         </div>
@@ -171,17 +171,17 @@ export function NowPlaying({ onOpenDetails }) {
                     <div class="np-controls-zone" style={{ background: 'rgba(0,0,0,0.2)', backdropFilter: 'blur(10px)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div class="media-controls-group" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                                <button id="btn-play-prev" class="media-btn" style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', opacity: data.can_prev ? 1 : 0.5 }} onClick={() => api.playPrev()} disabled={!data.can_prev} title="Previous Episode">
+                                <button id="btn-play-prev" class="media-btn" style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', opacity: data.can_prev ? 1 : 0.5 }} onClick={() => api.playPrev()} disabled={!data.can_prev} title="Previous Episode" aria-label="Previous Episode">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
                                 </button>
-                                <button id="btn-play-pause" class="media-btn main-play-btn" style={{ background: 'white', color: 'black', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} onClick={() => api.playPause()} title="Play/Pause">
+                                <button id="btn-play-pause" class="media-btn main-play-btn" style={{ background: 'white', color: 'black', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} onClick={() => api.playPause()} title="Play/Pause" aria-label="Play/Pause">
                                     {data.paused ? (
                                         <svg id="svg-play" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style={{ marginLeft: '2px' }}><path d="M8 5v14l11-7z"/></svg>
                                     ) : (
                                         <svg id="svg-pause" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                                     )}
                                 </button>
-                                <button id="btn-play-next" class="media-btn" style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', opacity: data.can_next ? 1 : 0.5 }} onClick={() => api.playNext()} disabled={!data.can_next} title="Next Episode">
+                                <button id="btn-play-next" class="media-btn" style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', opacity: data.can_next ? 1 : 0.5 }} onClick={() => api.playNext()} disabled={!data.can_next} title="Next Episode" aria-label="Next Episode">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="m6 18 8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
                                 </button>
                             </div>
@@ -248,7 +248,7 @@ function IdleState({ status }) {
             <p>Open a video file in MPV or MPC-HC to start tracking automatically.</p>
             {hasResume && (
                 <div id="resume-container" style={{ marginTop: '2rem', display: 'flex', alignItems: 'stretch', gap: '0.5rem', maxWidth: '460px', marginLeft: 'auto', marginRight: 'auto' }}>
-                    <button id="btn-resume-last" class="resume-btn-premium" style={{ margin: 0, flex: 1 }} onClick={() => api.resumePlay()} title="Resume Last Video">
+                    <button id="btn-resume-last" class="resume-btn-premium" style={{ margin: 0, flex: 1 }} onClick={() => api.resumePlay()} title="Resume Last Video" aria-label="Resume Last Video">
                         <div class="resume-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                         </div>
@@ -257,7 +257,7 @@ function IdleState({ status }) {
                             <span id="resume-filename" class="resume-filename">{lastTitle}</span>
                         </div>
                     </button>
-                    <button id="btn-open-folder" class="resume-folder-btn" onClick={() => api.openFolderPost()} title="Open Folder">
+                    <button id="btn-open-folder" class="resume-folder-btn" onClick={() => api.openFolderPost()} title="Open Folder" aria-label="Open Folder">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                     </button>
                 </div>
