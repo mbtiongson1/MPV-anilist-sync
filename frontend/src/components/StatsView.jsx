@@ -1,44 +1,49 @@
+import { useMemo } from 'preact/hooks';
 import { animeList } from '../store';
 import { genreColors } from '../utils';
 
 export function StatsView() {
-    const watchedList = animeList.value.filter(a => {
-        if (a.genres && a.genres.some(g => ['Ecchi', 'Hentai', 'Adult'].includes(g))) return false;
-        if (a.isAdult) return false;
-        return a.listStatus === 'COMPLETED' || (a.progress || 0) > 0;
-    });
+    const { totalAnime, totalEps, meanScore, daysWatched, sortedGenres, totalGenreCount, dailyActivity, weeklyActivity } = useMemo(() => {
+        const watchedList = animeList.value.filter(a => {
+            if (a.genres && a.genres.some(g => ['Ecchi', 'Hentai', 'Adult'].includes(g))) return false;
+            if (a.isAdult) return false;
+            return a.listStatus === 'COMPLETED' || (a.progress || 0) > 0;
+        });
 
-    let totalAnime = watchedList.length;
-    let totalEps = 0, scoreSum = 0, scoreCount = 0;
-    let genres = {};
-    let dailyActivity = {};
+        let totalAnime = watchedList.length;
+        let totalEps = 0, scoreSum = 0, scoreCount = 0;
+        let genres = {};
+        let dailyActivity = {};
 
-    watchedList.forEach(a => {
-        totalEps += a.progress || 0;
-        let s = 0;
-        if (a.score && a.score > 0) s = a.score > 10 ? a.score : a.score * 10;
-        if (s > 0) { scoreSum += s; scoreCount++; }
-        if (a.genres) a.genres.forEach(g => { genres[g] = (genres[g] || 0) + 1; });
-        if (a.updatedAt) {
-            const date = new Date(a.updatedAt * 1000);
-            date.setHours(0, 0, 0, 0);
-            dailyActivity[date.getTime()] = (dailyActivity[date.getTime()] || 0) + 1;
-        }
-    });
+        watchedList.forEach(a => {
+            totalEps += a.progress || 0;
+            let s = 0;
+            if (a.score && a.score > 0) s = a.score > 10 ? a.score : a.score * 10;
+            if (s > 0) { scoreSum += s; scoreCount++; }
+            if (a.genres) a.genres.forEach(g => { genres[g] = (genres[g] || 0) + 1; });
+            if (a.updatedAt) {
+                const date = new Date(a.updatedAt * 1000);
+                date.setHours(0, 0, 0, 0);
+                dailyActivity[date.getTime()] = (dailyActivity[date.getTime()] || 0) + 1;
+            }
+        });
 
-    const weeklyActivity = [0, 0, 0, 0, 0, 0, 0];
-    Object.entries(dailyActivity).forEach(([ts, count]) => {
-        weeklyActivity[new Date(parseInt(ts)).getDay()] += count;
-    });
+        const weeklyActivity = [0, 0, 0, 0, 0, 0, 0];
+        Object.entries(dailyActivity).forEach(([ts, count]) => {
+            weeklyActivity[new Date(parseInt(ts)).getDay()] += count;
+        });
 
-    const meanScore = scoreCount > 0 ? (scoreSum / scoreCount).toFixed(1) : 0;
-    const daysWatched = (totalEps * 24 / 60 / 24).toFixed(1);
+        const meanScore = scoreCount > 0 ? (scoreSum / scoreCount).toFixed(1) : 0;
+        const daysWatched = (totalEps * 24 / 60 / 24).toFixed(1);
 
-    const allSortedGenres = Object.entries(genres).sort((a, b) => b[1] - a[1]);
-    let sortedGenres = allSortedGenres.slice(0, 9);
-    const othersSum = allSortedGenres.slice(9).reduce((sum, g) => sum + g[1], 0);
-    if (othersSum > 0) sortedGenres.push(['Others', othersSum]);
-    const totalGenreCount = Object.values(genres).reduce((a, b) => a + b, 0);
+        const allSortedGenres = Object.entries(genres).sort((a, b) => b[1] - a[1]);
+        let sortedGenres = allSortedGenres.slice(0, 9);
+        const othersSum = allSortedGenres.slice(9).reduce((sum, g) => sum + g[1], 0);
+        if (othersSum > 0) sortedGenres.push(['Others', othersSum]);
+        const totalGenreCount = Object.values(genres).reduce((a, b) => a + b, 0);
+
+        return { totalAnime, totalEps, meanScore, daysWatched, sortedGenres, totalGenreCount, dailyActivity, weeklyActivity };
+    }, [animeList.value]);
 
     const summaryCards = [
         { label: 'Total Anime', value: totalAnime },
