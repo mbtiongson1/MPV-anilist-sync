@@ -149,7 +149,8 @@ async def move_to_trash(request: Request, body: PathsRequest):
                     print(f"Warning: 'send2trash' module not found. Falling back to native OS commands or permanent deletion for: {p}")
                     abs_p = os.path.abspath(p)
                     if sys.platform == 'darwin':
-                        safe_path = abs_p.replace('"', '\\"')
+                        # Security fix: Escape backslashes first, then quotes to prevent AppleScript command injection
+                        safe_path = abs_p.replace('\\', '\\\\').replace('"', '\\"')
                         subprocess.run(['osascript', '-e', f'tell application "Finder" to move POSIX file "{safe_path}" to trash'], check=True)
                     elif sys.platform.startswith('linux'):
                         import shutil
