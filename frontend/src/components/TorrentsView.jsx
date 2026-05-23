@@ -263,10 +263,10 @@ export function TorrentsView() {
                     <button class="clear-input-btn" onClick={() => {
                         if (searchRef.current) searchRef.current.value = '';
                         if (torrentCache.value.mediaId) torrentCache.value = { ...torrentCache.value, mediaId: null };
-                    }} title="Clear search" aria-label="Clear search">
+                    }} title="Clear search" aria-label="Clear Search">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                     </button>
-                    <button id="btn-search-go" class="search-go-btn" onClick={() => performSearch(searchRef.current?.value || '')} title="Search" aria-label="Search">
+                    <button id="btn-search-go" class="search-go-btn" onClick={() => performSearch(searchRef.current?.value || '')} title="Search" aria-label="Search Torrents">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                     </button>
                 </div>
@@ -309,7 +309,7 @@ export function TorrentsView() {
                     <label class="filter-label">Subs / Group</label>
                     <div class="input-with-clear">
                         <input type="text" id="tf-group" class="filter-input" placeholder="e.g. SubsPlease" maxLength="40" value={group} onInput={e => setGroup(e.target.value)} />
-                        <button class="clear-input-btn" onClick={() => setGroup('')} title="Clear group filter" aria-label="Clear group filter">
+                        <button class="clear-input-btn" onClick={() => setGroup('')} title="Clear group filter" aria-label="Clear Group Filter">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                         </button>
                     </div>
@@ -318,7 +318,7 @@ export function TorrentsView() {
                     <label class="filter-label">Episodes</label>
                     <div class="input-with-clear">
                         <input type="text" id="tf-episode" class="filter-input" placeholder="e.g. 5-10, 12" style="width:90px;" value={episode} onInput={e => setEpisode(e.target.value)} />
-                        <button class="clear-input-btn" onClick={() => setEpisode('')} title="Clear episode filter" aria-label="Clear episode filter">
+                        <button class="clear-input-btn" onClick={() => setEpisode('')} title="Clear episode filter" aria-label="Clear Episode Filter">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                         </button>
                     </div>
@@ -391,7 +391,7 @@ export function TorrentsView() {
                                         <td style="text-align: right;">
                                             <div style="display:flex; gap:6px; justify-content: flex-end;">
                                                 {getTorrentUrl(t) && <a href={getTorrentUrl(t)} target="_blank" rel="noopener" class="icon-btn" title="Open on Nyaa" aria-label="Open on Nyaa"><ExternalLinkIcon size={12} /></a>}
-                                                <button class="icon-btn" title="Download" aria-label="Download" onClick={() => handleDownload([item])}><DownloadIcon size={12} /></button>
+                                                <button class="icon-btn" title="Download" aria-label="Download Torrent" onClick={() => handleDownload([item])}><DownloadIcon size={12} /></button>
                                             </div>
                                         </td>
                                     </tr>
