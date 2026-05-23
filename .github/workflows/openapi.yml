@@ -1,0 +1,43 @@
+name: OpenAPI spec
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Dump OpenAPI schema
+        run: |
+          python - <<'PY'
+          import json
+          from src.api import app
+
+          schema = app.openapi()
+          with open("openapi.json", "w", encoding="utf-8") as fh:
+              json.dump(schema, fh, indent=2, sort_keys=True)
+          print(f"OpenAPI schema written ({len(schema.get('paths', {}))} paths).")
+          PY
+
+      - name: Upload OpenAPI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-spec
+          path: openapi.json
+          retention-days: 90
