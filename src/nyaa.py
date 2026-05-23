@@ -252,6 +252,9 @@ class NyaaInterface:
         elif url.endswith(".torrent"):
             filename = os.path.basename(url)
 
+        # Security: Prevent path traversal by ensuring only the base name is used
+        filename = os.path.basename(filename)
+
         output_path = os.path.join(output_dir, filename)
 
         try:

@@ -48,7 +48,7 @@ export function ChangelogModal({ visible, onClose, onSynced }) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Review Pending Changes</h2>
-                    <button class="modal-close-btn" id="changelog-modal-close" onClick={onClose}>×</button>
+                    <button class="modal-close-btn" aria-label="Close modal" id="changelog-modal-close" onClick={onClose}>×</button>
                 </div>
                 <div class="modal-body">
                     <div id="changelog-container">
@@ -56,7 +56,7 @@ export function ChangelogModal({ visible, onClose, onSynced }) {
                             <div key={idx} class="changelog-item">
                                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                                     <div class="changelog-title">{escapeHtml(req.label)}</div>
-                                    <button class="icon-btn" onClick={() => {
+                                    <button class="icon-btn" aria-label="Remove change" onClick={() => {
                                         removeApiRequest(idx);
                                         if (pendingApiRequests.value.length === 0) onClose();
                                     }} title="Remove change">✕</button>

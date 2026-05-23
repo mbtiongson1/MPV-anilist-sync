@@ -216,10 +216,9 @@ def scan_library_tree(
         if normalized in by_title:
             return by_title[normalized]
 
-        for entry in entries:
-            for candidate in _entry_titles(entry):
-                if normalize_anime_title(candidate) == normalized:
-                    return entry
+        # ⚡ Bolt: Removed O(N) fallback loop that re-iterated all entries and
+        # re-normalized candidate titles on dictionary miss. All valid normalized
+        # titles are correctly populated into `by_title` lookup table.
         return None
 
     def scan_node(node_path: str) -> Optional[Dict[str, Any]]:
@@ -337,10 +336,9 @@ class LibraryIndex:
         if normalized in self.by_title:
             return self.by_title[normalized]
 
-        for entry in self.anilist_entries:
-            for candidate in _entry_titles(entry):
-                if normalize_anime_title(candidate) == normalized:
-                    return entry
+        # ⚡ Bolt: Removed O(N) fallback loop that re-iterated all entries and
+        # re-normalized candidate titles on dictionary miss. All valid normalized
+        # titles are correctly populated into `self.by_title` lookup table.
         return None
 
     def resolve_local_availability(
