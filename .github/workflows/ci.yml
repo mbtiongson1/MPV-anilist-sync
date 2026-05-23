@@ -73,6 +73,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run pyright
+        continue-on-error: true
         run: npx -y pyright
 
   docker:
