@@ -1,0 +1,51 @@
+name: Packaging
+
+on:
+  pull_request:
+    paths:
+      - package.py
+      - build/**
+      - requirements.txt
+      - requirements-dev.txt
+      - frontend/**
+      - .github/workflows/packaging.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pyinstaller Pillow dmgbuild
+
+      - name: Convert icons
+        run: |
+          python -c "import os; os.makedirs('build', exist_ok=True)"
+          python build/convert_icon.py || echo "Warning: convert_icon.py not found or failed, skipping."
+
+      - name: Build and package
+        run: python package.py
+
+      - name: Smoke test packaged app
+        env:
+          MPV_TRACKER_SMOKE_PORT: 18080
+        run: python build/smoke_test_packaged.py
