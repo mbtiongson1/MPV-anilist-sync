@@ -119,13 +119,19 @@ async def play_latest(request: Request, mediaId: Optional[int] = None):
 async def play_file(request: Request, path: Optional[str] = None):
     success = False
     if path and os.path.exists(path):
-        try:
-            if sys.platform == 'win32': os.startfile(path)
-            elif sys.platform == 'darwin': subprocess.run(['open', path], check=True)
-            else: subprocess.run(['xdg-open', path], check=True)
-            success = True
-        except Exception as e:
-            print(f"Failed to play file securely: {e}")
+        # SECURITY: Prevent arbitrary code execution (RCE) via malicious path input
+        # Ensure only known video file extensions are executed.
+        allowed_exts = ('.mkv', '.mp4', '.avi', '.webm', '.m4v')
+        if path.lower().endswith(allowed_exts):
+            try:
+                if sys.platform == 'win32': os.startfile(path)
+                elif sys.platform == 'darwin': subprocess.run(['open', path], check=True)
+                else: subprocess.run(['xdg-open', path], check=True)
+                success = True
+            except Exception as e:
+                print(f"Failed to play file securely: {e}")
+        else:
+            print(f"SECURITY BLOCKED: Attempted to open unauthorized file extension: {path}")
     return {"success": success}
 
 @router.post('/api/clear_cache')
