@@ -12,3 +12,8 @@
 **Vulnerability:** Arbitrary file execution vulnerability (RCE) via `os.startfile` and `xdg-open` because the `/api/play_file` endpoint accepted an unfiltered `path` parameter.
 **Learning:** External user inputs were passed blindly to OS-level execution tools which would blindly execute non-media formats like `.bat` or `.sh`.
 **Prevention:** Implement an allowlist of known safe extensions (e.g., `.mkv`, `.mp4`) when attempting to automatically open files based on user-provided path inputs.
+
+## 2026-05-24 - Unauthenticated API Network Exposure (0.0.0.0 bind)
+**Vulnerability:** The FastAPI/Uvicorn server was binding to `0.0.0.0` without any authentication, exposing all endpoints to the local network.
+**Learning:** For a local utility application that manipulates the filesystem (e.g., moving files to trash, opening directories, executing media files), binding to all interfaces exposes the host machine to arbitrary file deletion and potential RCE from anyone on the same network.
+**Prevention:** Always bind local services explicitly to `127.0.0.1` unless network access is strictly required and properly authenticated.
