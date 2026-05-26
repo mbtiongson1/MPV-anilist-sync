@@ -135,15 +135,20 @@ export function App() {
         });
 
         // Sort
+        const seasonMap = { 'WINTER': 1, 'SPRING': 2, 'SUMMER': 3, 'FALL': 4 };
         filtered.sort((a, b) => {
             let va, vb;
-            const titleA = getDisplayTitle(a, settings);
-            const titleB = getDisplayTitle(b, settings);
             switch (sort) {
-                case 'title': va = titleA.toLowerCase(); vb = titleB.toLowerCase(); break;
+                case 'title':
+                    va = getDisplayTitle(a, settings).toLowerCase();
+                    vb = getDisplayTitle(b, settings).toLowerCase();
+                    break;
                 case 'score': va = a.averageScore || 0; vb = b.averageScore || 0; break;
                 case 'popularity': va = a.popularity || 0; vb = b.popularity || 0; break;
-                case 'season': va = (a.seasonYear || 0) * 10 + (['WINTER', 'SPRING', 'SUMMER', 'FALL'].indexOf(a.season || '') + 1); vb = (b.seasonYear || 0) * 10 + (['WINTER', 'SPRING', 'SUMMER', 'FALL'].indexOf(b.season || '') + 1); break;
+                case 'season':
+                    va = (a.seasonYear || 0) * 10 + (seasonMap[a.season || ''] || 0);
+                    vb = (b.seasonYear || 0) * 10 + (seasonMap[b.season || ''] || 0);
+                    break;
                 case 'studio': va = (a.studio || '').toLowerCase(); vb = (b.studio || '').toLowerCase(); break;
                 case 'updatedAt': va = a.updatedAt || 0; vb = b.updatedAt || 0; break;
                 case 'progress':

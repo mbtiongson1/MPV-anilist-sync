@@ -17,3 +17,7 @@
 ## 2026-05-21 - Optimize chained Array.filter() in React/Preact useMemo
 **Learning:** Chaining multiple `.filter()` calls (e.g., `list.filter(...).filter(...).filter(...)`) inside a `useMemo` block creates significant unnecessary performance overhead and GC pressure. Each `.filter()` call creates and returns a completely new intermediate array, changing a single O(N) pass into O(M*N) complexity and allocating M arrays in memory (where M is the number of filters). Hoist loop-invariant computations (like `.toLowerCase()`, `parseInt()`) outside the loop to avoid redundant operations.
 **Action:** When applying multiple optional filters to a list, combine the logic into a single `.filter()` pass that checks all conditions using early returns or boolean logic. Additionally, replace multiple `.filter(...).length` counts over the same data with a single `.reduce()` or standard `for` loop to compute all counts in O(N) instead of O(N * number_of_groups).
+
+## 2024-05-20 - Expensive operations in Sort Comparators
+**Learning:** Moving heavy operations such as function calls (`getDisplayTitle`), string manipulations (`.toLowerCase()`), and (N)$ index lookups (`.indexOf()`) outside of the sort comparator loop (or wrapping them inside conditional blocks) avoids unnecessary (N \log N)$ computations.
+**Action:** Use pre-computed object maps (constant-time lookups) instead of `Array.prototype.indexOf` and conditionally scope expensive functions when iterating inside comparators.
