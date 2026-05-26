@@ -63,7 +63,7 @@ def start_web_server(agent, port: int = 8080):
 
         print(f"API Server started via FastAPI/Uvicorn at http://localhost:{port}")
         
-        config = uvicorn.Config(app, host="0.0.0.0", port=port, log_level="warning")
+        config = uvicorn.Config(app, host="127.0.0.1", port=port, log_level="warning")
         server = uvicorn.Server(config)
 
         # Make asyncio run the server
