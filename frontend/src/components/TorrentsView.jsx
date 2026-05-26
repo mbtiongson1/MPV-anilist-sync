@@ -270,7 +270,7 @@ export function TorrentsView() {
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                     </button>
                 </div>
-                <button id="btn-scan-airing" class="refresh-btn" onClick={loadBatchMissing} style="display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;font-weight:600;">
+                <button id="btn-scan-airing" class="refresh-btn" aria-label="Auto Scan" onClick={loadBatchMissing} style="display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;font-weight:600;">
                     <SearchIcon size={14} /> Auto Scan
                     <span class="info-icon" title="Scans your watching anime for missing episodes" style="display:inline-flex;opacity:0.7;margin-left:2px;"><InfoIcon size={12} /></span>
                 </button>
