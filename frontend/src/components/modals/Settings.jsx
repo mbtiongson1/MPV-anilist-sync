@@ -64,11 +64,11 @@ export function SettingsModal({ visible, onClose, onSaved }) {
                 </div>
                 <div class="modal-body">
                     <div class="settings-group">
-                        <label>Preferred Sub Groups</label>
+                        <label for="setting-groups">Preferred Sub Groups</label>
                         <input type="text" id="setting-groups" class="filter-input" value={groups} onInput={e => setGroups(e.target.value)} placeholder="e.g. SubsPlease, Erai-raws" />
                     </div>
                     <div class="settings-group">
-                        <label>Preferred Resolution</label>
+                        <label for="setting-resolution">Preferred Resolution</label>
                         <select id="setting-resolution" class="filter-select" value={resolution} onChange={e => setResolution(e.target.value)}>
                             <option value="1080p">1080p</option>
                             <option value="720p">720p</option>
@@ -76,11 +76,11 @@ export function SettingsModal({ visible, onClose, onSaved }) {
                         </select>
                     </div>
                     <div class="settings-group">
-                        <label>Download Directory</label>
+                        <label for="setting-download-dir">Download Directory</label>
                         <input type="text" id="setting-download-dir" class="filter-input" value={downloadDir} onInput={e => setDownloadDir(e.target.value)} placeholder="Default download path" />
                     </div>
                     <div class="settings-group">
-                        <label>Base Anime Folder</label>
+                        <label for="setting-base-anime-folder">Base Anime Folder</label>
                         <input type="text" id="setting-base-anime-folder" class="filter-input" value={baseFolder} onInput={e => setBaseFolder(e.target.value)} placeholder="e.g. D:\Anime" />
                     </div>
                     <div class="settings-group">
