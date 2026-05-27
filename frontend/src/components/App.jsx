@@ -134,21 +134,30 @@ export function App() {
             return true;
         });
 
+        // Sort Pre-computation to avoid O(N log N) overhead
+        const seasonValues = { 'WINTER': 1, 'SPRING': 2, 'SUMMER': 3, 'FALL': 4 };
+        const sortValues = new Map();
+
+        for (let i = 0; i < filtered.length; i++) {
+            const a = filtered[i];
+            let val;
+            switch (sort) {
+                case 'title': val = getDisplayTitle(a, settings).toLowerCase(); break;
+                case 'score': val = a.averageScore || 0; break;
+                case 'popularity': val = a.popularity || 0; break;
+                case 'season': val = (a.seasonYear || 0) * 10 + (seasonValues[a.season] || 0); break;
+                case 'studio': val = (a.studio || '').toLowerCase(); break;
+                case 'updatedAt': val = a.updatedAt || 0; break;
+                case 'progress':
+                default: val = a.progress || 0; break;
+            }
+            sortValues.set(a.mediaId, val);
+        }
+
         // Sort
         filtered.sort((a, b) => {
-            let va, vb;
-            const titleA = getDisplayTitle(a, settings);
-            const titleB = getDisplayTitle(b, settings);
-            switch (sort) {
-                case 'title': va = titleA.toLowerCase(); vb = titleB.toLowerCase(); break;
-                case 'score': va = a.averageScore || 0; vb = b.averageScore || 0; break;
-                case 'popularity': va = a.popularity || 0; vb = b.popularity || 0; break;
-                case 'season': va = (a.seasonYear || 0) * 10 + (['WINTER', 'SPRING', 'SUMMER', 'FALL'].indexOf(a.season || '') + 1); vb = (b.seasonYear || 0) * 10 + (['WINTER', 'SPRING', 'SUMMER', 'FALL'].indexOf(b.season || '') + 1); break;
-                case 'studio': va = (a.studio || '').toLowerCase(); vb = (b.studio || '').toLowerCase(); break;
-                case 'updatedAt': va = a.updatedAt || 0; vb = b.updatedAt || 0; break;
-                case 'progress':
-                default: va = a.progress || 0; vb = b.progress || 0; break;
-            }
+            const va = sortValues.get(a.mediaId);
+            const vb = sortValues.get(b.mediaId);
             return va > vb ? dir : va < vb ? -dir : 0;
         });
 

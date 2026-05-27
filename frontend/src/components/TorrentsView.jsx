@@ -214,16 +214,26 @@ export function TorrentsView() {
         });
     }
 
-    displayItems.sort((a, b) => {
-        const ta = a.torrent || {}, tb = b.torrent || {};
-        let va, vb;
+    // Sort Pre-computation to avoid O(N log N) overhead
+    const sortValues = new Map();
+    for (let i = 0; i < displayItems.length; i++) {
+        const item = displayItems[i];
+        const t = item.torrent || {};
+        let val;
         switch (sortCol) {
-            case 'size': va = parseSize(ta.size); vb = parseSize(tb.size); break;
-            case 'date': va = ta.timestamp || 0; vb = tb.timestamp || 0; break;
-            case 'seeders': va = ta.seeders || 0; vb = tb.seeders || 0; break;
-            case 'leechers': va = ta.leechers || 0; vb = tb.leechers || 0; break;
-            default: va = (ta.title || '').toLowerCase(); vb = (tb.title || '').toLowerCase();
+            case 'size': val = parseSize(t.size); break;
+            case 'date': val = t.timestamp || 0; break;
+            case 'seeders': val = t.seeders || 0; break;
+            case 'leechers': val = t.leechers || 0; break;
+            default: val = (t.title || '').toLowerCase();
         }
+        // Use object identity or index as key, since items might not have a unique ID
+        sortValues.set(item, val);
+    }
+
+    displayItems.sort((a, b) => {
+        const va = sortValues.get(a);
+        const vb = sortValues.get(b);
         return va > vb ? sortDir : va < vb ? -sortDir : 0;
     });
 
