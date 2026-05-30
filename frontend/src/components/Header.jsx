@@ -97,7 +97,7 @@ export function Header({ viewMode, onViewModeChange, onOpenSettings, onShowUpcom
     return (
         <header id="app-header">
             <div class="header-left">
-                <button id="btn-profile" class="header-btn" title="View Profile" onClick={handleProfile}>
+                <button id="btn-profile" class="header-btn" title="View Profile" aria-label="View Profile" onClick={handleProfile}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                     <span>anilist.co</span>
                 </button>
@@ -106,7 +106,7 @@ export function Header({ viewMode, onViewModeChange, onOpenSettings, onShowUpcom
                 <div class="theme-switch-wrapper" title="Dark/Light Mode" style={{ marginRight: '1.5rem' }}>
                     <span class="theme-label">Theme</span>
                     <label class="theme-switch" for="theme-toggle">
-                        <input type="checkbox" id="theme-toggle" checked={theme === 'light'} onChange={toggleTheme} />
+                        <input type="checkbox" id="theme-toggle" aria-label="Toggle Dark/Light Mode" checked={theme === 'light'} onChange={toggleTheme} />
                         <div class="slider">
                             <div class="moon-icon">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
@@ -117,19 +117,19 @@ export function Header({ viewMode, onViewModeChange, onOpenSettings, onShowUpcom
                         </div>
                     </label>
                 </div>
-                <button id="btn-reauthorize" class="header-btn" title="Reauthorize with AniList" onClick={handleReauthorize}>
+                <button id="btn-reauthorize" class="header-btn" title="Reauthorize with AniList" aria-label="Reauthorize with AniList" onClick={handleReauthorize}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <span>Reauthorize</span>
                 </button>
-                <button id="btn-clear-cache" class="header-btn" title="Clear library and image cache" onClick={handleClearCache}>
+                <button id="btn-clear-cache" class="header-btn" title="Clear library and image cache" aria-label="Clear library and image cache" onClick={handleClearCache}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                     <span>Clear Cache</span>
                 </button>
-                <button id="btn-full-refresh" class="header-btn" title="Full refresh (clears session and reloads list)" onClick={handleFullRefresh}>
+                <button id="btn-full-refresh" class="header-btn" title="Full refresh (clears session and reloads list)" aria-label="Full refresh (clears session and reloads list)" onClick={handleFullRefresh}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                     <span>Full Refresh</span>
                 </button>
-                <button id="btn-settings-header" class="header-btn" title="Settings" onClick={onOpenSettings}>
+                <button id="btn-settings-header" class="header-btn" title="Settings" aria-label="Settings" onClick={onOpenSettings}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                     <span>Settings</span>
                 </button>
