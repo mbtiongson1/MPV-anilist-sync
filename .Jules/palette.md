@@ -5,3 +5,7 @@
 ## 2026-05-20 - Adding explicit aria-labels
 **Learning:** Some accessibility issues can be fixed by simply adding an `aria-label` attribute to icon-only buttons or buttons with missing context. `title` attributes alone aren't enough for screen readers. Duplicate `aria-label` elements can occur, so care is needed to find missing elements and avoid adding them redundantly when updating multiple files.
 **Action:** When working on UX issues, verify that interactive icon elements have explicit `aria-label` attributes.
+
+## 2026-05-27 - Preact specific accessibility insights
+**Learning:** In Preact, standard HTML attributes such as `for` and `class` should be used instead of React-specific `htmlFor` and `className`.
+**Action:** When adding accessibility features like linking labels to inputs, ensure `for` is used instead of `htmlFor` to follow Preact conventions.

@@ -282,31 +282,31 @@ export function TorrentsView() {
             {/* Filter Bar */}
             <div class="torrents-filter-bar" id="torrents-filter-bar">
                 <div class="filter-group">
-                    <label class="filter-label">Category</label>
+                    <label for="tf-category" class="filter-label">Category</label>
                     <select id="tf-category" class="filter-select" value={category} onChange={e => setCategory(e.target.value)}>
                         <option value="1_2">English Subs</option><option value="1_3">Non-English</option><option value="1_4">Raw</option><option value="1_0">All Anime</option>
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label class="filter-label">Trust</label>
+                    <label for="tf-filter" class="filter-label">Trust</label>
                     <select id="tf-filter" class="filter-select" value={nyaaFilter} onChange={e => setNyaaFilter(e.target.value)}>
                         <option value="0">All</option><option value="1">No Remakes</option><option value="2">Trusted Only</option>
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label class="filter-label">Resolution</label>
+                    <label for="tf-resolution" class="filter-label">Resolution</label>
                     <select id="tf-resolution" class="filter-select" value={resolution} onChange={e => setResolution(e.target.value)}>
                         <option value="">Default</option><option value="1080p">1080p</option><option value="720p">720p</option><option value="480p">480p</option>
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label class="filter-label">Date</label>
+                    <label for="tf-date" class="filter-label">Date</label>
                     <select id="tf-date" class="filter-select" value={dateFilter} onChange={e => setDateFilter(e.target.value)}>
                         <option value="all">All Time</option><option value="24h">Past 24h</option><option value="48h">Past 48h</option><option value="7d">Past 7 days</option><option value="30d">Past 30 days</option>
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label class="filter-label">Subs / Group</label>
+                    <label for="tf-group" class="filter-label">Subs / Group</label>
                     <div class="input-with-clear">
                         <input type="text" id="tf-group" class="filter-input" placeholder="e.g. SubsPlease" maxLength="40" value={group} onInput={e => setGroup(e.target.value)} />
                         <button class="clear-input-btn" onClick={() => setGroup('')} title="Clear group filter" aria-label="Clear Group Filter">
@@ -315,7 +315,7 @@ export function TorrentsView() {
                     </div>
                 </div>
                 <div class="filter-group">
-                    <label class="filter-label">Episodes</label>
+                    <label for="tf-episode" class="filter-label">Episodes</label>
                     <div class="input-with-clear">
                         <input type="text" id="tf-episode" class="filter-input" placeholder="e.g. 5-10, 12" style="width:90px;" value={episode} onInput={e => setEpisode(e.target.value)} />
                         <button class="clear-input-btn" onClick={() => setEpisode('')} title="Clear episode filter" aria-label="Clear Episode Filter">
