@@ -21,3 +21,7 @@
 ## 2026-05-22 - Optimize Array.sort() Comparators
 **Learning:** Performing expensive operations—such as unconditionally invoking function calls or allocating arrays for `.indexOf()`—inside an array `sort()` comparator severely degrades performance due to the $O(N \log N)$ execution frequency.
 **Action:** When sorting arrays, defer function calls into specific conditional branches that strictly require them. Replace $O(N)$ operations like `.indexOf()` with constant-time $O(1)$ object or map lookups populated outside the sorting iteration.
+
+## 2026-05-23 - Avoid Expensive RegEx inside O(N log N) Array Sorts
+**Learning:** In `TorrentsView`, `displayItems` was re-filtered and re-sorted on every render. Because the `sort` operation executed an expensive `parseSize` function (which relies on Regular Expressions) for each item, this created a significant performance bottleneck due to $O(N \log N)$ regex evaluations.
+**Action:** Always wrap heavy list processing (filtering and sorting) in a `useMemo` hook to prevent redundant execution on frequent component updates (e.g., selection changes, pagination).
