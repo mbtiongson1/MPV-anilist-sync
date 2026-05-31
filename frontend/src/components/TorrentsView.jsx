@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'preact/hooks';
+import { useState, useEffect, useRef, useMemo } from 'preact/hooks';
 import { animeList, userSettings, torrentFilters, torrentCache, showToast, activeSearchTerm } from '../store';
 import { escapeHtml, parseSize, formatBytes, getRelativeTime } from '../utils';
 import { DownloadIcon, ExternalLinkIcon, SearchIcon, InfoIcon } from '../icons';
@@ -201,31 +201,35 @@ export function TorrentsView() {
     };
 
     // Filter & sort results
-    let displayItems = [...results];
-    if (!showArchived) {
-        displayItems = displayItems.filter(i => !isArchivedItem(i));
-    }
-    if (dateFilter !== 'all') {
-        const now = Date.now();
-        const cutoff = { '24h': 86400000, '48h': 172800000, '7d': 604800000, '30d': 2592000000 }[dateFilter] || 0;
-        if (cutoff) displayItems = displayItems.filter(i => {
-            const ts = i.torrent?.timestamp ? i.torrent.timestamp * 1000 : 0;
-            return ts > 0 && (now - ts) < cutoff;
-        });
-    }
-
-    displayItems.sort((a, b) => {
-        const ta = a.torrent || {}, tb = b.torrent || {};
-        let va, vb;
-        switch (sortCol) {
-            case 'size': va = parseSize(ta.size); vb = parseSize(tb.size); break;
-            case 'date': va = ta.timestamp || 0; vb = tb.timestamp || 0; break;
-            case 'seeders': va = ta.seeders || 0; vb = tb.seeders || 0; break;
-            case 'leechers': va = ta.leechers || 0; vb = tb.leechers || 0; break;
-            default: va = (ta.title || '').toLowerCase(); vb = (tb.title || '').toLowerCase();
+    const displayItems = useMemo(() => {
+        let items = [...results];
+        if (!showArchived) {
+            items = items.filter(i => !isArchivedItem(i));
         }
-        return va > vb ? sortDir : va < vb ? -sortDir : 0;
-    });
+        if (dateFilter !== 'all') {
+            const now = Date.now();
+            const cutoff = { '24h': 86400000, '48h': 172800000, '7d': 604800000, '30d': 2592000000 }[dateFilter] || 0;
+            if (cutoff) items = items.filter(i => {
+                const ts = i.torrent?.timestamp ? i.torrent.timestamp * 1000 : 0;
+                return ts > 0 && (now - ts) < cutoff;
+            });
+        }
+
+        items.sort((a, b) => {
+            const ta = a.torrent || {}, tb = b.torrent || {};
+            let va, vb;
+            switch (sortCol) {
+                case 'size': va = parseSize(ta.size); vb = parseSize(tb.size); break;
+                case 'date': va = ta.timestamp || 0; vb = tb.timestamp || 0; break;
+                case 'seeders': va = ta.seeders || 0; vb = tb.seeders || 0; break;
+                case 'leechers': va = ta.leechers || 0; vb = tb.leechers || 0; break;
+                default: va = (ta.title || '').toLowerCase(); vb = (tb.title || '').toLowerCase();
+            }
+            return va > vb ? sortDir : va < vb ? -sortDir : 0;
+        });
+
+        return items;
+    }, [results, showArchived, dateFilter, sortCol, sortDir]);
 
     const toggleSelect = (idx) => {
         const newSet = new Set(selectedTorrents);
