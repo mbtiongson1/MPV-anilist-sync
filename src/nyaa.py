@@ -240,6 +240,25 @@ class NyaaInterface:
         """
         Downloads a .torrent file to output_dir and opens it using the OS default handler.
         """
+        import urllib.parse
+        import re
+
+        # Security: SSRF Prevention via strict URL parsing and domain allowlist
+        if '\\' in url or '@' in url:
+            print("SECURITY BLOCKED: Invalid URL format containing restricted characters")
+            return ""
+
+        parsed = urllib.parse.urlparse(url)
+        hostname = parsed.hostname
+        if not hostname or not re.match(r"^[a-zA-Z0-9.-]+$", hostname):
+            print("SECURITY BLOCKED: Invalid hostname characters")
+            return ""
+
+        allowed_domains = ['nyaa.si', 'sukebei.nyaa.si']
+        if not any(hostname == d or hostname.endswith('.' + d) for d in allowed_domains):
+            print("SECURITY BLOCKED: Domain not allowed for torrent download")
+            return ""
+
         os.makedirs(output_dir, exist_ok=True)
 
         filename = "download.torrent"
