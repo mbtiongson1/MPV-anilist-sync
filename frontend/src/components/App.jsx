@@ -136,12 +136,26 @@ export function App() {
 
         // Sort
         const seasonRanks = { WINTER: 1, SPRING: 2, SUMMER: 3, FALL: 4 };
+
+        // Pre-compute expensive values for sorting to avoid O(N log N) string operations
+        const sortCache = new Map();
+        if (sort === 'title' || sort === 'studio') {
+            for (let i = 0; i < filtered.length; i++) {
+                const item = filtered[i];
+                if (sort === 'title') {
+                    sortCache.set(item, getDisplayTitle(item, settings).toLowerCase());
+                } else if (sort === 'studio') {
+                    sortCache.set(item, (item.studio || '').toLowerCase());
+                }
+            }
+        }
+
         filtered.sort((a, b) => {
             let va, vb;
             switch (sort) {
                 case 'title':
-                    va = getDisplayTitle(a, settings).toLowerCase();
-                    vb = getDisplayTitle(b, settings).toLowerCase();
+                    va = sortCache.get(a);
+                    vb = sortCache.get(b);
                     break;
                 case 'score': va = a.averageScore || 0; vb = b.averageScore || 0; break;
                 case 'popularity': va = a.popularity || 0; vb = b.popularity || 0; break;
@@ -149,7 +163,10 @@ export function App() {
                     va = (a.seasonYear || 0) * 10 + (seasonRanks[a.season] || 0);
                     vb = (b.seasonYear || 0) * 10 + (seasonRanks[b.season] || 0);
                     break;
-                case 'studio': va = (a.studio || '').toLowerCase(); vb = (b.studio || '').toLowerCase(); break;
+                case 'studio':
+                    va = sortCache.get(a);
+                    vb = sortCache.get(b);
+                    break;
                 case 'updatedAt': va = a.updatedAt || 0; vb = b.updatedAt || 0; break;
                 case 'progress':
                 default: va = a.progress || 0; vb = b.progress || 0; break;
