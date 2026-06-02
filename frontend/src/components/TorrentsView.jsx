@@ -215,30 +215,24 @@ export function TorrentsView() {
             });
         }
 
-        // Pre-compute values to avoid O(N log N) regex parsing and string allocations
-        const sortCache = new Map();
-        if (sortCol === 'size' || sortCol === 'title' || !['date', 'seeders', 'leechers'].includes(sortCol)) {
-            for (let i = 0; i < items.length; i++) {
-                const item = items[i];
-                const t = item.torrent || {};
-                if (sortCol === 'size') {
-                    sortCache.set(item, parseSize(t.size));
-                } else { // default is title
-                    sortCache.set(item, (t.title || '').toLowerCase());
-                }
+        // Pre-compute sort values to avoid O(N log N) overhead from parseSize and toLowerCase
+        const sortValues = new Map();
+        items.forEach(item => {
+            const t = item.torrent || {};
+            let val;
+            switch (sortCol) {
+                case 'size': val = parseSize(t.size); break;
+                case 'date': val = t.timestamp || 0; break;
+                case 'seeders': val = t.seeders || 0; break;
+                case 'leechers': val = t.leechers || 0; break;
+                default: val = (t.title || '').toLowerCase();
             }
-        }
+            sortValues.set(item, val);
+        });
 
         items.sort((a, b) => {
-            const ta = a.torrent || {}, tb = b.torrent || {};
-            let va, vb;
-            switch (sortCol) {
-                case 'size': va = sortCache.get(a); vb = sortCache.get(b); break;
-                case 'date': va = ta.timestamp || 0; vb = tb.timestamp || 0; break;
-                case 'seeders': va = ta.seeders || 0; vb = tb.seeders || 0; break;
-                case 'leechers': va = ta.leechers || 0; vb = tb.leechers || 0; break;
-                default: va = sortCache.get(a); vb = sortCache.get(b);
-            }
+            const va = sortValues.get(a);
+            const vb = sortValues.get(b);
             return va > vb ? sortDir : va < vb ? -sortDir : 0;
         });
 
