@@ -51,6 +51,16 @@ export function App() {
         loadData();
     }, []);
 
+    // Apply reduce-colors setting to DOM
+    useEffect(() => {
+        const settings = userSettings.value;
+        if (settings?.reduce_colors === true) {
+            document.documentElement.classList.add('reduce-colors');
+        } else {
+            document.documentElement.classList.remove('reduce-colors');
+        }
+    }, [userSettings.value]);
+
     // Refresh handler
     const handleRefresh = useCallback(async () => {
         try {

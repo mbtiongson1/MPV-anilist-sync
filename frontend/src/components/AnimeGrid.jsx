@@ -36,12 +36,11 @@ export function AnimeGrid({ viewMode, onViewModeChange, filteredList, filterName
         e.dataTransfer.effectAllowed = 'move';
     };
 
-    const handleCardClick = (e, anime) => {
-        if (e.target.closest('button') || e.target.closest('a')) return;
+    const handleCheckboxClick = (e, anime) => {
         const mediaId = anime.mediaId.toString();
+        const checked = e.target.checked;
 
         if (e.shiftKey && lastSelectedMediaId.value) {
-            e.preventDefault();
             const allIds = pagedList.map(a => a.mediaId.toString());
             let startIdx = allIds.indexOf(lastSelectedMediaId.value);
             const endIdx = allIds.indexOf(mediaId);
@@ -49,11 +48,14 @@ export function AnimeGrid({ viewMode, onViewModeChange, filteredList, filterName
             if (endIdx !== -1) {
                 const min = Math.min(startIdx, endIdx);
                 const max = Math.max(startIdx, endIdx);
-                const isSelecting = !selectedAnime.value.has(mediaId);
                 const newSet = new Set(selectedAnime.value);
                 for (let i = min; i <= max; i++) {
                     const id = allIds[i];
-                    isSelecting ? newSet.add(id) : newSet.delete(id);
+                    if (checked) {
+                        newSet.add(id);
+                    } else {
+                        newSet.delete(id);
+                    }
                 }
                 selectedAnime.value = newSet;
                 lastSelectedMediaId.value = mediaId;
@@ -61,6 +63,18 @@ export function AnimeGrid({ viewMode, onViewModeChange, filteredList, filterName
             }
         }
         toggleSelection(anime.mediaId);
+    };
+
+    const handleSelectAll = (checked) => {
+        const newSet = new Set(selectedAnime.value);
+        pagedList.forEach(anime => {
+            if (checked) {
+                newSet.add(anime.mediaId.toString());
+            } else {
+                newSet.delete(anime.mediaId.toString());
+            }
+        });
+        selectedAnime.value = newSet;
     };
 
     const handleDblClick = (anime) => {
@@ -139,6 +153,12 @@ export function AnimeGrid({ viewMode, onViewModeChange, filteredList, filterName
                     <table class="details-table">
                         <thead>
                             <tr>
+                                <th style="width: 30px; text-align: center;">
+                                    <input type="checkbox" class="custom-checkbox" 
+                                        onChange={(e) => handleSelectAll(e.target.checked)} 
+                                        checked={pagedList.length > 0 && pagedList.every(anime => selectedAnime.value.has(anime.mediaId.toString()))} 
+                                    />
+                                </th>
                                 <th data-sort="title" style="cursor: pointer;" onClick={() => setSort('title')}>Title{getSortIndicator('title')}</th>
                                 <th data-sort="progress" style="cursor: pointer;" onClick={() => setSort('progress')}>Progress{getSortIndicator('progress')}</th>
                                 <th data-sort="score" style="cursor: pointer;" onClick={() => setSort('score')}>Score{getSortIndicator('score')}</th>
@@ -152,7 +172,8 @@ export function AnimeGrid({ viewMode, onViewModeChange, filteredList, filterName
                             {pagedList.map(anime => (
                                 <DetailsRow key={anime.mediaId} anime={anime} settings={settings}
                                     isSelected={isSelected(anime.mediaId)} isPlaying={isPlaying(anime.mediaId)}
-                                    onClick={(e) => handleCardClick(e, anime)}
+                                    onClick={() => onOpenDetails?.(anime)}
+                                    onToggleSelect={(e) => handleCheckboxClick(e, anime)}
                                     onDblClick={() => handleDblClick(anime)}
                                     onEdit={() => onOpenDetails?.(anime)}
                                     onProgressChange={handleProgressChange}
@@ -164,7 +185,8 @@ export function AnimeGrid({ viewMode, onViewModeChange, filteredList, filterName
                     pagedList.map(anime => viewMode === 'grid' ? (
                         <GridCard key={anime.mediaId} anime={anime} settings={settings}
                             isSelected={isSelected(anime.mediaId)} isPlaying={isPlaying(anime.mediaId)}
-                            onClick={(e) => handleCardClick(e, anime)}
+                            onClick={() => onOpenDetails?.(anime)}
+                            onToggleSelect={(e) => handleCheckboxClick(e, anime)}
                             onDblClick={() => handleDblClick(anime)}
                             onEdit={() => onOpenDetails?.(anime)}
                             onProgressChange={handleProgressChange}
@@ -172,7 +194,8 @@ export function AnimeGrid({ viewMode, onViewModeChange, filteredList, filterName
                     ) : (
                         <ListItem key={anime.mediaId} anime={anime} settings={settings}
                             isSelected={isSelected(anime.mediaId)} isPlaying={isPlaying(anime.mediaId)}
-                            onClick={(e) => handleCardClick(e, anime)}
+                            onClick={() => onOpenDetails?.(anime)}
+                            onToggleSelect={(e) => handleCheckboxClick(e, anime)}
                             onDblClick={() => handleDblClick(anime)}
                             onEdit={() => onOpenDetails?.(anime)}
                             onProgressChange={handleProgressChange}
@@ -242,7 +265,7 @@ function SeasonTag({ anime }) {
     );
 }
 
-function GridCard({ anime, settings, isSelected, isPlaying, onClick, onDblClick, onEdit, onProgressChange, dragEnabled, onDragStart }) {
+function GridCard({ anime, settings, isSelected, isPlaying, onClick, onDblClick, onEdit, onProgressChange, dragEnabled, onDragStart, onToggleSelect }) {
     const title = getDisplayTitle(anime, settings);
     const cover = getCachedImageUrl(anime.coverImage?.large || anime.coverImage?.medium || '');
     const progress = anime.progress || 0;
@@ -255,6 +278,9 @@ function GridCard({ anime, settings, isSelected, isPlaying, onClick, onDblClick,
             data-media-id={anime.mediaId} style="cursor: pointer;"
             onClick={onClick} onDblClick={onDblClick}
             draggable={dragEnabled} onDragStart={(e) => onDragStart(e, anime)}>
+            <div class="card-checkbox-container" onClick={(e) => e.stopPropagation()}>
+                <input type="checkbox" class="custom-checkbox" checked={isSelected} onChange={onToggleSelect} />
+            </div>
             <LiveIndicator anime={anime} />
             <SeasonTag anime={anime} />
             <div class="anime-card-cover" style={`background-image: url('${cover}')`}>
@@ -273,7 +299,7 @@ function GridCard({ anime, settings, isSelected, isPlaying, onClick, onDblClick,
     );
 }
 
-function ListItem({ anime, settings, isSelected, isPlaying, onClick, onDblClick, onEdit, onProgressChange, dragEnabled, onDragStart }) {
+function ListItem({ anime, settings, isSelected, isPlaying, onClick, onDblClick, onEdit, onProgressChange, dragEnabled, onDragStart, onToggleSelect }) {
     const title = getDisplayTitle(anime, settings);
     const cover = getCachedImageUrl(anime.coverImage?.large || anime.coverImage?.medium || '');
     const progress = anime.progress || 0;
@@ -287,6 +313,9 @@ function ListItem({ anime, settings, isSelected, isPlaying, onClick, onDblClick,
             data-media-id={anime.mediaId} style="cursor: pointer;"
             onClick={onClick} onDblClick={onDblClick}
             draggable={dragEnabled} onDragStart={(e) => onDragStart(e, anime)}>
+            <div class="list-checkbox-container" onClick={(e) => e.stopPropagation()}>
+                <input type="checkbox" class="custom-checkbox" checked={isSelected} onChange={onToggleSelect} />
+            </div>
             <img src={cover} class="anime-list-cover" alt="cover" />
             {anime.mediaStatus === 'RELEASING' && <LiveIndicator anime={anime} />}
             <div class="list-info">
@@ -306,13 +335,14 @@ function ListItem({ anime, settings, isSelected, isPlaying, onClick, onDblClick,
     );
 }
 
-function DetailsRow({ anime, settings, isSelected, isPlaying, onClick, onDblClick, onEdit, onProgressChange, dragEnabled, onDragStart }) {
+function DetailsRow({ anime, settings, isSelected, isPlaying, onClick, onDblClick, onEdit, onProgressChange, dragEnabled, onDragStart, onToggleSelect }) {
     const title = getDisplayTitle(anime, settings);
     const progress = anime.progress || 0;
     const total = anime.episodes || '?';
     const score = anime.averageScore ? anime.averageScore + '%' : '-';
     const pop = formatPopularity(anime.popularity || 0);
     const seasons = getAnimeSeasons(anime);
+    const seasonalClass = seasons.length > 0 ? `season-bg-${seasons.slice(0, 2).join('-').toLowerCase()}` : '';
 
     let availableText = '';
     if (anime.mediaStatus === 'RELEASING' && anime.nextAiringEpisode) {
@@ -322,10 +352,13 @@ function DetailsRow({ anime, settings, isSelected, isPlaying, onClick, onDblClic
     }
 
     return (
-        <tr class={`details-row ${isSelected ? 'selected' : ''} ${isPlaying ? 'now-playing-highlight' : ''}`}
+        <tr class={`details-row ${seasonalClass} ${isSelected ? 'selected' : ''} ${isPlaying ? 'now-playing-highlight' : ''}`}
             data-media-id={anime.mediaId} style="cursor: pointer;"
             onClick={onClick} onDblClick={onDblClick}
             draggable={dragEnabled} onDragStart={(e) => onDragStart(e, anime)}>
+            <td style="width: 30px; text-align: center;" onClick={(e) => e.stopPropagation()}>
+                <input type="checkbox" class="custom-checkbox" checked={isSelected} onChange={onToggleSelect} />
+            </td>
             <td>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                     {anime.mediaStatus === 'RELEASING' && <div class="card-live-dot" style="position: static; transform: scale(0.8);" />}

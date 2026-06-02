@@ -1053,28 +1053,104 @@ header {
     color: var(--accent);
 }
 
-/* ===== Selection Tab Bar (New) ===== */
-.selection-tab-bar {
+/* ===== Selection Bar (Floating at Bottom Center) ===== */
+.selection-bar {
+    position: fixed;
+    bottom: 2rem;
+    left: calc(50% + var(--sidebar-width) / 2); /* offset for sidebar */
+    transform: translateX(-50%);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 0.75rem 1.5rem;
     display: flex;
     align-items: center;
-    background: var(--bg-card);
-    border-bottom: 1px solid var(--accent);
-    padding: 0.25rem 0.5rem;
-    gap: 0.5rem;
-    animation: fadeIn 0.3s ease;
-    margin-bottom: 1rem;
+    gap: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: left var(--transition), transform var(--transition);
+    animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.selection-tab {
+#app-sidebar.collapsed ~ .selection-bar,
+#app-sidebar.collapsed + .app-container + .selection-bar {
+    left: calc(50% + var(--sidebar-collapsed-width) / 2);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translate(-50%, 100px);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+.selection-info {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+#selection-count {
+    color: var(--accent);
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-right: 0.25rem;
+}
+
+.selection-actions {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.7rem 1.2rem;
-    color: var(--accent);
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    gap: 0.75rem;
+}
+
+/* ===== Card & List Selection Checkboxes ===== */
+.card-checkbox-container {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 5;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    border-radius: 4px;
+    padding: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 0.2s ease, background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.anime-card:hover .card-checkbox-container,
+.anime-card.selected .card-checkbox-container {
+    opacity: 1;
+}
+
+.card-checkbox-container:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.list-checkbox-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.25rem;
+    z-index: 5;
+}
+
+@media (max-width: 768px) {
+    .selection-bar {
+        left: 50% !important;
+        width: calc(100% - 2rem);
+        justify-content: space-between;
+    }
 }
 
 /* Move To Button & Dropdown Styles */
@@ -1279,6 +1355,7 @@ header {
 
 /* ===== Individual Anime Card ===== */
 .anime-card {
+    position: relative;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
@@ -2298,23 +2375,23 @@ header {
 
 /* Seasonal Card Backgrounds */
 :root {
-    --season-winter-alpha: rgba(14, 165, 233, 0.08); /* Sky Blue */
-    --season-spring-alpha: rgba(236, 72, 153, 0.08); /* Pink */
-    --season-summer-alpha: rgba(251, 191, 36, 0.12); /* Yellow */
-    --season-fall-alpha: rgba(217, 119, 6, 0.15);   /* Dark Orange */
+    --season-winter-color: #0ea5e9; /* Sky Blue */
+    --season-spring-color: #ec4899; /* Pink */
+    --season-summer-color: #fbbf24; /* Yellow */
+    --season-fall-color: #d97706;   /* Dark Orange */
 }
 
 /* Single Season */
-.season-bg-winter { background-color: var(--season-winter-alpha) !important; }
-.season-bg-spring { background-color: var(--season-spring-alpha) !important; }
-.season-bg-summer { background-color: var(--season-summer-alpha) !important; }
-.season-bg-fall   { background-color: var(--season-fall-alpha) !important; }
+.season-bg-winter { background-color: color-mix(in srgb, var(--season-winter-color) 8%, var(--bg-card)) !important; }
+.season-bg-spring { background-color: color-mix(in srgb, var(--season-spring-color) 8%, var(--bg-card)) !important; }
+.season-bg-summer { background-color: color-mix(in srgb, var(--season-summer-color) 10%, var(--bg-card)) !important; }
+.season-bg-fall   { background-color: color-mix(in srgb, var(--season-fall-color) 12%, var(--bg-card)) !important; }
 
 /* Multi-Season Gradients - SEMI-SHARP */
-.season-bg-winter-spring { background: linear-gradient(135deg, var(--season-winter-alpha) 45%, var(--season-spring-alpha) 55%) !important; }
-.season-bg-spring-summer { background: linear-gradient(135deg, var(--season-spring-alpha) 45%, var(--season-summer-alpha) 55%) !important; }
-.season-bg-summer-fall   { background: linear-gradient(135deg, var(--season-summer-alpha) 45%, var(--season-fall-alpha) 55%) !important; }
-.season-bg-fall-winter   { background: linear-gradient(135deg, var(--season-fall-alpha) 45%, var(--season-winter-alpha) 55%) !important; }
+.season-bg-winter-spring { background: linear-gradient(135deg, color-mix(in srgb, var(--season-winter-color) 8%, var(--bg-card)) 45%, color-mix(in srgb, var(--season-spring-color) 8%, var(--bg-card)) 55%) !important; }
+.season-bg-spring-summer { background: linear-gradient(135deg, color-mix(in srgb, var(--season-spring-color) 8%, var(--bg-card)) 45%, color-mix(in srgb, var(--season-summer-color) 10%, var(--bg-card)) 55%) !important; }
+.season-bg-summer-fall   { background: linear-gradient(135deg, color-mix(in srgb, var(--season-summer-color) 10%, var(--bg-card)) 45%, color-mix(in srgb, var(--season-fall-color) 12%, var(--bg-card)) 55%) !important; }
+.season-bg-fall-winter   { background: linear-gradient(135deg, color-mix(in srgb, var(--season-fall-color) 12%, var(--bg-card)) 45%, color-mix(in srgb, var(--season-winter-color) 8%, var(--bg-card)) 55%) !important; }
 
 /* Anime List Item Adjustments */
 .anime-list-item.season-bg-winter, 

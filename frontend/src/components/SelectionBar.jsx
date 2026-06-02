@@ -1,7 +1,16 @@
+import { useState, useEffect } from 'preact/hooks';
 import { selectedAnime, clearSelection, pendingApiRequests, showToast, recordApiRequest, animeList } from '../store';
 
 export function SelectionBar({ onShowReview }) {
+    const [isOpen, setIsOpen] = useState(false);
     const count = selectedAnime.value.size;
+
+    useEffect(() => {
+        const handleOutsideClick = () => setIsOpen(false);
+        window.addEventListener('click', handleOutsideClick);
+        return () => window.removeEventListener('click', handleOutsideClick);
+    }, []);
+
     if (count === 0) return null;
 
     const moveSelectedTo = (newStatus) => {
@@ -29,22 +38,22 @@ export function SelectionBar({ onShowReview }) {
                     Clear
                 </button>
                 <div class="move-to-wrapper">
-                    <button id="btn-move-to" class="primary-btn btn-move-to"
+                    <button id="btn-move-to" class={`primary-btn move-to-btn ${isOpen ? 'active' : ''}`}
                         onClick={(e) => {
                             e.stopPropagation();
-                            const dd = document.getElementById('move-to-dropdown');
-                            if (dd) dd.classList.toggle('show');
+                            setIsOpen(!isOpen);
                         }}
                     >
-                        Move to...
+                        <span>Move to...</span>
+                        <svg class="chevron-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </button>
-                    <div id="move-to-dropdown" class="move-to-dropdown">
+                    <div id="move-to-dropdown" class={`move-to-dropdown ${isOpen ? 'show' : ''}`}>
                         {['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED'].map(status => (
                             <div key={status} class="move-to-option" data-status={status}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     moveSelectedTo(status);
-                                    document.getElementById('move-to-dropdown')?.classList.remove('show');
+                                    setIsOpen(false);
                                 }}
                             >
                                 {status === 'CURRENT' ? 'In Progress' : status.charAt(0) + status.slice(1).toLowerCase()}

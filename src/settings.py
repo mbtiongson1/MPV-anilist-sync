@@ -130,3 +130,19 @@ class SettingsManager:
         if not any((entry.get("link") or entry.get("url") or entry.get("title")) == key for entry in archive):
             archive.append(item)
             self.set_torrent_archive(archive)
+
+    @property
+    def reduce_colors(self) -> bool:
+        return self.get("reduce_colors", False)
+
+    @reduce_colors.setter
+    def reduce_colors(self, value: bool):
+        self.set("reduce_colors", value)
+
+    @property
+    def enable_drag_drop(self) -> bool:
+        return self.get("enable_drag_drop", True)
+
+    @enable_drag_drop.setter
+    def enable_drag_drop(self, value: bool):
+        self.set("enable_drag_drop", value)

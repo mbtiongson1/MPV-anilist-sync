@@ -28,6 +28,8 @@ class SettingsRequest(BaseModel):
     preferred_resolution: Optional[str] = None
     default_download_dir: Optional[str] = None
     base_anime_folder: Optional[str] = None
+    enable_drag_drop: Optional[bool] = None
+    reduce_colors: Optional[bool] = None
 
 class ChangeStatusRequest(BaseModel):
     mediaId: int
@@ -60,7 +62,9 @@ async def get_settings(request: Request):
             'preferred_resolution': agent.settings.preferred_resolution,
             'default_download_dir': agent.settings.default_download_dir,
             'base_anime_folder': agent.settings.base_anime_folder,
-            'title_overrides': agent.settings.title_overrides or {}
+            'title_overrides': agent.settings.title_overrides or {},
+            'enable_drag_drop': agent.settings.enable_drag_drop,
+            'reduce_colors': agent.settings.reduce_colors
         }
     return settings
 
@@ -76,6 +80,10 @@ async def save_settings(request: Request, body: SettingsRequest):
             agent.settings.default_download_dir = body.default_download_dir
         if body.base_anime_folder is not None:
             agent.settings.base_anime_folder = body.base_anime_folder
+        if body.enable_drag_drop is not None:
+            agent.settings.enable_drag_drop = body.enable_drag_drop
+        if body.reduce_colors is not None:
+            agent.settings.reduce_colors = body.reduce_colors
     return {"success": True}
 
 @router.get('/api/play_latest')
