@@ -45,19 +45,18 @@ export function Header({ viewMode, onViewModeChange, onOpenSettings, onShowUpcom
         }
     };
 
-    const handleReauthorize = async () => {
+    const handleReauthorize = () => {
         if (confirm('This will open your browser to reauthorize with AniList. Continue?')) {
-            try {
-                const res = await api.reauthorize();
-                if (res && res.url) {
-                    window.open(res.url, '_blank');
-                    showToast('Reauthorization page opened!');
-                } else {
-                    alert('Reauthorization initiated. Check your browser.');
-                }
-            } catch (e) {
-                alert('Failed to initiate reauthorization.');
-            }
+            // Trigger the backend OAuth server listener in the background
+            api.reauthorize().catch(err => {
+                console.error('Failed to initiate backend auth server:', err);
+            });
+
+            // Open the OAuth page synchronously to bypass browser popup blockers
+            const clientId = 37267;
+            const authUrl = `https://anilist.co/api/v2/oauth/authorize?client_id=${clientId}&response_type=token`;
+            window.open(authUrl, '_blank');
+            showToast('Reauthorization page opened!');
         }
     };
 
