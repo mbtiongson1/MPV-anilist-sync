@@ -18,6 +18,7 @@ import { SettingsModal } from './modals/Settings';
 import { ChangelogModal } from './modals/Changelog';
 import { CleanupModal } from './modals/Cleanup';
 import { UpcomingOverlay } from './modals/Upcoming';
+import { MiniWindow } from './MiniWindow';
 
 export function App() {
     // Local UI state
@@ -33,6 +34,8 @@ export function App() {
     const [showChangelog, setShowChangelog] = useState(false);
     const [showCleanup, setShowCleanup] = useState(false);
     const [showUpcoming, setShowUpcoming] = useState(false);
+    const [showRecentAnime, setShowRecentAnime] = useState(false);
+    const [showMediaPlayer, setShowMediaPlayer] = useState(false);
 
     // Fetch anime list + settings on mount
     useEffect(() => {
@@ -84,6 +87,29 @@ export function App() {
         const settings = await api.loadSettings();
         userSettings.value = settings || {};
         showToast('Settings saved');
+    }, []);
+
+    // Position change handler for mini windows
+    const handleWindowPositionChange = useCallback(async (windowId, newPos) => {
+        const settings = userSettings.value || {};
+        const oldPositions = settings.window_positions || {};
+        const updatedPositions = {
+            ...oldPositions,
+            [windowId]: newPos
+        };
+        
+        userSettings.value = {
+            ...settings,
+            window_positions: updatedPositions
+        };
+        
+        try {
+            await api.saveSettings({
+                window_positions: updatedPositions
+            });
+        } catch (e) {
+            console.error('Failed to save window position:', e);
+        }
     }, []);
 
     // Sync completed handler
@@ -235,23 +261,12 @@ export function App() {
             <div class="app-container">
                 <Header
                     onOpenSettings={() => setShowSettings(true)}
+                    isRecentAnimeOpen={showRecentAnime}
+                    onOpenRecentAnime={() => setShowRecentAnime(!showRecentAnime)}
+                    isMediaPlayerOpen={showMediaPlayer}
+                    onOpenMediaPlayer={() => setShowMediaPlayer(!showMediaPlayer)}
+                    onOpenDetails={(a) => setDetailsAnime(a)}
                 />
-
-                <div class="top-dashboard-grid" style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: 'minmax(280px, 380px) minmax(0, 1fr)', marginBottom: '2rem', alignItems: 'stretch', height: '350px' }}>
-                    <section id="recent-anime" class="now-playing-card" style={{ display: 'flex', flexDirection: 'column', background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', overflow: 'hidden' }}>
-                        <div class="section-header" style={{ padding: '1rem', borderBottom: '1px solid var(--border)', margin: 0, flexShrink: 0, justifyContent: 'flex-start', gap: '0.5rem' }}>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 8v4l3 3M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z"/></svg>
-                            <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Recent Anime Activity</h2>
-                        </div>
-                        <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', overflowY: 'auto', flex: 1 }}>
-                            <RecentAnime onOpenDetails={(a) => setDetailsAnime(a)} />
-                        </div>
-                    </section>
-
-                    <div class="now-playing-wrapper" style={{ display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0, overflow: 'hidden' }}>
-                        <NowPlaying onOpenDetails={(a) => setDetailsAnime(a)} />
-                    </div>
-                </div>
 
                 <section id="anime-list-section" class="anime-list-section">
                     <div class="section-header">
@@ -348,6 +363,35 @@ export function App() {
 
             <SelectionBar onShowReview={showReview} />
             <Toast />
+
+            {/* Draggable Mini Windows */}
+            <MiniWindow
+                id="recentAnime"
+                title="Recent Anime Activity"
+                visible={showRecentAnime}
+                onClose={() => setShowRecentAnime(false)}
+                defaultPos={{ x: 80, y: 100 }}
+                savedPos={userSettings.value?.window_positions?.recentAnime}
+                onPositionChange={handleWindowPositionChange}
+            >
+                <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', overflowY: 'auto', height: '350px', width: '380px' }}>
+                    <RecentAnime onOpenDetails={(a) => setDetailsAnime(a)} />
+                </div>
+            </MiniWindow>
+
+            <MiniWindow
+                id="mediaPlayer"
+                title="Media Player"
+                visible={showMediaPlayer}
+                onClose={() => setShowMediaPlayer(false)}
+                defaultPos={{ x: 480, y: 100 }}
+                savedPos={userSettings.value?.window_positions?.mediaPlayer}
+                onPositionChange={handleWindowPositionChange}
+            >
+                <div style={{ width: '480px', height: '350px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                    <NowPlaying onOpenDetails={(a) => setDetailsAnime(a)} />
+                </div>
+            </MiniWindow>
 
             {/* Modals */}
             <AnimeDetailsModal
