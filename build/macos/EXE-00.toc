@@ -56,7 +56,7 @@
  [],
  False,
  False,
- 1780437322,
+ 1780437473,
  [('runw',
    '/Users/marcotiongson/Documents/MPV-anilist-sync/venv/lib/python3.14/site-packages/PyInstaller/bootloader/Darwin-64bit/runw',
    'EXECUTABLE')],
