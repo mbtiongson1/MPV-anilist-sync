@@ -3,6 +3,8 @@ import threading
 import time
 import asyncio
 import sys
+import subprocess
+
 
 try:
     from src.runtime_env import resolve_resource_path

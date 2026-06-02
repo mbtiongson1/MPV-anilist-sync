@@ -4,9 +4,16 @@ import sys
 import subprocess
 import shlex
 import urllib.parse
+import urllib.request
+import json
+import shutil
+import time
+import threading
 
 from pydantic import BaseModel
 from typing import List, Optional
+from src.main import VERSION
+
 
 router = APIRouter()
 
@@ -189,3 +196,133 @@ async def open_trash(request: Request):
     except Exception as e:
         print(f"Error opening trash: {e}")
         return {"success": False}
+
+
+def parse_version(v: str) -> tuple[int, ...]:
+    if v.startswith('v'):
+        v = v[1:]
+    parts = []
+    for p in v.split('.'):
+        digits = ''.join(c for c in p if c.isdigit())
+        parts.append(int(digits) if digits else 0)
+    return tuple(parts)
+
+
+def get_latest_release_info() -> dict:
+    url = "https://api.github.com/repos/mbtiongson1/MPV-anilist-sync/releases/latest"
+    req = urllib.request.Request(url, headers={'User-Agent': 'MPV-Anilist-Sync-Updater'})
+    with urllib.request.urlopen(req, timeout=5) as response:
+        data = json.loads(response.read().decode('utf-8'))
+        return data
+
+
+@router.get('/api/check_update')
+async def check_update():
+    try:
+        data = get_latest_release_info()
+        remote_version_str = data.get('tag_name', 'v0.0.0')
+        changelog = data.get('body', '')
+        
+        # Find correct asset depending on platform
+        download_url = ""
+        assets = data.get('assets', [])
+        for asset in assets:
+            name = asset.get('name', '')
+            if sys.platform == 'darwin' and name.endswith('.dmg'):
+                download_url = asset.get('browser_download_url', '')
+                break
+            elif sys.platform == 'win32' and name.endswith('.exe'):
+                download_url = asset.get('browser_download_url', '')
+                break
+        
+        # Compare versions
+        local_v = parse_version(VERSION)
+        remote_v = parse_version(remote_version_str)
+        update_available = remote_v > local_v
+        
+        return {
+            "update_available": update_available,
+            "latest_version": remote_version_str.lstrip('v'),
+            "current_version": VERSION,
+            "changelog": changelog,
+            "download_url": download_url
+        }
+    except Exception as e:
+        return {
+            "update_available": False,
+            "latest_version": "",
+            "current_version": VERSION,
+            "changelog": "",
+            "download_url": "",
+            "error": str(e)
+        }
+
+
+@router.post('/api/download_update')
+async def download_update():
+    try:
+        data = get_latest_release_info()
+        remote_version_str = data.get('tag_name', 'v0.0.0')
+        
+        # Find correct asset depending on platform
+        download_url = ""
+        filename = ""
+        assets = data.get('assets', [])
+        for asset in assets:
+            name = asset.get('name', '')
+            if sys.platform == 'darwin' and name.endswith('.dmg'):
+                download_url = asset.get('browser_download_url', '')
+                filename = name
+                break
+            elif sys.platform == 'win32' and name.endswith('.exe'):
+                download_url = asset.get('browser_download_url', '')
+                filename = name
+                break
+        
+        if not download_url:
+            raise HTTPException(status_code=400, detail="No suitable update asset found for this platform.")
+        
+        # Determine downloads directory
+        home = os.path.expanduser('~')
+        downloads_dir = os.path.join(home, 'Downloads')
+        if not os.path.exists(downloads_dir):
+            downloads_dir = os.path.dirname(os.path.abspath(__file__)) # fallback
+            
+        target_path = os.path.join(downloads_dir, filename)
+        
+        # Download in chunks
+        print(f"Downloading update from {download_url} to {target_path}...")
+        req = urllib.request.Request(download_url, headers={'User-Agent': 'MPV-Anilist-Sync-Updater'})
+        with urllib.request.urlopen(req, timeout=30) as response, open(target_path, 'wb') as out_file:
+            shutil.copyfileobj(response, out_file)
+            
+        print(f"Download complete: {target_path}")
+        
+        # Open/execute depending on platform
+        if sys.platform == 'darwin':
+            # Mount the DMG
+            subprocess.run(['open', target_path], check=True)
+            # Stop the app gracefully after returning
+            def quit_app():
+                time.sleep(1.0)
+                os._exit(0)
+            threading.Thread(target=quit_app, daemon=True).start()
+            return {"success": True, "message": "DMG opened. App will now shutdown to allow updates."}
+            
+        elif sys.platform == 'win32':
+            # Start the EXE updater in the background
+            os.startfile(target_path)
+            # Stop the app gracefully
+            def quit_app():
+                time.sleep(1.0)
+                os._exit(0)
+            threading.Thread(target=quit_app, daemon=True).start()
+            return {"success": True, "message": "Installer executed. App will now shutdown to allow updates."}
+            
+        else:
+            return {"success": False, "message": f"Auto-update not fully supported on platform: {sys.platform}. File downloaded to: {target_path}"}
+            
+    except Exception as e:
+        print(f"Error downloading update: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+

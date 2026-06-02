@@ -22,6 +22,10 @@ export const currentNpAnime = signal(null);
 // ===== User Settings =====
 export const userSettings = signal(null);
 
+// ===== Update State =====
+export const appUpdateStatus = signal(null);
+
+
 // ===== Library State =====
 export const libraryData = signal([]);
 export const libraryExclusions = signal([]);

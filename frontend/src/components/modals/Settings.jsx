@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { userSettings, showToast } from '../../store';
+import { userSettings, showToast, appUpdateStatus } from '../../store';
 import * as api from '../../api';
 
 export function SettingsModal({ visible, onClose, onSaved }) {
@@ -13,6 +13,8 @@ export function SettingsModal({ visible, onClose, onSaved }) {
     const [dragDrop, setDragDrop] = useState(s.enable_drag_drop !== false);
     const [reduceColors, setReduceColors] = useState(s.reduce_colors === true);
     const [saving, setSaving] = useState(false);
+    const [updating, setUpdating] = useState(false);
+    const [checking, setChecking] = useState(false);
 
     const handleSave = async () => {
         setSaving(true);
@@ -51,6 +53,42 @@ export function SettingsModal({ visible, onClose, onSaved }) {
             } catch (e) {
                 showToast("Error resetting overrides", "error");
             }
+        }
+    };
+
+    const handleCheckUpdate = async () => {
+        setChecking(true);
+        try {
+            const res = await api.checkUpdate();
+            appUpdateStatus.value = res;
+            if (res.update_available) {
+                showToast(`New update available: v${res.latest_version}`);
+            } else if (res.error) {
+                showToast(`Failed to check updates: ${res.error}`, 'error');
+            } else {
+                showToast('App is up to date');
+            }
+        } catch (e) {
+            showToast('Failed to check updates', 'error');
+        } finally {
+            setChecking(false);
+        }
+    };
+
+    const handleDownloadUpdate = async () => {
+        if (!confirm('This will download the update and launch the installer. The app will close. Proceed?')) return;
+        setUpdating(true);
+        try {
+            const res = await api.downloadUpdate();
+            if (res.success) {
+                showToast(res.message || 'Update downloaded and opened successfully.');
+            } else {
+                showToast(res.message || 'Failed to install update.', 'error');
+            }
+        } catch (e) {
+            showToast('Error downloading update.', 'error');
+        } finally {
+            setUpdating(false);
         }
     };
 
@@ -101,6 +139,38 @@ export function SettingsModal({ visible, onClose, onSaved }) {
                             </label>
                         </label>
                     </div>
+                    
+                    <div class="settings-group" style="border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1rem;">
+                        <h3 style="margin-bottom: 0.5rem; font-size: 1rem; font-weight: bold; color: var(--text-primary);">Application Updates</h3>
+                        <div style="font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-muted);">
+                            Current Version: <strong>v{appUpdateStatus.value?.current_version || 'unknown'}</strong>
+                        </div>
+                        {appUpdateStatus.value?.update_available ? (
+                            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgb(16, 185, 129); padding: 0.75rem; border-radius: 4px; margin-top: 0.5rem;">
+                                <div style="font-weight: bold; color: rgb(16, 185, 129); margin-bottom: 0.25rem;">
+                                    A new version is available: v{appUpdateStatus.value.latest_version}
+                                </div>
+                                {appUpdateStatus.value.changelog && (
+                                    <div style="font-size: 0.8rem; max-height: 100px; overflow-y: auto; margin-bottom: 0.75rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 4px; white-space: pre-wrap; color: var(--text-secondary);">
+                                        {appUpdateStatus.value.changelog}
+                                    </div>
+                                )}
+                                <button class="primary-btn" onClick={handleDownloadUpdate} disabled={updating}>
+                                    {updating ? 'Downloading & Installing...' : 'Download & Install Update'}
+                                </button>
+                            </div>
+                        ) : (
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                                {checking ? 'Checking for updates...' : 'Your application is up to date.'}
+                                {!checking && (
+                                    <button class="secondary-btn" style="margin-left: 0.75rem; padding: 0.25rem 0.5rem; font-size: 0.75rem;" onClick={handleCheckUpdate}>
+                                        Check Now
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
                     <div class="settings-group" style="border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 0.5rem;">
                         <button id="btn-reset-overrides" class="secondary-btn" onClick={handleResetOverrides}>Reset All Title Overrides</button>
                     </div>
@@ -114,3 +184,4 @@ export function SettingsModal({ visible, onClose, onSaved }) {
         </div>
     );
 }
+

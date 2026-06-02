@@ -6,9 +6,17 @@ import os
 # Add project root to path for internal imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.ui import TrackerUI
+try:
+    from src.ui import TrackerUI
+    HAS_TKINTER = True
+except ImportError:
+    HAS_TKINTER = False
 
 class TestTrackerUI(unittest.TestCase):
+    def setUp(self):
+        if not HAS_TKINTER:
+            self.skipTest("Tkinter not available")
+
 
     @patch('src.ui.tk.Tk')
     def test_tracker_ui_initialization_with_unauthenticated_agent(self, mock_tk):

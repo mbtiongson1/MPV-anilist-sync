@@ -117,3 +117,8 @@ export const searchAnime = (query) =>
 export const reauthorize = () => request('/api/reauthorize', { method: 'POST' });
 export const fullRefresh = () => request('/api/full_refresh', { method: 'POST' });
 export const clearCache = () => request('/api/clear_cache', { method: 'POST' });
+
+// ===== Updates =====
+export const checkUpdate = () => request('/api/check_update');
+export const downloadUpdate = () => request('/api/download_update', { method: 'POST' });
+

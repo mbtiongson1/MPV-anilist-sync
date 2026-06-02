@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'preact/hooks';
-import { animeList, activeTab, viewMode, selectedAnime, sortBy, sortDirection, currentPage, userSettings, sidebarCollapsed, selectedSidebarSeasons, selectedGenres, showToast, setViewMode, setActiveTab, pendingApiRequests, apiErrorMessages, libraryData } from '../store';
+import { animeList, activeTab, viewMode, selectedAnime, sortBy, sortDirection, currentPage, userSettings, sidebarCollapsed, selectedSidebarSeasons, selectedGenres, showToast, setViewMode, setActiveTab, pendingApiRequests, apiErrorMessages, libraryData, appUpdateStatus } from '../store';
 import { fuzzyMatch, getAnimeSeasons, getDisplayTitle, getRelativeTime } from '../utils';
 import * as api from '../api';
 
@@ -41,18 +41,24 @@ export function App() {
     useEffect(() => {
         const loadData = async () => {
             try {
-                const [list, settings] = await Promise.all([
+                const [list, settings, update] = await Promise.all([
                     api.fetchAnimeList(),
-                    api.loadSettings()
+                    api.loadSettings(),
+                    api.checkUpdate().catch(err => {
+                        console.error('Update check failed:', err);
+                        return null;
+                    })
                 ]);
                 animeList.value = list || [];
                 userSettings.value = settings || {};
+                appUpdateStatus.value = update;
             } catch (e) {
                 console.error('Failed to load initial data:', e);
             }
         };
         loadData();
     }, []);
+
 
     // Apply reduce-colors setting to DOM
     useEffect(() => {
