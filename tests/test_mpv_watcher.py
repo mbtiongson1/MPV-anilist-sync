@@ -53,7 +53,7 @@ class TestMPVWatcher(unittest.TestCase):
         self.assertIsNotNone(watcher.mpv)
 
         fake = watcher.mpv
-        fake._observers["path"]("path", "/anime/Frieren - 03.mkv")
+        fake._observers["filename"]("filename", "/anime/Frieren - 03.mkv")
         fake._observers["percent-pos"]("percent-pos", 52.5)
 
         self.assertEqual(watcher.get_current_filename(), "/anime/Frieren - 03.mkv")

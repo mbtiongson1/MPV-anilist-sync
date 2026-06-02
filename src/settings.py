@@ -146,3 +146,11 @@ class SettingsManager:
     @enable_drag_drop.setter
     def enable_drag_drop(self, value: bool):
         self.set("enable_drag_drop", value)
+
+    @property
+    def window_positions(self) -> Dict[str, Any]:
+        return self.get("window_positions", {})
+
+    @window_positions.setter
+    def window_positions(self, value: Dict[str, Any]):
+        self.set("window_positions", value)

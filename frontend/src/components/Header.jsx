@@ -2,8 +2,21 @@ import { useState, useEffect } from 'preact/hooks';
 import { pendingApiRequests, animeList, showToast, activeTab, latestStatus } from '../store';
 import { getRelativeTime } from '../utils';
 import * as api from '../api';
+import { NowPlaying } from './NowPlaying';
 
-export function Header({ viewMode, onViewModeChange, onOpenSettings, onShowUpcoming, onShowReview, onRefresh }) {
+export function Header({ 
+    viewMode, 
+    onViewModeChange, 
+    onOpenSettings, 
+    onShowUpcoming, 
+    onShowReview, 
+    onRefresh,
+    isRecentAnimeOpen,
+    onOpenRecentAnime,
+    isMediaPlayerOpen,
+    onOpenMediaPlayer,
+    onOpenDetails
+}) {
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
     const pendCount = pendingApiRequests.value.length;
     const tab = activeTab.value;
@@ -125,9 +138,20 @@ export function Header({ viewMode, onViewModeChange, onOpenSettings, onShowUpcom
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <span>Reauthorize</span>
                 </button>
+                {/* Clear Cache temporarily disabled to make space for Recent Anime icon */}
+                {/*
                 <button id="btn-clear-cache" class="header-btn" title="Clear library and image cache" aria-label="Clear library and image cache" onClick={handleClearCache}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                     <span>Clear Cache</span>
+                </button>
+                */}
+                <button id="btn-recent-anime" class={`header-btn ${isRecentAnimeOpen ? 'active' : ''}`} title="Recent Anime Activity" aria-label="Recent Anime Activity" onClick={onOpenRecentAnime}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/><line x1="12" y1="7" x2="12" y2="12"/><line x1="12" y1="12" x2="16" y2="14"/></svg>
+                    <span>Recent Anime</span>
+                </button>
+                <button id="btn-media-player" class={`header-btn ${isMediaPlayerOpen ? 'active' : ''}`} title="Media Player" aria-label="Media Player" onClick={onOpenMediaPlayer}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    <span>Media Player</span>
                 </button>
                 <button id="btn-full-refresh" class="header-btn" title="Full refresh (clears session and reloads list)" aria-label="Full refresh (clears session and reloads list)" onClick={handleFullRefresh}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
@@ -137,9 +161,12 @@ export function Header({ viewMode, onViewModeChange, onOpenSettings, onShowUpcom
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                     <span>Settings</span>
                 </button>
-                <div id="status-indicator" class={`status-bubble ${isPlaying ? 'online' : 'offline'}`}>
+                <div id="status-indicator" class={`status-bubble ${isPlaying ? 'online' : 'offline'}`} onClick={onOpenMediaPlayer} title="Click to toggle Media Player window">
                     <div class="pulse"></div>
                     <span id="status-text">{isPlaying ? 'Now Playing' : 'Nothing Playing'}</span>
+                    <div class="hover-player-container" onClick={(e) => e.stopPropagation()}>
+                        <NowPlaying onOpenDetails={onOpenDetails} />
+                    </div>
                 </div>
             </div>
         </header>
