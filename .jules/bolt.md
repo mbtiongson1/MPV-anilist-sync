@@ -21,3 +21,7 @@
 ## 2026-05-22 - Optimize Array.sort() Comparators
 **Learning:** Performing expensive operations—such as unconditionally invoking function calls or allocating arrays for `.indexOf()`—inside an array `sort()` comparator severely degrades performance due to the $O(N \log N)$ execution frequency.
 **Action:** When sorting arrays, defer function calls into specific conditional branches that strictly require them. Replace $O(N)$ operations like `.indexOf()` with constant-time $O(1)$ object or map lookups populated outside the sorting iteration.
+
+## 2024-05-19 - Pre-computing sort values
+**Learning:** In Preact, sorting a derived array using `useMemo` can become a performance bottleneck if the sorting comparison involves string allocations (`toLowerCase()`) and complex object manipulations (`parseSize`) for each comparison, leading to $O(N \log N)$ complexity. Using `useMemo` for derived lists containing state from global signals must be handled carefully to avoid stale state bugs (e.g. `isArchivedItem` check without tracking the signal).
+**Action:** Always pre-compute derived values used for sorting in a separate `Map` prior to calling `.sort()`. Apply the map transformation outside of `useMemo` if the derivation relies on signals that aren't easily tracked as dependencies.
