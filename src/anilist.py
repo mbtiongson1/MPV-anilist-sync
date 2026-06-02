@@ -161,7 +161,7 @@ class AnilistClient:
         print(f"Opening browser for authentication: {auth_url}")
         
         try:
-            server = AnilistHTTPServer(('localhost', 54321), AnilistAuthHandler)
+            server = AnilistHTTPServer(('127.0.0.1', 54321), AnilistAuthHandler)
             server.token = None
         except OSError as e:
             if "Address already in use" in str(e) or e.errno in (48, 98):
