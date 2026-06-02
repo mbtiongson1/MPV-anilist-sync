@@ -7,13 +7,8 @@ from .base import BaseWatcher
 
 class MPVWatcher(BaseWatcher):
     def __init__(self, socket_path: Optional[str] = None):
-        if socket_path is None:
-            if sys.platform == "win32":
-                self.socket_path = r"\\.\pipe\mpvsocket"
-            else:
-                self.socket_path = "/tmp/mpvsocket"
-        else:
-            self.socket_path = socket_path
+        self.custom_socket_path = socket_path
+        self.socket_path = socket_path
         self.mpv = None
         self._is_connected = False
         self.current_filename: Optional[str] = None
@@ -31,34 +26,60 @@ class MPVWatcher(BaseWatcher):
         return False
 
     def connect(self) -> bool:
-        # On Unix, check if the socket file exists first
-        # On Windows, named pipes can't be checked with os.path.exists
-        if sys.platform != "win32" and not os.path.exists(self.socket_path):
-            return False
-            
-        try:
-            mpv_instance = MPV(start_mpv=False, ipc_socket=self.socket_path)
-            self.mpv = mpv_instance
-            self._is_connected = True
-            
-            # Setup property observers
-            @mpv_instance.property_observer('path')
-            def on_filename_change(_name, value):
-                self.current_filename = value
+        # Determine candidate socket paths
+        paths = []
+        if self.custom_socket_path is not None:
+            paths = [self.custom_socket_path]
+        else:
+            if sys.platform == "win32":
+                paths = [r"\\.\pipe\mpvsocket", r"\\.\pipe\mpv-socket"]
+            else:
+                paths = ["/tmp/mpv-socket", "/tmp/mpvsocket"]
+
+        for path in paths:
+            # On Unix, check if the socket file exists first
+            if sys.platform != "win32" and not os.path.exists(path):
+                continue
                 
-            @mpv_instance.property_observer('percent-pos')
-            def on_percent_pos_change(_name, value):
-                if value is not None:
-                    self.percent_pos = value
+            try:
+                mpv_instance = MPV(start_mpv=False, ipc_socket=path)
+                self.socket_path = path
+                self.mpv = mpv_instance
+                self._is_connected = True
+                
+                # Fetch initial status (if any file is already playing)
+                try:
+                    self.current_filename = mpv_instance.filename
+                except Exception:
+                    pass
                     
-            return True
-        except Exception as e:
-            # Maybe socket exists but mpv is not running or listening
-            if sys.platform == "darwin" and not os.path.exists(self.socket_path):
-                print(f"MPV detected as possibly running but IPC socket {self.socket_path} is missing.")
-                print("Tip: Start MPV with --input-ipc-server=/tmp/mpvsocket or add it to your mpv.conf")
-            self._is_connected = False
-            return False
+                try:
+                    val = mpv_instance.percent_pos
+                    if val is not None:
+                        self.percent_pos = val
+                except Exception:
+                    pass
+
+                # Setup property observers
+                @mpv_instance.property_observer('filename')
+                def on_filename_change(_name, value):
+                    self.current_filename = value
+                    
+                @mpv_instance.property_observer('percent-pos')
+                def on_percent_pos_change(_name, value):
+                    if value is not None:
+                        self.percent_pos = value
+                        
+                return True
+            except Exception as e:
+                # Maybe socket exists but mpv is not running or listening
+                self._is_connected = False
+
+        if sys.platform == "darwin":
+            # Show diagnostic advice if we couldn't connect to any standard path
+            print("MPV detected as possibly running but IPC socket is missing or refused connection.")
+            print("Tip: Start MPV with --input-ipc-server=/tmp/mpv-socket or verify your ~/.config/mpv/mpv.conf")
+        return False
 
     def disconnect(self):
         if self.mpv:

@@ -48,8 +48,13 @@ export function Header({ viewMode, onViewModeChange, onOpenSettings, onShowUpcom
     const handleReauthorize = async () => {
         if (confirm('This will open your browser to reauthorize with AniList. Continue?')) {
             try {
-                await api.reauthorize();
-                alert('Reauthorization initiated. Check your browser.');
+                const res = await api.reauthorize();
+                if (res && res.url) {
+                    window.open(res.url, '_blank');
+                    showToast('Reauthorization page opened!');
+                } else {
+                    alert('Reauthorization initiated. Check your browser.');
+                }
             } catch (e) {
                 alert('Failed to initiate reauthorization.');
             }

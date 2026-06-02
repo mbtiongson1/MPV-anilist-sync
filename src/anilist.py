@@ -141,6 +141,19 @@ class AnilistClient:
     def is_authenticated(self) -> bool:
         return self.token is not None
 
+    def _open_browser(self, url: str):
+        import sys
+        import subprocess
+        print(f"Opening browser for URL: {url}")
+        try:
+            if sys.platform == 'darwin':
+                subprocess.Popen(['open', url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            else:
+                webbrowser.open(url)
+        except Exception as e:
+            print(f"Failed to open browser with fallback, trying webbrowser: {e}")
+            webbrowser.open(url)
+
     def authenticate(self) -> bool:
         client_id = 37267
 
@@ -153,11 +166,11 @@ class AnilistClient:
         except OSError as e:
             if "Address already in use" in str(e) or e.errno in (48, 98):
                 print("Auth server already running. Re-using existing auth thread.")
-                webbrowser.open(auth_url)
+                self._open_browser(auth_url)
                 return False
             raise e
 
-        webbrowser.open(auth_url)
+        self._open_browser(auth_url)
         
         # Block until the local server receives the token and shuts down
         server.serve_forever()

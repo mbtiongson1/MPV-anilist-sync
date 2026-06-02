@@ -47,11 +47,13 @@ async def get_user(request: Request):
 async def reauthorize(request: Request):
     agent = request.app.state.agent
     if agent and hasattr(agent, 'anilist'):
+        client_id = 37267
+        auth_url = f"https://anilist.co/api/v2/oauth/authorize?client_id={client_id}&response_type=token"
         def auth():
             agent.anilist.authenticate()
         import threading
         threading.Thread(target=auth, daemon=True).start()
-        return {"success": True}
+        return {"success": True, "url": auth_url}
     return {"success": False}
 
 @router_nyaa.get('/api/nyaa_search')

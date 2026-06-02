@@ -34,6 +34,10 @@ class ChangeStatusRequest(BaseModel):
     status: str
     episode: Optional[int] = None
 
+class UpdateProgressRequest(BaseModel):
+    mediaId: int
+    episode: int
+
 class UpdateTitleRequest(BaseModel):
     mediaId: int
     customTitle: str
@@ -238,6 +242,14 @@ async def change_status(request: Request, body: ChangeStatusRequest):
     success = False
     if agent and hasattr(agent, 'anilist'):
         success = agent.anilist.change_status(body.mediaId, body.status, progress=int(body.episode) if body.episode is not None else None)
+    return {"success": success}
+
+@router.post('/api/update_progress')
+async def update_progress(request: Request, body: UpdateProgressRequest):
+    agent = request.app.state.agent
+    success = False
+    if agent and hasattr(agent, 'anilist'):
+        success = agent.anilist.update_progress(body.mediaId, body.episode)
     return {"success": success}
 
 @router.post('/api/update_title_override')

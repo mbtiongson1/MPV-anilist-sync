@@ -20,4 +20,4 @@ echo "Starting MPV Anilist Tracker" | tee -a "$LOG_FILE"
 echo "Python: $PYTHON" | tee -a "$LOG_FILE"
 echo "Log file: $LOG_FILE" | tee -a "$LOG_FILE"
 
-"$PYTHON" "$ROOT_DIR/dev.py" 2>&1 | tee -a "$LOG_FILE"
+"$PYTHON" -u "$ROOT_DIR/dev.py" 2>&1 | tee -a "$LOG_FILE"

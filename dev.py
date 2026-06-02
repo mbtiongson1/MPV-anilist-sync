@@ -70,7 +70,7 @@ if __name__ == "__main__":
     
     # 2. Start Backend (Python)
     # Ensure venv is used if active, else fallback to sys.executable
-    command = [sys.executable, "src/main.py"]
+    command = [sys.executable, "-u", "src/main.py"]
     
     backend_handler = BackendReloadHandler(command)
     observer = Observer()
