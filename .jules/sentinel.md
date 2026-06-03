@@ -28,3 +28,13 @@
 **Learning:** Local applications that run servers must restrict Cross-Origin Resource Sharing (CORS) to the explicit local origins expected to interact with the backend. Using `*` effectively bypasses same-origin policies entirely, putting local-first applications at risk when users visit external malicious sites.
 **Prevention:** Explicitly define the allowed frontend origins (e.g., `http://localhost:5173`, `http://127.0.0.1:8080`) when configuring CORS, and avoid using `*` alongside `allow_credentials=True`.
 
+
+## 2024-05-24 - [CRITICAL] Prevent SSRF Bypass via URL Parser Differentials
+**Vulnerability:** Found an SSRF vulnerability where `urllib.parse` correctly extracts the intended hostname (e.g., `nyaa.si`) while standard HTTP clients like `requests` or `httpx` will evaluate trailing backslashes `\` or `@` in the authority section to direct requests to local resources (e.g., `http://nyaa.si\@127.0.0.1/`).
+**Learning:** Python's `urllib.parse` handles backslashes and certain authority strings differently than modern networking libraries, creating a differential parser vulnerability.
+**Prevention:** Strictly validate hostnames or the raw URL strings using a character allowlist or reject non-standard characters like `\@` before passing URLs to HTTP clients for proxying or fetching.
+
+## 2024-05-24 - [HIGH] Path Traversal via Asset Downloads
+**Vulnerability:** Auto-update downloaded assets using URLs fetched from external APIs directly and saving them using the provided string names.
+**Learning:** Any externally fetched filename should be treated as untrusted input. If a malicious API responds with an asset named `../../../malicious.sh`, it can be written to restricted parts of the filesystem.
+**Prevention:** Always sanitize filenames returned by external sources using `os.path.basename()` or equivalent secure resolution techniques before writing to the local disk.
