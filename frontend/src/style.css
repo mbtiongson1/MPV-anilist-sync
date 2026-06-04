@@ -2954,7 +2954,7 @@ footer {
 /* API Errors Global Floating Notification */
 .api-errors-container {
     position: fixed;
-    top: 2rem;
+    bottom: 2rem;
     right: 2rem;
     display: flex;
     flex-direction: column;

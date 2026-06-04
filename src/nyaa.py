@@ -181,6 +181,15 @@ class NyaaInterface:
                 
                 pd: str = str(pub_date_node.text) if pub_date_node is not None and pub_date_node.text is not None else ""
 
+                # Parse pubDate to Unix timestamp
+                timestamp: int = 0
+                if pd:
+                    try:
+                        from email.utils import parsedate_to_datetime
+                        timestamp = int(parsedate_to_datetime(pd).timestamp())
+                    except Exception:
+                        pass
+
                 # Parse episode number and batch status from title
                 parsed_ep, is_batch = _parse_episode_from_title(t)
 
@@ -211,6 +220,7 @@ class NyaaInterface:
                     'episode': parsed_ep,
                     'is_batch': is_batch,
                     'pubDate': pd,
+                    'timestamp': timestamp,
                     'normalized_title': normalize_title(t),
                 })
 
