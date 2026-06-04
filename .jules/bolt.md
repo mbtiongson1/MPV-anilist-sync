@@ -29,3 +29,6 @@
 **Learning:** Performing Regular Expression evaluations (e.g., regex-based parseSize) or redundant string allocations (e.g., `toLowerCase()`) inside `.sort()` comparators introduces significant $O(N \log N)$ performance bottlenecks in Preact views, which can lead to noticeable UI thread blocking during renders or filter updates.
 **Action:** When filtering or sorting large arrays in UI components, always pre-compute derived strings and regex-parsed variables into block-scoped constant-time `Map` lookups before calling `.sort()`.
 
+## 2024-05-24 - Avoid O(N^2) Tree Filtering in React Renders
+**Learning:** In `LibraryView`, filtering a recursive tree structure inside a Preact render function and repeatedly filtering children using a recursive `.some()` array method caused an exponential O(N^2) performance bottleneck, completely blocking the main thread when typing in a search bar.
+**Action:** Always wrap heavy list or tree filtering operations in a single `useMemo` block that traverses the tree exactly once and returns a fully pruned data structure. Avoid re-invoking recursive filtering functions inside standard component render paths or `map()` iterations.
