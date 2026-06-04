@@ -23,8 +23,11 @@ cd frontend && npm install && cd ..
 ### Run in Development
 
 ```bash
-python dev.py          # Starts both Vite HMR server (5173) and FastAPI backend (8080) with watchdog auto-reload
+source venv/bin/activate
+python dev.py          # Starts Vite HMR (5173) + FastAPI (8080) with watchdog auto-reload
 ```
+
+`dev.py` watches `src/` for `.py` and `.json` changes and restarts the backend automatically. The frontend proxies `/api/*` to port 8080.
 
 ### Run Tests
 
@@ -51,11 +54,17 @@ cd frontend && npm run build     # Outputs to frontend/dist/
 python src/main.py
 ```
 
+### Packaging
+
+```bash
+python package.py    # PyInstaller → .exe (Windows) or .app/.dmg (macOS)
+```
+
 ## Architecture
 
 ### Request Flow
 
-A new anime file detected by a watcher → `TrackerAgent` (src/main.py) → `AnimeParser` extracts title + episode → `AnilistClient` searches for matching media → multi-season resolution → status exposed via `/api/status` → Web UI presents sync button → POST to `/api/anilist/sync` → AniList GraphQL mutation.
+Video file detected by a watcher → `TrackerAgent` (`src/main.py`) → `AnimeParser` extracts title + episode → `AnilistClient` searches for matching media → multi-season resolution via `_resolve_episode_to_media()` → state exposed via `/api/status` → Web UI presents sync button → POST to `/api/anilist/sync` → AniList GraphQL mutation.
 
 ### Backend
 
@@ -63,26 +72,46 @@ A new anime file detected by a watcher → `TrackerAgent` (src/main.py) → `Ani
 - Holds references to all services (`AnilistClient`, `SettingsManager`, `NyaaInterface`)
 - Manages a prioritized watcher list (MPC-HC → VLC → MPV → WindowTitle on Windows; MPV → VLC → WindowTitle on macOS/Linux)
 - Runs a polling loop that calls the active watcher for the current filename
-- Stores `current_media_map` (dict of `media_id → media_info`) for multi-season disambiguation and exposes it to the API layer via `app.state.agent`
+- Stores `current_media_map` (`dict[media_id → media_info]`) for multi-season disambiguation; `_resolve_episode_to_media()` walks AniList sequel relations to map a global episode number to the correct season entry
+- Exposes itself to the API layer via `app.state.agent`; all routers access it through `request.app.state.agent`
 
-**`src/watchers/`** — Each watcher implements `BaseWatcher` (base.py) with a `get_current_file()` method. MPV uses an IPC JSON socket, VLC uses its built-in HTTP API, MPC-HC uses Windows COM, and `WindowTitleWatcher` falls back to OS window title parsing.
+**`src/watchers/`** — Each watcher implements `BaseWatcher.get_current_file() → Optional[str]`:
 
-**`src/anilist.py` — `AnilistClient`** wraps all AniList GraphQL queries (search, user list fetch, progress updates). Results are cached to minimise API calls.
+| Watcher | Mechanism |
+|---|---|
+| `MPVWatcher` | JSON IPC socket (`python-mpv-jsonipc`) |
+| `VLCWatcher` | VLC HTTP API on `localhost:8080/requests/status.xml` |
+| `MPCHCWatcher` | MPC-HC HTTP API (Windows only) |
+| `WindowTitleWatcher` | OS window title enumeration (fallback) |
 
-**`src/api/`** — FastAPI routers mounted on the shared `app` in `src/api/__init__.py`:
-- `router_status` → `/api/status` (current playback + sync state)
-- `router_anilist` → `/api/anilist/*` (search, list, sync)
-- `router_nyaa` → `/api/nyaa/*` (torrent search via nyaa.si)
-- `router_library` → `/api/library/*` (local file scanning and cleanup)
-- `router_os` → `/api/os/*` (open folder, trash file — cross-platform)
+**`src/parser.py` — `AnimeParser`** chains two parsers:
+1. **anitopy** (primary) — anime-specific tokeniser, handles group tags, quality strings, season/episode patterns
+2. **guessit** — general media parser used as fallback
 
-All routers reach `TrackerAgent` through `request.app.state.agent`.
+**`src/anilist.py` — `AnilistClient`** wraps AniList's GraphQL endpoint (`https://graphql.anilist.co`). OAuth token stored in the platform data directory. Results are cached locally to minimise API calls.
 
-**`src/web_server.py`** starts Uvicorn, mounts `frontend/dist/` (or `src/static/`) as the root static handler, and optionally runs in a background daemon thread via `run_server_in_background()`.
+**`src/settings.py` — `SettingsManager`** reads/writes `config.json` in the platform data directory. Exposes typed properties for `preferred_groups`, `preferred_resolution`, `default_download_dir`, `base_anime_folder`, `title_overrides`, `torrent_archive`, etc.
+
+**`src/library_index.py`** scans configured folders for video files (`.mkv`, `.mp4`, `.avi`) and builds an in-memory index used by both `router_library` and `router_nyaa` to determine which episodes are already downloaded.
+
+**`src/nyaa.py` — `NyaaInterface`** queries nyaa.si's RSS feed. Returns results with `title`, `link` (download URL), `view_link` (page URL), `timestamp` (Unix int parsed from `pubDate`), `seeders`, `leechers`, `size`, `episode`, `is_batch`, `magnet`.
+
+**`src/api/`** — FastAPI routers mounted in `src/api/__init__.py`:
+- `router_status` → `/api/status`
+- `router_anilist` → `/api/anilist/*`, `/api/animelist`, `/api/update_progress`, `/api/upcoming`
+- `router_nyaa` → `/api/nyaa_search`, `/api/nyaa_batch_search_candidates`, `/api/nyaa_download`
+- `router_library` → `/api/library/*`, `/api/move_to_trash`, `/api/open_trash`
+- `router_os` → `/api/os/*`
+
+**`src/web_server.py`** starts Uvicorn, mounts `frontend/dist/` as root static handler, and can run in a background daemon thread via `run_server_in_background()`.
 
 ### Frontend
 
-Preact + Vite. State is managed with `@preact/signals` in `frontend/src/store.js`. `frontend/src/api.js` is the HTTP client layer (all fetches go to relative `/api/*` paths, which Vite proxies to port 8080 in dev).
+Preact + Vite. State is managed with `@preact/signals` in `frontend/src/store.js` — flat reactive signals, no reducer pattern. Components read signals directly and call API functions on user action.
+
+`frontend/src/api.js` is the unified HTTP client (all `fetch` calls centralised here, hitting relative `/api/*` paths). Vite proxies these to port 8080 in dev; in production the same FastAPI process serves both.
+
+Key signals in `store.js`: `animeList`, `latestStatus`, `userSettings`, `torrentFilters`, `torrentCache`, `libraryData`, `pendingApiRequests`.
 
 ### Version
 
@@ -93,3 +122,5 @@ Single source of truth: `VERSION` file in the project root, read at startup by `
 Resolved by `src/runtime_env.py`:
 - **macOS:** `~/Library/Application Support/MPV Anilist Tracker`
 - **Windows:** `%APPDATA%\MPV Anilist Tracker`
+
+`config.json` and the AniList OAuth token live here.

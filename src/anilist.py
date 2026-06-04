@@ -8,12 +8,12 @@ import threading
 from typing import Optional, Dict, Any, cast
 
 class AnilistHTTPServer(http.server.HTTPServer):
-    token: Optional[str] = None
+    _client: Any = None  # back-reference to AnilistClient set at startup
 
 class AnilistAuthHandler(http.server.BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         pass
-        
+
     def do_GET(self):
         if self.path == '/auth':
             self.send_response(200)
@@ -78,14 +78,13 @@ class AnilistAuthHandler(http.server.BaseHTTPRequestHandler):
                 token = data.get('token')
                 if token:
                     server = cast(AnilistHTTPServer, self.server)
-                    server.token = token
+                    # Save token directly via the client reference — server stays alive
+                    if server._client is not None:
+                        server._client.save_token(token)
                     self.send_response(200)
                     self.send_header('Content-type', 'application/json')
                     self.end_headers()
                     self.wfile.write(json.dumps({"success": True}).encode('utf-8'))
-                    
-                    # Stop the server in a new thread
-                    threading.Thread(target=self.server.shutdown).start()
                 else:
                     self.send_response(400)
                     self.send_header('Content-type', 'application/json')
@@ -107,6 +106,7 @@ class AnilistClient:
         self.token_file = token_file
         self.token = self._load_token()
         self.user_id = None
+        self._start_auth_listener()
 
     def _load_token(self) -> Optional[str]:
         # Check environment variable first for Docker/CI support
@@ -125,6 +125,7 @@ class AnilistClient:
 
     def save_token(self, token: str):
         self.token = token
+        self.user_id = None  # force re-fetch on next authenticated call
         config: Dict[str, Any] = {}
         if os.path.exists(self.token_file):
             try:
@@ -137,6 +138,7 @@ class AnilistClient:
         config['access_token'] = token
         with open(self.token_file, 'w') as f:
             json.dump(config, f)
+        print("Successfully authenticated and saved token.")
 
     def is_authenticated(self) -> bool:
         return self.token is not None
@@ -154,35 +156,27 @@ class AnilistClient:
             print(f"Failed to open browser with fallback, trying webbrowser: {e}")
             webbrowser.open(url)
 
+    def _start_auth_listener(self):
+        """Start a persistent OAuth callback listener on port 54321 at app startup."""
+        def run():
+            try:
+                server = AnilistHTTPServer(('127.0.0.1', 54321), AnilistAuthHandler)
+                server._client = self
+                print("[Auth] OAuth listener started on http://localhost:54321")
+                server.serve_forever()
+            except OSError as e:
+                if e.errno in (48, 98):
+                    print("[Auth] OAuth listener port 54321 already in use — skipping.")
+                else:
+                    print(f"[Auth] OAuth listener error: {e}")
+        threading.Thread(target=run, daemon=True, name="anilist-auth-listener").start()
+
     def authenticate(self) -> bool:
         client_id = 37267
-
         auth_url = f"https://anilist.co/api/v2/oauth/authorize?client_id={client_id}&response_type=token"
         print(f"Opening browser for authentication: {auth_url}")
-        
-        try:
-            server = AnilistHTTPServer(('127.0.0.1', 54321), AnilistAuthHandler)
-            server.token = None
-        except OSError as e:
-            if "Address already in use" in str(e) or e.errno in (48, 98):
-                print("Auth server already running. Re-using existing auth thread.")
-                self._open_browser(auth_url)
-                return False
-            raise e
-
         self._open_browser(auth_url)
-        
-        # Block until the local server receives the token and shuts down
-        server.serve_forever()
-        
-        token = server.token
-        if token:
-            self.save_token(token)
-            self.user_id = None # reset user id to fetch it again
-            print("Successfully authenticated and saved token.")
-            return True
-            
-        return False
+        return True
 
     def _get_headers(self) -> Dict[str, str]:
         headers = {
