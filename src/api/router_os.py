@@ -288,6 +288,8 @@ async def download_update():
         if not os.path.exists(downloads_dir):
             downloads_dir = os.path.dirname(os.path.abspath(__file__)) # fallback
             
+        # Security: Prevent path traversal by ensuring only the base name is used
+        filename = os.path.basename(filename)
         target_path = os.path.join(downloads_dir, filename)
         
         # Download in chunks
