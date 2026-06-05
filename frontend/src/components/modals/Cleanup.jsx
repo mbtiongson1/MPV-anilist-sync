@@ -159,18 +159,18 @@ export function CleanupModal({ visible, onClose }) {
                                     const id = a.mediaId.toString();
                                     return (
                                         <div key={id} class="changelog-item" style="display: flex; align-items: center; gap: 10px;">
-                                            <input type="checkbox" checked={checkedIds.has(id)}
+                                            <input type="checkbox" id={`cleanup-check-${id}`} checked={checkedIds.has(id)}
                                                 onChange={(e) => {
                                                     const newSet = new Set(checkedIds);
                                                     e.target.checked ? newSet.add(id) : newSet.delete(id);
                                                     setCheckedIds(newSet);
                                                 }} />
-                                            <div style="flex: 1;">
+                                            <label for={`cleanup-check-${id}`} style="flex: 1; cursor: pointer;">
                                                 <strong>{title}{year}</strong><br />
                                                 <span style="font-size: 0.8rem; color: var(--text-muted);">
                                                     Inactive for {relTime} • Watched: {a.progress || 0} eps • {a.format || 'TV'}
                                                 </span>
-                                            </div>
+                                            </label>
                                         </div>
                                     );
                                 })}
