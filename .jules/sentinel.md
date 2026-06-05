@@ -33,3 +33,8 @@
 **Vulnerability:** The `/api/download_update` endpoint extracted the update filename directly from the GitHub API release response (`asset.get('name')`) and joined it with the downloads directory path, creating a Path Traversal vulnerability.
 **Learning:** Even data originating from trusted external sources (like GitHub API) should be treated as untrusted input when used in local filesystem operations. A compromised or spoofed API response could supply a malicious filename like `../../../etc/passwd` to overwrite arbitrary files on the system during the download process.
 **Prevention:** Always apply strict sanitization, such as `os.path.basename(filename)`, before joining externally sourced filenames with local directory paths to ensure the resulting path remains within the intended directory.
+
+## 2026-06-05 - Cross-Site Scripting (XSS) via dangerouslySetInnerHTML
+**Vulnerability:** The frontend used `dangerouslySetInnerHTML` to render anime descriptions fetched from the AniList API without any sanitization, leaving the application vulnerable to Cross-Site Scripting (XSS).
+**Learning:** Even data originating from trusted external sources (like AniList API) should be treated as untrusted input when rendered directly as HTML. If the upstream data source is compromised or returns malicious HTML, the application will blindly execute it.
+**Prevention:** Always sanitize HTML content before rendering it using libraries like `DOMPurify` (e.g., `DOMPurify.sanitize(description)`) when using `dangerouslySetInnerHTML` in Preact/React.
