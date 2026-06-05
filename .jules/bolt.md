@@ -29,3 +29,6 @@
 **Learning:** Performing Regular Expression evaluations (e.g., regex-based parseSize) or redundant string allocations (e.g., `toLowerCase()`) inside `.sort()` comparators introduces significant $O(N \log N)$ performance bottlenecks in Preact views, which can lead to noticeable UI thread blocking during renders or filter updates.
 **Action:** When filtering or sorting large arrays in UI components, always pre-compute derived strings and regex-parsed variables into block-scoped constant-time `Map` lookups before calling `.sort()`.
 
+## 2024-06-05 - Avoid Recursive Filtering Inside renderNode
+**Learning:** Calling a recursive tree filtering function inside a React/Preact component's standard render path or inside a `map()` iteration creates an exponential (N \times D)$ performance bottleneck, drastically slowing down UI responsiveness during search or typing.
+**Action:** Wrap heavy tree filtering operations in a single `useMemo` block that returns a fully pruned data structure. Instead of calling filter dynamically, pre-compute the structure and loop over the memoized tree.
