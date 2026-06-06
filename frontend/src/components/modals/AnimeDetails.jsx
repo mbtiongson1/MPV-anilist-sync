@@ -2,6 +2,7 @@ import { useState } from 'preact/hooks';
 import { escapeHtml, formatPopularity, getCachedImageUrl, getDisplayTitle } from '../../utils';
 import { userSettings, animeList, recordApiRequest, showToast, pendingApiRequests } from '../../store';
 import * as api from '../../api';
+import DOMPurify from 'dompurify';
 
 export function AnimeDetailsModal({ anime, visible, onClose }) {
     if (!visible || !anime) return null;
@@ -96,7 +97,7 @@ export function AnimeDetailsModal({ anime, visible, onClose }) {
                                 {stats.map(s => <p key={s.label}><strong>{s.label}:</strong> {s.value}</p>)}
                             </div>
                             <p><strong>Description</strong></p>
-                            <div class="modal-description" dangerouslySetInnerHTML={{ __html: description }} />
+                            <div class="modal-description" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description) }} />
                         </div>
                     </div>
                     <div class="modal-actions" style="flex-direction: column; align-items: flex-start; gap: 1rem; border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1rem;">

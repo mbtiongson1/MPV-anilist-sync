@@ -33,3 +33,8 @@
 **Vulnerability:** The `/api/download_update` endpoint extracted the update filename directly from the GitHub API release response (`asset.get('name')`) and joined it with the downloads directory path, creating a Path Traversal vulnerability.
 **Learning:** Even data originating from trusted external sources (like GitHub API) should be treated as untrusted input when used in local filesystem operations. A compromised or spoofed API response could supply a malicious filename like `../../../etc/passwd` to overwrite arbitrary files on the system during the download process.
 **Prevention:** Always apply strict sanitization, such as `os.path.basename(filename)`, before joining externally sourced filenames with local directory paths to ensure the resulting path remains within the intended directory.
+
+## 2026-06-15 - XSS via External Description API
+**Vulnerability:** The application was using React's `dangerouslySetInnerHTML` to render HTML descriptions fetched from external sources directly, enabling a Cross-Site Scripting (XSS) attack.
+**Learning:** External API data, even from trusted sources like AniList, can be modified maliciously or contain unsanitized HTML/JavaScript. Blindly passing this to `dangerouslySetInnerHTML` directly trusts the input and opens an execution context on the client side.
+**Prevention:** Always use a sanitization library like DOMPurify (`DOMPurify.sanitize()`) before injecting arbitrary external strings into the DOM via `dangerouslySetInnerHTML`.
