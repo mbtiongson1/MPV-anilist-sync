@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useMemo } from 'preact/hooks';
 import { libraryData, libraryExclusions, showToast } from '../store';
 import { escapeHtml, formatBytes } from '../utils';
 import { FolderIcon, PlayIcon, ChevronIcon, VideoIcon, SearchIcon } from '../icons';
@@ -122,25 +122,41 @@ export function LibraryView() {
     };
 
     // Filter library items by search
-    const filterTree = (items) => {
-        if (!search) return items;
+    // OPTIMIZATION: Wrap filter logic in useMemo to prevent O(N^2) recursive tree filtering on every render.
+    // Construct a pre-pruned tree in a single pass to be consumed directly by renderNode.
+    const filtered = useMemo(() => {
+        if (!search) return data;
         const q = search.toLowerCase();
-        return items.filter(item => {
-            const nameMatch = (item.name || '').toLowerCase().includes(q);
-            if (nameMatch) return true;
-            if (item.children) return filterTree(item.children).length > 0;
-            return false;
-        });
-    };
 
-    const filtered = filterTree(data);
+        const filterTree = (items) => {
+            return items.map(item => {
+                const nameMatch = (item.name || '').toLowerCase().includes(q);
+
+                // If it's a directory, filter its children
+                if (item.children) {
+                    const filteredChildren = filterTree(item.children);
+                    // Keep this directory if its name matches OR it has matching children
+                    if (nameMatch || filteredChildren.length > 0) {
+                        return { ...item, children: filteredChildren, _hasMatchingChildren: filteredChildren.length > 0 };
+                    }
+                    return null;
+                }
+
+                // If it's a file, keep it if name matches
+                if (nameMatch) return item;
+                return null;
+            }).filter(Boolean);
+        };
+
+        return filterTree(data);
+    }, [data, search]);
 
     const renderNode = (node, depth = 0) => {
         const isDir = node.type === 'directory' || (node.children && node.children.length > 0);
         const excluded = isExcluded(node.path);
         
         // Expand if it's root, or if user expanded, or if searching matches children
-        const expanded = depth === 0 || expandedDirs.has(node.path) || (search && node.children?.some(c => filterTree([c]).length > 0));
+        const expanded = depth === 0 || expandedDirs.has(node.path) || (search && node._hasMatchingChildren);
 
         const padLeft = depth * 16 + 8;
         const isVideo = !isDir && ['mkv', 'mp4', 'avi', 'webm', 'flv', 'mov', 'ts'].includes((node.name || '').split('.').pop().toLowerCase());
@@ -213,7 +229,7 @@ export function LibraryView() {
                 {itemContent}
                 {isDir && node.children && (
                     <div class={`tree-children ${expanded ? 'expanded' : ''}`}>
-                        {filterTree(node.children).map(child => renderNode(child, depth + 1))}
+                        {node.children.map(child => renderNode(child, depth + 1))}
                     </div>
                 )}
             </div>
