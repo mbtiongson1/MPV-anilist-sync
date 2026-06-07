@@ -1,3 +1,4 @@
+import { useMemo } from 'preact/hooks';
 import { activeTab, sidebarCollapsed, selectedSidebarSeasons, selectedGenres, animeList, userSettings, setActiveTab } from '../store';
 import { genreColors, getCurrentSeason, getSeasonEndDate, getTimeRemaining } from '../utils';
 import { SeasonIcon } from '../icons';
@@ -45,10 +46,13 @@ export function Sidebar({ filterYear, onFilterYearChange, filterFormat, onFilter
     };
 
     // Gather unique genres
-    const genres = new Set();
-    animeList.value.forEach(a => { if (a.genres) a.genres.forEach(g => genres.add(g)); });
-    const ignored = ['Ecchi', 'Hentai', 'Adult'];
-    const sortedGenres = Array.from(genres).filter(g => !ignored.includes(g)).sort();
+    // Optimization (Bolt): Wrap genre aggregation in useMemo to prevent redundant O(N) list traversals on every render
+    const sortedGenres = useMemo(() => {
+        const genres = new Set();
+        animeList.value.forEach(a => { if (a.genres) a.genres.forEach(g => genres.add(g)); });
+        const ignored = ['Ecchi', 'Hentai', 'Adult'];
+        return Array.from(genres).filter(g => !ignored.includes(g)).sort();
+    }, [animeList.value]);
 
     const toggleGenre = (genre) => {
         const newSet = new Set(selectedGenres.value);
