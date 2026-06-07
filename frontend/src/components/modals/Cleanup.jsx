@@ -141,12 +141,12 @@ export function CleanupModal({ visible, onClose }) {
                                 </div>
                             </div>
                             <div style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <input type="checkbox" id="cleanup-select-all" checked={checkedIds.size === filteredCandidates.length}
+                                <input type="checkbox" id="cleanup-select-all" class="custom-checkbox" checked={checkedIds.size === filteredCandidates.length}
                                     onChange={(e) => {
                                         if (e.target.checked) setCheckedIds(new Set(filteredCandidates.map(a => a.mediaId.toString())));
                                         else setCheckedIds(new Set());
                                     }} />
-                                <label for="cleanup-select-all" style="font-weight: 600;">Select All ({filteredCandidates.length})</label>
+                                <label for="cleanup-select-all" style="font-weight: 600; cursor: pointer;">Select All ({filteredCandidates.length})</label>
                             </div>
                             <div id="cleanup-container" style="max-height: 400px; overflow-y: auto;">
                                 {filteredCandidates.length === 0 && (
@@ -159,18 +159,18 @@ export function CleanupModal({ visible, onClose }) {
                                     const id = a.mediaId.toString();
                                     return (
                                         <div key={id} class="changelog-item" style="display: flex; align-items: center; gap: 10px;">
-                                            <input type="checkbox" checked={checkedIds.has(id)}
+                                            <input type="checkbox" id={"cleanup-item-" + id} class="custom-checkbox" checked={checkedIds.has(id)}
                                                 onChange={(e) => {
                                                     const newSet = new Set(checkedIds);
                                                     e.target.checked ? newSet.add(id) : newSet.delete(id);
                                                     setCheckedIds(newSet);
                                                 }} />
-                                            <div style="flex: 1;">
+                                            <label for={"cleanup-item-" + id} style={{ flex: 1, cursor: 'pointer', display: 'block' }}>
                                                 <strong>{title}{year}</strong><br />
                                                 <span style="font-size: 0.8rem; color: var(--text-muted);">
                                                     Inactive for {relTime} • Watched: {a.progress || 0} eps • {a.format || 'TV'}
                                                 </span>
-                                            </div>
+                                            </label>
                                         </div>
                                     );
                                 })}

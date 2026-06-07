@@ -342,16 +342,16 @@ export function TorrentsView() {
                     </div>
                 </div>
                 <div class="filter-group filter-toggle-group">
-                    <label class="filter-label">Airing Only</label>
+                    <label for="tf-airing-only" class="filter-label" style={{ cursor: 'pointer' }}>Airing Only</label>
                     <label class="toggle-switch" title="Scan only currently airing anime">
-                        <input type="checkbox" id="tf-airing-only" checked={airingOnly} onChange={e => setAiringOnly(e.target.checked)} />
+                        <input type="checkbox" id="tf-airing-only" checked={airingOnly} onChange={e => setAiringOnly(e.target.checked)} onKeyDown={(e) => { if (e.key === 'Enter') performSearch(searchRef.current?.value || ''); }} />
                         <span class="toggle-slider" />
                     </label>
                 </div>
                 <div class="filter-group filter-toggle-group">
-                    <label class="filter-label">Show Archived</label>
+                    <label for="tf-show-archived" class="filter-label" style={{ cursor: 'pointer' }}>Show Archived</label>
                     <label class="toggle-switch" title="Keep archived torrent candidates visible">
-                        <input type="checkbox" checked={showArchived} onChange={e => setShowArchived(e.target.checked)} />
+                        <input type="checkbox" id="tf-show-archived" checked={showArchived} onChange={e => setShowArchived(e.target.checked)} onKeyDown={(e) => { if (e.key === 'Enter') performSearch(searchRef.current?.value || ''); }} />
                         <span class="toggle-slider" />
                     </label>
                 </div>
@@ -371,7 +371,7 @@ export function TorrentsView() {
                     <table class="torrents-table">
                         <thead>
                             <tr>
-                                <th style="width: 30px;"><input type="checkbox" onChange={(e) => e.target.checked ? selectRemaining() : setSelectedTorrents(new Set())} checked={selectedTorrents.size === displayItems.length && displayItems.length > 0} title="Select All" /></th>
+                                <th style="width: 30px;"><input type="checkbox" class="custom-checkbox" onChange={(e) => e.target.checked ? selectRemaining() : setSelectedTorrents(new Set())} checked={selectedTorrents.size === displayItems.length && displayItems.length > 0} title="Select All" /></th>
                                 <th style="cursor:pointer; width: 100%; text-align: left;" onClick={() => toggleSort('title')}>Title{getSortIndicator('title')}</th>
                                 <th style="cursor:pointer;width:80px; text-align: right;" onClick={() => toggleSort('size')}>Size{getSortIndicator('size')}</th>
                                 <th style="cursor:pointer;width:90px; text-align: right;" onClick={() => toggleSort('date')}>Date{getSortIndicator('date')}</th>
@@ -390,7 +390,7 @@ export function TorrentsView() {
                                 const isTrusted = t.category === 'trusted';
                                 return (
                                     <tr key={globalIdx} class={`${selectedTorrents.has(globalIdx) ? 'selected' : ''} ${isTrusted ? 'trusted-row' : ''} ${downloaded ? 'row-downloaded' : ''} ${watched ? 'row-watched' : ''} ${archived ? 'row-archived' : ''}`}>
-                                        <td><input type="checkbox" checked={selectedTorrents.has(globalIdx)} onChange={() => toggleSelect(globalIdx)} /></td>
+                                        <td><input type="checkbox" class="custom-checkbox" checked={selectedTorrents.has(globalIdx)} onChange={() => toggleSelect(globalIdx)} /></td>
                                         <td class="torrent-title-cell" style="text-align: left;">
                                             <div class="torrent-title" style="display: flex; flex-direction: column; gap: 2px;">
                                                 {item.animeTitle && !item._fromSearch && <div><span class="torrent-anime-tag">{escapeHtml(item.animeTitle)}</span></div>}
