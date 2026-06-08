@@ -32,3 +32,6 @@
 ## 2026-06-07 - Optimize Preact Genre Aggregation Renders
 **Learning:** In Preact components, deriving global unique lists (like genres) directly inside the render path via synchronous `forEach` or `map` loops on large state arrays (`animeList.value`) causes severe (N)$ overhead and garbage collection pressure every time the component updates (e.g., toggling a sidebar tab).
 **Action:** Always wrap expensive list aggregation and sorting operations derived from global store signals in `useMemo` to prevent redundant execution and UI thread blocking on unrelated component updates.
+## 2026-06-08 - Prevent O(N^2) render bottleneck via useMemo for frontend library filtering
+**Learning:** The frontend's recursive tree filtering function (`filterTree`) was being called unmemoized multiple times during render, resulting in exponential O(N^2) performance when typing in the search bar. This can be extremely costly for deeply nested filesystem trees and blocks the main UI thread.
+**Action:** When filtering tree-like data structures in frontend components, always wrap the pruning logic in a single `useMemo` block that returns the fully pruned tree. Map over this computed tree structure directly in render components to maintain constant-time iterations relative to the pruned tree size.
