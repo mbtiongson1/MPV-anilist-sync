@@ -130,15 +130,20 @@ async def resume(request: Request):
         if os.path.exists(last_file):
             try:
                 abs_path = os.path.abspath(last_file)
-                if sys.platform == 'win32':
-                    os.startfile(abs_path)
-                    success = True
-                elif sys.platform == 'darwin':
-                    subprocess.run(['open', abs_path], check=True)
-                    success = True
+                # SECURITY: Prevent arbitrary file execution by validating the file extension
+                allowed_exts = ('.mkv', '.mp4', '.avi', '.webm', '.m4v')
+                if abs_path.lower().endswith(allowed_exts):
+                    if sys.platform == 'win32':
+                        os.startfile(abs_path)
+                        success = True
+                    elif sys.platform == 'darwin':
+                        subprocess.run(['open', abs_path], check=True)
+                        success = True
+                    else:
+                        subprocess.run(['xdg-open', abs_path], check=True)
+                        success = True
                 else:
-                    subprocess.run(['xdg-open', abs_path], check=True)
-                    success = True
+                    print(f"SECURITY BLOCKED: Attempted to resume unauthorized file extension: {abs_path}")
             except Exception as e:
                 print(f"Exception during resume: {e}")
     return {"success": success}

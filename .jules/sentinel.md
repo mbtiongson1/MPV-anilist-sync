@@ -33,3 +33,8 @@
 **Vulnerability:** The `/api/download_update` endpoint extracted the update filename directly from the GitHub API release response (`asset.get('name')`) and joined it with the downloads directory path, creating a Path Traversal vulnerability.
 **Learning:** Even data originating from trusted external sources (like GitHub API) should be treated as untrusted input when used in local filesystem operations. A compromised or spoofed API response could supply a malicious filename like `../../../etc/passwd` to overwrite arbitrary files on the system during the download process.
 **Prevention:** Always apply strict sanitization, such as `os.path.basename(filename)`, before joining externally sourced filenames with local directory paths to ensure the resulting path remains within the intended directory.
+
+## 2026-06-09 - Prevent Arbitrary Code Execution in Resume Endpoint
+**Vulnerability:** Arbitrary file execution via unsanitized `last_played_file` path in the `/api/resume` endpoint.
+**Learning:** Application state loaded from settings or configuration files can be tampered with. Passing these values directly to OS execution commands (`os.startfile`, `subprocess.run`) without validating their content type creates a significant RCE risk.
+**Prevention:** Always validate file paths originating from internal state or user settings against a strict allowlist of expected extensions (e.g., media files) before executing them.
