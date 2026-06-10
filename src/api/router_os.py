@@ -128,19 +128,25 @@ async def resume(request: Request):
     if last_file:
         last_file = os.path.normpath(last_file)
         if os.path.exists(last_file):
-            try:
-                abs_path = os.path.abspath(last_file)
-                if sys.platform == 'win32':
-                    os.startfile(abs_path)
-                    success = True
-                elif sys.platform == 'darwin':
-                    subprocess.run(['open', abs_path], check=True)
-                    success = True
-                else:
-                    subprocess.run(['xdg-open', abs_path], check=True)
-                    success = True
-            except Exception as e:
-                print(f"Exception during resume: {e}")
+            # SECURITY: Prevent arbitrary code execution (RCE) via malicious path input
+            # Ensure only known video file extensions are executed.
+            allowed_exts = ('.mkv', '.mp4', '.avi', '.webm', '.m4v')
+            if last_file.lower().endswith(allowed_exts):
+                try:
+                    abs_path = os.path.abspath(last_file)
+                    if sys.platform == 'win32':
+                        os.startfile(abs_path)
+                        success = True
+                    elif sys.platform == 'darwin':
+                        subprocess.run(['open', abs_path], check=True)
+                        success = True
+                    else:
+                        subprocess.run(['xdg-open', abs_path], check=True)
+                        success = True
+                except Exception as e:
+                    print(f"Exception during resume: {e}")
+            else:
+                print(f"SECURITY BLOCKED: Attempted to resume non-media file: {last_file}")
     return {"success": success}
 
 @router.post('/api/move_to_trash')
