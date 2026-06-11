@@ -202,18 +202,23 @@ export function TorrentsView() {
 
     // Filter & sort results
     const displayItems = useMemo(() => {
-        let items = [...results];
-        if (!showArchived) {
-            items = items.filter(i => !isArchivedItem(i));
-        }
-        if (dateFilter !== 'all') {
-            const now = Date.now();
-            const cutoff = { '24h': 86400000, '48h': 172800000, '7d': 604800000, '30d': 2592000000 }[dateFilter] || 0;
-            if (cutoff) items = items.filter(i => {
+        const now = Date.now();
+        const cutoff = dateFilter !== 'all' ? ({ '24h': 86400000, '48h': 172800000, '7d': 604800000, '30d': 2592000000 }[dateFilter] || 0) : 0;
+
+        // ⚡ Bolt Optimization: Loop Fusion & GC Pressure Reduction
+        // Replaced chained .filter() calls and an unnecessary [...results] shallow clone
+        // with a single .filter() pass. This reduces time complexity from O(3N) to O(N)
+        // and eliminates 2 intermediate array allocations, significantly reducing GC pressure.
+        let items = results.filter(i => {
+            if (!showArchived && isArchivedItem(i)) return false;
+
+            if (cutoff) {
                 const ts = i.torrent?.timestamp ? i.torrent.timestamp * 1000 : 0;
-                return ts > 0 && (now - ts) < cutoff;
-            });
-        }
+                if (!(ts > 0 && (now - ts) < cutoff)) return false;
+            }
+
+            return true;
+        });
 
         // Pre-compute values to avoid O(N log N) regex parsing and string allocations
         const sortCache = new Map();

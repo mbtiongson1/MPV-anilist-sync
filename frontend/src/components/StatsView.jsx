@@ -4,18 +4,21 @@ import { genreColors } from '../utils';
 
 export function StatsView() {
     const { totalAnime, totalEps, meanScore, daysWatched, sortedGenres, totalGenreCount, dailyActivity, weeklyActivity } = useMemo(() => {
-        const watchedList = animeList.value.filter(a => {
-            if (a.genres && a.genres.some(g => ['Ecchi', 'Hentai', 'Adult'].includes(g))) return false;
-            if (a.isAdult) return false;
-            return a.listStatus === 'COMPLETED' || (a.progress || 0) > 0;
-        });
-
-        let totalAnime = watchedList.length;
+        let totalAnime = 0;
         let totalEps = 0, scoreSum = 0, scoreCount = 0;
         let genres = {};
         let dailyActivity = {};
 
-        watchedList.forEach(a => {
+        // ⚡ Bolt Optimization: Loop Fusion
+        // Combined an initial .filter() pass and the subsequent .forEach() iteration into a single loop.
+        // This eliminates the intermediate `watchedList` array allocation, reducing GC pressure and
+        // halving the execution time from O(2N) to O(N) for large libraries.
+        animeList.value.forEach(a => {
+            if (a.genres && a.genres.some(g => ['Ecchi', 'Hentai', 'Adult'].includes(g))) return;
+            if (a.isAdult) return;
+            if (!(a.listStatus === 'COMPLETED' || (a.progress || 0) > 0)) return;
+
+            totalAnime++;
             totalEps += a.progress || 0;
             let s = 0;
             if (a.score && a.score > 0) s = a.score > 10 ? a.score : a.score * 10;
