@@ -342,16 +342,16 @@ export function TorrentsView() {
                     </div>
                 </div>
                 <div class="filter-group filter-toggle-group">
-                    <label class="filter-label">Airing Only</label>
-                    <label class="toggle-switch" title="Scan only currently airing anime">
-                        <input type="checkbox" id="tf-airing-only" checked={airingOnly} onChange={e => setAiringOnly(e.target.checked)} />
+                    <label class="filter-label" for="tf-airing-only" style={{ cursor: 'pointer' }}>Airing Only</label>
+                    <label class="toggle-switch" title="Scan only currently airing anime" for="tf-airing-only">
+                        <input type="checkbox" id="tf-airing-only" checked={airingOnly} onChange={e => setAiringOnly(e.target.checked)} onKeyDown={e => { if(e.key === 'Enter') { e.preventDefault(); setAiringOnly(!airingOnly); } }} />
                         <span class="toggle-slider" />
                     </label>
                 </div>
                 <div class="filter-group filter-toggle-group">
-                    <label class="filter-label">Show Archived</label>
-                    <label class="toggle-switch" title="Keep archived torrent candidates visible">
-                        <input type="checkbox" checked={showArchived} onChange={e => setShowArchived(e.target.checked)} />
+                    <label class="filter-label" for="tf-show-archived" style={{ cursor: 'pointer' }}>Show Archived</label>
+                    <label class="toggle-switch" title="Keep archived torrent candidates visible" for="tf-show-archived">
+                        <input type="checkbox" id="tf-show-archived" checked={showArchived} onChange={e => setShowArchived(e.target.checked)} onKeyDown={e => { if(e.key === 'Enter') { e.preventDefault(); setShowArchived(!showArchived); } }} />
                         <span class="toggle-slider" />
                     </label>
                 </div>

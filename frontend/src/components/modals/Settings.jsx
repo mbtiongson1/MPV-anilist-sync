@@ -122,22 +122,22 @@ export function SettingsModal({ visible, onClose, onSaved }) {
                         <input type="text" id="setting-base-anime-folder" class="filter-input" value={baseFolder} onInput={e => setBaseFolder(e.target.value)} placeholder="e.g. D:\Anime" />
                     </div>
                     <div class="settings-group">
-                        <label class="toggle-label">
-                            <span>Enable Drag & Drop</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="setting-enable-drag-drop" checked={dragDrop} onChange={e => setDragDrop(e.target.checked)} />
+                        <div class="toggle-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <label for="setting-enable-drag-drop" style={{ cursor: 'pointer', margin: 0 }}>Enable Drag & Drop</label>
+                            <label class="toggle-switch" for="setting-enable-drag-drop">
+                                <input type="checkbox" id="setting-enable-drag-drop" checked={dragDrop} onChange={e => setDragDrop(e.target.checked)} onKeyDown={e => { if(e.key === 'Enter') { e.preventDefault(); setDragDrop(!dragDrop); } }} />
                                 <span class="toggle-slider" />
                             </label>
-                        </label>
+                        </div>
                     </div>
                     <div class="settings-group">
-                        <label class="toggle-label">
-                            <span>Reduce Colors</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="setting-reduce-colors" checked={reduceColors} onChange={e => setReduceColors(e.target.checked)} />
+                        <div class="toggle-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <label for="setting-reduce-colors" style={{ cursor: 'pointer', margin: 0 }}>Reduce Colors</label>
+                            <label class="toggle-switch" for="setting-reduce-colors">
+                                <input type="checkbox" id="setting-reduce-colors" checked={reduceColors} onChange={e => setReduceColors(e.target.checked)} onKeyDown={e => { if(e.key === 'Enter') { e.preventDefault(); setReduceColors(!reduceColors); } }} />
                                 <span class="toggle-slider" />
                             </label>
-                        </label>
+                        </div>
                     </div>
                     
                     <div class="settings-group" style="border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1rem;">

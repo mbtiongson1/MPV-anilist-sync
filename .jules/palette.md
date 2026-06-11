@@ -1,0 +1,3 @@
+## 2024-05-18 - Fix separated labels for custom toggle switches
+**Learning:** Found a pattern across TorrentsView, Settings, and Header where visual text labels for custom toggle switches were not connected via the `for` attribute to the underlying `input[type="checkbox"]` elements. This made them inaccessible to click targeting. In Settings, there was an invalid nesting of `<label>` tags. Also found `onKeyDown` missing or bubbling incorrectly.
+**Action:** Always connect separated text labels to checkbox inputs using `for` and `id`, apply `cursor: pointer` to indicate clickability, and add explicit `onKeyDown` handlers on the inputs for `Enter` to properly toggle the boolean state while preventing defaults if necessary. Avoid nesting label elements.
