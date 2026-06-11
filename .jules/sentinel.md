@@ -33,3 +33,8 @@
 **Vulnerability:** The `/api/download_update` endpoint extracted the update filename directly from the GitHub API release response (`asset.get('name')`) and joined it with the downloads directory path, creating a Path Traversal vulnerability.
 **Learning:** Even data originating from trusted external sources (like GitHub API) should be treated as untrusted input when used in local filesystem operations. A compromised or spoofed API response could supply a malicious filename like `../../../etc/passwd` to overwrite arbitrary files on the system during the download process.
 **Prevention:** Always apply strict sanitization, such as `os.path.basename(filename)`, before joining externally sourced filenames with local directory paths to ensure the resulting path remains within the intended directory.
+
+## 2026-06-05 - Fix Arbitrary File Execution in /api/resume endpoint
+**Vulnerability:** Arbitrary file execution vulnerability (RCE) via `os.startfile`, `open` and `xdg-open` because the `/api/resume` endpoint executed `agent.settings.last_played_file` without validating its extension.
+**Learning:** Even internal configuration values like `last_played_file` can be tampered with by external actors, malicious scripts, or other vulnerabilities in the application. Passing unvalidated internal state directly to OS-level execution tools creates an RCE risk.
+**Prevention:** Always validate file paths against a strict allowlist of known safe extensions (e.g., `.mkv`, `.mp4`) when attempting to automatically open files based on internal configuration values.
