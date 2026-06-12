@@ -33,3 +33,7 @@
 **Vulnerability:** The `/api/download_update` endpoint extracted the update filename directly from the GitHub API release response (`asset.get('name')`) and joined it with the downloads directory path, creating a Path Traversal vulnerability.
 **Learning:** Even data originating from trusted external sources (like GitHub API) should be treated as untrusted input when used in local filesystem operations. A compromised or spoofed API response could supply a malicious filename like `../../../etc/passwd` to overwrite arbitrary files on the system during the download process.
 **Prevention:** Always apply strict sanitization, such as `os.path.basename(filename)`, before joining externally sourced filenames with local directory paths to ensure the resulting path remains within the intended directory.
+## 2024-06-12 - Arbitrary File Execution via Internal State Tampering
+**Vulnerability:** The `/api/resume` endpoint trusted the `last_played_file` path stored in the application's configuration without verifying its file type.
+**Learning:** Even if a path comes from an "internal" source like `config.json` or state variables, it should not be passed directly to potentially dangerous OS execution commands (`os.startfile`, `subprocess.run`) without validation, as local state can be tampered with.
+**Prevention:** Always validate file paths against a strict allowlist of safe extensions (e.g., media files) before executing them, regardless of where the path originated.

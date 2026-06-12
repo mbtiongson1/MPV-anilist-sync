@@ -127,6 +127,11 @@ async def resume(request: Request):
     last_file = agent.settings.last_played_file
     if last_file:
         last_file = os.path.normpath(last_file)
+        # SECURITY: Validate file extension against a safe allowlist to prevent RCE
+        allowed_exts = ('.mkv', '.mp4', '.avi', '.webm', '.m4v')
+        if not last_file.lower().endswith(allowed_exts):
+            print(f"SECURITY BLOCKED: Attempted to resume unauthorized file extension: {last_file}")
+            return {"success": False}
         if os.path.exists(last_file):
             try:
                 abs_path = os.path.abspath(last_file)
