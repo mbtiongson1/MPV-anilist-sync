@@ -1,0 +1,3 @@
+## 2024-05-18 - Missing toggle switch label connections
+**Learning:** In Preact frontend components, when implementing custom toggle switches with separated text labels and custom `<input>` wrappers, connecting the visual `<label>` to the `<input>` using the `for` attribute and corresponding `id` is crucial for UX and accessibility. Otherwise, the text label is unclickable, making the toggle difficult to target.
+**Action:** Always verify that every custom toggle or checkbox UI has its text label connected via `for` and `id`, and ensure `cursor: pointer` is applied so users know the text is an active clickable target.
