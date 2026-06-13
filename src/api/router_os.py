@@ -127,7 +127,10 @@ async def resume(request: Request):
     last_file = agent.settings.last_played_file
     if last_file:
         last_file = os.path.normpath(last_file)
-        if os.path.exists(last_file):
+        # SECURITY: Prevent arbitrary code execution (RCE) via malicious path input
+        # Validate file extension against safe allowlist even if the path originates from internal settings
+        allowed_exts = ('.mkv', '.mp4', '.avi', '.webm', '.m4v')
+        if os.path.exists(last_file) and last_file.lower().endswith(allowed_exts):
             try:
                 abs_path = os.path.abspath(last_file)
                 if sys.platform == 'win32':
@@ -141,6 +144,8 @@ async def resume(request: Request):
                     success = True
             except Exception as e:
                 print(f"Exception during resume: {e}")
+        elif os.path.exists(last_file):
+            print(f"SECURITY BLOCKED: Attempted to open unauthorized file extension: {last_file}")
     return {"success": success}
 
 @router.post('/api/move_to_trash')

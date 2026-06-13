@@ -33,3 +33,8 @@
 **Vulnerability:** The `/api/download_update` endpoint extracted the update filename directly from the GitHub API release response (`asset.get('name')`) and joined it with the downloads directory path, creating a Path Traversal vulnerability.
 **Learning:** Even data originating from trusted external sources (like GitHub API) should be treated as untrusted input when used in local filesystem operations. A compromised or spoofed API response could supply a malicious filename like `../../../etc/passwd` to overwrite arbitrary files on the system during the download process.
 **Prevention:** Always apply strict sanitization, such as `os.path.basename(filename)`, before joining externally sourced filenames with local directory paths to ensure the resulting path remains within the intended directory.
+
+## 2025-02-20 - RCE via tampered config file (last_played_file)
+**Vulnerability:** The `/api/resume` endpoint executed the path stored in `last_played_file` directly via `os.startfile`, `subprocess.run`, or `xdg-open` without validating the file extension.
+**Learning:** Even internal state properties saved from settings (`config.json`) can be tampered with by a malicious local user/script to trick the application into executing an arbitrary file (e.g. `.bat`, `.sh`, `.exe`) next time it attempts to "resume" playback.
+**Prevention:** Always validate file extensions against a safe allowlist (e.g., media files: `.mkv`, `.mp4`, `.avi`, `.webm`, `.m4v`) before passing paths to OS execution commands, regardless of whether the path comes directly from the user or from internal state.
