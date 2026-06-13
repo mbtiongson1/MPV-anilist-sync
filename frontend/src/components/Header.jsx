@@ -121,7 +121,7 @@ export function Header({
             </div>
             <div class="header-right">
                 <div class="theme-switch-wrapper" title="Dark/Light Mode" style={{ marginRight: '1.5rem' }}>
-                    <span class="theme-label">Theme</span>
+                    <label class="theme-label" for="theme-toggle" style={{ cursor: 'pointer' }}>Theme</label>
                     <label class="theme-switch" for="theme-toggle">
                         <input type="checkbox" id="theme-toggle" aria-label="Toggle Dark/Light Mode" checked={theme === 'light'} onChange={toggleTheme} />
                         <div class="slider">
