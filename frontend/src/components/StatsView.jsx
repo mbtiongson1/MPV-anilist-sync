@@ -4,34 +4,46 @@ import { genreColors } from '../utils';
 
 export function StatsView() {
     const { totalAnime, totalEps, meanScore, daysWatched, sortedGenres, totalGenreCount, dailyActivity, weeklyActivity } = useMemo(() => {
-        const watchedList = animeList.value.filter(a => {
-            if (a.genres && a.genres.some(g => ['Ecchi', 'Hentai', 'Adult'].includes(g))) return false;
-            if (a.isAdult) return false;
-            return a.listStatus === 'COMPLETED' || (a.progress || 0) > 0;
-        });
-
-        let totalAnime = watchedList.length;
+        let totalAnime = 0;
         let totalEps = 0, scoreSum = 0, scoreCount = 0;
         let genres = {};
         let dailyActivity = {};
 
-        watchedList.forEach(a => {
+        const list = animeList.value;
+        for (let i = 0; i < list.length; i++) {
+            const a = list[i];
+            if (a.genres && a.genres.some(g => g === 'Ecchi' || g === 'Hentai' || g === 'Adult')) continue;
+            if (a.isAdult) continue;
+            if (!(a.listStatus === 'COMPLETED' || (a.progress || 0) > 0)) continue;
+
+            totalAnime++;
             totalEps += a.progress || 0;
+
             let s = 0;
             if (a.score && a.score > 0) s = a.score > 10 ? a.score : a.score * 10;
             if (s > 0) { scoreSum += s; scoreCount++; }
-            if (a.genres) a.genres.forEach(g => { genres[g] = (genres[g] || 0) + 1; });
+
+            if (a.genres) {
+                for (let k = 0; k < a.genres.length; k++) {
+                    const g = a.genres[k];
+                    genres[g] = (genres[g] || 0) + 1;
+                }
+            }
+
             if (a.updatedAt) {
                 const date = new Date(a.updatedAt * 1000);
                 date.setHours(0, 0, 0, 0);
-                dailyActivity[date.getTime()] = (dailyActivity[date.getTime()] || 0) + 1;
+                const ts = date.getTime();
+                dailyActivity[ts] = (dailyActivity[ts] || 0) + 1;
             }
-        });
+        }
 
         const weeklyActivity = [0, 0, 0, 0, 0, 0, 0];
-        Object.entries(dailyActivity).forEach(([ts, count]) => {
-            weeklyActivity[new Date(parseInt(ts)).getDay()] += count;
-        });
+        const dailyKeys = Object.keys(dailyActivity);
+        for (let i = 0; i < dailyKeys.length; i++) {
+            const ts = dailyKeys[i];
+            weeklyActivity[new Date(parseInt(ts)).getDay()] += dailyActivity[ts];
+        }
 
         const meanScore = scoreCount > 0 ? (scoreSum / scoreCount).toFixed(1) : 0;
         const daysWatched = (totalEps * 24 / 60 / 24).toFixed(1);

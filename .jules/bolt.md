@@ -32,3 +32,6 @@
 ## 2026-06-07 - Optimize Preact Genre Aggregation Renders
 **Learning:** In Preact components, deriving global unique lists (like genres) directly inside the render path via synchronous `forEach` or `map` loops on large state arrays (`animeList.value`) causes severe (N)$ overhead and garbage collection pressure every time the component updates (e.g., toggling a sidebar tab).
 **Action:** Always wrap expensive list aggregation and sorting operations derived from global store signals in `useMemo` to prevent redundant execution and UI thread blocking on unrelated component updates.
+## 2024-05-23 - Optimize multiple passes over lists in React/Preact
+**Learning:** Performing a `.filter()` to create an intermediate array followed by `.forEach()`, `.map()`, or `.reduce()` iterates over the array multiple times and unnecessarily allocates memory for intermediate arrays. This degrades performance, especially in components processing large global state like `StatsView`.
+**Action:** When filtering a large list before aggregation, use a single `for` loop to conditionally process items (loop fusion), eliminating the need for intermediate array allocation and halving the total iteration count.
