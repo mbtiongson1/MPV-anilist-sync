@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useMemo } from 'preact/hooks';
 import { upcomingCache, animeList, showToast } from '../../store';
 import { escapeHtml, getCachedImageUrl } from '../../utils';
 import * as api from '../../api';
@@ -63,6 +63,16 @@ export function UpcomingOverlay({ visible, onClose }) {
 
     const data = upcomingCache.value || [];
 
+    const animeListMap = useMemo(() => {
+        const map = new Map();
+        for (let i = 0; i < animeList.value.length; i++) {
+            const a = animeList.value[i];
+            map.set(a.mediaId, a);
+        }
+        return map;
+    }, [animeList.value]);
+
+
     const handleAddToList = async (mediaId, status) => {
         try {
             const result = await api.changeStatus(mediaId, status);
@@ -124,7 +134,7 @@ export function UpcomingOverlay({ visible, onClose }) {
                         const season = anime.season || '';
                         const year = anime.seasonYear || '';
 
-                        const localEntry = animeList.value.find(a => a.mediaId === mediaId);
+                        const localEntry = animeListMap.get(mediaId);
                         let statusText = 'Not in list';
                         let statusClass = 'status-not-in-list';
                         if (localEntry) {

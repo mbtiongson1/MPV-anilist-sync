@@ -32,3 +32,7 @@
 ## 2026-06-07 - Optimize Preact Genre Aggregation Renders
 **Learning:** In Preact components, deriving global unique lists (like genres) directly inside the render path via synchronous `forEach` or `map` loops on large state arrays (`animeList.value`) causes severe (N)$ overhead and garbage collection pressure every time the component updates (e.g., toggling a sidebar tab).
 **Action:** Always wrap expensive list aggregation and sorting operations derived from global store signals in `useMemo` to prevent redundant execution and UI thread blocking on unrelated component updates.
+
+## 2026-06-14 - Optimize Nested Array Find in Renders
+**Learning:** In Preact components like `Upcoming.jsx`, calling `.find()` on a large array (`animeList.value`) inside a `.map()` loop (e.g., to check if an upcoming anime is already in the library) creates an O(N*M) nested time complexity. As the user's library grows, this blocks the main thread and causes UI jank on every render or filter update.
+**Action:** When cross-referencing a list against a global store array inside a render loop, always use `useMemo` to pre-compute the global store into an O(1) `Map` or `Set` lookup table first.
