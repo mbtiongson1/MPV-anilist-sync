@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
 import { escapeHtml, formatPopularity, getCachedImageUrl, getDisplayTitle } from '../../utils';
 import { userSettings, animeList, recordApiRequest, showToast, pendingApiRequests } from '../../store';
-import { CloseIcon } from '../../icons';
+import DOMPurify from 'dompurify';
 import * as api from '../../api';
 
 export function AnimeDetailsModal({ anime, visible, onClose }) {
@@ -84,9 +84,7 @@ export function AnimeDetailsModal({ anime, visible, onClose }) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Edit Anime</h2>
-                    <button class="modal-close-btn" aria-label="Close modal" onClick={onClose}>
-                        <CloseIcon size={16} />
-                    </button>
+                    <button class="modal-close-btn" aria-label="Close modal" onClick={onClose}>×</button>
                 </div>
                 <div class="modal-body">
                     <div class="details-modal-grid">
@@ -99,7 +97,7 @@ export function AnimeDetailsModal({ anime, visible, onClose }) {
                                 {stats.map(s => <p key={s.label}><strong>{s.label}:</strong> {s.value}</p>)}
                             </div>
                             <p><strong>Description</strong></p>
-                            <div class="modal-description" dangerouslySetInnerHTML={{ __html: description }} />
+                            <div class="modal-description" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description) }} />
                         </div>
                     </div>
                     <div class="modal-actions" style="flex-direction: column; align-items: flex-start; gap: 1rem; border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1rem;">
