@@ -139,10 +139,10 @@ export function TorrentsView() {
             }
 
             let foundItems = [];
-            for (let i = 0; i < candidates.length; i++) {
-                const c = candidates[i];
-                setScanProgress(`Searching ${i + 1}/${candidates.length}: ${c.anime_title} Ep ${c.episode}`);
-                
+            let completedCount = 0;
+            const CONCURRENCY = 4;
+
+            const scanCandidate = async (c) => {
                 const p = new URLSearchParams({ 
                     q: c.query, 
                     episode: c.episode,
@@ -151,18 +151,32 @@ export function TorrentsView() {
                 });
                 if (resolution) p.set('resolution', resolution);
                 
-                const r = await api.searchNyaa(p.toString());
-                if (r && r.length > 0) {
-                    foundItems.push({
-                        torrent: r[0],
-                        animeTitle: c.anime_title,
-                        episode: c.episode,
-                        _fromSearch: false,
-                        mediaId: c.media_id,
-                        is_downloaded: c.is_downloaded,
-                        is_archived: c.is_archived,
-                    });
+                try {
+                    const r = await api.searchNyaa(p.toString());
+                    completedCount++;
+                    setScanProgress(`Searched ${completedCount}/${candidates.length}`);
+                    if (r && r.length > 0) {
+                        return {
+                            torrent: r[0],
+                            animeTitle: c.anime_title,
+                            episode: c.episode,
+                            _fromSearch: false,
+                            mediaId: c.media_id,
+                            is_downloaded: c.is_downloaded,
+                            is_archived: c.is_archived,
+                        };
+                    }
+                } catch (e) {
+                    completedCount++;
+                    setScanProgress(`Searched ${completedCount}/${candidates.length}`);
                 }
+                return null;
+            };
+
+            for (let i = 0; i < candidates.length; i += CONCURRENCY) {
+                const chunk = candidates.slice(i, i + CONCURRENCY);
+                const results = await Promise.all(chunk.map(scanCandidate));
+                foundItems.push(...results.filter(Boolean));
             }
 
             torrentCache.value = { items: foundItems, query: null, mediaId: null, isBatch: true, sortBy: sortCol, sortDir };
