@@ -59,8 +59,36 @@ async def open_folder(request: Request, body: FolderRequest):
     if not folder_path and not body.mediaId:
         folder_path = agent.settings.last_played_file
 
+    # Fallback to base anime folder
+    if not folder_path and agent:
+        folder_path = agent.settings.base_anime_folder
+
     if folder_path:
         # Resolve to real absolute path safely
+        if agent:
+            base_dir = agent.settings.base_anime_folder
+            if not os.path.isabs(folder_path):
+                if base_dir and os.path.exists(base_dir):
+                    direct_path = os.path.join(base_dir, folder_path)
+                    if os.path.exists(direct_path):
+                        folder_path = direct_path
+                    else:
+                        filename_only = os.path.basename(folder_path)
+                        found_file_path = None
+                        for root, dirs, files in os.walk(base_dir):
+                            if filename_only in files:
+                                found_file_path = os.path.join(root, filename_only)
+                                break
+                        if found_file_path:
+                            folder_path = found_file_path
+                        else:
+                            folder_path = base_dir
+                else:
+                    folder_path = os.path.abspath(folder_path)
+            
+            if not os.path.exists(folder_path) and base_dir and os.path.exists(base_dir):
+                folder_path = base_dir
+
         folder_path = os.path.abspath(folder_path)
         if os.path.isfile(folder_path):
             folder_to_open = os.path.dirname(folder_path)
@@ -125,7 +153,21 @@ async def resume(request: Request):
     agent = request.app.state.agent
     success = False
     last_file = agent.settings.last_played_file
-    if last_file:
+    if last_file and agent:
+        # Resolve relative path under base_anime_folder
+        if not os.path.isabs(last_file):
+            base_dir = agent.settings.base_anime_folder
+            if base_dir and os.path.exists(base_dir):
+                direct_path = os.path.join(base_dir, last_file)
+                if os.path.exists(direct_path):
+                    last_file = direct_path
+                else:
+                    filename_only = os.path.basename(last_file)
+                    for root, dirs, files in os.walk(base_dir):
+                        if filename_only in files:
+                            last_file = os.path.join(root, filename_only)
+                            break
+        
         last_file = os.path.normpath(last_file)
         if os.path.exists(last_file):
             # SECURITY: Prevent arbitrary code execution via tampered settings

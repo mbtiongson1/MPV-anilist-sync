@@ -132,16 +132,7 @@ async def nyaa_batch_search_candidates(
     for entry in entries:
         media_status = entry.get('mediaStatus')
         if is_airing_only:
-            from datetime import datetime
-            now = datetime.now()
-            current_year = now.year
-            seasons = ["WINTER", "SPRING", "SUMMER", "FALL"]
-            current_season = seasons[(now.month - 1) // 3]
-            
-            season = entry.get('season')
-            season_year = entry.get('seasonYear')
-            
-            if media_status != 'RELEASING' or season != current_season or season_year != current_year:
+            if media_status != 'RELEASING':
                 continue
             
         progress = entry.get('progress', 0)
@@ -202,22 +193,27 @@ async def nyaa_download(request: Request):
             
             if not url: continue
 
+            # Determine where the anime should be downloaded (for reporting/logging)
             if media_id:
                 configured = agent.settings.get_media_folder(int(media_id))
                 if configured != agent.settings.default_download_dir:
-                    download_dir = configured
+                    anime_dir = configured
                 elif anime_title:
-                    download_dir = os.path.join(agent.settings.default_download_dir, sanitize_folder_name(anime_title))
+                    anime_dir = os.path.join(agent.settings.default_download_dir, sanitize_folder_name(anime_title))
                 else:
-                    download_dir = agent.settings.default_download_dir
+                    anime_dir = agent.settings.default_download_dir
             elif anime_title:
-                download_dir = os.path.join(agent.settings.default_download_dir, sanitize_folder_name(anime_title))
+                anime_dir = os.path.join(agent.settings.default_download_dir, sanitize_folder_name(anime_title))
             else:
-                download_dir = agent.settings.default_download_dir
+                anime_dir = agent.settings.default_download_dir
 
-            path = agent.nyaa.download_torrent(url, download_dir)
+            # Save the .torrent file itself in the Torrents folder under base_anime_folder
+            base_dir = getattr(agent.settings, 'base_anime_folder', agent.settings.default_download_dir)
+            torrents_dir = os.path.join(base_dir, "Torrents")
+
+            path = agent.nyaa.download_torrent(url, torrents_dir)
             if path:
                 agent.settings.add_torrent_archive({"url": url, "title": anime_title or path})
-            results.append({"url": url, "success": bool(path), "download_dir": download_dir})
+            results.append({"url": url, "success": bool(path), "download_dir": torrents_dir, "anime_dir": anime_dir})
         
     return {"success": True, "results": results}

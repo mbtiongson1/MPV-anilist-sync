@@ -64,7 +64,8 @@ class TestNyaaBackend(unittest.IsolatedAsyncioTestCase):
             default_download_dir=default_dir,
             get_media_folder=lambda media_id: custom_dir,
         )
-        agent.nyaa.download_torrent.return_value = os.path.join(custom_dir, "torrent.torrent")
+        expected_torrents_dir = os.path.join(default_dir, "Torrents")
+        agent.nyaa.download_torrent.return_value = os.path.join(expected_torrents_dir, "torrent.torrent")
 
         request = FakeRequest(
             agent,
@@ -79,17 +80,21 @@ class TestNyaaBackend(unittest.IsolatedAsyncioTestCase):
 
         self.assertTrue(result["success"])
         self.assertEqual(result["results"][0]["success"], True)
+        # Note: The .torrent file itself goes into the Torrents folder
         agent.nyaa.download_torrent.assert_called_once_with(
             "https://nyaa.si/download/12345.torrent",
-            custom_dir,
+            expected_torrents_dir,
         )
+        # But we still identify the correct target folder for the anime files themselves
+        self.assertEqual(result["results"][0]["anime_dir"], custom_dir)
 
     async def test_download_uses_sanitized_title_subfolder_when_media_folder_is_default(self):
         default_dir = os.path.join(self.tempdir.name, "downloads")
         os.makedirs(default_dir, exist_ok=True)
 
         agent = _make_agent(default_download_dir=default_dir)
-        agent.nyaa.download_torrent.return_value = os.path.join(default_dir, "torrent.torrent")
+        expected_torrents_dir = os.path.join(default_dir, "Torrents")
+        agent.nyaa.download_torrent.return_value = os.path.join(expected_torrents_dir, "torrent.torrent")
 
         request = FakeRequest(
             agent,
@@ -106,12 +111,13 @@ class TestNyaaBackend(unittest.IsolatedAsyncioTestCase):
 
         result = await nyaa_download(request)
 
-        expected_dir = os.path.join(default_dir, "Frieren Beyond Journey's End")
+        expected_anime_dir = os.path.join(default_dir, "Frieren Beyond Journey's End")
         self.assertTrue(result["success"])
         agent.nyaa.download_torrent.assert_called_once_with(
             "https://nyaa.si/view/12345",
-            expected_dir,
+            expected_torrents_dir,
         )
+        self.assertEqual(result["results"][0]["anime_dir"], expected_anime_dir)
 
     async def test_search_filters_archived_and_dismissed_torrents(self):
         default_dir = os.path.join(self.tempdir.name, "downloads")
