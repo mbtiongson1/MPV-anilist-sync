@@ -121,25 +121,28 @@ export function LibraryView() {
         }
     };
 
-    // Filter library items by search
+    // Filter library items by search using useMemo to prune the tree once per search/data change
     const filtered = useMemo(() => {
         if (!search) return data;
         const q = search.toLowerCase();
 
+        // Recursive function to deeply prune the tree and return a new pruned structure
         const pruneTree = (items) => {
             if (!items) return [];
-            return items.reduce((acc, item) => {
+            return items.map(item => {
                 const nameMatch = (item.name || '').toLowerCase().includes(q);
-                const prunedChildren = item.children ? pruneTree(item.children) : null;
+                let newChildren = null;
 
-                if (nameMatch || (prunedChildren && prunedChildren.length > 0)) {
-                    acc.push({
-                        ...item,
-                        children: prunedChildren || item.children
-                    });
+                if (item.children) {
+                    newChildren = pruneTree(item.children);
                 }
-                return acc;
-            }, []);
+
+                // Keep item if its name matches OR if any of its children match
+                if (nameMatch || (newChildren && newChildren.length > 0)) {
+                    return { ...item, children: newChildren };
+                }
+                return null;
+            }).filter(Boolean);
         };
 
         return pruneTree(data);
@@ -149,8 +152,8 @@ export function LibraryView() {
         const isDir = node.type === 'directory' || (node.children && node.children.length > 0);
         const excluded = isExcluded(node.path);
         
-        // Expand if it's root, or if user expanded, or if searching matches children
-        const expanded = depth === 0 || expandedDirs.has(node.path) || !!search;
+        // Expand if it's root, or if user expanded, or if searching found matching children
+        const expanded = depth === 0 || expandedDirs.has(node.path) || (search && node.children?.length > 0);
 
         const padLeft = depth * 16 + 8;
         const isVideo = !isDir && ['mkv', 'mp4', 'avi', 'webm', 'flv', 'mov', 'ts'].includes((node.name || '').split('.').pop().toLowerCase());
