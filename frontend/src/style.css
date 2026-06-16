@@ -4231,11 +4231,7 @@ input:not(:placeholder-shown) + .clear-input-btn {
     z-index: 5;
 }
 
-.now-playing-highlight::after {
-    content: 'LIVE';
-    position: absolute;
-    top: 5px;
-    right: 5px;
+.live-playing-badge {
     background: var(--accent);
     color: white;
     font-size: 0.65rem;
@@ -4243,7 +4239,14 @@ input:not(:placeholder-shown) + .clear-input-btn {
     padding: 2px 6px;
     border-radius: 4px;
     letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+    vertical-align: middle;
 }
+
 
 
 /* Resume Button */

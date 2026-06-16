@@ -289,7 +289,10 @@ function GridCard({ anime, settings, isSelected, isPlaying, onClick, onDblClick,
                 </div>
             </div>
             <div class="anime-info">
-                <div class="anime-title" title={title}>{escapeHtml(title)}</div>
+                <div class="anime-title" title={title}>
+                    {isPlaying && <span class="live-playing-badge">LIVE</span>}
+                    {escapeHtml(title)}
+                </div>
                 <div class="anime-meta">Ep {progress} / {total}</div>
             </div>
             <div class="card-overlay">
@@ -320,6 +323,7 @@ function ListItem({ anime, settings, isSelected, isPlaying, onClick, onDblClick,
             {anime.mediaStatus === 'RELEASING' && <LiveIndicator anime={anime} />}
             <div class="list-info">
                 <div class="list-title">
+                    {isPlaying && <span class="live-playing-badge">LIVE</span>}
                     {escapeHtml(title)}
                     {seasons.length > 0 && <div class="card-season-tag list-season-tag">{seasons.map((s, i) => <SeasonIcon key={i} season={s} size={14} />)}</div>}
                 </div>
@@ -361,6 +365,7 @@ function DetailsRow({ anime, settings, isSelected, isPlaying, onClick, onDblClic
             </td>
             <td>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    {isPlaying && <span class="live-playing-badge">LIVE</span>}
                     {anime.mediaStatus === 'RELEASING' && <div class="card-live-dot" style="position: static; transform: scale(0.8);" />}
                     {escapeHtml(title)}
                 </div>
