@@ -326,7 +326,7 @@ export function TorrentsView() {
                 <div class="filter-group">
                     <label for="tf-group" class="filter-label">Subs / Group</label>
                     <div class="input-with-clear">
-                        <input type="text" id="tf-group" class="filter-input" placeholder="e.g. SubsPlease" maxLength="40" value={group} onInput={e => setGroup(e.target.value)} />
+                        <input type="text" id="tf-group" class="filter-input" placeholder="e.g. SubsPlease" maxLength="40" value={group} onInput={e => setGroup(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') performSearch(searchRef.current?.value || ''); }} />
                         <button class="clear-input-btn" onClick={() => setGroup('')} title="Clear group filter" aria-label="Clear Group Filter">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                         </button>
@@ -335,7 +335,7 @@ export function TorrentsView() {
                 <div class="filter-group">
                     <label for="tf-episode" class="filter-label">Episodes</label>
                     <div class="input-with-clear">
-                        <input type="text" id="tf-episode" class="filter-input" placeholder="e.g. 5-10, 12" style="width:90px;" value={episode} onInput={e => setEpisode(e.target.value)} />
+                        <input type="text" id="tf-episode" class="filter-input" placeholder="e.g. 5-10, 12" style="width:90px;" value={episode} onInput={e => setEpisode(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') performSearch(searchRef.current?.value || ''); }} />
                         <button class="clear-input-btn" onClick={() => setEpisode('')} title="Clear episode filter" aria-label="Clear Episode Filter">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                         </button>

@@ -1,0 +1,31 @@
+{
+  "customSkills": [
+    {
+      "id": "/version_update",
+      "name": "Version Update",
+      "description": "Manages updating and synchronizing the project version across multiple source files.",
+      "location": ".agent/skills/version_update",
+      "mapped_to": "multi-repo-coordination",
+      "mapped_score": 0.3,
+      "prerequisites": []
+    },
+    {
+      "id": "/publish",
+      "name": "Publish",
+      "description": "Automatically publish to git with automated commit message and push/pull sync the remote and local.",
+      "location": ".agent/skills/publish",
+      "mapped_to": "release-automation",
+      "mapped_score": 0.273,
+      "prerequisites": []
+    },
+    {
+      "id": "/audit",
+      "name": "Audit",
+      "description": "Systematic review of architecture, security, performance, and maintainability.",
+      "location": ".agent/skills/audit",
+      "mapped_to": "platform-modernization-sprint",
+      "mapped_score": 0.571,
+      "prerequisites": []
+    }
+  ]
+}

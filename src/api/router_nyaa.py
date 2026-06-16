@@ -131,8 +131,18 @@ async def nyaa_batch_search_candidates(
 
     for entry in entries:
         media_status = entry.get('mediaStatus')
-        if is_airing_only and media_status != 'RELEASING':
-            continue
+        if is_airing_only:
+            from datetime import datetime
+            now = datetime.now()
+            current_year = now.year
+            seasons = ["WINTER", "SPRING", "SUMMER", "FALL"]
+            current_season = seasons[(now.month - 1) // 3]
+            
+            season = entry.get('season')
+            season_year = entry.get('seasonYear')
+            
+            if media_status != 'RELEASING' or season != current_season or season_year != current_year:
+                continue
             
         progress = entry.get('progress', 0)
         total_eps = entry.get('episodes')

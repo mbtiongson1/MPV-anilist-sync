@@ -1,4 +1,4 @@
-import { useMemo } from 'preact/hooks';
+import { useState, useMemo } from 'preact/hooks';
 import { activeTab, sidebarCollapsed, selectedSidebarSeasons, selectedGenres, animeList, userSettings, setActiveTab } from '../store';
 import { genreColors, getCurrentSeason, getSeasonEndDate, getTimeRemaining } from '../utils';
 import { SeasonIcon } from '../icons';
@@ -32,13 +32,42 @@ export function Sidebar({ filterYear, onFilterYearChange, filterFormat, onFilter
     const isCurrentYear = selectedYear === currentYear;
     const seasons = ['WINTER', 'SPRING', 'SUMMER', 'FALL'];
 
+    const [airingOnly, setAiringOnly] = useState(false);
+    const [savedFilters, setSavedFilters] = useState(null);
+
+    const handleAiringOnlyToggle = () => {
+        if (!airingOnly) {
+            setSavedFilters({
+                year: filterYear,
+                seasons: new Set(selectedSidebarSeasons.value)
+            });
+            onFilterYearChange(currentYear.toString());
+            selectedSidebarSeasons.value = new Set([currentSeason]);
+            setAiringOnly(true);
+        } else {
+            if (savedFilters) {
+                onFilterYearChange(savedFilters.year);
+                selectedSidebarSeasons.value = savedFilters.seasons;
+            } else {
+                onFilterYearChange('');
+                selectedSidebarSeasons.value = new Set(['WINTER', 'SPRING', 'SUMMER', 'FALL']);
+            }
+            setSavedFilters(null);
+            setAiringOnly(false);
+        }
+    };
+
     const toggleSeason = (season) => {
+        setAiringOnly(false);
+        setSavedFilters(null);
         const newSet = new Set(selectedSidebarSeasons.value);
         if (newSet.has(season)) newSet.delete(season); else newSet.add(season);
         selectedSidebarSeasons.value = newSet;
     };
 
     const resetFilters = () => {
+        setAiringOnly(false);
+        setSavedFilters(null);
         onFilterFormatChange('');
         onFilterYearChange('');
         selectedGenres.value = new Set();
@@ -122,13 +151,23 @@ export function Sidebar({ filterYear, onFilterYearChange, filterFormat, onFilter
                         </div>
                         <div class="filter-group-sidebar">
                             <label for="filter-year-sidebar">Year</label>
-                            <select id="filter-year-sidebar" value={filterYear} onChange={(e) => onFilterYearChange(e.target.value)}>
+                            <select id="filter-year-sidebar" value={filterYear} onChange={(e) => {
+                                setAiringOnly(false);
+                                setSavedFilters(null);
+                                onFilterYearChange(e.target.value);
+                            }}>
                                 <option value="">All Years</option>
                                 {yearOptions.map(y => <option key={y} value={y}>{y}</option>)}
                             </select>
                         </div>
                         <div class="filter-group-sidebar">
-                            <label>Season</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label style="margin: 0;">Season</label>
+                                <button id="sidebar-airing-only" class={`airing-only-btn ${airingOnly ? 'active' : ''}`} onClick={handleAiringOnlyToggle} title="Filter by current season and year" aria-label="Airing Only">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" /></svg>
+                                    <span>Airing Only</span>
+                                </button>
+                            </div>
                             <div id="season-filter-pills" class="season-pills">
                                 {seasons.map(season => {
                                     const isActive = selectedSidebarSeasons.value.has(season);
