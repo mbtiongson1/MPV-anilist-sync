@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks';
 import { userSettings, showToast, appUpdateStatus } from '../../store';
 import * as api from '../../api';
+import { CloseIcon } from '../../icons';
 
 export function SettingsModal({ visible, onClose, onSaved }) {
     if (!visible) return null;
@@ -98,7 +99,9 @@ export function SettingsModal({ visible, onClose, onSaved }) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Settings</h2>
-                    <button class="modal-close-btn" id="settings-modal-close" onClick={onClose} aria-label="Close">×</button>
+                    <button class="modal-close-btn" id="settings-modal-close" onClick={onClose} aria-label="Close">
+                        <CloseIcon size={16} />
+                    </button>
                 </div>
                 <div class="modal-body">
                     <div class="settings-group">

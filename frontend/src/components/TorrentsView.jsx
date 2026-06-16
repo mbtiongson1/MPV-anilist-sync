@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'preact/hooks';
 import { animeList, userSettings, torrentFilters, torrentCache, showToast, activeSearchTerm } from '../store';
 import { escapeHtml, parseSize, formatBytes, getRelativeTime } from '../utils';
-import { DownloadIcon, ExternalLinkIcon, SearchIcon, InfoIcon } from '../icons';
+import { DownloadIcon, ExternalLinkIcon, SearchIcon, InfoIcon, CloseIcon } from '../icons';
 import * as api from '../api';
 
 export function TorrentsView() {
@@ -282,7 +282,7 @@ export function TorrentsView() {
                         if (searchRef.current) searchRef.current.value = '';
                         if (torrentCache.value.mediaId) torrentCache.value = { ...torrentCache.value, mediaId: null };
                     }} title="Clear search" aria-label="Clear Search">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                        <CloseIcon size={14} />
                     </button>
                     <button id="btn-search-go" class="search-go-btn" onClick={() => performSearch(searchRef.current?.value || '')} title="Search" aria-label="Search Torrents">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
@@ -328,7 +328,7 @@ export function TorrentsView() {
                     <div class="input-with-clear">
                         <input type="text" id="tf-group" class="filter-input" placeholder="e.g. SubsPlease" maxLength="40" value={group} onInput={e => setGroup(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') performSearch(searchRef.current?.value || ''); }} />
                         <button class="clear-input-btn" onClick={() => setGroup('')} title="Clear group filter" aria-label="Clear Group Filter">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                            <CloseIcon size={14} />
                         </button>
                     </div>
                 </div>
@@ -337,7 +337,7 @@ export function TorrentsView() {
                     <div class="input-with-clear">
                         <input type="text" id="tf-episode" class="filter-input" placeholder="e.g. 5-10, 12" style="width:90px;" value={episode} onInput={e => setEpisode(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') performSearch(searchRef.current?.value || ''); }} />
                         <button class="clear-input-btn" onClick={() => setEpisode('')} title="Clear episode filter" aria-label="Clear Episode Filter">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                            <CloseIcon size={14} />
                         </button>
                     </div>
                 </div>

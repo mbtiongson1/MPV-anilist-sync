@@ -526,6 +526,28 @@ header {
     border-bottom: 1px solid var(--border);
 }
 
+.modal-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='light'] .modal-close-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
 .modal-body {
     padding: 1rem;
     color: var(--text-secondary);

@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks';
 import { animeList, cleanupCandidates, recordApiRequest, showToast } from '../../store';
 import { getRelativeTime } from '../../utils';
+import { CloseIcon } from '../../icons';
 
 export function CleanupModal({ visible, onClose }) {
     const [step, setStep] = useState(1);
@@ -96,7 +97,9 @@ export function CleanupModal({ visible, onClose }) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Cleanup In Progress List</h2>
-                    <button class="modal-close-btn" onClick={onClose} aria-label="Close">×</button>
+                    <button class="modal-close-btn" onClick={onClose} aria-label="Close">
+                        <CloseIcon size={16} />
+                    </button>
                 </div>
                 <div class="modal-body">
                     {step === 1 && (

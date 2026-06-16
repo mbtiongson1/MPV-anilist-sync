@@ -2,6 +2,7 @@ import { useState, useEffect } from 'preact/hooks';
 import { upcomingCache, animeList, showToast } from '../../store';
 import { escapeHtml, getCachedImageUrl } from '../../utils';
 import * as api from '../../api';
+import { CloseIcon } from '../../icons';
 
 export function UpcomingOverlay({ visible, onClose }) {
     const [loading, setLoading] = useState(false);
@@ -90,7 +91,9 @@ export function UpcomingOverlay({ visible, onClose }) {
                                 <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" />
                             </svg>
                         </button>
-                        <button id="btn-close-upcoming" class="icon-btn" onClick={onClose} title="Close" aria-label="Close">×</button>
+                        <button id="btn-close-upcoming" class="icon-btn" onClick={onClose} title="Close" aria-label="Close">
+                            <CloseIcon size={14} />
+                        </button>
                     </div>
                 </div>
 

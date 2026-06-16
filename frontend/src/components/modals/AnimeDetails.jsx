@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks';
 import { escapeHtml, formatPopularity, getCachedImageUrl, getDisplayTitle } from '../../utils';
 import { userSettings, animeList, recordApiRequest, showToast, pendingApiRequests } from '../../store';
+import { CloseIcon } from '../../icons';
 import * as api from '../../api';
 
 export function AnimeDetailsModal({ anime, visible, onClose }) {
@@ -83,7 +84,9 @@ export function AnimeDetailsModal({ anime, visible, onClose }) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Edit Anime</h2>
-                    <button class="modal-close-btn" aria-label="Close modal" onClick={onClose}>×</button>
+                    <button class="modal-close-btn" aria-label="Close modal" onClick={onClose}>
+                        <CloseIcon size={16} />
+                    </button>
                 </div>
                 <div class="modal-body">
                     <div class="details-modal-grid">

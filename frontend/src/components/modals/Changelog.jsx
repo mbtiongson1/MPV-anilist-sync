@@ -1,6 +1,7 @@
 import { pendingApiRequests, removeApiRequest, clearApiRequests, showToast, animeList } from '../../store';
 import { escapeHtml } from '../../utils';
 import * as api from '../../api';
+import { CloseIcon } from '../../icons';
 import { useState } from 'preact/hooks';
 
 export function ChangelogModal({ visible, onClose, onSynced }) {
@@ -48,7 +49,9 @@ export function ChangelogModal({ visible, onClose, onSynced }) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Review Pending Changes</h2>
-                    <button class="modal-close-btn" aria-label="Close modal" id="changelog-modal-close" onClick={onClose}>×</button>
+                    <button class="modal-close-btn" aria-label="Close modal" id="changelog-modal-close" onClick={onClose}>
+                        <CloseIcon size={16} />
+                    </button>
                 </div>
                 <div class="modal-body">
                     <div id="changelog-container">

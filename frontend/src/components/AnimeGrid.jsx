@@ -1,7 +1,7 @@
 import { animeList, userSettings, selectedAnime, latestStatus, lastSelectedMediaId, sortBy, sortDirection, currentPage, toggleSelection, setSort, recordApiRequest, showToast, activeSearchTerm, setActiveTab, torrentCache } from '../store';
 import { escapeHtml, formatPopularity, getCachedImageUrl, getAnimeSeasons, getDisplayTitle } from '../utils';
 import { ProgressBar } from './ProgressBar';
-import { EditIcon, FolderIcon, SearchIcon, ResumeIcon, SeasonIcon } from '../icons';
+import { EditIcon, FolderIcon, SearchIcon, ResumeIcon, SeasonIcon, CloseIcon } from '../icons';
 import { Pagination } from './Pagination';
 import * as api from '../api';
 
@@ -113,7 +113,9 @@ export function AnimeGrid({ viewMode, onViewModeChange, filteredList, filterName
                     <input type="text" id="filter-name" placeholder="Search anime..." value={filterName}
                         onInput={(e) => onFilterNameChange(e.target.value)} />
                     {filterName && (
-                        <button id="btn-clear-search" class="btn-clear-search" aria-label="Clear Search" onClick={() => onFilterNameChange('')}>×</button>
+                        <button id="btn-clear-search" class="clear-search-btn" aria-label="Clear Search" onClick={() => onFilterNameChange('')}>
+                            <CloseIcon size={12} />
+                        </button>
                     )}
                 </div>
                 <select id="filter-season" class="filter-select" value={filterSeason} onChange={(e) => onFilterSeasonChange(e.target.value)}>
