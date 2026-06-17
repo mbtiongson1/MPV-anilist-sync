@@ -129,10 +129,18 @@ async def nyaa_batch_search_candidates(
         title_overrides=agent.settings.title_overrides or {},
     )
 
+    from datetime import datetime
+    now = datetime.now()
+    current_year = now.year
+    seasons = ["WINTER", "SPRING", "SUMMER", "FALL"]
+    current_season = seasons[(now.month - 1) // 3]
+
     for entry in entries:
         media_status = entry.get('mediaStatus')
         if is_airing_only:
             if media_status != 'RELEASING':
+                continue
+            if entry.get('season') != current_season or entry.get('seasonYear') != current_year:
                 continue
             
         progress = entry.get('progress', 0)
