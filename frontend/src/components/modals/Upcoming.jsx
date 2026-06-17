@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useMemo } from 'preact/hooks';
 import { upcomingCache, animeList, showToast } from '../../store';
 import { escapeHtml, getCachedImageUrl } from '../../utils';
 import * as api from '../../api';
@@ -77,6 +77,17 @@ export function UpcomingOverlay({ visible, onClose }) {
         }
     };
 
+    // Optimization (Bolt): Pre-compute a lookup Map for local list entries to avoid O(N*M) nested
+    // lookups inside the data.map loop during renders. This ensures an O(1) lookup per upcoming anime.
+    const localEntryMap = useMemo(() => {
+        const map = new Map();
+        for (let i = 0; i < animeList.value.length; i++) {
+            const anime = animeList.value[i];
+            map.set(anime.mediaId, anime);
+        }
+        return map;
+    }, [animeList.value]);
+
     return (
         <div id="upcoming-overlay" class="upcoming-overlay">
             <div class="upcoming-window">
@@ -127,7 +138,7 @@ export function UpcomingOverlay({ visible, onClose }) {
                         const season = anime.season || '';
                         const year = anime.seasonYear || '';
 
-                        const localEntry = animeList.value.find(a => a.mediaId === mediaId);
+                        const localEntry = localEntryMap.get(mediaId);
                         let statusText = 'Not in list';
                         let statusClass = 'status-not-in-list';
                         if (localEntry) {
