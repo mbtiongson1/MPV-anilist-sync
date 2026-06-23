@@ -35,3 +35,6 @@
 ## 2024-05-23 - Optimize multiple passes over lists in React/Preact
 **Learning:** Performing a `.filter()` to create an intermediate array followed by `.forEach()`, `.map()`, or `.reduce()` iterates over the array multiple times and unnecessarily allocates memory for intermediate arrays. This degrades performance, especially in components processing large global state like `StatsView`.
 **Action:** When filtering a large list before aggregation, use a single `for` loop to conditionally process items (loop fusion), eliminating the need for intermediate array allocation and halving the total iteration count.
+## 2024-06-15 - [Library Tree Recursion Rendering Bottleneck]
+**Learning:** In Preact components, avoid invoking recursive filtering functions inside standard render paths or map() iterations for tree structures, as it causes exponential O(N^2) performance bottlenecks.
+**Action:** Wrap heavy tree filtering operations in a single useMemo block that returns a fully pruned data structure and pass that to the render path to ensure O(N) complexity.
