@@ -195,6 +195,13 @@ class TestNyaaBackend(unittest.IsolatedAsyncioTestCase):
         )
 
     async def test_batch_candidates_airing_only(self):
+        from datetime import datetime
+        now = datetime.now()
+        current_year = now.year
+        seasons = ["WINTER", "SPRING", "SUMMER", "FALL"]
+        current_season = seasons[(now.month - 1) // 3]
+        past_season = "WINTER" if current_season != "WINTER" else "SUMMER"
+
         default_dir = os.path.join(self.tempdir.name, "downloads")
         agent = _make_agent(
             default_download_dir=default_dir,
@@ -202,8 +209,8 @@ class TestNyaaBackend(unittest.IsolatedAsyncioTestCase):
                 {
                     "mediaId": 101,
                     "mediaStatus": "RELEASING",
-                    "season": "SPRING",
-                    "seasonYear": 2024,
+                    "season": current_season,
+                    "seasonYear": current_year,
                     "progress": 5,
                     "episodes": 12,
                     "title": {"romaji": "Current Season Airing", "english": "Current Season Airing"},
@@ -211,8 +218,8 @@ class TestNyaaBackend(unittest.IsolatedAsyncioTestCase):
                 {
                     "mediaId": 102,
                     "mediaStatus": "RELEASING",
-                    "season": "WINTER",
-                    "seasonYear": 2023,
+                    "season": past_season,
+                    "seasonYear": current_year - 1,
                     "progress": 2,
                     "episodes": 12,
                     "title": {"romaji": "Past Season Airing", "english": "Past Season Airing"},
@@ -220,8 +227,8 @@ class TestNyaaBackend(unittest.IsolatedAsyncioTestCase):
                 {
                     "mediaId": 103,
                     "mediaStatus": "FINISHED",
-                    "season": "SPRING",
-                    "seasonYear": 2024,
+                    "season": current_season,
+                    "seasonYear": current_year,
                     "progress": 3,
                     "episodes": 12,
                     "title": {"romaji": "Finished Current Season", "english": "Finished Current Season"},
@@ -235,12 +242,11 @@ class TestNyaaBackend(unittest.IsolatedAsyncioTestCase):
         results = await nyaa_batch_search_candidates(request, airing_only="false")
         self.assertEqual(len(results), 3)
 
-        # 2. With airing_only="true" — only RELEASING entries pass (mediaStatus filter, not season)
+        # 2. With airing_only="true" — only RELEASING in current season/year passes
         results_airing = await nyaa_batch_search_candidates(request, airing_only="true")
-        self.assertEqual(len(results_airing), 2)
-        media_ids = {r["media_id"] for r in results_airing}
-        self.assertIn(101, media_ids)
-        self.assertIn(102, media_ids)
+        self.assertEqual(len(results_airing), 1)
+        self.assertEqual(results_airing[0]["media_id"], 101)
+        self.assertEqual(results_airing[0]["anime_title"], "Current Season Airing")
 
 
 if __name__ == "__main__":
