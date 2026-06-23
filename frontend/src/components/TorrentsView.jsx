@@ -216,42 +216,45 @@ export function TorrentsView() {
 
     // Filter & sort results
     const displayItems = useMemo(() => {
-        let items = [...results];
-        if (!showArchived) {
-            items = items.filter(i => !isArchivedItem(i));
-        }
-        if (dateFilter !== 'all') {
-            const now = Date.now();
-            const cutoff = { '24h': 86400000, '48h': 172800000, '7d': 604800000, '30d': 2592000000 }[dateFilter] || 0;
-            if (cutoff) items = items.filter(i => {
-                const ts = i.torrent?.timestamp ? i.torrent.timestamp * 1000 : 0;
-                return ts > 0 && (now - ts) < cutoff;
-            });
+        let items = [];
+        const now = Date.now();
+        const cutoff = dateFilter !== 'all' ? ({ '24h': 86400000, '48h': 172800000, '7d': 604800000, '30d': 2592000000 }[dateFilter] || 0) : 0;
+
+        for (let i = 0; i < results.length; i++) {
+            const item = results[i];
+            if (!showArchived && isArchivedItem(item)) continue;
+
+            if (cutoff) {
+                const ts = item.torrent?.timestamp ? item.torrent.timestamp * 1000 : 0;
+                if (!(ts > 0 && (now - ts) < cutoff)) continue;
+            }
+
+            items.push(item);
         }
 
         // Pre-compute values to avoid O(N log N) regex parsing and string allocations
         const sortCache = new Map();
         if (sortCol === 'size' || sortCol === 'title' || !['date', 'seeders', 'leechers'].includes(sortCol)) {
+            const isSize = sortCol === 'size';
             for (let i = 0; i < items.length; i++) {
                 const item = items[i];
                 const t = item.torrent || {};
-                if (sortCol === 'size') {
-                    sortCache.set(item, parseSize(t.size));
-                } else { // default is title
-                    sortCache.set(item, (t.title || '').toLowerCase());
-                }
+                sortCache.set(item, isSize ? parseSize(t.size) : (t.title || '').toLowerCase());
             }
         }
 
         items.sort((a, b) => {
             const ta = a.torrent || {}, tb = b.torrent || {};
             let va, vb;
-            switch (sortCol) {
-                case 'size': va = sortCache.get(a); vb = sortCache.get(b); break;
-                case 'date': va = ta.timestamp || 0; vb = tb.timestamp || 0; break;
-                case 'seeders': va = ta.seeders || 0; vb = tb.seeders || 0; break;
-                case 'leechers': va = ta.leechers || 0; vb = tb.leechers || 0; break;
-                default: va = sortCache.get(a); vb = sortCache.get(b);
+            if (sortCol === 'size' || sortCol === 'title' || !['date', 'seeders', 'leechers'].includes(sortCol)) {
+                va = sortCache.get(a);
+                vb = sortCache.get(b);
+            } else if (sortCol === 'date') {
+                va = ta.timestamp || 0; vb = tb.timestamp || 0;
+            } else if (sortCol === 'seeders') {
+                va = ta.seeders || 0; vb = tb.seeders || 0;
+            } else if (sortCol === 'leechers') {
+                va = ta.leechers || 0; vb = tb.leechers || 0;
             }
             return va > vb ? sortDir : va < vb ? -sortDir : 0;
         });

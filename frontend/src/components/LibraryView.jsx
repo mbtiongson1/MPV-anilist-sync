@@ -121,28 +121,36 @@ export function LibraryView() {
         }
     };
 
-    // Filter library items by search
-    const filtered = useMemo(() => {
-        if (!search) return data;
+// Filter library items by search
+    const { filteredData, expandedBySearch } = useMemo(() => {
+        if (!search) return { filteredData: data, expandedBySearch: new Set() };
+
         const q = search.toLowerCase();
+        const expanded = new Set();
 
-        const pruneTree = (items) => {
-            if (!items) return [];
-            return items.reduce((acc, item) => {
+        const prune = (items) => {
+            const result = [];
+            for (const item of items) {
                 const nameMatch = (item.name || '').toLowerCase().includes(q);
-                const prunedChildren = item.children ? pruneTree(item.children) : null;
+                let prunedChildren = undefined;
+                let hasMatchingDescendant = false;
 
-                if (nameMatch || (prunedChildren && prunedChildren.length > 0)) {
-                    acc.push({
-                        ...item,
-                        children: prunedChildren || item.children
-                    });
+                if (item.children) {
+                    prunedChildren = prune(item.children);
+                    hasMatchingDescendant = prunedChildren.length > 0;
                 }
-                return acc;
-            }, []);
+
+                if (nameMatch || hasMatchingDescendant) {
+                    if (hasMatchingDescendant) {
+                        expanded.add(item.path);
+                    }
+                    result.push({ ...item, children: prunedChildren });
+                }
+            }
+            return result;
         };
 
-        return pruneTree(data);
+        return { filteredData: prune(data), expandedBySearch: expanded };
     }, [data, search]);
 
     const renderNode = (node, depth = 0) => {
@@ -150,7 +158,7 @@ export function LibraryView() {
         const excluded = isExcluded(node.path);
         
         // Expand if it's root, or if user expanded, or if searching matches children
-        const expanded = depth === 0 || expandedDirs.has(node.path) || !!search;
+        const expanded = depth === 0 || expandedDirs.has(node.path) || (search && expandedBySearch.has(node.path));
 
         const padLeft = depth * 16 + 8;
         const isVideo = !isDir && ['mkv', 'mp4', 'avi', 'webm', 'flv', 'mov', 'ts'].includes((node.name || '').split('.').pop().toLowerCase());
@@ -258,10 +266,10 @@ export function LibraryView() {
             </div>
             <div id="library-tree-container">
                 {loading && <div class="loading-state"><div class="spinner" /><p>Scanning library...</p></div>}
-                {!loading && filtered.length === 0 && (
+                {!loading && filteredData.length === 0 && (
                     <div class="empty-state"><p>No library items found. Set a Base Anime Folder in Settings.</p></div>
                 )}
-                {!loading && filtered.map(node => renderNode(node, 0))}
+                {!loading && filteredData.map(node => renderNode(node, 0))}
             </div>
         </div>
     );

@@ -12,8 +12,20 @@ export function StatsView() {
         const list = animeList.value;
         for (let i = 0; i < list.length; i++) {
             const a = list[i];
-            if (a.genres && a.genres.some(g => g === 'Ecchi' || g === 'Hentai' || g === 'Adult')) continue;
+
+            // Fused filter conditions
             if (a.isAdult) continue;
+            let hasAdultGenre = false;
+            if (a.genres) {
+                for (let j = 0; j < a.genres.length; j++) {
+                    const g = a.genres[j];
+                    if (g === 'Ecchi' || g === 'Hentai' || g === 'Adult') {
+                        hasAdultGenre = true;
+                        break;
+                    }
+                }
+            }
+            if (hasAdultGenre) continue;
             if (!(a.listStatus === 'COMPLETED' || (a.progress || 0) > 0)) continue;
 
             totalAnime++;
@@ -50,9 +62,14 @@ export function StatsView() {
 
         const allSortedGenres = Object.entries(genres).sort((a, b) => b[1] - a[1]);
         let sortedGenres = allSortedGenres.slice(0, 9);
-        const othersSum = allSortedGenres.slice(9).reduce((sum, g) => sum + g[1], 0);
+        let othersSum = 0;
+        let totalGenreCount = 0;
+        for (let i = 0; i < allSortedGenres.length; i++) {
+            const count = allSortedGenres[i][1];
+            totalGenreCount += count;
+            if (i >= 9) othersSum += count;
+        }
         if (othersSum > 0) sortedGenres.push(['Others', othersSum]);
-        const totalGenreCount = Object.values(genres).reduce((a, b) => a + b, 0);
 
         return { totalAnime, totalEps, meanScore, daysWatched, sortedGenres, totalGenreCount, dailyActivity, weeklyActivity };
     }, [animeList.value]);
@@ -99,7 +116,7 @@ export function StatsView() {
                         <div class="genre-distribution-bar">
                             {sortedGenres.map(([genre, count]) => {
                                 const color = genreColors[genre] || '#9CA3AF';
-                                const pct = (count / sortedGenres.reduce((s, g) => s + g[1], 0)) * 100;
+                                const pct = (count / totalGenreCount) * 100;
                                 return <div key={genre} class="genre-dist-segment" style={`width: ${pct}%; background: ${color};`} title={`${genre}: ${count}`} />;
                             })}
                         </div>
