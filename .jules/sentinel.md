@@ -38,3 +38,7 @@
 **Vulnerability:** The `/api/resume` endpoint executed files directly from internal state (`agent.settings.last_played_file`) without validating the file extension. This allowed arbitrary code execution (RCE) if an attacker or malicious script modified the `config.json` to point to an executable.
 **Learning:** Internal state (like configuration files or database entries) must be treated as untrusted input when it crosses security boundaries, especially before passing paths to OS execution functions like `os.startfile`, `subprocess.run`, or `xdg-open`.
 **Prevention:** Always validate the file extension against a safe allowlist (e.g., media files) even if the path originates from internal application state or settings, as these can be tampered with.
+## 2024-06-23 - Prevent XSS in Preact Modals
+**Vulnerability:** Untrusted HTML descriptions from the external AniList API were being rendered directly using React's `dangerouslySetInnerHTML` without sanitization in `Upcoming.jsx` and `AnimeDetails.jsx`. This creates a Cross-Site Scripting (XSS) vulnerability.
+**Learning:** The use of `dangerouslySetInnerHTML` without a sanitizer is dangerous even for perceived "trusted" APIs, as upstream changes or compromises can lead to script injection in the client's browser.
+**Prevention:** Always use `DOMPurify.sanitize()` or a similar established sanitization library whenever rendering raw HTML from external sources via `dangerouslySetInnerHTML`.

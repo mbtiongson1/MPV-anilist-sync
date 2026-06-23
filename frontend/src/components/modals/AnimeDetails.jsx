@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks';
+import DOMPurify from 'dompurify';
 import { escapeHtml, formatPopularity, getCachedImageUrl, getDisplayTitle } from '../../utils';
 import { userSettings, animeList, recordApiRequest, showToast, pendingApiRequests } from '../../store';
 import { CloseIcon } from '../../icons';
@@ -99,7 +100,8 @@ export function AnimeDetailsModal({ anime, visible, onClose }) {
                                 {stats.map(s => <p key={s.label}><strong>{s.label}:</strong> {s.value}</p>)}
                             </div>
                             <p><strong>Description</strong></p>
-                            <div class="modal-description" dangerouslySetInnerHTML={{ __html: description }} />
+                            {/* SECURITY: Sanitize external HTML from the AniList API to prevent Cross-Site Scripting (XSS) */}
+                            <div class="modal-description" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description) }} />
                         </div>
                     </div>
                     <div class="modal-actions" style="flex-direction: column; align-items: flex-start; gap: 1rem; border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1rem;">
