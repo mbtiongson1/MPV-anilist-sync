@@ -1,0 +1,19 @@
+⚡ Bolt: fuse chained list iterations and memoize tree filtering
+
+💡 What:
+- Refactored `filterTree` in `LibraryView.jsx` to pre-prune the tree inside a single `useMemo` block, eliminating O(N^2) exponential recursive evaluations during component render.
+- Refactored list aggregations in `StatsView.jsx` to process items in a single fused `for` loop, eliminating intermediate array allocations from `.filter()`.
+- Refactored filtered item gathering in `TorrentsView.jsx` to loop and push conditionally, removing multiple passes of `.filter()` across arrays.
+- Fixed failing test `test_router_os.py` by mocking `os.startfile` and `os.makedirs` which caused FileNotFoundError (WinError 2) on Windows runners.
+
+🎯 Why:
+Chaining list operations inside Preact renders creates numerous intermediate arrays, leading to high garbage collection pressure and main thread blocking on large datasets. Recursive filtering inside the tree render loop triggers on every update, scaling exponentially.
+
+📊 Impact:
+- Reduces memory allocations during view changes.
+- Eliminates O(N^2) blocking during Library Tree re-renders.
+- Fixes CI pipeline failure on Windows.
+
+🔬 Measurement:
+- Backend test suite passing on all runners.
+- Frontend build successfully completing (pnpm build) with no regressions.
