@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'preact/hooks';
 import { upcomingCache, animeList, showToast } from '../../store';
-import { escapeHtml, getCachedImageUrl } from '../../utils';
+import { escapeHtml, getCachedImageUrl, sanitizeHtml } from '../../utils';
 import * as api from '../../api';
 import { CloseIcon } from '../../icons';
 
@@ -191,7 +191,7 @@ export function UpcomingOverlay({ visible, onClose }) {
                                         <span class="upcoming-badge badge-studio">{escapeHtml(studio)}</span>
                                         {anime.format && <span class="upcoming-badge badge-format">{anime.format}</span>}
                                     </div>
-                                    <div class="upcoming-description" dangerouslySetInnerHTML={{ __html: description }}></div>
+                                    <div class="upcoming-description" dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}></div>
                                     <div class="upcoming-stats">
                                         <div class="upcoming-stat-item" title="Popularity">
                                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
