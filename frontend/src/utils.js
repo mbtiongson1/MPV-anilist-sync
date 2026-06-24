@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 // ===== Status Colors =====
 export const statusColors = {
     'CURRENT': '#10b981',
@@ -178,4 +179,10 @@ export function getDisplayTitle(anime, userSettings) {
         return userSettings.title_overrides[anime.mediaId];
     }
     return anime.title?.romaji || anime.title?.english || anime.title?.native || 'Unknown';
+}
+
+// ===== Sanitize HTML =====
+export function sanitizeHtml(html) {
+    if (!html) return '';
+    return DOMPurify.sanitize(html);
 }
