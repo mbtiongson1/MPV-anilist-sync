@@ -38,3 +38,7 @@
 **Vulnerability:** The `/api/resume` endpoint executed files directly from internal state (`agent.settings.last_played_file`) without validating the file extension. This allowed arbitrary code execution (RCE) if an attacker or malicious script modified the `config.json` to point to an executable.
 **Learning:** Internal state (like configuration files or database entries) must be treated as untrusted input when it crosses security boundaries, especially before passing paths to OS execution functions like `os.startfile`, `subprocess.run`, or `xdg-open`.
 **Prevention:** Always validate the file extension against a safe allowlist (e.g., media files) even if the path originates from internal application state or settings, as these can be tampered with.
+## 2026-06-25 - XSS via dangerouslySetInnerHTML
+**Vulnerability:** Preact's `dangerouslySetInnerHTML` was being used directly with user-controlled API data (Anime descriptions from AniList) in both `Upcoming.jsx` and `AnimeDetails.jsx`.
+**Learning:** API responses often contain HTML formatting tags (like `<br>` or `<i>`). Directly rendering these without sanitization exposes the application to Cross-Site Scripting (XSS) if the upstream API is compromised or allows user-generated content to inject malicious payloads (e.g., `<script>` or `onload=` attributes).
+**Prevention:** In frontend Preact components, always sanitize external or untrusted HTML content using `DOMPurify.sanitize()` before passing it to `dangerouslySetInnerHTML` to prevent XSS vulnerabilities.

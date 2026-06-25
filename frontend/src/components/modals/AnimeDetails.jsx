@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks';
+import DOMPurify from 'dompurify';
 import { escapeHtml, formatPopularity, getCachedImageUrl, getDisplayTitle } from '../../utils';
 import { userSettings, animeList, recordApiRequest, showToast, pendingApiRequests } from '../../store';
 import { CloseIcon } from '../../icons';
@@ -14,7 +15,7 @@ export function AnimeDetailsModal({ anime, visible, onClose }) {
     );
 
     const title = anime.title?.romaji || anime.title?.english || anime.title?.native || 'Unknown';
-    const description = anime.description || 'No description available.';
+    const description = DOMPurify.sanitize(anime.description || 'No description available.');
     const cover = getCachedImageUrl(anime.coverImage?.large || anime.coverImage?.medium || '');
     const stats = [];
     if (anime.status) stats.push({ label: 'Status', value: anime.status });

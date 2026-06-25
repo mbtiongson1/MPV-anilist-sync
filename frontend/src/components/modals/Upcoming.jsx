@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'preact/hooks';
+import DOMPurify from 'dompurify';
 import { upcomingCache, animeList, showToast } from '../../store';
 import { escapeHtml, getCachedImageUrl } from '../../utils';
 import * as api from '../../api';
@@ -122,7 +123,7 @@ export function UpcomingOverlay({ visible, onClose }) {
                         const mediaId = anime.mediaId;
                         const title = anime.title?.romaji || anime.title?.english || 'Unknown';
                         const cover = getCachedImageUrl(anime.coverImage?.large || anime.coverImage?.medium || '');
-                        const description = anime.description || 'No description available.';
+                        const description = DOMPurify.sanitize(anime.description || 'No description available.');
                         const studio = anime.studio || 'Unknown Studio';
                         const season = anime.season || '';
                         const year = anime.seasonYear || '';
