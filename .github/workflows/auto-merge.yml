@@ -20,7 +20,9 @@ jobs:
     if: |
       github.event_name == 'workflow_dispatch' ||
       (github.event.pull_request.draft == false &&
-       contains(fromJSON('["google-labs-jules[bot]", "github-actions[bot]"]'), github.event.pull_request.user.login))
+       (contains(fromJSON('["google-labs-jules[bot]", "github-actions[bot]"]'), github.event.pull_request.user.login) ||
+        contains(github.event.pull_request.body, 'PR created automatically by Jules') ||
+        contains(github.event.pull_request.body, 'jules.google.com')))
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -72,6 +74,16 @@ jobs:
             git rebase --abort
             exit 1
           fi
+
+      - name: Wait for status checks to pass
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR="${{ steps.pr.outputs.number }}"
+          echo "Watching status checks for PR #$PR..."
+          # Give GitHub a few seconds to register the new rebased commit and start checks
+          sleep 10
+          gh pr checks "$PR" --watch --fail-fast
 
       - name: Merge PR with rebase
         env:
