@@ -38,3 +38,6 @@
 ## 2024-06-15 - [Library Tree Recursion Rendering Bottleneck]
 **Learning:** In Preact components, avoid invoking recursive filtering functions inside standard render paths or map() iterations for tree structures, as it causes exponential O(N^2) performance bottlenecks.
 **Action:** Wrap heavy tree filtering operations in a single useMemo block that returns a fully pruned data structure and pass that to the render path to ensure O(N) complexity.
+## 2026-06-25 - O(N*M) Lookup Anti-Pattern
+**Learning:** Iterating over global signals using `.find()` inside component render loops (like `.map()` rendering) causes an O(N*M) performance bottleneck, as seen in `Upcoming.jsx`.
+**Action:** Always pre-compute a lookup `Map` using `useMemo` outside the loop to reduce lookup time to O(1) during rendering.
