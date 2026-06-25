@@ -1,4 +1,4 @@
-# 🎬 MPV Anilist Tracker (v5.0.0)
+# 🎬 MPV Anilist Tracker (v5.1.0)
 
 [![Powered by Gaia](https://gaia.tiongson.co/badges/powered-by-gaia.svg)](https://gaia.tiongson.co/)
 

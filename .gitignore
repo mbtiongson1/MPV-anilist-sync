@@ -11,3 +11,4 @@ image_cache/
 node_modules/
 frontend/dist/
 test_lib/
+upcoming_cache_*.json
