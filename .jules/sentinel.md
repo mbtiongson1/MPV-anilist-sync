@@ -43,3 +43,8 @@
 **Vulnerability:** Cross-Site Scripting (XSS) vulnerability found in frontend/src/components/modals/AnimeDetails.jsx and Upcoming.jsx where untrusted descriptions from an API were passed directly to `dangerouslySetInnerHTML`.
 **Learning:** In Preact/React applications, any dynamically fetched HTML content must be treated as untrusted and sanitized before rendering to the DOM.
 **Prevention:** Always sanitize external or untrusted HTML content using `DOMPurify.sanitize()` before passing it to `dangerouslySetInnerHTML` to prevent XSS vulnerabilities.
+
+## 2026-06-04 - Path Traversal in File Deletion
+**Vulnerability:** The `/api/move_to_trash` endpoint in `src/api/router_os.py` accepted unvalidated file paths from user input and directly deleted them using native OS commands or `send2trash`. This allowed arbitrary file deletion and path traversal attacks (e.g., passing `/etc/passwd` or `../../../sensitive/file`).
+**Learning:** Any endpoint that performs destructive operations (like deletion) on paths provided by user input or network requests must strictly validate that the target paths fall within explicitly allowed directories.
+**Prevention:** Construct a list of allowed base directories (e.g., media folders, download directory) using absolute paths and verify that the target path is a subpath of one of the allowed directories using `os.path.commonpath([allowed_dir, target_path]) == allowed_dir`. Reject any paths that do not pass this check.

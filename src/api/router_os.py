@@ -194,9 +194,38 @@ async def resume(request: Request):
 
 @router.post('/api/move_to_trash')
 async def move_to_trash(request: Request, body: PathsRequest):
+    agent = request.app.state.agent
+
+    # SECURITY: Build a list of allowed base directories for path traversal prevention
+    allowed_dirs = []
+    if agent and hasattr(agent, 'settings'):
+        if agent.settings.base_anime_folder:
+            allowed_dirs.append(os.path.abspath(agent.settings.base_anime_folder))
+        if agent.settings.default_download_dir:
+            allowed_dirs.append(os.path.abspath(agent.settings.default_download_dir))
+        for media_dir in agent.settings.media_folders_map.values():
+            if media_dir:
+                allowed_dirs.append(os.path.abspath(media_dir))
+
     success_count = 0
     for p in body.paths:
-        if os.path.exists(p):
+        abs_p = os.path.abspath(p)
+
+        # Check if the path is within any of the allowed directories
+        is_safe = False
+        for allowed_dir in allowed_dirs:
+            try:
+                if os.path.commonpath([allowed_dir, abs_p]) == allowed_dir:
+                    is_safe = True
+                    break
+            except ValueError:
+                continue
+
+        if not is_safe:
+            print(f"SECURITY BLOCKED: Attempted to trash unauthorized path: {p}")
+            continue
+
+        if os.path.exists(abs_p):
             try:
                 try:
                     from send2trash import send2trash
