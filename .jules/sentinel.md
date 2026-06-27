@@ -43,3 +43,13 @@
 **Vulnerability:** Cross-Site Scripting (XSS) vulnerability found in frontend/src/components/modals/AnimeDetails.jsx and Upcoming.jsx where untrusted descriptions from an API were passed directly to `dangerouslySetInnerHTML`.
 **Learning:** In Preact/React applications, any dynamically fetched HTML content must be treated as untrusted and sanitized before rendering to the DOM.
 **Prevention:** Always sanitize external or untrusted HTML content using `DOMPurify.sanitize()` before passing it to `dangerouslySetInnerHTML` to prevent XSS vulnerabilities.
+
+## 2026-06-04 - Arbitrary File Deletion via Path Traversal
+**Vulnerability:** The `/api/move_to_trash` endpoint in `src/api/router_os.py` accepted absolute or relative file paths from the user and deleted them without verifying if the path belonged to an allowed application directory. This allowed arbitrary file deletion if an attacker provided paths like `/etc/passwd` or `C:\Windows\System32`.
+**Learning:** Endpoints performing destructive file operations (like deletion or moving to trash) must never trust raw file paths sent from the client. The client can easily bypass UI restrictions and send arbitrary paths via the API.
+**Prevention:** Always construct a list of allowed base directories using absolute paths and verify that the target file path is a true subpath of an allowed directory using `os.path.commonpath([allowed_dir, target_path]) == allowed_dir`.
+
+## 2026-06-04 - Fail-Open Vulnerability in Path Traversal Fix
+**Vulnerability:** A path traversal mitigation attempt implemented a 'fail-open' logic (`if not allowed_dirs: is_allowed = True`). This caused the security check to bypass completely and allow arbitrary file deletion if the application settings (and thus the `allowed_dirs` whitelist) were missing or uninitialized.
+**Learning:** Security controls must default to a secure state ('fail-securely' / 'deny-by-default'). If the dependencies or configurations required to make a security decision are missing, the operation must be blocked, rather than assumed safe.
+**Prevention:** When implementing security authorization or validation logic, strictly avoid 'fail-open' designs. Always 'fail securely' by denying access or blocking operations by default if the application configuration, state, or allowlists are missing or uninitialized.

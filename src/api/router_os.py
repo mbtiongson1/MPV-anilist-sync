@@ -194,9 +194,37 @@ async def resume(request: Request):
 
 @router.post('/api/move_to_trash')
 async def move_to_trash(request: Request, body: PathsRequest):
+    agent = request.app.state.agent
+    allowed_dirs = []
+    if agent and hasattr(agent, 'settings'):
+        if agent.settings.base_anime_folder:
+            allowed_dirs.append(os.path.abspath(agent.settings.base_anime_folder))
+        if agent.settings.default_download_dir:
+            allowed_dirs.append(os.path.abspath(agent.settings.default_download_dir))
+
     success_count = 0
     for p in body.paths:
         if os.path.exists(p):
+            # SECURITY: Prevent arbitrary file deletion via Path Traversal
+            # Ensure the target path is within an allowed directory
+            abs_p = os.path.realpath(p)
+            is_allowed = False
+            for allowed_dir in allowed_dirs:
+                try:
+                    # Resolve realpath of allowed_dir as well
+                    real_allowed_dir = os.path.realpath(allowed_dir)
+                    if os.path.commonpath([real_allowed_dir, abs_p]) == real_allowed_dir:
+                        is_allowed = True
+                        break
+                except ValueError:
+                    pass
+
+            # Fail securely: If no allowed_dirs are configured, we must deny the operation.
+            # Allowing arbitrary deletion just because settings aren't loaded is dangerous.
+            if not is_allowed:
+                print(f"SECURITY BLOCKED: Attempted to delete unauthorized path: {p}")
+                continue
+
             try:
                 try:
                     from send2trash import send2trash
