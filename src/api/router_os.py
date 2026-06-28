@@ -194,13 +194,49 @@ async def resume(request: Request):
 
 @router.post('/api/move_to_trash')
 async def move_to_trash(request: Request, body: PathsRequest):
+    agent = request.app.state.agent
+    if not agent or not hasattr(agent, 'settings'):
+        return {"success": False, "count": 0}
+
+    # Gather allowed directories to prevent path traversal
+    allowed_dirs = []
+    base_dir = agent.settings.base_anime_folder
+    if base_dir and os.path.exists(base_dir):
+        allowed_dirs.append(os.path.realpath(base_dir))
+
+    dl_dir = agent.settings.default_download_dir
+    if dl_dir and os.path.exists(dl_dir):
+        allowed_dirs.append(os.path.realpath(dl_dir))
+
+    # Add dynamically mapped folders just in case they differ
+    for folder in agent.settings.media_folders_map.values():
+        if folder and os.path.exists(folder):
+            allowed_dirs.append(os.path.realpath(folder))
+
     success_count = 0
     for p in body.paths:
         if os.path.exists(p):
+            # SECURITY: Prevent Path Traversal.
+            # Ensure the target file is strictly a subpath of an allowed directory.
+            real_p = os.path.realpath(p)
+            is_allowed = False
+            for allowed in allowed_dirs:
+                try:
+                    if os.path.commonpath([allowed, real_p]) == allowed:
+                        is_allowed = True
+                        break
+                except ValueError:
+                    # Windows raises ValueError if paths are on different drives
+                    pass
+
+            if not is_allowed:
+                print(f"SECURITY BLOCKED: Attempted to trash unauthorized file path: {p}")
+                continue
+
             try:
                 try:
                     from send2trash import send2trash
-                    send2trash(p)
+                    send2trash(real_p)
                 except ImportError:
                     print(f"Warning: 'send2trash' module not found. Falling back to native OS commands or permanent deletion for: {p}")
                     abs_p = os.path.abspath(p)
