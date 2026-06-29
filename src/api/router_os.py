@@ -27,6 +27,35 @@ class PathsRequest(BaseModel):
 class PathRequest(BaseModel):
     path: str
 
+def _is_safe_path(target_path: str, agent) -> bool:
+    if not agent or not hasattr(agent, 'settings'):
+        return False
+
+    allowed_dirs = []
+    if getattr(agent.settings, 'base_anime_folder', None):
+        allowed_dirs.append(agent.settings.base_anime_folder)
+    if getattr(agent.settings, 'default_download_dir', None):
+        allowed_dirs.append(agent.settings.default_download_dir)
+
+    media_map = getattr(agent.settings, 'media_folders_map', {})
+    if isinstance(media_map, dict):
+        allowed_dirs.extend(media_map.values())
+
+    real_target = os.path.realpath(target_path)
+    for allowed_dir in allowed_dirs:
+        if not allowed_dir:
+            continue
+
+        # Security Note: we resolve realpath even if the allowed_dir doesn't exist yet
+        # to allow creating valid subfolders inside a missing root base dir without falsely blocking.
+        real_allowed = os.path.realpath(allowed_dir)
+        try:
+            if os.path.commonpath([real_allowed, real_target]) == real_allowed:
+                return True
+        except ValueError:
+            pass
+    return False
+
 @router.get('/api/open_folder')
 async def open_folder_get(request: Request, mediaId: Optional[int] = None, path: Optional[str] = None):
     return await open_folder(request, FolderRequest(mediaId=mediaId, path=path))
@@ -90,6 +119,12 @@ async def open_folder(request: Request, body: FolderRequest):
                 folder_path = base_dir
 
         folder_path = os.path.abspath(folder_path)
+
+        # Security validation: Ensure folder_path is safe before opening or creating
+        if not _is_safe_path(folder_path, agent):
+            print(f"SECURITY BLOCKED: Attempted to open unauthorized path: {folder_path}")
+            return {"success": False, "error": "Unauthorized path"}
+
         if os.path.isfile(folder_path):
             folder_to_open = os.path.dirname(folder_path)
             target = folder_path
@@ -194,8 +229,13 @@ async def resume(request: Request):
 
 @router.post('/api/move_to_trash')
 async def move_to_trash(request: Request, body: PathsRequest):
+    agent = request.app.state.agent
     success_count = 0
     for p in body.paths:
+        if not _is_safe_path(p, agent):
+            print(f"SECURITY BLOCKED: Attempted to trash unauthorized path: {p}")
+            continue
+
         if os.path.exists(p):
             try:
                 try:
