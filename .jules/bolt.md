@@ -41,3 +41,6 @@
 ## 2026-06-25 - O(N*M) Lookup Anti-Pattern
 **Learning:** Iterating over global signals using `.find()` inside component render loops (like `.map()` rendering) causes an O(N*M) performance bottleneck, as seen in `Upcoming.jsx`.
 **Action:** Always pre-compute a lookup `Map` using `useMemo` outside the loop to reduce lookup time to O(1) during rendering.
+## 2024-06-29 - O(N log N) Sorting in Preact Renders
+**Learning:** Performing array cloning and sorting (`[...list].sort(...)`) directly inside a component's render path without memoization forces the expensive $O(N \log N)$ operation to re-execute on *every* component re-render, even if the underlying list hasn't changed. In `RecentAnime.jsx`, this bottleneck was triggered by any parent update or signal change unrelated to the `animeList.value` state.
+**Action:** Always wrap expensive list transformations (like `.sort()` or `.filter()`) on large arrays in `useMemo` hooks, ensuring they only recompute when their explicit dependency array changes.

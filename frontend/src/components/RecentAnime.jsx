@@ -1,3 +1,4 @@
+import { useMemo } from 'preact/hooks';
 import { animeList, userSettings, activeSearchTerm, torrentCache } from '../store';
 import { statusColors, escapeHtml, getCachedImageUrl, getRelativeTime, getDisplayTitle } from '../utils';
 import { SearchIcon, FolderIcon } from '../icons';
@@ -8,7 +9,11 @@ export function RecentAnime({ onOpenDetails }) {
     const list = animeList.value;
     const settings = userSettings.value;
 
-    const recent = [...list].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, 10);
+    // Optimization (Bolt): Wrap array cloning and O(N log N) sorting in useMemo
+    // to prevent redundant execution and memory allocation on unrelated renders
+    const recent = useMemo(() => {
+        return [...list].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, 10);
+    }, [list]);
 
     if (recent.length === 0) {
         return (
