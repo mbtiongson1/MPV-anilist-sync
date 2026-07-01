@@ -430,8 +430,30 @@ async def get_image(url: str):
         import urllib.parse
         import re
 
+        # Security: Prevent SSRF via Parser Differential by rejecting URLs with characters that cause parser confusion
+        # We only check the characters before the path to avoid blocking legitimate query params or encoded paths.
         if '\\' in url:
             return Response(status_code=400, content="Invalid URL format")
+
+        # Check if @, #, or % appears in the authority component to prevent host/auth parser confusion.
+        # The authority component ends at the first '/', '?', or '#' after the scheme.
+        scheme_end = url.find("://")
+        if scheme_end != -1:
+            start_idx = scheme_end + 3
+            end_slash = url.find("/", start_idx)
+            end_query = url.find("?", start_idx)
+            end_hash = url.find("#", start_idx)
+
+            ends = [e for e in (end_slash, end_query, end_hash) if e != -1]
+            authority_end = min(ends) if ends else len(url)
+
+            authority_part = url[start_idx:authority_end]
+            if '@' in authority_part or '%' in authority_part:
+                return Response(status_code=400, content="Invalid URL format")
+
+            # If there's a hash before the slash, that's definitely parser confusion trying to mask the host
+            if end_hash != -1 and (end_slash == -1 or end_hash < end_slash):
+                return Response(status_code=400, content="Invalid URL format")
 
         parsed = urllib.parse.urlparse(url)
         hostname = parsed.hostname
