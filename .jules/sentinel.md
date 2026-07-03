@@ -48,3 +48,7 @@
 **Vulnerability:** The `/api/move_to_trash` endpoint accepted any arbitrary file path in the request body and blindly deleted it, leading to a Path Traversal / Insecure Direct Object Reference (IDOR) vulnerability. An attacker could use this to delete any file on the host system.
 **Learning:** Any endpoint that performs destructive operations (like deletion or modification) based on a user-provided file path must strictly validate that the path falls within explicitly allowed directories. Relying merely on `os.path.exists()` is insufficient because it does not restrict the scope of the path.
 **Prevention:** Implement strict path traversal prevention using `os.path.realpath()` on both the allowed base directories and the target path, and use `os.path.commonpath()` to ensure the target is safely contained within an allowed base directory.
+## 2024-07-03 - Arbitrary file deletion via fail-open validation
+**Vulnerability:** The `move_to_trash` endpoint in `src/api/router_os.py` allowed arbitrary file deletion if the configuration `allowed_dirs` was uninitialized or empty. The code originally checked `if not is_allowed and allowed_dirs: continue`, failing open.
+**Learning:** Security controls like directory whitelisting must always fail securely. If required configuration is missing, the default action should be to deny, not allow.
+**Prevention:** Avoid fail-open designs; use strict fail-secure logic (`if not is_allowed:`) and block actions if lists are empty or uninitialized.
