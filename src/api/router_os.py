@@ -217,8 +217,8 @@ async def move_to_trash(request: Request, body: PathsRequest):
                 except ValueError:
                     pass
 
-            if not is_allowed and allowed_dirs:
-                print(f"SECURITY BLOCKED: Attempted to delete file outside allowed directories: {p}")
+            if not is_allowed:
+                print(f"SECURITY BLOCKED: Attempted to delete file outside allowed directories (or no directories allowed): {p}")
                 continue
 
             try:
