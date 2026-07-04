@@ -163,7 +163,7 @@ export function Sidebar({ filterYear, onFilterYearChange, filterFormat, onFilter
                         <div class="filter-group-sidebar">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <label style="margin: 0;">Season</label>
-                                <button id="sidebar-airing-only" class={`airing-only-btn ${airingOnly ? 'active' : ''}`} onClick={handleAiringOnlyToggle} title="Filter by current season and year" aria-label="Airing Only">
+                                <button id="sidebar-airing-only" class={`airing-only-btn ${airingOnly ? 'active' : ''}`} onClick={handleAiringOnlyToggle} title="Filter by current season and year" aria-label="Airing Only" aria-pressed={airingOnly}>
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" /></svg>
                                     <span>Airing Only</span>
                                 </button>

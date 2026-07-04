@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'preact/hooks';
 import { libraryData, libraryExclusions, showToast } from '../store';
 import { escapeHtml, formatBytes } from '../utils';
-import { FolderIcon, PlayIcon, ChevronIcon, VideoIcon, SearchIcon } from '../icons';
+import { FolderIcon, PlayIcon, ChevronIcon, VideoIcon, SearchIcon, CloseIcon } from '../icons';
 import * as api from '../api';
 
 export function LibraryView() {
@@ -261,7 +261,11 @@ export function LibraryView() {
                 <div class="filter-search">
                     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="library-search-input" placeholder="Search files or folders..." style={{ width: '100%' }} value={search} onInput={e => setSearch(e.target.value)} />
-                    {search && <button id="btn-clear-library-search" class="clear-search-btn" title="Clear search" aria-label="Clear search" onClick={() => setSearch('')}>✕</button>}
+                    {search && (
+                        <button id="btn-clear-library-search" class="clear-search-btn" title="Clear search" aria-label="Clear search" onClick={() => setSearch('')}>
+                            <CloseIcon size={12} />
+                        </button>
+                    )}
                 </div>
             </div>
             <div id="library-tree-container">

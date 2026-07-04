@@ -48,6 +48,7 @@ export function Pagination({ currentPage, totalItems, itemsPerPage, onPageChange
                             key={i}
                             class={`pagination-page-btn ${i === currentPage ? 'active' : ''}`}
                             onClick={() => { onPageChange(i); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                            aria-current={i === currentPage ? 'page' : undefined}
                         >
                             {i}
                         </button>

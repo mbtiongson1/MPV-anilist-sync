@@ -5,6 +5,7 @@ import * as api from '../api';
 
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { ChevronUpIcon } from '../icons';
 import { NowPlaying } from './NowPlaying';
 import { RecentAnime } from './RecentAnime';
 import { AnimeGrid } from './AnimeGrid';
@@ -36,6 +37,7 @@ export function App() {
     const [showUpcoming, setShowUpcoming] = useState(false);
     const [showRecentAnime, setShowRecentAnime] = useState(false);
     const [showMediaPlayer, setShowMediaPlayer] = useState(false);
+    const [showBackToTop, setShowBackToTop] = useState(false);
 
     // Fetch anime list + settings on mount
     useEffect(() => {
@@ -59,6 +61,22 @@ export function App() {
         loadData();
     }, []);
 
+
+    // Handle "Back to Top" visibility with basic throttling
+    useEffect(() => {
+        let ticking = false;
+        const handleScroll = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    setShowBackToTop(window.scrollY > 400);
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     // Apply reduce-colors setting to DOM
     useEffect(() => {
@@ -423,6 +441,17 @@ export function App() {
                 visible={showUpcoming}
                 onClose={() => setShowUpcoming(false)}
             />
+
+            <button
+                class={`back-to-top ${showBackToTop ? 'visible' : ''}`}
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                title="Back to Top"
+                aria-label="Back to Top"
+                tabIndex={showBackToTop ? 0 : -1}
+            >
+                <ChevronUpIcon size={20} />
+                <span>Back to Top</span>
+            </button>
 
             {/* API Errors Global Floating Notification */}
             {apiErrorMessages.value.length > 0 && (
