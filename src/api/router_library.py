@@ -430,10 +430,13 @@ async def get_image(url: str):
         import urllib.parse
         import re
 
-        if '\\' in url:
+        parsed = urllib.parse.urlparse(url)
+
+        # SECURITY: Prevent SSRF attacks using parser differentials (urllib.parse vs httpx)
+        # Block characters that alter authority parsing, but allow @/# in legitimate paths
+        if '\\' in url or '@' in parsed.netloc or '#' in parsed.netloc:
             return Response(status_code=400, content="Invalid URL format")
 
-        parsed = urllib.parse.urlparse(url)
         hostname = parsed.hostname
         if not hostname:
             return Response(status_code=400)
