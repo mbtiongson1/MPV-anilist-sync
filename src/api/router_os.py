@@ -90,6 +90,29 @@ async def open_folder(request: Request, body: FolderRequest):
                 folder_path = base_dir
 
         folder_path = os.path.abspath(folder_path)
+
+        # SECURITY: Prevent path traversal and arbitrary folder opening (RCE/NTLM leak)
+        is_allowed = False
+        allowed_dirs = []
+        if agent and hasattr(agent, 'settings'):
+            if getattr(agent.settings, 'base_anime_folder', None):
+                allowed_dirs.append(os.path.realpath(agent.settings.base_anime_folder))
+            if getattr(agent.settings, 'default_download_dir', None):
+                allowed_dirs.append(os.path.realpath(agent.settings.default_download_dir))
+
+        real_p = os.path.normcase(os.path.realpath(folder_path))
+        for allowed_dir in allowed_dirs:
+            try:
+                if os.path.normcase(os.path.commonpath([allowed_dir, real_p])) == os.path.normcase(allowed_dir):
+                    is_allowed = True
+                    break
+            except ValueError:
+                pass
+
+        if not is_allowed:
+            print(f"SECURITY BLOCKED: Attempted to open folder outside allowed directories (or no directories configured): {folder_path}")
+            return {"success": False}
+
         if os.path.isfile(folder_path):
             folder_to_open = os.path.dirname(folder_path)
             target = folder_path

@@ -141,6 +141,29 @@ async def play_file(request: Request, path: Optional[str] = None):
         # Ensure only known video file extensions are executed.
         allowed_exts = ('.mkv', '.mp4', '.avi', '.webm', '.m4v')
         if path.lower().endswith(allowed_exts):
+            # SECURITY: Prevent path traversal and UNC path NTLM leak
+            agent = request.app.state.agent
+            is_allowed = False
+            allowed_dirs = []
+            if agent and hasattr(agent, 'settings'):
+                if getattr(agent.settings, 'base_anime_folder', None):
+                    allowed_dirs.append(os.path.realpath(agent.settings.base_anime_folder))
+                if getattr(agent.settings, 'default_download_dir', None):
+                    allowed_dirs.append(os.path.realpath(agent.settings.default_download_dir))
+
+            real_p = os.path.normcase(os.path.realpath(path))
+            for allowed_dir in allowed_dirs:
+                try:
+                    if os.path.normcase(os.path.commonpath([allowed_dir, real_p])) == os.path.normcase(allowed_dir):
+                        is_allowed = True
+                        break
+                except ValueError:
+                    pass
+
+            if not is_allowed:
+                print(f"SECURITY BLOCKED: Attempted to play file outside allowed directories (or no directories configured): {path}")
+                return {"success": False}
+
             try:
                 if sys.platform == 'win32': os.startfile(path)
                 elif sys.platform == 'darwin': subprocess.run(['open', path], check=True)

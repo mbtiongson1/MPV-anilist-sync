@@ -52,3 +52,8 @@
 **Vulnerability:** The `move_to_trash` endpoint in `src/api/router_os.py` allowed arbitrary file deletion if the configuration `allowed_dirs` was uninitialized or empty. The code originally checked `if not is_allowed and allowed_dirs: continue`, failing open.
 **Learning:** Security controls like directory whitelisting must always fail securely. If required configuration is missing, the default action should be to deny, not allow.
 **Prevention:** Avoid fail-open designs; use strict fail-secure logic (`if not is_allowed:`) and block actions if lists are empty or uninitialized.
+
+## 2024-07-06 - Prevent Path Traversal and NTLM Hash Leak in Folder/File Access APIs
+**Vulnerability:** The `GET /api/play_file` and `POST /api/open_folder` endpoints passed arbitrary, user-controlled absolute file paths directly to `os.startfile()` and `subprocess.run()`. This allowed arbitrary files and folders on the host machine to be opened. Furthermore, a UNC path (e.g., `\\attacker.com\share`) would bypass validation and trigger NTLM authentication on Windows, resulting in NTLM Hash leaks, entirely via CSRF since they could be invoked via simple `<img>` tags for GET endpoints.
+**Learning:** `os.path.isabs()` will treat arbitrary absolute paths as valid, sidestepping relative path construction inside constrained folders. `os.startfile()` and `os.path.exists()` on UNC paths silently initiate NTLM network authentications on Windows.
+**Prevention:** Always restrict arbitrary filesystem inputs to explicitly allowed directories (e.g., `base_anime_folder`) using robust path bounds checking like `os.path.commonpath([allowed_dir, os.path.realpath(target_path)]) == allowed_dir`.
