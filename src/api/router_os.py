@@ -13,7 +13,7 @@ import threading
 from pydantic import BaseModel
 from typing import List, Optional
 from src.main import VERSION
-
+from src.api.utils import is_safe_path
 
 router = APIRouter()
 
@@ -90,6 +90,12 @@ async def open_folder(request: Request, body: FolderRequest):
                 folder_path = base_dir
 
         folder_path = os.path.abspath(folder_path)
+
+        # SECURITY: Prevent Path Traversal and NTLM leaks on Windows via arbitrary folder paths
+        if not is_safe_path(folder_path, agent):
+            print(f"SECURITY BLOCKED: Attempted to open unauthorized folder path: {folder_path}")
+            return {"success": False}
+
         if os.path.isfile(folder_path):
             folder_to_open = os.path.dirname(folder_path)
             target = folder_path
@@ -196,28 +202,10 @@ async def resume(request: Request):
 async def move_to_trash(request: Request, body: PathsRequest):
     success_count = 0
     agent = request.app.state.agent
-    allowed_dirs = []
-
-    if agent and hasattr(agent, 'settings'):
-        if agent.settings.base_anime_folder:
-            allowed_dirs.append(os.path.realpath(agent.settings.base_anime_folder))
-        if agent.settings.default_download_dir:
-            allowed_dirs.append(os.path.realpath(agent.settings.default_download_dir))
 
     for p in body.paths:
         if os.path.exists(p):
-            real_p = os.path.realpath(p)
-            is_allowed = False
-
-            for allowed_dir in allowed_dirs:
-                try:
-                    if os.path.commonpath([allowed_dir, real_p]) == allowed_dir:
-                        is_allowed = True
-                        break
-                except ValueError:
-                    pass
-
-            if not is_allowed:
+            if not is_safe_path(p, agent):
                 print(f"SECURITY BLOCKED: Attempted to delete file outside allowed directories (or no directories allowed): {p}")
                 continue
 

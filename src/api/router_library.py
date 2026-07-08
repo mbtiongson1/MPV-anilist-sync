@@ -17,6 +17,7 @@ import re
 from src.library_index import (
     build_library_index,
 )
+from src.api.utils import is_safe_path
 
 router = APIRouter()
 
@@ -137,6 +138,13 @@ async def play_latest(request: Request, mediaId: Optional[int] = None):
 async def play_file(request: Request, path: Optional[str] = None):
     success = False
     if path and os.path.exists(path):
+        agent = request.app.state.agent
+
+        # SECURITY: Prevent Path Traversal and NTLM leaks via arbitrary file paths
+        if not is_safe_path(path, agent):
+            print(f"SECURITY BLOCKED: Attempted to open file outside allowed directories: {path}")
+            return {"success": False}
+
         # SECURITY: Prevent arbitrary code execution (RCE) via malicious path input
         # Ensure only known video file extensions are executed.
         allowed_exts = ('.mkv', '.mp4', '.avi', '.webm', '.m4v')
