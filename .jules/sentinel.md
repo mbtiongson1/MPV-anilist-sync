@@ -52,3 +52,7 @@
 **Vulnerability:** The `move_to_trash` endpoint in `src/api/router_os.py` allowed arbitrary file deletion if the configuration `allowed_dirs` was uninitialized or empty. The code originally checked `if not is_allowed and allowed_dirs: continue`, failing open.
 **Learning:** Security controls like directory whitelisting must always fail securely. If required configuration is missing, the default action should be to deny, not allow.
 **Prevention:** Avoid fail-open designs; use strict fail-secure logic (`if not is_allowed:`) and block actions if lists are empty or uninitialized.
+## 2024-05-30 - Fix SSRF via URL parser differential in image proxy
+**Vulnerability:** An attacker could bypass SSRF protections by embedding `@` or `#` characters in the URL's authority section (`netloc`), exploiting how `urllib.parse` interprets the hostname differently from underlying HTTP clients (like `httpx`).
+**Learning:** Checking the `hostname` attribute of `urllib.parse.urlparse` is insufficient if the authority (`netloc`) contains characters that alter parser behavior (like HTTP Basic Auth `@` syntax or early fragment `#` injection).
+**Prevention:** Block any URLs where `@` or `#` are present within the parsed `netloc` component to ensure strict parser alignment.

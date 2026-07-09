@@ -438,6 +438,9 @@ async def get_image(url: str):
         if not hostname:
             return Response(status_code=400)
 
+        if '@' in parsed.netloc or '#' in parsed.netloc:
+            return Response(status_code=400, content="Invalid URL format")
+
         if not re.match(r"^[a-zA-Z0-9.-]+$", hostname):
             return Response(status_code=400, content="Invalid hostname characters")
 
