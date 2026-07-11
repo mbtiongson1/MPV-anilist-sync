@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'preact/hooks';
 import { animeList, activeTab, viewMode, selectedAnime, sortBy, sortDirection, currentPage, userSettings, sidebarCollapsed, selectedSidebarSeasons, selectedGenres, showToast, setViewMode, setActiveTab, pendingApiRequests, apiErrorMessages, libraryData, appUpdateStatus } from '../store';
 import { fuzzyMatch, getAnimeSeasons, getDisplayTitle, getRelativeTime } from '../utils';
+import { ArrowUpIcon } from '../icons';
 import * as api from '../api';
 
 import { Sidebar } from './Sidebar';
@@ -36,6 +37,23 @@ export function App() {
     const [showUpcoming, setShowUpcoming] = useState(false);
     const [showRecentAnime, setShowRecentAnime] = useState(false);
     const [showMediaPlayer, setShowMediaPlayer] = useState(false);
+    const [showBackToTop, setShowBackToTop] = useState(false);
+
+    // Throttled scroll listener for "Back to Top" button
+    useEffect(() => {
+        let ticking = false;
+        const handleScroll = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    setShowBackToTop(window.scrollY > 400);
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     // Fetch anime list + settings on mount
     useEffect(() => {
@@ -369,6 +387,15 @@ export function App() {
 
             <SelectionBar onShowReview={showReview} />
             <Toast />
+
+            <button
+                class={`back-to-top ${showBackToTop ? 'visible' : ''}`}
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                aria-label="Back to top"
+            >
+                <ArrowUpIcon />
+                <span>Back to Top</span>
+            </button>
 
             {/* Draggable Mini Windows */}
             <MiniWindow

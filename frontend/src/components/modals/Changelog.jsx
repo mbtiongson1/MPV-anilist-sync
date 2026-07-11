@@ -62,7 +62,9 @@ export function ChangelogModal({ visible, onClose, onSynced }) {
                                     <button class="icon-btn" aria-label="Remove change" onClick={() => {
                                         removeApiRequest(idx);
                                         if (pendingApiRequests.value.length === 0) onClose();
-                                    }} title="Remove change">✕</button>
+                                    }} title="Remove change">
+                                        <CloseIcon size={12} />
+                                    </button>
                                 </div>
                                 <div class="changelog-detail">Type: {req.type}</div>
                             </div>

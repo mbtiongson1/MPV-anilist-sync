@@ -1,3 +1,5 @@
+import { ChevronIcon } from '../icons';
+
 export function Pagination({ currentPage, totalItems, itemsPerPage, onPageChange, onItemsPerPageChange }) {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     if (totalItems === 0) return null;
@@ -40,7 +42,7 @@ export function Pagination({ currentPage, totalItems, itemsPerPage, onPageChange
                     disabled={currentPage === 1}
                     onClick={() => { onPageChange(currentPage - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 >
-                    ‹
+                    <ChevronIcon style={{ transform: 'rotate(180deg)' }} />
                 </button>
                 <div id="pagination-pages" class="pagination-pages">
                     {pages.map(i => (
@@ -60,7 +62,7 @@ export function Pagination({ currentPage, totalItems, itemsPerPage, onPageChange
                     disabled={currentPage >= totalPages}
                     onClick={() => { onPageChange(currentPage + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 >
-                    ›
+                    <ChevronIcon />
                 </button>
             </div>
         </div>
