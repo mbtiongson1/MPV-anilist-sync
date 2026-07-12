@@ -434,6 +434,9 @@ async def get_image(url: str):
             return Response(status_code=400, content="Invalid URL format")
 
         parsed = urllib.parse.urlparse(url)
+        if '@' in parsed.netloc or '#' in parsed.netloc:
+            return Response(status_code=400, content="Invalid URL format")
+
         hostname = parsed.hostname
         if not hostname:
             return Response(status_code=400)
