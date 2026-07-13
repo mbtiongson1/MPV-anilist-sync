@@ -25,7 +25,7 @@ jobs:
         contains(github.event.pull_request.body, 'jules.google.com')))
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
