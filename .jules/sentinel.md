@@ -52,3 +52,8 @@
 **Vulnerability:** The `move_to_trash` endpoint in `src/api/router_os.py` allowed arbitrary file deletion if the configuration `allowed_dirs` was uninitialized or empty. The code originally checked `if not is_allowed and allowed_dirs: continue`, failing open.
 **Learning:** Security controls like directory whitelisting must always fail securely. If required configuration is missing, the default action should be to deny, not allow.
 **Prevention:** Avoid fail-open designs; use strict fail-secure logic (`if not is_allowed:`) and block actions if lists are empty or uninitialized.
+
+## 2026-07-14 - Prevent SSRF via Parser Differential
+**Vulnerability:** The application used `urllib.parse` to validate the hostname of a URL before fetching it. However, if a URL contains a fragment (`#`) or userinfo (`@`), different HTTP clients (like `urllib` vs `httpx` or `requests`) might parse the URL differently. For example, `urllib` might see one hostname while the underlying fetcher connects to another, leading to an SSRF vulnerability via a parser differential.
+**Learning:** Different HTTP clients parse URLs differently, particularly regarding URL fragments (`#`), credentials (`@`), and queries (`?`). This parser differential allows attackers to craft URLs that bypass the initial validation logic but point to malicious hosts when actually requested.
+**Prevention:** When fetching external URLs on the backend, strictly reject URLs containing characters known to cause parser confusion (such as `@` and `#`) anywhere in the URL string, as fragments and credentials should not be necessary for simple asset proxying.
