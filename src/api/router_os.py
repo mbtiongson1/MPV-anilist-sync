@@ -33,6 +33,10 @@ async def open_folder_get(request: Request, mediaId: Optional[int] = None, path:
 
 @router.post('/api/open_folder')
 async def open_folder(request: Request, body: FolderRequest):
+    if body.path and (body.path.startswith('\\\\') or body.path.startswith('//')):
+        print(f"SECURITY BLOCKED: UNC paths are not allowed: {body.path}")
+        return {"success": False}
+
     agent = request.app.state.agent
     folder_path = None
     

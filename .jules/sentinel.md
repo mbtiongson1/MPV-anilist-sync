@@ -52,3 +52,7 @@
 **Vulnerability:** The `move_to_trash` endpoint in `src/api/router_os.py` allowed arbitrary file deletion if the configuration `allowed_dirs` was uninitialized or empty. The code originally checked `if not is_allowed and allowed_dirs: continue`, failing open.
 **Learning:** Security controls like directory whitelisting must always fail securely. If required configuration is missing, the default action should be to deny, not allow.
 **Prevention:** Avoid fail-open designs; use strict fail-secure logic (`if not is_allowed:`) and block actions if lists are empty or uninitialized.
+## 2024-07-16 - UNC Path NTLM Hash Leak Prevention
+**Vulnerability:** User-provided paths passed directly to `os.startfile` or `os.path.exists` on Windows could be UNC paths (e.g. `\\attacker.com\share`), which silently initiate NTLM authentication, leaking hashes.
+**Learning:** Even if a file path is checked for allowed extensions, UNC paths are evaluated by the OS during `os.path.exists` and `os.startfile`, causing the authentication leak before extension validation matters.
+**Prevention:** Explicitly reject paths starting with `\\` or `//` at the API boundary before any filesystem checks.
