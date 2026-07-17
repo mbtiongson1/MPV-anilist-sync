@@ -37,6 +37,10 @@ async def open_folder(request: Request, body: FolderRequest):
     folder_path = None
     
     if body.path:
+        path_stripped = body.path.strip()
+        if path_stripped.startswith(r'\\') or path_stripped.startswith('//'):
+            print(f"SECURITY BLOCKED: UNC paths are not allowed to prevent NTLM hash leaks: {body.path}")
+            return {"success": False}
         folder_path = body.path
     elif agent and body.mediaId:
         try:
@@ -205,6 +209,11 @@ async def move_to_trash(request: Request, body: PathsRequest):
             allowed_dirs.append(os.path.realpath(agent.settings.default_download_dir))
 
     for p in body.paths:
+        path_stripped = p.strip()
+        if path_stripped.startswith(r'\\') or path_stripped.startswith('//'):
+            print(f"SECURITY BLOCKED: UNC paths are not allowed to prevent NTLM hash leaks: {p}")
+            continue
+
         if os.path.exists(p):
             real_p = os.path.realpath(p)
             is_allowed = False
