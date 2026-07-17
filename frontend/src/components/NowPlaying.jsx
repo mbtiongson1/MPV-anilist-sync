@@ -1,4 +1,4 @@
-import { useEffect } from 'preact/hooks';
+import { useEffect, useMemo } from 'preact/hooks';
 import { latestStatus, userSettings, animeList, showToast, activeSearchTerm, recordApiRequest, setActiveTab, torrentCache } from '../store';
 import { escapeHtml, formatPopularity, getCachedImageUrl, getDisplayTitle } from '../utils';
 import { ProgressBar } from './ProgressBar';
@@ -62,6 +62,13 @@ export function NowPlaying({ onOpenDetails }) {
 
     const summary = (details.description || '').replace(/<[^>]+>/g, '');
     const seasonOptions = Array.isArray(data.season_options) ? data.season_options : [];
+
+    // Optimization (Bolt): Wrap expensive array sorting in useMemo and use a shallow copy to prevent
+    // mutating the original array and running an O(N log N) operation on every component render.
+    // Expected impact: Eliminates UI thread blocking and micro-stutters during frequent interval polls.
+    const sortedSeasonOptions = useMemo(() => {
+        return [...seasonOptions].sort((a, b) => (b.seasonYear || 0) - (a.seasonYear || 0));
+    }, [data.season_options]);
 
     const handleSeasonChange = async (e) => {
         const mediaId = parseInt(e.target.value);
@@ -206,7 +213,7 @@ export function NowPlaying({ onOpenDetails }) {
                                     <>
                                         <label for="np-season" style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700, opacity: 0.6, marginRight: '0.5rem' }}>Season</label>
                                         <select id="np-season" onChange={handleSeasonChange} style={{ background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid rgba(255,255,255,0.1)', padding: '0.3rem 0.5rem', borderRadius: '4px' }}>
-                                            {seasonOptions.sort((a, b) => (b.seasonYear || 0) - (a.seasonYear || 0)).map(opt => (
+                                            {sortedSeasonOptions.map(opt => (
                                                 <option key={opt.mediaId} value={opt.mediaId} selected={opt.mediaId === selectedMediaId} style={{ background: '#1e293b' }}>
                                                     {escapeHtml(opt.title || `Season ${opt.season || ''} ${opt.seasonYear || ''}`)}
                                                 </option>
