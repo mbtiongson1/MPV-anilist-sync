@@ -136,6 +136,10 @@ async def play_latest(request: Request, mediaId: Optional[int] = None):
 @router.get('/api/play_file')
 async def play_file(request: Request, path: Optional[str] = None):
     success = False
+    if path and (path.startswith(r'\\') or path.startswith('//')):
+        print(f"SECURITY BLOCKED: Attempted to open UNC path which can leak NTLM hashes: {path}")
+        return {"success": False}
+
     if path and os.path.exists(path):
         # SECURITY: Prevent arbitrary code execution (RCE) via malicious path input
         # Ensure only known video file extensions are executed.
