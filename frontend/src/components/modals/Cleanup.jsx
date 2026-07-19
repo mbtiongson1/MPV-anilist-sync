@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks';
+import { useState, useMemo } from 'preact/hooks';
 import { animeList, cleanupCandidates, recordApiRequest, showToast } from '../../store';
 import { getRelativeTime } from '../../utils';
 import { CloseIcon } from '../../icons';
@@ -47,23 +47,26 @@ export function CleanupModal({ visible, onClose }) {
         setStep(2);
     };
 
-    const filteredCandidates = cleanupCandidates.value.filter(a => {
-        const prog = a.progress || 0;
-        const format = (a.format || 'TV').toUpperCase();
+    // Optimization (Bolt): Wrap array filtering in useMemo to prevent O(N) intermediate array allocation on every component render
+    const filteredCandidates = useMemo(() => {
+        return cleanupCandidates.value.filter(a => {
+            const prog = a.progress || 0;
+            const format = (a.format || 'TV').toUpperCase();
 
-        let matchesTier = activeTiers.size === 0;
-        if (!matchesTier) {
-            if (activeTiers.has('0') && prog === 0) matchesTier = true;
-            if (activeTiers.has('1') && prog === 1) matchesTier = true;
-            if (activeTiers.has('3') && prog >= 2 && prog <= 3) matchesTier = true;
-            if (activeTiers.has('6') && prog >= 4 && prog <= 6) matchesTier = true;
-            if (activeTiers.has('6+') && prog > 6) matchesTier = true;
-        }
-        if (!matchesTier) return false;
+            let matchesTier = activeTiers.size === 0;
+            if (!matchesTier) {
+                if (activeTiers.has('0') && prog === 0) matchesTier = true;
+                if (activeTiers.has('1') && prog === 1) matchesTier = true;
+                if (activeTiers.has('3') && prog >= 2 && prog <= 3) matchesTier = true;
+                if (activeTiers.has('6') && prog >= 4 && prog <= 6) matchesTier = true;
+                if (activeTiers.has('6+') && prog > 6) matchesTier = true;
+            }
+            if (!matchesTier) return false;
 
-        let matchesFormat = activeFormats.size === 0 || activeFormats.has(format);
-        return matchesFormat;
-    });
+            let matchesFormat = activeFormats.size === 0 || activeFormats.has(format);
+            return matchesFormat;
+        });
+    }, [cleanupCandidates.value, activeTiers, activeFormats]);
 
     const handleConfirm = () => {
         let count = 0;
