@@ -5,6 +5,7 @@ from src.api.router_anilist import router_anilist as router_anilist
 from src.api.router_nyaa import router as router_nyaa
 from src.api.router_os import router as router_os
 from src.api.router_library import router as router_library
+from src.runtime_env import port_from_env
 
 app = FastAPI(title="MPV Anilist Tracker API")
 
@@ -12,13 +13,14 @@ app = FastAPI(title="MPV Anilist Tracker API")
 # SECURITY: Do not use allow_origins=['*'] with allow_credentials=True.
 # This prevents CSRF attacks where a malicious website could make
 # authenticated requests to this local server.
+custom_port = port_from_env(8080)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-        "http://localhost:8080",
-        "http://127.0.0.1:8080"
+        f"http://localhost:{custom_port}",
+        f"http://127.0.0.1:{custom_port}"
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],

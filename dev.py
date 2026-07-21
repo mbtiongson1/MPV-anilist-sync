@@ -59,9 +59,10 @@ if __name__ == "__main__":
     
     frontend_dir = os.path.join(base_dir, "frontend")
     
+    port = os.environ.get("MPV_TRACKER_PORT", "8080")
     print("="*60)
     print("Starting Development Environment...")
-    print(" Backend API: http://localhost:8080")
+    print(f" Backend API: http://localhost:{port}")
     print(" Frontend UI (Vite with HMR): http://localhost:5173")
     print("="*60 + "\n")
     
