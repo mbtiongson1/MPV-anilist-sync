@@ -211,7 +211,7 @@ async def move_to_trash(request: Request, body: PathsRequest):
 
             for allowed_dir in allowed_dirs:
                 try:
-                    if os.path.commonpath([allowed_dir, real_p]) == allowed_dir:
+                    if os.path.normcase(os.path.commonpath([os.path.normcase(allowed_dir), os.path.normcase(real_p)])) == os.path.normcase(allowed_dir):
                         is_allowed = True
                         break
                 except ValueError:

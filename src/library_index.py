@@ -169,11 +169,11 @@ def _path_is_excluded(path: str, exclusions: Set[str]) -> bool:
     if not exclusions:
         return False
 
-    candidate = os.path.abspath(os.path.normpath(path))
+    candidate = os.path.realpath(path)
     for exclusion in exclusions:
-        normalized = os.path.abspath(os.path.normpath(exclusion))
+        normalized = os.path.realpath(exclusion)
         try:
-            if os.path.commonpath([candidate, normalized]) == normalized:
+            if os.path.normcase(os.path.commonpath([os.path.normcase(candidate), os.path.normcase(normalized)])) == os.path.normcase(normalized):
                 return True
         except ValueError:
             continue
