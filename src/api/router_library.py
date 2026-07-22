@@ -430,7 +430,8 @@ async def get_image(url: str):
         import urllib.parse
         import re
 
-        if '\\' in url:
+        # SECURITY: Prevent SSRF via parser differentials by blocking restricted characters
+        if '\\' in url or '@' in url or '#' in url:
             return Response(status_code=400, content="Invalid URL format")
 
         parsed = urllib.parse.urlparse(url)

@@ -52,3 +52,8 @@
 **Vulnerability:** The `move_to_trash` endpoint in `src/api/router_os.py` allowed arbitrary file deletion if the configuration `allowed_dirs` was uninitialized or empty. The code originally checked `if not is_allowed and allowed_dirs: continue`, failing open.
 **Learning:** Security controls like directory whitelisting must always fail securely. If required configuration is missing, the default action should be to deny, not allow.
 **Prevention:** Avoid fail-open designs; use strict fail-secure logic (`if not is_allowed:`) and block actions if lists are empty or uninitialized.
+
+## 2026-06-05 - SSRF Bypass via Parser Differentials (Fragments)
+**Vulnerability:** The `/api/image` and `/api/nyaa_download` endpoints were vulnerable to SSRF because the domain validation logic checked the hostname after parsing the URL, but the raw URL string validation only blocked `\` and `@`. An attacker could bypass the domain check by using a URL fragment `#` (e.g., `http://nyaa.si#@malicious.com`).
+**Learning:** `urllib.parse.urlparse` and HTTP clients process URL components like fragments (`#`) differently. When validating URLs that will be fetched by an HTTP client, any character that alters URL parsing logic, including fragments, must be strictly forbidden in proxy or fetch contexts since fragments are meaningless for server-to-server requests.
+**Prevention:** To prevent parser differential bypasses, always include `#` in the raw string blocklist (e.g., `if '\\' in url or '@' in url or '#' in url:`) alongside `\` and `@` before passing the URL to parsing functions or HTTP clients.
