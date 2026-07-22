@@ -44,3 +44,6 @@
 ## 2026-06-25 - Avoid O(N log N) Sorting in Preact Render Paths
 **Learning:** Sorting large arrays (e.g., `animeList.value` containing potentially thousands of entries) directly within a Preact component's functional render body causes the expensive $O(N \log N)$ operation to run on *every single render*. In components like `RecentAnime`, which receives inline props (like `onOpenDetails`) causing it to re-render whenever the parent updates, this blocks the main UI thread and creates noticeable micro-stutters during interactions like tab switching or modal opening.
 **Action:** Always wrap heavy list processing, particularly array sorting and filtering derived from large global state signals, in a `useMemo` block to ensure they only re-execute when their actual dependencies change, rather than on every component render cycle.
+## 2024-11-21 - Optimize chained Array.filter() in React/Preact useMemo
+**Learning:** In `CleanupModal`, `filteredCandidates` was derived synchronously on every component render by filtering `cleanupCandidates.value`. This causes redundant array allocations and O(N) execution overhead on unrelated re-renders.
+**Action:** Always wrap heavy list processing (filtering and sorting) in a `useMemo` hook to prevent redundant execution on frequent component updates.
