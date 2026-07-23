@@ -52,3 +52,7 @@
 **Vulnerability:** The `move_to_trash` endpoint in `src/api/router_os.py` allowed arbitrary file deletion if the configuration `allowed_dirs` was uninitialized or empty. The code originally checked `if not is_allowed and allowed_dirs: continue`, failing open.
 **Learning:** Security controls like directory whitelisting must always fail securely. If required configuration is missing, the default action should be to deny, not allow.
 **Prevention:** Avoid fail-open designs; use strict fail-secure logic (`if not is_allowed:`) and block actions if lists are empty or uninitialized.
+## 2024-07-03 - SSRF via Parser Differential Bypass with Fragments
+**Vulnerability:** The `/api/image` endpoint and `download_torrent` method were vulnerable to Server-Side Request Forgery (SSRF) bypassing domain allowlists using URL fragments.
+**Learning:** In addition to `\` and `@`, the fragment identifier `#` can be used to exploit parser differentials between `urllib.parse.urlparse` and HTTP clients when proxying or fetching URLs. `urllib` might include the fragment in the parsed path, whereas the HTTP client might resolve it differently, potentially ignoring restrictions.
+**Prevention:** Always validate extracted hostnames using a strict character allowlist and reject URLs containing characters known to cause parser confusion (e.g., `\`, `@`, `#`) before passing them to parsing or HTTP client libraries.

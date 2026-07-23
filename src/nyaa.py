@@ -254,7 +254,7 @@ class NyaaInterface:
         import re
 
         # Security: SSRF Prevention via strict URL parsing and domain allowlist
-        if '\\' in url or '@' in url:
+        if '\\' in url or '@' in url or '#' in url:
             print("SECURITY BLOCKED: Invalid URL format containing restricted characters")
             return ""
 
