@@ -44,3 +44,7 @@
 ## 2026-06-25 - Avoid O(N log N) Sorting in Preact Render Paths
 **Learning:** Sorting large arrays (e.g., `animeList.value` containing potentially thousands of entries) directly within a Preact component's functional render body causes the expensive $O(N \log N)$ operation to run on *every single render*. In components like `RecentAnime`, which receives inline props (like `onOpenDetails`) causing it to re-render whenever the parent updates, this blocks the main UI thread and creates noticeable micro-stutters during interactions like tab switching or modal opening.
 **Action:** Always wrap heavy list processing, particularly array sorting and filtering derived from large global state signals, in a `useMemo` block to ensure they only re-execute when their actual dependencies change, rather than on every component render cycle.
+
+## 2024-05-23 - Avoid O(N log N) Sorting in Preact Render Paths (NowPlaying)
+**Learning:** Sorting an array in-place (`seasonOptions.sort()`) inside the functional render logic causes `$O(N \log N)$` evaluations on every single component render and mutates state arrays which might lead to unpredicted behaviour.
+**Action:** Always wrap the array copying and sorting logic inside a `useMemo` block when deriving sorted lists for rendering, ensuring it only executes when the actual dependencies change.
