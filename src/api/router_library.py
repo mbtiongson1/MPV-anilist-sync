@@ -439,10 +439,13 @@ async def get_image(url: str):
         import urllib.parse
         import re
 
-        if '\\' in url:
+        if '\\' in url or '@' in url or '#' in url:
             return Response(status_code=400, content="Invalid URL format")
 
         parsed = urllib.parse.urlparse(url)
+        if parsed.scheme.lower() not in ('http', 'https'):
+            return Response(status_code=400, content="Invalid URL scheme")
+
         hostname = parsed.hostname
         if not hostname:
             return Response(status_code=400)
