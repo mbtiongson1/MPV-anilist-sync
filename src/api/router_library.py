@@ -137,7 +137,7 @@ async def play_latest(request: Request, mediaId: Optional[int] = None):
 @router.get('/api/play_file')
 async def play_file(request: Request, path: Optional[str] = None):
     success = False
-    if path and os.path.exists(path):
+    if path:
         agent = request.app.state.agent
 
         # SECURITY: Prevent Path Traversal and NTLM leaks via arbitrary file paths
@@ -145,19 +145,20 @@ async def play_file(request: Request, path: Optional[str] = None):
             print(f"SECURITY BLOCKED: Attempted to open file outside allowed directories: {path}")
             return {"success": False}
 
-        # SECURITY: Prevent arbitrary code execution (RCE) via malicious path input
-        # Ensure only known video file extensions are executed.
-        allowed_exts = ('.mkv', '.mp4', '.avi', '.webm', '.m4v')
-        if path.lower().endswith(allowed_exts):
-            try:
-                if sys.platform == 'win32': os.startfile(path)
-                elif sys.platform == 'darwin': subprocess.run(['open', path], check=True)
-                else: subprocess.run(['xdg-open', path], check=True)
-                success = True
-            except Exception as e:
-                print(f"Failed to play file securely: {e}")
-        else:
-            print(f"SECURITY BLOCKED: Attempted to open unauthorized file extension: {path}")
+        if os.path.exists(path):
+            # SECURITY: Prevent arbitrary code execution (RCE) via malicious path input
+            # Ensure only known video file extensions are executed.
+            allowed_exts = ('.mkv', '.mp4', '.avi', '.webm', '.m4v')
+            if path.lower().endswith(allowed_exts):
+                try:
+                    if sys.platform == 'win32': os.startfile(path)
+                    elif sys.platform == 'darwin': subprocess.run(['open', path], check=True)
+                    else: subprocess.run(['xdg-open', path], check=True)
+                    success = True
+                except Exception as e:
+                    print(f"Failed to play file securely: {e}")
+            else:
+                print(f"SECURITY BLOCKED: Attempted to open unauthorized file extension: {path}")
     return {"success": success}
 
 @router.post('/api/clear_cache')

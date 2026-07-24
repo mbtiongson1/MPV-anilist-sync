@@ -41,7 +41,7 @@ async def open_folder(request: Request, body: FolderRequest):
     elif agent and body.mediaId:
         try:
             folder_path = agent.settings.get_media_folder(int(body.mediaId))
-            if not os.path.exists(folder_path) or folder_path == agent.settings.default_download_dir:
+            if not (folder_path and is_safe_path(folder_path, agent) and os.path.exists(folder_path)) or folder_path == agent.settings.default_download_dir:
                 if hasattr(agent, 'anilist'):
                     entries = agent.anilist._load_list_cache()
                     for entry in entries:
@@ -49,14 +49,14 @@ async def open_folder(request: Request, body: FolderRequest):
                             name = entry.get('title', {}).get('romaji') or entry.get('title', {}).get('english') or str(body.mediaId)
                             title_safe = "".join([c for c in name if c.isalnum() or c in (' ', '-', '_')]).strip()
                             subfolder = os.path.join(agent.settings.default_download_dir, title_safe)
-                            if os.path.exists(subfolder):
+                            if is_safe_path(subfolder, agent) and os.path.exists(subfolder):
                                 folder_path = subfolder
                             break
         except Exception as e:
             print(f"Failed to determine folder path from mediaId: {e}")
 
     # Fallback to last played
-    if not folder_path and not body.mediaId:
+    if not folder_path and not body.mediaId and agent:
         folder_path = agent.settings.last_played_file
 
     # Fallback to base anime folder
@@ -68,17 +68,18 @@ async def open_folder(request: Request, body: FolderRequest):
         if agent:
             base_dir = agent.settings.base_anime_folder
             if not os.path.isabs(folder_path):
-                if base_dir and os.path.exists(base_dir):
+                if base_dir:
                     direct_path = os.path.join(base_dir, folder_path)
-                    if os.path.exists(direct_path):
+                    if is_safe_path(direct_path, agent) and os.path.exists(direct_path):
                         folder_path = direct_path
                     else:
                         filename_only = os.path.basename(folder_path)
                         found_file_path = None
-                        for root, dirs, files in os.walk(base_dir):
-                            if filename_only in files:
-                                found_file_path = os.path.join(root, filename_only)
-                                break
+                        if is_safe_path(base_dir, agent) and os.path.exists(base_dir):
+                            for root, dirs, files in os.walk(base_dir):
+                                if filename_only in files:
+                                    found_file_path = os.path.join(root, filename_only)
+                                    break
                         if found_file_path:
                             folder_path = found_file_path
                         else:
@@ -86,8 +87,9 @@ async def open_folder(request: Request, body: FolderRequest):
                 else:
                     folder_path = os.path.abspath(folder_path)
             
-            if not os.path.exists(folder_path) and base_dir and os.path.exists(base_dir):
-                folder_path = base_dir
+            if base_dir and (not is_safe_path(folder_path, agent) or not os.path.exists(folder_path)):
+                if is_safe_path(base_dir, agent) and os.path.exists(base_dir):
+                    folder_path = base_dir
 
         folder_path = os.path.abspath(folder_path)
 
@@ -158,23 +160,28 @@ async def play_prev(request: Request):
 async def resume(request: Request):
     agent = request.app.state.agent
     success = False
-    last_file = agent.settings.last_played_file
+    last_file = agent.settings.last_played_file if agent and hasattr(agent, 'settings') else None
     if last_file and agent:
         # Resolve relative path under base_anime_folder
         if not os.path.isabs(last_file):
-            base_dir = agent.settings.base_anime_folder
-            if base_dir and os.path.exists(base_dir):
+            base_dir = agent.settings.base_anime_folder if hasattr(agent, 'settings') else None
+            if base_dir:
                 direct_path = os.path.join(base_dir, last_file)
-                if os.path.exists(direct_path):
+                if is_safe_path(direct_path, agent) and os.path.exists(direct_path):
                     last_file = direct_path
                 else:
                     filename_only = os.path.basename(last_file)
-                    for root, dirs, files in os.walk(base_dir):
-                        if filename_only in files:
-                            last_file = os.path.join(root, filename_only)
-                            break
+                    if is_safe_path(base_dir, agent) and os.path.exists(base_dir):
+                        for root, dirs, files in os.walk(base_dir):
+                            if filename_only in files:
+                                last_file = os.path.join(root, filename_only)
+                                break
         
         last_file = os.path.normpath(last_file)
+        if not is_safe_path(last_file, agent):
+            print(f"SECURITY BLOCKED: Attempted to resume file outside allowed directories: {last_file}")
+            return {"success": False}
+
         if os.path.exists(last_file):
             # SECURITY: Prevent arbitrary code execution via tampered settings
             # Ensure only known video file extensions are executed.
@@ -204,11 +211,11 @@ async def move_to_trash(request: Request, body: PathsRequest):
     agent = request.app.state.agent
 
     for p in body.paths:
-        if os.path.exists(p):
-            if not is_safe_path(p, agent):
-                print(f"SECURITY BLOCKED: Attempted to delete file outside allowed directories (or no directories allowed): {p}")
-                continue
+        if not is_safe_path(p, agent):
+            print(f"SECURITY BLOCKED: Attempted to delete file outside allowed directories (or no directories allowed): {p}")
+            continue
 
+        if os.path.exists(p):
             try:
                 try:
                     from send2trash import send2trash
