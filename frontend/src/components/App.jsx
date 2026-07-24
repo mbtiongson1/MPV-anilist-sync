@@ -51,7 +51,7 @@ export function App() {
                 ticking = true;
             }
         };
-        window.addEventListener('scroll', handleScroll);
+        window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
@@ -383,19 +383,19 @@ export function App() {
                     {tab === 'TORRENTS' && <TorrentsView />}
                     {tab === 'LIBRARY' && <LibraryView />}
                 </section>
+
+                <button
+                    class={`back-to-top ${showBackToTop ? 'visible' : ''}`}
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    aria-label="Back to top"
+                >
+                    <ArrowUpIcon />
+                    <span>Back to Top</span>
+                </button>
             </div>
 
             <SelectionBar onShowReview={showReview} />
             <Toast />
-
-            <button
-                class={`back-to-top ${showBackToTop ? 'visible' : ''}`}
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                aria-label="Back to top"
-            >
-                <ArrowUpIcon />
-                <span>Back to Top</span>
-            </button>
 
             {/* Draggable Mini Windows */}
             <MiniWindow
