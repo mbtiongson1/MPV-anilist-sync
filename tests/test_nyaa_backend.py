@@ -3,8 +3,9 @@ import os
 import tempfile
 import types
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, AsyncMock, patch
 
+from src.api.router_library import get_image
 from src.api.router_nyaa import nyaa_batch_search_candidates, nyaa_download, nyaa_search
 from src.nyaa import NyaaInterface
 
@@ -241,6 +242,73 @@ class TestNyaaBackend(unittest.IsolatedAsyncioTestCase):
         media_ids = {r["media_id"] for r in results_airing}
         self.assertIn(101, media_ids)
         self.assertIn(102, media_ids)
+
+
+class TestSSRFValidation(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        self.nyaa = NyaaInterface()
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tempdir.cleanup)
+
+    def test_download_torrent_ssrf_blocking(self):
+        blocked_urls = [
+            "https://nyaa.si\\download/123.torrent",
+            "https://user:pass@nyaa.si/download/123.torrent",
+            "https://nyaa.si/download/123.torrent#fragment",
+            "ftp://nyaa.si/download/123.torrent",
+            "file:///etc/passwd",
+            "gopher://nyaa.si/123",
+            "https://evil.com/test.torrent",
+        ]
+        for url in blocked_urls:
+            with self.subTest(url=url):
+                res = self.nyaa.download_torrent(url, self.tempdir.name)
+                self.assertEqual(res, "", f"Expected URL {url} to be blocked by SSRF check")
+
+    @patch("requests.get")
+    @patch("subprocess.Popen")
+    def test_download_torrent_allows_valid_nyaa_url(self, mock_popen, mock_get):
+        mock_response = MagicMock()
+        mock_response.iter_content.return_value = [b"torrent data"]
+        mock_get.return_value = mock_response
+
+        res = self.nyaa.download_torrent("https://nyaa.si/download/12345.torrent", self.tempdir.name)
+        self.assertNotEqual(res, "")
+        self.assertTrue(res.endswith("12345.torrent"))
+
+    async def test_get_image_ssrf_blocking(self):
+        invalid_format_urls = [
+            "https://s4.anilist.co\\image.png",
+            "https://user:pass@s4.anilist.co/image.png",
+            "https://s4.anilist.co/image.png#fragment",
+            "ftp://s4.anilist.co/image.png",
+            "file:///etc/passwd",
+            "gopher://s4.anilist.co/image.png",
+        ]
+        for url in invalid_format_urls:
+            with self.subTest(url=url):
+                res = await get_image(url)
+                self.assertEqual(res.status_code, 400, f"Expected 400 for {url}")
+
+        disallowed_domain_res = await get_image("https://evil.com/image.png")
+        self.assertEqual(disallowed_domain_res.status_code, 403)
+
+    @patch("httpx.AsyncClient.get", new_callable=AsyncMock)
+    async def test_get_image_allows_valid_domains(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.headers = {'content-type': 'image/png'}
+        mock_response.content = b"fake image"
+        mock_get.return_value = mock_response
+
+        valid_urls = [
+            "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/b1.jpg",
+            "https://nyaa.si/static/img/avatar.png",
+        ]
+        for url in valid_urls:
+            with self.subTest(url=url):
+                res = await get_image(url)
+                self.assertIn(res.status_code, (200, 302), f"Expected valid response for {url}")
 
 
 if __name__ == "__main__":
