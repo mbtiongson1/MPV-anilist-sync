@@ -52,3 +52,12 @@
 **Vulnerability:** The `move_to_trash` endpoint in `src/api/router_os.py` allowed arbitrary file deletion if the configuration `allowed_dirs` was uninitialized or empty. The code originally checked `if not is_allowed and allowed_dirs: continue`, failing open.
 **Learning:** Security controls like directory whitelisting must always fail securely. If required configuration is missing, the default action should be to deny, not allow.
 **Prevention:** Avoid fail-open designs; use strict fail-secure logic (`if not is_allowed:`) and block actions if lists are empty or uninitialized.
+## 2026-07-08 - Path Traversal in File/Folder OS endpoints
+**Vulnerability:** Endpoints handling file/folder opening (`/api/open_folder`, `/api/play_file`) were vulnerable to path traversal, and `/api/move_to_trash` had a weak path traversal check that failed to handle case-manipulation on Windows.
+**Learning:** Even with basic directory checks, `os.path.commonpath` can be bypassed on case-insensitive filesystems (like Windows) if case manipulation is used. Relying solely on `os.path.abspath` or `os.path.realpath` without strict containment checks allows attackers to traverse outside allowed directories.
+**Prevention:** Implement a robust `is_safe_path` function that resolves real paths and checks containment using `os.path.normcase(os.path.commonpath([allowed_dir, real_target_path])) == os.path.normcase(allowed_dir)`. Always apply this to user-provided paths before passing them to OS functions.
+
+## 2024-07-03 - SSRF Bypass via URL Fragments
+**Vulnerability:** Attackers could bypass SSRF domain allowlists by exploiting parser differentials involving the `#` (fragment) character. A URL like `http://127.0.0.1#@allowed.com/` could pass an `endswith('.allowed.com')` check in `urllib.parse` while causing the backend HTTP client (e.g. `httpx` or `requests`) to request `127.0.0.1`.
+**Learning:** Checking for `@` is not sufficient to prevent parser differentials. URL fragments (`#`) can also confuse simple substring or hostname extraction logic in Python's standard `urllib.parse` when compared to actual HTTP client behavior.
+**Prevention:** Explicitly block `#` in addition to `@` and `\\` in raw URL strings before parsing them when fetching untrusted URLs.

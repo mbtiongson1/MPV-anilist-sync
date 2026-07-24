@@ -9,7 +9,8 @@ export function RecentAnime({ onOpenDetails }) {
     const list = animeList.value;
     const settings = userSettings.value;
 
-    // Optimization (Bolt): Wrap expensive array sorting in useMemo to prevent O(N log N) execution on every component render
+    // Optimization (Bolt): Wrap array cloning and O(N log N) sorting in useMemo
+    // to prevent redundant execution and memory allocation on unrelated renders
     const recent = useMemo(() => {
         return [...list].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, 10);
     }, [list]);

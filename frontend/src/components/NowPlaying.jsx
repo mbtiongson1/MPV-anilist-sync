@@ -1,4 +1,4 @@
-import { useEffect } from 'preact/hooks';
+import { useEffect, useMemo } from 'preact/hooks';
 import { latestStatus, userSettings, animeList, showToast, activeSearchTerm, recordApiRequest, setActiveTab, torrentCache } from '../store';
 import { escapeHtml, formatPopularity, getCachedImageUrl, getDisplayTitle } from '../utils';
 import { ProgressBar } from './ProgressBar';
@@ -7,6 +7,15 @@ import * as api from '../api';
 
 export function NowPlaying({ onOpenDetails }) {
     const status = latestStatus.value;
+
+    const seasonOptions = useMemo(() => {
+        const rawSeasonOptions = Array.isArray(status?.season_options)
+            ? status.season_options
+            : Array.isArray(status?.data?.season_options)
+            ? status.data.season_options
+            : [];
+        return [...rawSeasonOptions].sort((a, b) => (b.seasonYear || 0) - (a.seasonYear || 0));
+    }, [status?.season_options, status?.data?.season_options]);
 
     useEffect(() => {
         const poll = setInterval(async () => {
@@ -61,7 +70,6 @@ export function NowPlaying({ onOpenDetails }) {
     if (details.popularity) stats.push(`♥ ${formatPopularity(details.popularity)}`);
 
     const summary = (details.description || '').replace(/<[^>]+>/g, '');
-    const seasonOptions = Array.isArray(data.season_options) ? data.season_options : [];
 
     const handleSeasonChange = async (e) => {
         const mediaId = parseInt(e.target.value);
@@ -100,7 +108,7 @@ export function NowPlaying({ onOpenDetails }) {
             <div class="np-background-banner" id="np-banner" style={bannerUrl ? { backgroundImage: `url(${bannerUrl})` } : {}}></div>
             <div class="np-overlay"></div>
             
-            <div class="details-modal-grid" style={{ padding: '1.5rem', position: 'relative', zIndex: 2, height: '100%', display: 'flex', gap: '1.5rem' }}>
+            <div class="details-modal-grid" style={{ padding: '1.5rem', position: 'relative', zIndex: 2, height: '100%', display: 'flex', gap: '1.5rem', minWidth: 0 }}>
                 <div class="details-modal-left" style={{ width: '140px', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
                     {coverUrl ? (
                         <>
@@ -124,23 +132,23 @@ export function NowPlaying({ onOpenDetails }) {
                 </div>
                 
                 <div class="details-modal-right" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div>
-                            <div class="np-badge" id="np-player-badge" style={{ background: 'var(--accent)', color: 'white', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700, display: 'inline-block', marginBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', width: '100%', minWidth: 0 }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div class="np-badge" id="np-player-badge" style={{ background: 'var(--accent)', color: 'var(--bg-primary)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700, display: 'inline-block', marginBottom: '0.5rem' }}>
                                 {data.watcher_name ? `NOW PLAYING (${data.watcher_name})` : 'NOW PLAYING'}
                             </div>
-                            <h1 id="np-title" class="np-title" style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, lineHeight: 1.2 }}>
+                            <h1 id="np-title" class="np-title" style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, lineHeight: 1.2, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis', wordBreak: 'break-word', minWidth: 0 }}>
                                 {selectedMediaId ? (
                                     <a href={`https://anilist.co/anime/${selectedMediaId}`} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>
                                         {escapeHtml(displayTitle)}
                                     </a>
                                 ) : displayTitle}
                             </h1>
-                            <p id="np-studio" class="np-studio" style={{ margin: 0, color: 'var(--text-secondary)', fontWeight: 500 }}>
+                            <p id="np-studio" class="np-studio" style={{ margin: 0, color: 'var(--text-secondary)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 {details.studio || ''}
                             </p>
                         </div>
-                        <div class="np-top-actions" style={{ display: 'flex', gap: '0.5rem' }}>
+                        <div class="np-top-actions" style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
                             <button id="btn-open-np-folder" class="icon-btn" style={{ padding: '0.5rem' }} onClick={handleOpenFolder} title="Open Folder" aria-label="Open Folder">
                                 <FolderIcon size={16} />
                             </button>
@@ -189,13 +197,13 @@ export function NowPlaying({ onOpenDetails }) {
                         </div>
 
                         <div class="np-progress-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                             <button id="btn-minus" class="icon-btn-minimal" style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }} onClick={() => api.adjustEpisode(-1)} aria-label="Decrease Episode">
+                             <button id="btn-minus" class="icon-btn-minimal" style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', minWidth: '36px', minHeight: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => api.adjustEpisode(-1)} aria-label="Decrease Episode">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                             </button>
-                            <div id="np-progress-segments" class="progress-segments" style={{ flex: 1, height: '8px' }}>
+                            <div id="np-progress-segments" class="progress-segments" style={{ flex: 1, height: '8px', minWidth: 0 }}>
                                 <ProgressBar progress={watched} total={total} nextAiringEpisode={nextAiring} />
                             </div>
-                            <button id="btn-plus" class="icon-btn-minimal" style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }} onClick={() => api.adjustEpisode(1)} aria-label="Increase Episode">
+                            <button id="btn-plus" class="icon-btn-minimal" style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', minWidth: '36px', minHeight: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => api.adjustEpisode(1)} aria-label="Increase Episode">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                             </button>
                         </div>
@@ -206,7 +214,7 @@ export function NowPlaying({ onOpenDetails }) {
                                     <>
                                         <label for="np-season" style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700, opacity: 0.6, marginRight: '0.5rem' }}>Season</label>
                                         <select id="np-season" onChange={handleSeasonChange} style={{ background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid rgba(255,255,255,0.1)', padding: '0.3rem 0.5rem', borderRadius: '4px' }}>
-                                            {seasonOptions.sort((a, b) => (b.seasonYear || 0) - (a.seasonYear || 0)).map(opt => (
+                                            {seasonOptions.map(opt => (
                                                 <option key={opt.mediaId} value={opt.mediaId} selected={opt.mediaId === selectedMediaId} style={{ background: '#1e293b' }}>
                                                     {escapeHtml(opt.title || `Season ${opt.season || ''} ${opt.seasonYear || ''}`)}
                                                 </option>
@@ -215,7 +223,7 @@ export function NowPlaying({ onOpenDetails }) {
                                     </>
                                 )}
                             </div>
-                            <button id="btn-sync" class="sync-btn-modern" style={{ background: 'var(--accent)', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '20px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }} onClick={handleSync}>
+                            <button id="btn-sync" class="sync-btn-modern" style={{ background: 'var(--accent)', color: 'var(--bg-primary)', border: 'none', padding: '0.5rem 1rem', borderRadius: '20px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }} onClick={handleSync}>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l5.83-2.06"/></svg>
                                 Sync to AniList
                             </button>
@@ -247,17 +255,17 @@ function IdleState({ status }) {
             <h2>Waiting for media player...</h2>
             <p>Open a video file in MPV or MPC-HC to start tracking automatically.</p>
             {hasResume && (
-                <div id="resume-container" style={{ marginTop: '2rem', display: 'flex', alignItems: 'stretch', gap: '0.5rem', maxWidth: '460px', marginLeft: 'auto', marginRight: 'auto' }}>
-                    <button id="btn-resume-last" class="resume-btn-premium" style={{ margin: 0, flex: 1 }} onClick={() => api.resumePlay()} title="Resume Last Video" aria-label="Resume Last Video">
-                        <div class="resume-icon">
+                <div id="resume-container" style={{ marginTop: '2rem', display: 'flex', alignItems: 'stretch', gap: '0.5rem', maxWidth: '460px', marginLeft: 'auto', marginRight: 'auto', width: '100%', minWidth: 0 }}>
+                    <button id="btn-resume-last" class="resume-btn-premium" style={{ margin: 0, flex: 1, minWidth: 0 }} onClick={() => api.resumePlay()} title="Resume Last Video" aria-label="Resume Last Video">
+                        <div class="resume-icon" style={{ flexShrink: 0 }}>
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                         </div>
-                        <div class="resume-info">
+                        <div class="resume-info" style={{ flex: 1, minWidth: 0 }}>
                             <span class="resume-label">Resume Last Played</span>
-                            <span id="resume-filename" class="resume-filename">{lastTitle}</span>
+                            <span id="resume-filename" class="resume-filename" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', minWidth: 0 }}>{lastTitle}</span>
                         </div>
                     </button>
-                    <button id="btn-open-folder" class="resume-folder-btn" onClick={() => api.openFolderPost()} title="Open Folder" aria-label="Open Folder">
+                    <button id="btn-open-folder" class="resume-folder-btn" style={{ flexShrink: 0 }} onClick={() => api.openFolderPost()} title="Open Folder" aria-label="Open Folder">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                     </button>
                 </div>

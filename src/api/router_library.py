@@ -17,6 +17,7 @@ import re
 from src.library_index import (
     build_library_index,
 )
+from src.api.utils import is_safe_path
 
 router = APIRouter()
 
@@ -136,20 +137,28 @@ async def play_latest(request: Request, mediaId: Optional[int] = None):
 @router.get('/api/play_file')
 async def play_file(request: Request, path: Optional[str] = None):
     success = False
-    if path and os.path.exists(path):
-        # SECURITY: Prevent arbitrary code execution (RCE) via malicious path input
-        # Ensure only known video file extensions are executed.
-        allowed_exts = ('.mkv', '.mp4', '.avi', '.webm', '.m4v')
-        if path.lower().endswith(allowed_exts):
-            try:
-                if sys.platform == 'win32': os.startfile(path)
-                elif sys.platform == 'darwin': subprocess.run(['open', path], check=True)
-                else: subprocess.run(['xdg-open', path], check=True)
-                success = True
-            except Exception as e:
-                print(f"Failed to play file securely: {e}")
-        else:
-            print(f"SECURITY BLOCKED: Attempted to open unauthorized file extension: {path}")
+    if path:
+        agent = request.app.state.agent
+
+        # SECURITY: Prevent Path Traversal and NTLM leaks via arbitrary file paths
+        if not is_safe_path(path, agent):
+            print(f"SECURITY BLOCKED: Attempted to open file outside allowed directories: {path}")
+            return {"success": False}
+
+        if os.path.exists(path):
+            # SECURITY: Prevent arbitrary code execution (RCE) via malicious path input
+            # Ensure only known video file extensions are executed.
+            allowed_exts = ('.mkv', '.mp4', '.avi', '.webm', '.m4v')
+            if path.lower().endswith(allowed_exts):
+                try:
+                    if sys.platform == 'win32': os.startfile(path)
+                    elif sys.platform == 'darwin': subprocess.run(['open', path], check=True)
+                    else: subprocess.run(['xdg-open', path], check=True)
+                    success = True
+                except Exception as e:
+                    print(f"Failed to play file securely: {e}")
+            else:
+                print(f"SECURITY BLOCKED: Attempted to open unauthorized file extension: {path}")
     return {"success": success}
 
 @router.post('/api/clear_cache')
@@ -430,10 +439,13 @@ async def get_image(url: str):
         import urllib.parse
         import re
 
-        if '\\' in url:
+        if '\\' in url or '@' in url or '#' in url:
             return Response(status_code=400, content="Invalid URL format")
 
         parsed = urllib.parse.urlparse(url)
+        if parsed.scheme.lower() not in ('http', 'https'):
+            return Response(status_code=400, content="Invalid URL scheme")
+
         hostname = parsed.hostname
         if not hostname:
             return Response(status_code=400)

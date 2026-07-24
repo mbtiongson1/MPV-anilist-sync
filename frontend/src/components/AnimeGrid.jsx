@@ -283,9 +283,9 @@ function GridCard({ anime, settings, isSelected, isPlaying, onClick, onDblClick,
             <div class="card-checkbox-container" onClick={(e) => e.stopPropagation()}>
                 <input type="checkbox" class="custom-checkbox" checked={isSelected} onChange={onToggleSelect} />
             </div>
-            <LiveIndicator anime={anime} />
-            <SeasonTag anime={anime} />
             <div class="anime-card-cover" style={`background-image: url('${cover}')`}>
+                <LiveIndicator anime={anime} />
+                <SeasonTag anime={anime} />
                 <div class="anime-progress">
                     <ProgressBar progress={progress} total={anime.episodes || 0} nextAiringEpisode={anime.nextAiringEpisode} mediaId={anime.mediaId} />
                 </div>

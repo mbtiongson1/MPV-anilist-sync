@@ -120,7 +120,7 @@ export function Header({
                 </button>
             </div>
             <div class="header-right">
-                <div class="theme-switch-wrapper" title="Dark/Light Mode" style={{ marginRight: '1.5rem' }}>
+                <div class="theme-switch-wrapper" title="Dark/Light Mode">
                     <label class="theme-label" for="theme-toggle" style={{ cursor: 'pointer' }}>Theme</label>
                     <label class="theme-switch" for="theme-toggle">
                         <input type="checkbox" id="theme-toggle" aria-label="Toggle Dark/Light Mode" checked={theme === 'light'} onChange={toggleTheme} onKeyDown={e => e.key === 'Enter' && toggleTheme()} />

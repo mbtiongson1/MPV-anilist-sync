@@ -101,7 +101,7 @@ export function StatsView() {
                     <h3 class="genre-overview-title">Genre Overview</h3>
                     <div class="genre-chips" style="grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); display: grid; gap: 12px;">
                         {sortedGenres.map(([genre, count]) => {
-                            const color = genreColors[genre] || '#10B981';
+                            const color = genreColors[genre] || 'var(--success)';
                             return (
                                 <div key={genre} class="genre-item">
                                     <div class="genre-chip" style={`background: ${color}; font-size: 14px; padding: 8px 12px;`}>{genre}</div>
@@ -115,7 +115,7 @@ export function StatsView() {
                     <div class="genre-distribution-wrapper">
                         <div class="genre-distribution-bar">
                             {sortedGenres.map(([genre, count]) => {
-                                const color = genreColors[genre] || '#9CA3AF';
+                                const color = genreColors[genre] || 'var(--text-muted)';
                                 const pct = (count / totalGenreCount) * 100;
                                 return <div key={genre} class="genre-dist-segment" style={`width: ${pct}%; background: ${color};`} title={`${genre}: ${count}`} />;
                             })}
@@ -126,7 +126,7 @@ export function StatsView() {
 
             {/* Pareto Chart */}
             <div class="stats-card" style="grid-column: 1 / -1; background: var(--bg-card); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-card);">
-                <h3 style="margin-bottom: 24px; font-size: 16px; font-weight: 700; color: var(--text-primary); border-left: 3px solid var(--accent); padding-left: 12px; line-height: 1;">Genre Distribution (Pareto)</h3>
+                <h3 style="margin-bottom: 24px; font-size: 16px; font-weight: 700; color: var(--text-primary); border-bottom: 1px solid var(--border); padding-bottom: 8px; line-height: 1;">Genre Distribution (Pareto)</h3>
                 <div style="width: 100%;">
                     {sortedGenres.length > 0 ? <ParetoChart genres={sortedGenres} totalCount={totalGenreCount} /> : <div style="color: var(--text-muted); text-align: center; padding: 40px 0;">No genre data available</div>}
                 </div>
@@ -134,13 +134,13 @@ export function StatsView() {
 
             {/* Heatmap */}
             <div class="stats-card" style="grid-column: 1 / -1; background: var(--bg-card); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-card);">
-                <h3 style="margin-bottom: 24px; font-size: 16px; font-weight: 700; color: var(--text-primary); border-left: 3px solid var(--accent); padding-left: 12px; line-height: 1;">Activity Heatmap (Updates)</h3>
+                <h3 style="margin-bottom: 24px; font-size: 16px; font-weight: 700; color: var(--text-primary); border-bottom: 1px solid var(--border); padding-bottom: 8px; line-height: 1;">Activity Heatmap (Updates)</h3>
                 <Heatmap dailyActivity={dailyActivity} />
             </div>
 
             {/* Weekly */}
             <div class="stats-card" style="grid-column: 1 / -1; background: var(--bg-card); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-card);">
-                <h3 style="margin-bottom: 24px; font-size: 16px; font-weight: 700; color: var(--text-primary); border-left: 3px solid var(--accent); padding-left: 12px; line-height: 1;">Weekly Watch Distribution</h3>
+                <h3 style="margin-bottom: 24px; font-size: 16px; font-weight: 700; color: var(--text-primary); border-bottom: 1px solid var(--border); padding-bottom: 8px; line-height: 1;">Weekly Watch Distribution</h3>
                 <WeeklyChart weeklyActivity={weeklyActivity} />
             </div>
         </div>
@@ -165,7 +165,7 @@ function ParetoChart({ genres, totalCount }) {
         const pct = (cumulative / totalCount) * 100;
         const cy = cH - (pct / 100) * cH;
         points.push([x + barWidth / 2, cy]);
-        const color = genreColors[genre] || '#10B981';
+        const color = genreColors[genre] || 'var(--success)';
         bars.push({ x, barH, color, genre, count, pct: ((count / totalCount) * 100).toFixed(1) });
     });
 
@@ -175,7 +175,7 @@ function ParetoChart({ genres, totalCount }) {
         const y = cH - (i / 5) * cH;
         gridLines.push(<line key={`g${i}`} x1="0" y1={y} x2={cW} y2={y} stroke="var(--border-light)" strokeWidth="1" strokeDasharray="3,3" />);
         axisTicks.push(<text key={`l${i}`} x="-10" y={y + 4} fontSize="12" fill="var(--text-muted)" textAnchor="end">{Math.round((i / 5) * maxCount)}</text>);
-        axisTicks.push(<text key={`r${i}`} x={cW + 10} y={y + 4} fontSize="12" fill="#FBBF24" textAnchor="start">{i * 20}%</text>);
+        axisTicks.push(<text key={`r${i}`} x={cW + 10} y={y + 4} fontSize="12" fill="var(--warning)" textAnchor="start">{i * 20}%</text>);
     }
 
     const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p[0]},${p[1]}`).join(' ');
@@ -194,14 +194,14 @@ function ParetoChart({ genres, totalCount }) {
                         <text x={b.x + barWidth / 2} y={cH + 20} fontSize="13" fill="var(--text-secondary)" textAnchor="end" transform={`rotate(-35, ${b.x + barWidth / 2}, ${cH + 20})`} fontWeight="600">{b.genre}</text>
                     </g>
                 ))}
-                <path d={linePath} fill="none" stroke="#FBBF24" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                {points.map((p, i) => <circle key={i} cx={p[0]} cy={p[1]} r="5" fill="#FBBF24" stroke="var(--bg-card)" strokeWidth="2" />)}
+                <path d={linePath} fill="none" stroke="var(--warning)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                {points.map((p, i) => <circle key={i} cx={p[0]} cy={p[1]} r="5" fill="var(--warning)" stroke="var(--bg-card)" strokeWidth="2" />)}
                 <g transform="translate(0, -25)">
-                    <rect width="5" height="14" fill="#84cc16" rx="1" />
-                    <rect x="6" width="5" height="14" fill="#0ea5e9" rx="1" />
-                    <rect x="12" width="5" height="14" fill="#a855f7" rx="1" />
+                    <rect width="5" height="14" fill="var(--success)" rx="1" />
+                    <rect x="6" width="5" height="14" fill="var(--accent)" rx="1" />
+                    <rect x="12" width="5" height="14" fill="var(--accent-hover)" rx="1" />
                     <text x="25" y="11" fontSize="12" fill="var(--text-primary)" fontWeight="600">Genre Frequency</text>
-                    <line x1="150" y1="7" x2="185" y2="7" stroke="#FBBF24" strokeWidth="3" />
+                    <line x1="150" y1="7" x2="185" y2="7" stroke="var(--warning)" strokeWidth="3" />
                     <text x="195" y="11" fontSize="12" fill="var(--text-primary)" fontWeight="600">Cumulative Coverage (%)</text>
                 </g>
             </g>
@@ -232,10 +232,10 @@ function Heatmap({ dailyActivity }) {
                     lastMonth = m;
                 }
             }
-            let color = 'rgba(255,255,255,0.05)';
-            if (count > 0) color = 'rgba(16,185,129,0.2)';
-            if (count > 1) color = 'rgba(16,185,129,0.5)';
-            if (count > 2) color = 'rgba(16,185,129,0.8)';
+            let color = 'var(--bg-card-hover)';
+            if (count > 0) color = 'var(--success-dim)';
+            if (count > 1) color = 'var(--success)';
+            if (count > 2) color = 'var(--success)';
             if (count > 4) color = 'var(--accent)';
             cells.push(<rect key={`${w}-${d}`} x={w * (cellSize + cellGap)} y={d * (cellSize + cellGap)} width={cellSize} height={cellSize} fill={color} rx="2"><title>{current.toDateString()}: {count} updates</title></rect>);
         }
@@ -266,9 +266,9 @@ function WeeklyChart({ weeklyActivity }) {
     const svgH = BLOCK_ROWS * (BLOCK_SIZE + BLOCK_GAP) + 50;
 
     const legendItems = [
-        { fill: 'rgba(255,255,255,0.05)', label: 'None' },
-        { fill: 'rgba(16,185,129,0.25)', label: 'Low' },
-        { fill: 'rgba(16,185,129,0.55)', label: 'Mid' },
+        { fill: 'var(--bg-card-hover)', label: 'None' },
+        { fill: 'var(--success-dim)', label: 'Low' },
+        { fill: 'var(--success)', label: 'Mid' },
         { fill: 'var(--accent)', label: 'High' },
     ];
     const legendX = ordered.length * colWidth + 8;
@@ -287,11 +287,11 @@ function WeeklyChart({ weeklyActivity }) {
                             const blockIdx = BLOCK_ROWS - 1 - row;
                             const y = blockIdx * (BLOCK_SIZE + BLOCK_GAP);
                             const isFilled = row < filledBlocks;
-                            let fill = 'rgba(255,255,255,0.05)';
+                            let fill = 'var(--bg-card-hover)';
                             if (isFilled) {
                                 const r = (row + 1) / filledBlocks;
-                                if (r <= 0.33) fill = 'rgba(16,185,129,0.25)';
-                                else if (r <= 0.66) fill = 'rgba(16,185,129,0.55)';
+                                if (r <= 0.33) fill = 'var(--success-dim)';
+                                else if (r <= 0.66) fill = 'var(--success)';
                                 else fill = 'var(--accent)';
                             }
                             blocks.push(<rect key={row} x={x} y={y} width={BLOCK_SIZE} height={BLOCK_SIZE} fill={fill} rx="3"><title>{orderedNames[colI]}: {count} update{count !== 1 ? 's' : ''}</title></rect>);

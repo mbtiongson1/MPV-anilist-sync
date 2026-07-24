@@ -254,11 +254,15 @@ class NyaaInterface:
         import re
 
         # Security: SSRF Prevention via strict URL parsing and domain allowlist
-        if '\\' in url or '@' in url:
+        if '\\' in url or '@' in url or '#' in url:
             print("SECURITY BLOCKED: Invalid URL format containing restricted characters")
             return ""
 
         parsed = urllib.parse.urlparse(url)
+        if parsed.scheme.lower() not in ('http', 'https'):
+            print("SECURITY BLOCKED: Invalid URL scheme")
+            return ""
+
         hostname = parsed.hostname
         if not hostname or not re.match(r"^[a-zA-Z0-9.-]+$", hostname):
             print("SECURITY BLOCKED: Invalid hostname characters")

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'preact/hooks';
 import { animeList, activeTab, viewMode, selectedAnime, sortBy, sortDirection, currentPage, userSettings, sidebarCollapsed, selectedSidebarSeasons, selectedGenres, showToast, setViewMode, setActiveTab, pendingApiRequests, apiErrorMessages, libraryData, appUpdateStatus } from '../store';
 import { fuzzyMatch, getAnimeSeasons, getDisplayTitle, getRelativeTime } from '../utils';
+import { ArrowUpIcon } from '../icons';
 import * as api from '../api';
 
 import { Sidebar } from './Sidebar';
@@ -36,6 +37,23 @@ export function App() {
     const [showUpcoming, setShowUpcoming] = useState(false);
     const [showRecentAnime, setShowRecentAnime] = useState(false);
     const [showMediaPlayer, setShowMediaPlayer] = useState(false);
+    const [showBackToTop, setShowBackToTop] = useState(false);
+
+    // Throttled scroll listener for "Back to Top" button
+    useEffect(() => {
+        let ticking = false;
+        const handleScroll = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    setShowBackToTop(window.scrollY > 400);
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     // Fetch anime list + settings on mount
     useEffect(() => {
@@ -276,14 +294,14 @@ export function App() {
 
                 <section id="anime-list-section" class="anime-list-section">
                     <div class="section-header">
-                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                        <div class="section-header-title-group" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', minWidth: 0 }}>
                             <h2>My Anime List</h2>
                             <button id="btn-show-upcoming" class="upcoming-btn" title="Show Airing & Upcoming Anime" onClick={() => setShowUpcoming(true)}>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                                 <span>Show Upcoming</span>
                             </button>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                        <div class="section-header-actions-group" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem', flexShrink: 0 }}>
                             {pendingApiRequests.value.length > 0 && (
                                 <div id="pending-changes-info" class="pending-info">
                                     <a href="#" id="link-reset-changes" class="pending-link" onClick={(e) => {
@@ -298,7 +316,7 @@ export function App() {
                                     <a href="#" id="link-review-changes" class="pending-link" onClick={(e) => { e.preventDefault(); showReview(); }}>Review <span id="pending-count">{pendingApiRequests.value.length}</span> Changes</a>
                                 </div>
                             )}
-                            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
                                 {localStorage.getItem('lastAnilistSync') && <span id="last-synced-time" class="last-synced-time">{`Last synced: ${getRelativeTime(Math.floor(parseInt(localStorage.getItem('lastAnilistSync')) / 1000))}`}</span>}
                                 <button id="btn-pull-anilist" class="refresh-btn sync-btn-with-text" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }} onClick={async () => {
                                     if (!confirm("Download latest list from AniList? This will overwrite any unsynced local changes.")) return;
@@ -365,6 +383,15 @@ export function App() {
                     {tab === 'TORRENTS' && <TorrentsView />}
                     {tab === 'LIBRARY' && <LibraryView />}
                 </section>
+
+                <button
+                    class={`back-to-top ${showBackToTop ? 'visible' : ''}`}
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    aria-label="Back to top"
+                >
+                    <ArrowUpIcon />
+                    <span>Back to Top</span>
+                </button>
             </div>
 
             <SelectionBar onShowReview={showReview} />
