@@ -5,6 +5,7 @@ import os
 import threading
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+from src.runtime_env import port_from_env
 
 class BackendReloadHandler(FileSystemEventHandler):
     def __init__(self, command):
@@ -59,7 +60,7 @@ if __name__ == "__main__":
     
     frontend_dir = os.path.join(base_dir, "frontend")
     
-    port = os.environ.get("MPV_TRACKER_PORT", "8080")
+    port = port_from_env(8080)
     print("="*60)
     print("Starting Development Environment...")
     print(f" Backend API: http://localhost:{port}")
