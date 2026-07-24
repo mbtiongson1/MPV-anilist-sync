@@ -408,11 +408,11 @@ export function TorrentsView() {
                                 return (
                                     <tr key={globalIdx} class={`${selectedTorrents.has(globalIdx) ? 'selected' : ''} ${isTrusted ? 'trusted-row' : ''} ${downloaded ? 'row-downloaded' : ''} ${watched ? 'row-watched' : ''} ${archived ? 'row-archived' : ''}`}>
                                         <td><input type="checkbox" checked={selectedTorrents.has(globalIdx)} onChange={() => toggleSelect(globalIdx)} /></td>
-                                        <td class="torrent-title-cell" style="text-align: left;">
-                                            <div class="torrent-title" style="display: flex; flex-direction: column; gap: 2px;">
+                                        <td class="torrent-title-cell" style="text-align: left; min-width: 0; max-width: 400px; overflow: hidden;">
+                                            <div class="torrent-title" style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
                                                 {item.animeTitle && !item._fromSearch && <div><span class="torrent-anime-tag">{escapeHtml(item.animeTitle)}</span></div>}
-                                                <span title={t.title} style="font-size: 0.85rem; font-weight: 500; line-height: 1.4;">{escapeHtml(t.title || '')}</span>
-                                                <div class="torrent-status-badges">
+                                                <span title={t.title} style="font-size: 0.85rem; font-weight: 500; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; word-break: break-word; min-width: 0;">{escapeHtml(t.title || '')}</span>
+                                                <div class="torrent-status-badges" style="flex-shrink: 0;">
                                                     {downloaded && <span class="status-badge downloaded">Downloaded</span>}
                                                     {archived && <span class="status-badge archived">Archived</span>}
                                                     {watched && <span class="status-badge watched">Watched</span>}
@@ -423,10 +423,10 @@ export function TorrentsView() {
                                         <td class="torrent-date-cell" style="text-align: right; color: var(--text-secondary);">{t.timestamp ? getRelativeTime(t.timestamp) : '-'}</td>
                                         <td class="seeders" style="text-align: right;">{t.seeders ?? '-'}</td>
                                         <td class="leechers" style="text-align: right;">{t.leechers ?? '-'}</td>
-                                        <td style="text-align: right;">
-                                            <div style="display:flex; gap:6px; justify-content: flex-end;">
-                                                {(t.view_link || getTorrentUrl(t)) && <a href={t.view_link || getTorrentUrl(t)} target="_blank" rel="noopener" class="icon-btn" title="Open on Nyaa" aria-label="Open on Nyaa"><ExternalLinkIcon size={12} /></a>}
-                                                <button class="icon-btn" title="Download" aria-label="Download Torrent" onClick={() => handleDownload([item])}><DownloadIcon size={12} /></button>
+                                        <td style="text-align: right; flex-shrink: 0;">
+                                            <div style="display:flex; gap:6px; justify-content: flex-end; flex-shrink: 0;">
+                                                {(t.view_link || getTorrentUrl(t)) && <a href={t.view_link || getTorrentUrl(t)} target="_blank" rel="noopener" class="icon-btn torrent-icon-btn" title="Open on Nyaa" aria-label="Open on Nyaa"><ExternalLinkIcon size={12} /></a>}
+                                                <button class="icon-btn torrent-icon-btn" title="Download" aria-label="Download Torrent" onClick={() => handleDownload([item])}><DownloadIcon size={12} /></button>
                                             </div>
                                         </td>
                                     </tr>
@@ -461,7 +461,7 @@ export function TorrentsView() {
                 <div id="batch-download-bar" class="batch-download-bar">
                     <div class="info"><span id="batch-count">{selectedTorrents.size} torrent{selectedTorrents.size > 1 ? 's' : ''} selected</span></div>
                     <div style="display: flex; gap: 0.5rem;">
-                        <button id="btn-select-remaining" class="btn-download-selected btn-secondary" style="background: rgba(255,255,255,0.1); color: white;" onClick={selectRemaining}>Select Remaining</button>
+                        <button id="btn-select-remaining" class="btn-download-selected btn-secondary" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border)' }} onClick={selectRemaining}>Select Remaining</button>
                         <button id="btn-download-selected" class="btn-download-selected" onClick={() => {
                             const items = Array.from(selectedTorrents).map(i => displayItems[i]).filter(Boolean);
                             handleDownload(items);

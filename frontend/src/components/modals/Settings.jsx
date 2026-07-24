@@ -149,12 +149,12 @@ export function SettingsModal({ visible, onClose, onSaved }) {
                             Current Version: <strong>v{appUpdateStatus.value?.current_version || 'unknown'}</strong>
                         </div>
                         {appUpdateStatus.value?.update_available ? (
-                            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgb(16, 185, 129); padding: 0.75rem; border-radius: 4px; margin-top: 0.5rem;">
-                                <div style="font-weight: bold; color: rgb(16, 185, 129); margin-bottom: 0.25rem;">
+                            <div style="background: var(--success-dim); border: 1px solid var(--success); padding: 0.75rem; border-radius: 4px; margin-top: 0.5rem;">
+                                <div style="font-weight: bold; color: var(--success); margin-bottom: 0.25rem;">
                                     A new version is available: v{appUpdateStatus.value.latest_version}
                                 </div>
                                 {appUpdateStatus.value.changelog && (
-                                    <div style="font-size: 0.8rem; max-height: 100px; overflow-y: auto; margin-bottom: 0.75rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 4px; white-space: pre-wrap; color: var(--text-secondary);">
+                                    <div style="font-size: 0.8rem; max-height: 100px; overflow-y: auto; margin-bottom: 0.75rem; padding: 0.5rem; background: var(--bg-input); border-radius: 4px; white-space: pre-wrap; color: var(--text-secondary);">
                                         {appUpdateStatus.value.changelog}
                                     </div>
                                 )}
