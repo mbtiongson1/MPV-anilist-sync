@@ -15,8 +15,16 @@ export function SelectionBar({ onShowReview }) {
 
     const moveSelectedTo = (newStatus) => {
         const selectedIds = Array.from(selectedAnime.value);
+
+        // Optimization (Bolt): Pre-compute a lookup Map to prevent O(N*M) execution time during bulk status changes
+        const animeMap = new Map();
+        for (let i = 0; i < animeList.value.length; i++) {
+            const a = animeList.value[i];
+            animeMap.set(a.mediaId.toString(), a);
+        }
+
         selectedIds.forEach(mediaId => {
-            const anime = animeList.value.find(a => a.mediaId == mediaId);
+            const anime = animeMap.get(mediaId.toString());
             if (anime && anime.listStatus !== newStatus) {
                 const idInt = parseInt(mediaId);
                 const title = anime.title?.romaji || anime.title?.english || 'Anime';
