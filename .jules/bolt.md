@@ -48,3 +48,6 @@
 ## 2024-06-29 - O(N log N) Sorting in Preact Renders
 **Learning:** Performing array cloning and sorting (`[...list].sort(...)`) directly inside a component's render path without memoization forces the expensive $O(N \log N)$ operation to re-execute on *every* component re-render, even if the underlying list hasn't changed. In `RecentAnime.jsx`, this bottleneck was triggered by any parent update or signal change unrelated to the `animeList.value` state.
 **Action:** Always wrap expensive list transformations (like `.sort()` or `.filter()`) on large arrays in `useMemo` hooks, ensuring they only recompute when their explicit dependency array changes.
+## 2026-06-25 - Avoid O(N log N) Sorting for Top-K Extraction
+**Learning:** In React/Preact components, extracting the top K items from a large list (e.g., getting the 10 most recently updated anime) using a pattern like `[...list].sort((a,b) => ...).slice(0, 10)` inside a `useMemo` is highly inefficient. It allocates a massive intermediate array and sorts the entire dataset in O(N log N) time, only to discard almost all of it.
+**Action:** Replace full-list sorting with an O(N) single-pass iteration that maintains a bounded array (size K) of the top items. This prevents large memory allocations and drops the time complexity from O(N log N) to strictly O(N).
