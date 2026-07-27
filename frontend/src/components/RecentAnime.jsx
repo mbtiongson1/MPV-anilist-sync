@@ -9,10 +9,30 @@ export function RecentAnime({ onOpenDetails }) {
     const list = animeList.value;
     const settings = userSettings.value;
 
-    // Optimization (Bolt): Wrap array cloning and O(N log N) sorting in useMemo
-    // to prevent redundant execution and memory allocation on unrelated renders
+    // Optimization (Bolt): Replaced O(N log N) full array sort + slice with an O(N) Top-K extraction algorithm.
+    // Mechanics: We maintain a bounded sorted array of length 10. For each item in the large list, we compare
+    // it against the lowest item in the bounded array (top[9]). If it's larger, we binary/linear insert it.
+    // Impact: Avoids allocating a massive intermediate array and eliminates the O(N log N) sort overhead for large lists,
+    // reducing memory pressure and improving render times.
     const recent = useMemo(() => {
-        return [...list].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, 10);
+        const top = [];
+        for (let i = 0; i < list.length; i++) {
+            const item = list[i];
+            const ts = item.updatedAt || 0;
+
+            if (top.length < 10) {
+                top.push(item);
+                top.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+            } else if (ts > (top[9].updatedAt || 0)) {
+                top.pop();
+                let insertIdx = 9;
+                while (insertIdx > 0 && ts > (top[insertIdx - 1].updatedAt || 0)) {
+                    insertIdx--;
+                }
+                top.splice(insertIdx, 0, item);
+            }
+        }
+        return top;
     }, [list]);
 
     if (recent.length === 0) {
