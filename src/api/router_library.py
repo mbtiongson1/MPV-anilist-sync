@@ -75,6 +75,19 @@ async def get_settings(request: Request):
 async def save_settings(request: Request, body: SettingsRequest):
     agent = request.app.state.agent
     if agent and hasattr(agent, 'settings'):
+
+        # Security: Prevent setting base folders to system root or traversing paths
+        for path in (body.default_download_dir, body.base_anime_folder):
+            if path is not None:
+                if '..' in path:
+                    return Response(status_code=400, content="Invalid path: Path traversal not allowed")
+                try:
+                    norm_path = os.path.normpath(path).replace('\\', '/')
+                    if norm_path == '/' or (len(norm_path) == 3 and norm_path[1:] == ':/'):
+                        return Response(status_code=400, content="Invalid path: Root directory not allowed")
+                except Exception:
+                    pass
+
         if body.preferred_groups is not None:
             agent.settings.preferred_groups = [g.strip() for g in body.preferred_groups.split(',') if g.strip()]
         if body.preferred_resolution is not None:

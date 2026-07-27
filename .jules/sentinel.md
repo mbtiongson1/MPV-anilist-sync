@@ -61,3 +61,8 @@
 **Vulnerability:** Attackers could bypass SSRF domain allowlists by exploiting parser differentials involving the `#` (fragment) character. A URL like `http://127.0.0.1#@allowed.com/` could pass an `endswith('.allowed.com')` check in `urllib.parse` while causing the backend HTTP client (e.g. `httpx` or `requests`) to request `127.0.0.1`.
 **Learning:** Checking for `@` is not sufficient to prevent parser differentials. URL fragments (`#`) can also confuse simple substring or hostname extraction logic in Python's standard `urllib.parse` when compared to actual HTTP client behavior.
 **Prevention:** Explicitly block `#` in addition to `@` and `\\` in raw URL strings before parsing them when fetching untrusted URLs.
+
+## 2025-02-22 - Insecure Configuration Update allows Arbitrary File Access/Deletion
+**Vulnerability:** The API allowed unauthenticated users (on the local network) to set `base_anime_folder` to system root directories (like `C:\` or `/`) via the `/api/settings` endpoint. This configuration bypassed the intended scope of `is_safe_path`, allowing subsequent calls to endpoints like `/api/move_to_trash` or `/api/play_file` to access or delete arbitrary files on the system.
+**Learning:** Security validations (like `is_safe_path`) that rely on user-configurable base directories are useless if the configuration endpoints themselves lack validation.
+**Prevention:** Always validate and restrict paths provided in configuration endpoints. Reject path traversal characters (`..`) and explicitly block root directories (`/`, `C:\`) for application-specific folders.
