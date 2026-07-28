@@ -9,10 +9,28 @@ export function RecentAnime({ onOpenDetails }) {
     const list = animeList.value;
     const settings = userSettings.value;
 
-    // Optimization (Bolt): Wrap array cloning and O(N log N) sorting in useMemo
-    // to prevent redundant execution and memory allocation on unrelated renders
+    // Optimization (Bolt): Wrap top-K extraction in useMemo and replace O(N log N)
+    // full list sorting with O(N) bounded sorted array to avoid massive array allocation
     const recent = useMemo(() => {
-        return [...list].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, 10);
+        const topK = [];
+        const K = 10;
+
+        for (let i = 0; i < list.length; i++) {
+            const item = list[i];
+
+            if (topK.length < K) {
+                topK.push(item);
+                topK.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+            } else if ((item.updatedAt || 0) > (topK[K - 1].updatedAt || 0)) {
+                let j = K - 1;
+                while (j > 0 && (item.updatedAt || 0) > (topK[j - 1].updatedAt || 0)) {
+                    topK[j] = topK[j - 1];
+                    j--;
+                }
+                topK[j] = item;
+            }
+        }
+        return topK;
     }, [list]);
 
     if (recent.length === 0) {

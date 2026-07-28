@@ -48,3 +48,7 @@
 ## 2024-06-29 - O(N log N) Sorting in Preact Renders
 **Learning:** Performing array cloning and sorting (`[...list].sort(...)`) directly inside a component's render path without memoization forces the expensive $O(N \log N)$ operation to re-execute on *every* component re-render, even if the underlying list hasn't changed. In `RecentAnime.jsx`, this bottleneck was triggered by any parent update or signal change unrelated to the `animeList.value` state.
 **Action:** Always wrap expensive list transformations (like `.sort()` or `.filter()`) on large arrays in `useMemo` hooks, ensuring they only recompute when their explicit dependency array changes.
+
+## 2024-07-28 - O(N log N) Top-K Extraction
+**Learning:** In Preact components, replacing `[...list].sort().slice(0, K)` with an $O(N)$ single-pass bounded insertion sort is crucial for performance when dealing with large global state lists (like `animeList`). The full sort allocates a massive array and evaluates thousands of items just to extract the top 10 elements.
+**Action:** When extracting the "top K" items (e.g., most recent) from a large dataset, use an $O(N)$ single-pass loop that maintains a bounded sorted array of max size K, avoiding the $O(N \log N)$ full-array clone and sort.
