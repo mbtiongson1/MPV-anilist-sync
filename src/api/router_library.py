@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Request, Response
+from fastapi import HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 from typing import Optional, List
+import re
 import os
 import time
 import json
@@ -71,6 +73,17 @@ async def get_settings(request: Request):
         }
     return settings
 
+def is_invalid_config_path(p: str) -> bool:
+    if not p:
+        return False
+    if '..' in p:
+        return True
+    p_norm = p.replace('\\', '/').strip()
+    if p_norm == '/' or re.match(r'^[a-zA-Z]:/?$', p_norm):
+        return True
+    return False
+
+
 @router.post('/api/settings')
 async def save_settings(request: Request, body: SettingsRequest):
     agent = request.app.state.agent
@@ -80,9 +93,15 @@ async def save_settings(request: Request, body: SettingsRequest):
         if body.preferred_resolution is not None:
             agent.settings.preferred_resolution = body.preferred_resolution
         if body.default_download_dir is not None:
-            agent.settings.default_download_dir = body.default_download_dir
+            if not is_invalid_config_path(body.default_download_dir):
+                agent.settings.default_download_dir = body.default_download_dir
+            else:
+                raise HTTPException(status_code=400, detail="Invalid default_download_dir path")
         if body.base_anime_folder is not None:
-            agent.settings.base_anime_folder = body.base_anime_folder
+            if not is_invalid_config_path(body.base_anime_folder):
+                agent.settings.base_anime_folder = body.base_anime_folder
+            else:
+                raise HTTPException(status_code=400, detail="Invalid base_anime_folder path")
         if body.enable_drag_drop is not None:
             agent.settings.enable_drag_drop = body.enable_drag_drop
         if body.reduce_colors is not None:
