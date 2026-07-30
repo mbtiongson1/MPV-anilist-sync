@@ -61,3 +61,8 @@
 **Vulnerability:** Attackers could bypass SSRF domain allowlists by exploiting parser differentials involving the `#` (fragment) character. A URL like `http://127.0.0.1#@allowed.com/` could pass an `endswith('.allowed.com')` check in `urllib.parse` while causing the backend HTTP client (e.g. `httpx` or `requests`) to request `127.0.0.1`.
 **Learning:** Checking for `@` is not sufficient to prevent parser differentials. URL fragments (`#`) can also confuse simple substring or hostname extraction logic in Python's standard `urllib.parse` when compared to actual HTTP client behavior.
 **Prevention:** Explicitly block `#` in addition to `@` and `\\` in raw URL strings before parsing them when fetching untrusted URLs.
+## 2024-07-30 - Fix Path Traversal in Settings API
+
+**Vulnerability:** Path Traversal via the `/api/settings` endpoint allowing configuration of `default_download_dir` and `base_anime_folder` to `..` or Windows root directory.
+**Learning:** These settings, because they are saved configuration states, could bypass security checks in other areas of the application (like `router_os.py`) if they are set to unsafe directories such as the root of the file system.
+**Prevention:** Apply rigorous directory input validation on APIs that manage configuration states, not just at the endpoints where the configuration is directly utilized.
