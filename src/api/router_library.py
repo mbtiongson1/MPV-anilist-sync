@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter, Request, Response, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 from typing import Optional, List
@@ -73,6 +73,18 @@ async def get_settings(request: Request):
 
 @router.post('/api/settings')
 async def save_settings(request: Request, body: SettingsRequest):
+    def validate_dir(d: str):
+        if '..' in d:
+            raise HTTPException(status_code=400, detail="Invalid directory path")
+        d_norm = d.replace('\\', '/')
+        if d_norm == '/' or d_norm.lower() == 'c:/':
+            raise HTTPException(status_code=400, detail="Invalid directory path")
+
+    if body.default_download_dir is not None:
+        validate_dir(body.default_download_dir)
+    if body.base_anime_folder is not None:
+        validate_dir(body.base_anime_folder)
+
     agent = request.app.state.agent
     if agent and hasattr(agent, 'settings'):
         if body.preferred_groups is not None:
