@@ -439,16 +439,16 @@ export function TorrentsView() {
                             Showing {(validCurrentPage - 1) * itemsPerPage + 1} - {Math.min(displayItems.length, validCurrentPage * itemsPerPage)} of {displayItems.length}
                         </div>
                         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                            <select class="filter-select" style={{ fontSize: '0.8rem', padding: '0.2rem 1.5rem 0.2rem 0.5rem', minHeight: 'auto' }} value={itemsPerPage} onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}>
+                            <select class="filter-select" aria-label="Items per page" style={{ fontSize: '0.8rem', padding: '0.2rem 1.5rem 0.2rem 0.5rem', minHeight: 'auto' }} value={itemsPerPage} onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}>
                                 <option value="10">10 / page</option>
                                 <option value="20">20 / page</option>
                                 <option value="50">50 / page</option>
                                 <option value="100">100 / page</option>
                             </select>
                             <div style={{ display: 'flex', gap: '0.25rem' }}>
-                                <button class="refresh-btn" style={{ padding: '0.3rem 0.6rem' }} onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={validCurrentPage === 1}>Prev</button>
+                                <button class="refresh-btn" aria-label="Previous Page" style={{ padding: '0.3rem 0.6rem' }} onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={validCurrentPage === 1}>Prev</button>
                                 <span style={{ display: 'flex', alignItems: 'center', padding: '0 0.5rem', fontSize: '0.85rem', fontWeight: 600 }}>{validCurrentPage} / {totalPages}</span>
-                                <button class="refresh-btn" style={{ padding: '0.3rem 0.6rem' }} onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={validCurrentPage === totalPages}>Next</button>
+                                <button class="refresh-btn" aria-label="Next Page" style={{ padding: '0.3rem 0.6rem' }} onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={validCurrentPage === totalPages}>Next</button>
                             </div>
                         </div>
                     </div>
