@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter, Request, Response, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 from typing import Optional, List
@@ -71,6 +71,21 @@ async def get_settings(request: Request):
         }
     return settings
 
+def validate_config_path(path_val: str):
+    """
+    SECURITY: Prevent saving malicious paths that could lead to path traversal
+    or root system drive access when configured as base/download directories.
+    """
+    if path_val:
+        # Check for traversal sequences
+        if '..' in path_val:
+            raise HTTPException(status_code=400, detail="Path traversal sequences ('..') are not allowed in directory paths.")
+
+        # Check for system root paths
+        p_upper = path_val.upper()
+        if path_val == '/' or p_upper == 'C:\\' or p_upper == 'C:/':
+            raise HTTPException(status_code=400, detail="System root directories cannot be configured as base or download paths.")
+
 @router.post('/api/settings')
 async def save_settings(request: Request, body: SettingsRequest):
     agent = request.app.state.agent
@@ -80,8 +95,10 @@ async def save_settings(request: Request, body: SettingsRequest):
         if body.preferred_resolution is not None:
             agent.settings.preferred_resolution = body.preferred_resolution
         if body.default_download_dir is not None:
+            validate_config_path(body.default_download_dir)
             agent.settings.default_download_dir = body.default_download_dir
         if body.base_anime_folder is not None:
+            validate_config_path(body.base_anime_folder)
             agent.settings.base_anime_folder = body.base_anime_folder
         if body.enable_drag_drop is not None:
             agent.settings.enable_drag_drop = body.enable_drag_drop

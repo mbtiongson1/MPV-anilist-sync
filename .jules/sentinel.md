@@ -61,3 +61,7 @@
 **Vulnerability:** Attackers could bypass SSRF domain allowlists by exploiting parser differentials involving the `#` (fragment) character. A URL like `http://127.0.0.1#@allowed.com/` could pass an `endswith('.allowed.com')` check in `urllib.parse` while causing the backend HTTP client (e.g. `httpx` or `requests`) to request `127.0.0.1`.
 **Learning:** Checking for `@` is not sufficient to prevent parser differentials. URL fragments (`#`) can also confuse simple substring or hostname extraction logic in Python's standard `urllib.parse` when compared to actual HTTP client behavior.
 **Prevention:** Explicitly block `#` in addition to `@` and `\\` in raw URL strings before parsing them when fetching untrusted URLs.
+## 2024-08-03 - Path Traversal and System Root Access via Configured Directories
+**Vulnerability:** The application allowed users to configure base and download directories to sensitive system locations like `/`, `C:\`, and containing path traversal characters like `..`.
+**Learning:** Security checks that rely on user-configurable base directories can be bypassed if the configuration endpoint itself lacks validation. We must validate the path not only when it's used but when it's initially saved.
+**Prevention:** Always sanitize directory paths in configuration APIs to explicitly reject traversal characters (`..`) and system root directories (`/`, `C:\`, `C:/`).
