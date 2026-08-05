@@ -48,3 +48,7 @@
 ## 2024-06-29 - O(N log N) Sorting in Preact Renders
 **Learning:** Performing array cloning and sorting (`[...list].sort(...)`) directly inside a component's render path without memoization forces the expensive $O(N \log N)$ operation to re-execute on *every* component re-render, even if the underlying list hasn't changed. In `RecentAnime.jsx`, this bottleneck was triggered by any parent update or signal change unrelated to the `animeList.value` state.
 **Action:** Always wrap expensive list transformations (like `.sort()` or `.filter()`) on large arrays in `useMemo` hooks, ensuring they only recompute when their explicit dependency array changes.
+
+## 2024-05-23 - Loop Fusion for List Filtering and Cache Population
+**Learning:** Performing array filtering with `.filter()` followed by iterating over the filtered result to pre-compute sort caches causes unnecessary intermediate array allocation and redundant iterations (O(N + M), where M is the filtered length).
+**Action:** When filtering a large list before sorting and pre-computing lookup maps (e.g. `sortCache`), use a single `for` loop to conditionally push items into a new array and populate the lookup map in the same pass (Loop Fusion). This eliminates intermediate arrays and halves the iteration count.
