@@ -48,3 +48,7 @@
 ## 2024-06-29 - O(N log N) Sorting in Preact Renders
 **Learning:** Performing array cloning and sorting (`[...list].sort(...)`) directly inside a component's render path without memoization forces the expensive $O(N \log N)$ operation to re-execute on *every* component re-render, even if the underlying list hasn't changed. In `RecentAnime.jsx`, this bottleneck was triggered by any parent update or signal change unrelated to the `animeList.value` state.
 **Action:** Always wrap expensive list transformations (like `.sort()` or `.filter()`) on large arrays in `useMemo` hooks, ensuring they only recompute when their explicit dependency array changes.
+
+## 2024-05-23 - Optimize Array.filter().reduce() into Single Loop
+**Learning:** In React/Preact applications, chaining `.filter()` with `.reduce()` on large data structures (like an anime library list) allocates intermediate arrays and processes elements multiple times, significantly increasing garbage collection and execution time.
+**Action:** Replace `array.filter().reduce()` chains and chained filtering map lookups with a single combined `for` loop to eliminate `O(N)` callback overhead and intermediate array allocations.
