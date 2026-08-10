@@ -78,7 +78,16 @@ export function Sidebar({ filterYear, onFilterYearChange, filterFormat, onFilter
     // Optimization (Bolt): Wrap genre aggregation in useMemo to prevent redundant O(N) list traversals on every render
     const sortedGenres = useMemo(() => {
         const genres = new Set();
-        animeList.value.forEach(a => { if (a.genres) a.genres.forEach(g => genres.add(g)); });
+        const list = animeList.value;
+        // Optimization (Bolt): Use standard for loops instead of nested .forEach() to eliminate O(N*M) callback overhead
+        for (let i = 0; i < list.length; i++) {
+            const itemGenres = list[i].genres;
+            if (itemGenres) {
+                for (let j = 0; j < itemGenres.length; j++) {
+                    genres.add(itemGenres[j]);
+                }
+            }
+        }
         const ignored = ['Ecchi', 'Hentai', 'Adult'];
         return Array.from(genres).filter(g => !ignored.includes(g)).sort();
     }, [animeList.value]);
