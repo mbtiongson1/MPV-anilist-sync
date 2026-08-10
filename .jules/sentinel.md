@@ -61,3 +61,8 @@
 **Vulnerability:** Attackers could bypass SSRF domain allowlists by exploiting parser differentials involving the `#` (fragment) character. A URL like `http://127.0.0.1#@allowed.com/` could pass an `endswith('.allowed.com')` check in `urllib.parse` while causing the backend HTTP client (e.g. `httpx` or `requests`) to request `127.0.0.1`.
 **Learning:** Checking for `@` is not sufficient to prevent parser differentials. URL fragments (`#`) can also confuse simple substring or hostname extraction logic in Python's standard `urllib.parse` when compared to actual HTTP client behavior.
 **Prevention:** Explicitly block `#` in addition to `@` and `\\` in raw URL strings before parsing them when fetching untrusted URLs.
+
+## 2026-08-10 - Avoiding test suite pollution with scratchpad scripts
+**Vulnerability:** A scratchpad test script (`test_osascript.py`) containing global execution logic was created to test a command injection fix, but it was left in the workspace and discovered by the unit test runner because its name started with `test_`.
+**Learning:** Python test runners automatically discover and run files starting with `test_`. Top-level logic in these scratchpad files will execute globally during test discovery, potentially causing destructive side effects (like arbitrary file deletion) or failing tests.
+**Prevention:** Always ensure that temporary scripts are named without the `test_` prefix (e.g., `scratch.py`), and always ensure they are deleted before committing code.

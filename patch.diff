@@ -1,0 +1,31 @@
+--- .github/workflows/auto-merge.yml
++++ .github/workflows/auto-merge.yml
+@@ -75,7 +75,26 @@
+           echo "Watching status checks for PR #$PR..."
+           # Give GitHub a few seconds to register the new rebased commit and start checks
+           sleep 10
+-          gh pr checks "$PR" --watch --fail-fast
++
++          max_retries=5
++          for i in \$(seq 1 \$max_retries); do
++            set +e
++            output=\$(gh pr checks "\$PR" --watch --fail-fast 2>&1)
++            exit_code=\$?
++            set -e
++
++            echo "\$output"
++            if [ \$exit_code -eq 0 ]; then
++              exit 0
++            fi
++
++            if echo "\$output" | grep -q "GraphQL: Could not resolve to a node"; then
++              echo "Caught GraphQL resolution error. Retrying in 15 seconds... (Attempt \$i/\$max_retries)"
++              sleep 15
++            else
++              exit \$exit_code
++            fi
++          done
++          exit 1
+
+       - name: Merge PR with rebase
+         env:
