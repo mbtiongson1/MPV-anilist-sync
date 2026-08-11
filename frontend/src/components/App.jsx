@@ -255,15 +255,18 @@ export function App() {
     }, [sidebarCollapsed.value]);
 
     // Update counts
+    // Optimization (Bolt): Replaced array .reduce() with standard for-loop to eliminate O(N) callback overhead
     const counts = useMemo(() => {
         const list = animeList.value;
-        return list.reduce((acc, a) => {
-            if (a.listStatus === 'CURRENT') acc.CURRENT++;
-            else if (a.listStatus === 'PLANNING') acc.PLANNING++;
-            else if (a.listStatus === 'COMPLETED') acc.COMPLETED++;
-            else if (a.listStatus === 'DROPPED') acc.DROPPED++;
-            return acc;
-        }, { CURRENT: 0, PLANNING: 0, COMPLETED: 0, DROPPED: 0 });
+        const result = { CURRENT: 0, PLANNING: 0, COMPLETED: 0, DROPPED: 0 };
+        for (let i = 0; i < list.length; i++) {
+            const status = list[i].listStatus;
+            if (status === 'CURRENT') result.CURRENT++;
+            else if (status === 'PLANNING') result.PLANNING++;
+            else if (status === 'COMPLETED') result.COMPLETED++;
+            else if (status === 'DROPPED') result.DROPPED++;
+        }
+        return result;
     }, [animeList.value]);
 
     const showReview = () => {
