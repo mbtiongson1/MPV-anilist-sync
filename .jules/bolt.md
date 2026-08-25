@@ -48,3 +48,6 @@
 ## 2024-06-29 - O(N log N) Sorting in Preact Renders
 **Learning:** Performing array cloning and sorting (`[...list].sort(...)`) directly inside a component's render path without memoization forces the expensive $O(N \log N)$ operation to re-execute on *every* component re-render, even if the underlying list hasn't changed. In `RecentAnime.jsx`, this bottleneck was triggered by any parent update or signal change unrelated to the `animeList.value` state.
 **Action:** Always wrap expensive list transformations (like `.sort()` or `.filter()`) on large arrays in `useMemo` hooks, ensuring they only recompute when their explicit dependency array changes.
+## 2026-06-30 - Extract Static Arrays from High-Frequency Functions
+**Learning:** Functions called within render loops or array iterator methods (like `.filter()` in `App.jsx` calling `getAnimeSeasons()`) that declare static arrays locally (e.g., `["WINTER", "SPRING", "SUMMER", "FALL"]`) will allocate new memory for those arrays on every single invocation. For a list of 2000 items, this results in thousands of unnecessary allocations and massive garbage collection pressure, creating visible micro-stutters during UI interactions.
+**Action:** Always hoist static arrays and object configurations to module-level constants outside of functions if the data is immutable and does not depend on the function's arguments.
