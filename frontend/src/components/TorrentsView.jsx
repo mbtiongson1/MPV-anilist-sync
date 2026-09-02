@@ -234,7 +234,9 @@ export function TorrentsView() {
 
         // Pre-compute values to avoid O(N log N) regex parsing and string allocations
         const sortCache = new Map();
-        if (sortCol === 'size' || sortCol === 'title' || !['date', 'seeders', 'leechers'].includes(sortCol)) {
+        const isPrecomputedCol = sortCol === 'size' || sortCol === 'title' || !['date', 'seeders', 'leechers'].includes(sortCol);
+
+        if (isPrecomputedCol) {
             const isSize = sortCol === 'size';
             for (let i = 0; i < items.length; i++) {
                 const item = items[i];
@@ -246,7 +248,7 @@ export function TorrentsView() {
         items.sort((a, b) => {
             const ta = a.torrent || {}, tb = b.torrent || {};
             let va, vb;
-            if (sortCol === 'size' || sortCol === 'title' || !['date', 'seeders', 'leechers'].includes(sortCol)) {
+            if (isPrecomputedCol) {
                 va = sortCache.get(a);
                 vb = sortCache.get(b);
             } else if (sortCol === 'date') {

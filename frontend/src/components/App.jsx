@@ -4,6 +4,8 @@ import { fuzzyMatch, getAnimeSeasons, getDisplayTitle, getRelativeTime } from '.
 import { ArrowUpIcon } from '../icons';
 import * as api from '../api';
 
+const LIST_TABS = ['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED'];
+
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { NowPlaying } from './NowPlaying';
@@ -152,7 +154,7 @@ export function App() {
         const activeSeasons = selectedSidebarSeasons.value;
         const activeGenres = selectedGenres.value;
 
-        if (!['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED'].includes(tab)) return [];
+        if (!LIST_TABS.includes(tab)) return [];
 
         const q = filterName ? filterName.toLowerCase() : null;
         const targetYear = filterYear ? parseInt(filterYear) : null;
@@ -247,7 +249,7 @@ export function App() {
     }, [activeTab.value]);
 
     const tab = activeTab.value;
-    const isListTab = ['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED'].includes(tab);
+    const isListTab = LIST_TABS.includes(tab);
 
     // Sidebar collapsed class on body
     useEffect(() => {

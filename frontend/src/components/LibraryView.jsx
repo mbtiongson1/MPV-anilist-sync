@@ -4,6 +4,8 @@ import { escapeHtml, formatBytes } from '../utils';
 import { FolderIcon, PlayIcon, ChevronIcon, VideoIcon, SearchIcon, RefreshIcon, TrashIcon, CloseIcon } from '../icons';
 import * as api from '../api';
 
+const VIDEO_EXTENSIONS = new Set(['mkv', 'mp4', 'avi', 'webm', 'flv', 'mov', 'ts']);
+
 export function LibraryView() {
     const [loading, setLoading] = useState(false);
     const [libraryActionLoading, setLibraryActionLoading] = useState(false);
@@ -161,7 +163,7 @@ export function LibraryView() {
         const expanded = depth === 0 || expandedDirs.has(node.path) || (search && expandedBySearch.has(node.path));
 
         const padLeft = depth * 16 + 8;
-        const isVideo = !isDir && ['mkv', 'mp4', 'avi', 'webm', 'flv', 'mov', 'ts'].includes((node.name || '').split('.').pop().toLowerCase());
+        const isVideo = !isDir && VIDEO_EXTENSIONS.has((node.name || '').split('.').pop().toLowerCase());
 
         const handleCheckbox = (e) => {
             e.stopPropagation();
