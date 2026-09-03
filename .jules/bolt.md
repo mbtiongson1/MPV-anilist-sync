@@ -48,3 +48,6 @@
 ## 2024-06-29 - O(N log N) Sorting in Preact Renders
 **Learning:** Performing array cloning and sorting (`[...list].sort(...)`) directly inside a component's render path without memoization forces the expensive $O(N \log N)$ operation to re-execute on *every* component re-render, even if the underlying list hasn't changed. In `RecentAnime.jsx`, this bottleneck was triggered by any parent update or signal change unrelated to the `animeList.value` state.
 **Action:** Always wrap expensive list transformations (like `.sort()` or `.filter()`) on large arrays in `useMemo` hooks, ensuring they only recompute when their explicit dependency array changes.
+## 2026-10-27 - O(N) Lookup Anti-Pattern in Components
+**Learning:** Performing array `.find()` on large global state (`animeList.value`) across multiple components (like `NowPlaying`, `SelectionBar`, `AnimeDetails`) creates unnecessary O(N) complexity for simple lookups, leading to redundant iterations. In `Upcoming.jsx`, local map computation caused redundant N allocations and iterations on every update.
+**Action:** Extract large array lookups into a single global computed Map (`localAnimeMap`) in the store. Replace multiple O(N) `.find()` calls across components with O(1) `.get()` calls to centralize computation and improve performance globally.
