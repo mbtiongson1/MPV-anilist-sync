@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'preact/hooks';
-import { selectedAnime, clearSelection, pendingApiRequests, showToast, recordApiRequest, animeList } from '../store';
+import { selectedAnime, clearSelection, pendingApiRequests, showToast, recordApiRequest, animeList, localAnimeMap } from '../store';
 
 export function SelectionBar({ onShowReview }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -16,7 +16,7 @@ export function SelectionBar({ onShowReview }) {
     const moveSelectedTo = (newStatus) => {
         const selectedIds = Array.from(selectedAnime.value);
         selectedIds.forEach(mediaId => {
-            const anime = animeList.value.find(a => a.mediaId == mediaId);
+            const anime = localAnimeMap.value.get(mediaId);
             if (anime && anime.listStatus !== newStatus) {
                 const idInt = parseInt(mediaId);
                 const title = anime.title?.romaji || anime.title?.english || 'Anime';

@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'preact/hooks';
-import { latestStatus, userSettings, animeList, showToast, activeSearchTerm, recordApiRequest, setActiveTab, torrentCache } from '../store';
+import { latestStatus, userSettings, animeList, localAnimeMap, showToast, activeSearchTerm, recordApiRequest, setActiveTab, torrentCache } from '../store';
 import { escapeHtml, formatPopularity, getCachedImageUrl, getDisplayTitle } from '../utils';
 import { ProgressBar } from './ProgressBar';
 import { SearchIcon, FolderIcon } from '../icons';
@@ -82,7 +82,7 @@ export function NowPlaying({ onOpenDetails }) {
 
     const handleSync = async () => {
         if (watched < 1) return;
-        const anime = animeList.value.find(a => a.mediaId == selectedMediaId);
+        const anime = localAnimeMap.value.get(selectedMediaId);
         if (anime) {
             recordApiRequest('PROGRESS', selectedMediaId, { episode: watched }, `${displayTitle}: Set progress to ${watched}`);
             anime.progress = watched;
@@ -157,7 +157,7 @@ export function NowPlaying({ onOpenDetails }) {
                             </button>
                             <button id="btn-edit-nowplaying" class="icon-btn" style={{ padding: '0.5rem' }} onClick={() => {
                                 if (selectedMediaId) {
-                                    const anime = animeList.value.find(a => a.mediaId == selectedMediaId);
+                                    const anime = localAnimeMap.value.get(selectedMediaId);
                                     if (anime) onOpenDetails?.(anime);
                                 }
                             }} title="Edit Progress" aria-label="Edit Progress">

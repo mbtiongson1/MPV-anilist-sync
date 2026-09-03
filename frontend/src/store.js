@@ -14,6 +14,16 @@ export const sortDirection = signal(-1);
 export const activeSearchTerm = signal('');
 export const expandedCard = signal(null);
 
+export const localAnimeMap = computed(() => {
+    const map = new Map();
+    for (let i = 0; i < animeList.value.length; i++) {
+        const a = animeList.value[i];
+        map.set(a.mediaId.toString(), a);
+        map.set(a.mediaId, a);
+    }
+    return map;
+});
+
 // ===== Now Playing State =====
 export const latestStatus = signal(null);
 export const lastNowPlayingTitle = signal(null);
