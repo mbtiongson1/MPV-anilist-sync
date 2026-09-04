@@ -1,6 +1,6 @@
 import { useState } from 'preact/hooks';
 import { escapeHtml, formatPopularity, getCachedImageUrl, getDisplayTitle, sanitizeHtml } from '../../utils';
-import { userSettings, animeList, recordApiRequest, showToast, pendingApiRequests } from '../../store';
+import { userSettings, animeList, recordApiRequest, showToast, pendingApiRequests, animeListMap } from '../../store';
 import { CloseIcon } from '../../icons';
 import * as api from '../../api';
 
@@ -24,7 +24,7 @@ export function AnimeDetailsModal({ anime, visible, onClose }) {
     if (anime.popularity) stats.push({ label: 'Popularity', value: formatPopularity(anime.popularity) });
 
     const handleSave = async () => {
-        const localAnime = animeList.value.find(a => a.mediaId === anime.mediaId);
+        const localAnime = animeListMap.value.get(anime.mediaId);
         const animeTitle = anime.title?.romaji || anime.title?.english || 'Anime';
 
         if (localAnime) {
