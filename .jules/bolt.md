@@ -48,3 +48,7 @@
 ## 2024-06-29 - O(N log N) Sorting in Preact Renders
 **Learning:** Performing array cloning and sorting (`[...list].sort(...)`) directly inside a component's render path without memoization forces the expensive $O(N \log N)$ operation to re-execute on *every* component re-render, even if the underlying list hasn't changed. In `RecentAnime.jsx`, this bottleneck was triggered by any parent update or signal change unrelated to the `animeList.value` state.
 **Action:** Always wrap expensive list transformations (like `.sort()` or `.filter()`) on large arrays in `useMemo` hooks, ensuring they only recompute when their explicit dependency array changes.
+
+## 2026-06-25 - Extracted static arrays to module-level constants
+**Learning:** Extracting static arrays to module-level constants in React/Preact components prevents redundant array allocations and garbage collection on every render.
+**Action:** When working on React/Preact components, always move static arrays (like lists of tabs or extensions) and static JSX sets (like navigation icons) outside the component definition to module scope, especially if they are used for mapping or filtering. Use `Set` instead of `Array` when checking for existence (`.has()` vs `.includes()`) for faster `O(1)` lookups.

@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'preact/hooks';
 import { selectedAnime, clearSelection, pendingApiRequests, showToast, recordApiRequest, animeList } from '../store';
 
+// Optimization (Bolt): Extract static array to module scope to prevent
+// redundant memory allocation and garbage collection on every render
+const LIST_TABS = ['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED'];
+
 export function SelectionBar({ onShowReview }) {
     const [isOpen, setIsOpen] = useState(false);
     const count = selectedAnime.value.size;
@@ -48,7 +52,7 @@ export function SelectionBar({ onShowReview }) {
                         <svg class="chevron-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </button>
                     <div id="move-to-dropdown" class={`move-to-dropdown ${isOpen ? 'show' : ''}`}>
-                        {['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED'].map(status => (
+                        {LIST_TABS.map(status => (
                             <div key={status} class="move-to-option" data-status={status}
                                 onClick={(e) => {
                                     e.stopPropagation();
