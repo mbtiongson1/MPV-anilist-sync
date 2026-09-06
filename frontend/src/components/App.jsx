@@ -21,6 +21,10 @@ import { CleanupModal } from './modals/Cleanup';
 import { UpcomingOverlay } from './modals/Upcoming';
 import { MiniWindow } from './MiniWindow';
 
+// Optimization (Bolt): Extract static set to module scope to prevent
+// redundant O(N) array allocation and set initialization on every render
+const LIST_TABS_SET = new Set(['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED']);
+
 export function App() {
     // Local UI state
     const [filterName, setFilterName] = useState('');
@@ -152,7 +156,7 @@ export function App() {
         const activeSeasons = selectedSidebarSeasons.value;
         const activeGenres = selectedGenres.value;
 
-        if (!['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED'].includes(tab)) return [];
+        if (!LIST_TABS_SET.has(tab)) return [];
 
         const q = filterName ? filterName.toLowerCase() : null;
         const targetYear = filterYear ? parseInt(filterYear) : null;
@@ -247,7 +251,7 @@ export function App() {
     }, [activeTab.value]);
 
     const tab = activeTab.value;
-    const isListTab = ['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED'].includes(tab);
+    const isListTab = LIST_TABS_SET.has(tab);
 
     // Sidebar collapsed class on body
     useEffect(() => {

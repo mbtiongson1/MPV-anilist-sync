@@ -3,22 +3,27 @@ import { activeTab, sidebarCollapsed, selectedSidebarSeasons, selectedGenres, an
 import { genreColors, getCurrentSeason, getSeasonEndDate, getTimeRemaining } from '../utils';
 import { SeasonIcon } from '../icons';
 
+// Optimization (Bolt): Extract static arrays and sets to module scope to prevent
+// redundant memory allocations and garbage collection on every render
+const NAV_ITEMS = [
+    { tab: 'CURRENT', label: 'In Progress', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg> },
+    { tab: 'PLANNING', label: 'Planning', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg> },
+    { tab: 'COMPLETED', label: 'Completed', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg> },
+    { tab: 'DROPPED', label: 'Dropped', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg> },
+];
+
+const EXTRA_NAV_ITEMS = [
+    { tab: 'STATS', label: 'Stats', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg> },
+    { tab: 'TORRENTS', label: 'Torrents', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg> },
+    { tab: 'LIBRARY', label: 'Library', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" /></svg> },
+];
+
+const SEASONS = ['WINTER', 'SPRING', 'SUMMER', 'FALL'];
+const IGNORED_GENRES = new Set(['Ecchi', 'Hentai', 'Adult']);
+
 export function Sidebar({ filterYear, onFilterYearChange, filterFormat, onFilterFormatChange, onOpenSettings }) {
     const collapsed = sidebarCollapsed.value;
     const tab = activeTab.value;
-
-    const navItems = [
-        { tab: 'CURRENT', label: 'In Progress', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg> },
-        { tab: 'PLANNING', label: 'Planning', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg> },
-        { tab: 'COMPLETED', label: 'Completed', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg> },
-        { tab: 'DROPPED', label: 'Dropped', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg> },
-    ];
-
-    const extraNavItems = [
-        { tab: 'STATS', label: 'Stats', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg> },
-        { tab: 'TORRENTS', label: 'Torrents', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg> },
-        { tab: 'LIBRARY', label: 'Library', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" /></svg> },
-    ];
 
     const toggleSidebar = () => {
         const newVal = !sidebarCollapsed.value;
@@ -30,7 +35,6 @@ export function Sidebar({ filterYear, onFilterYearChange, filterFormat, onFilter
     const currentYear = new Date().getFullYear();
     const selectedYear = parseInt(filterYear) || currentYear;
     const isCurrentYear = selectedYear === currentYear;
-    const seasons = ['WINTER', 'SPRING', 'SUMMER', 'FALL'];
 
     const [airingOnly, setAiringOnly] = useState(false);
     const [savedFilters, setSavedFilters] = useState(null);
@@ -71,7 +75,7 @@ export function Sidebar({ filterYear, onFilterYearChange, filterFormat, onFilter
         onFilterFormatChange('');
         onFilterYearChange('');
         selectedGenres.value = new Set();
-        selectedSidebarSeasons.value = new Set(['WINTER', 'SPRING', 'SUMMER', 'FALL']);
+        selectedSidebarSeasons.value = new Set(SEASONS);
     };
 
     // Gather unique genres
@@ -79,8 +83,7 @@ export function Sidebar({ filterYear, onFilterYearChange, filterFormat, onFilter
     const sortedGenres = useMemo(() => {
         const genres = new Set();
         animeList.value.forEach(a => { if (a.genres) a.genres.forEach(g => genres.add(g)); });
-        const ignored = ['Ecchi', 'Hentai', 'Adult'];
-        return Array.from(genres).filter(g => !ignored.includes(g)).sort();
+        return Array.from(genres).filter(g => !IGNORED_GENRES.has(g)).sort();
     }, [animeList.value]);
 
     const toggleGenre = (genre) => {
@@ -116,13 +119,13 @@ export function Sidebar({ filterYear, onFilterYearChange, filterFormat, onFilter
                 <div class="sidebar-section">
                     <div class="sidebar-section-title">Lists</div>
                     <div class="sidebar-nav">
-                        {navItems.map(n => (
+                        {NAV_ITEMS.map(n => (
                             <a key={n.tab} class={`sidebar-item ${tab === n.tab ? 'active' : ''}`} data-tab={n.tab} title={n.label} onClick={() => setActiveTab(n.tab)}>
                                 {n.icon}<span>{n.label}</span>
                             </a>
                         ))}
                         <div class="sidebar-separator" />
-                        {extraNavItems.map(n => (
+                        {EXTRA_NAV_ITEMS.map(n => (
                             <a key={n.tab} class={`sidebar-item ${tab === n.tab ? 'active' : ''}`} data-tab={n.tab} title={n.label} onClick={() => setActiveTab(n.tab)}>
                                 {n.icon}<span>{n.label}</span>
                             </a>
@@ -169,7 +172,7 @@ export function Sidebar({ filterYear, onFilterYearChange, filterFormat, onFilter
                                 </button>
                             </div>
                             <div id="season-filter-pills" class="season-pills">
-                                {seasons.map(season => {
+                                {SEASONS.map(season => {
                                     const isActive = selectedSidebarSeasons.value.has(season);
                                     const isCurrent = season === currentSeason && (isCurrentYear || !filterYear);
                                     const label = season.charAt(0) + season.slice(1).toLowerCase();
