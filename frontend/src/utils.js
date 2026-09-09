@@ -45,12 +45,12 @@ export function formatPopularity(num) {
     return num.toString();
 }
 
+const BYTE_SIZES = ['B', 'KB', 'MB', 'GB', 'TB'];
 export function formatBytes(bytes) {
     if (bytes === 0) return '0 B';
     const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + BYTE_SIZES[i];
 }
 
 // ===== Time Utilities =====
@@ -108,12 +108,12 @@ export function getTimeRemaining(endDate) {
     return `ends in ${weeks} week${weeks !== 1 ? 's' : ''}`;
 }
 
+const SEASONS_ORDER = ["WINTER", "SPRING", "SUMMER", "FALL"];
 export function getAnimeSeasons(anime) {
     const startSeason = (anime.season || "").toUpperCase();
-    if (!["WINTER", "SPRING", "SUMMER", "FALL"].includes(startSeason)) return [];
+    if (!SEASONS_ORDER.includes(startSeason)) return [];
 
-    const seasonsOrder = ["WINTER", "SPRING", "SUMMER", "FALL"];
-    const startIndex = seasonsOrder.indexOf(startSeason);
+    const startIndex = SEASONS_ORDER.indexOf(startSeason);
 
     let cours = 1;
     const totalEps = anime.episodes || 0;
@@ -124,7 +124,7 @@ export function getAnimeSeasons(anime) {
 
     const seasons = [];
     for (let i = 0; i < cours; i++) {
-        seasons.push(seasonsOrder[(startIndex + i) % 4]);
+        seasons.push(SEASONS_ORDER[(startIndex + i) % 4]);
     }
     return seasons;
 }
@@ -151,20 +151,21 @@ export function getCachedImageUrl(url) {
 }
 
 // ===== Torrent Size Parsing =====
+const SIZE_REGEX = /^(\d+(\.\d+)?)\s*([KMGT]i?B)$/i;
+const SIZE_UNITS = {
+    'B': 1,
+    'KB': 1024, 'KIB': 1024,
+    'MB': 1024 ** 2, 'MIB': 1024 ** 2,
+    'GB': 1024 ** 3, 'GIB': 1024 ** 3,
+    'TB': 1024 ** 4, 'TIB': 1024 ** 4
+};
 export function parseSize(sizeStr) {
     if (!sizeStr) return 0;
-    const match = sizeStr.match(/^(\d+(\.\d+)?)\s*([KMGT]i?B)$/i);
+    const match = sizeStr.match(SIZE_REGEX);
     if (!match) return 0;
     const val = parseFloat(match[1]);
     const unit = match[3].toUpperCase();
-    const units = {
-        'B': 1,
-        'KB': 1024, 'KIB': 1024,
-        'MB': 1024 ** 2, 'MIB': 1024 ** 2,
-        'GB': 1024 ** 3, 'GIB': 1024 ** 3,
-        'TB': 1024 ** 4, 'TIB': 1024 ** 4
-    };
-    return val * (units[unit] || 1);
+    return val * (SIZE_UNITS[unit] || 1);
 }
 
 // ===== Capitalize =====
