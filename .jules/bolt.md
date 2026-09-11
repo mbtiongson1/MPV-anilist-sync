@@ -48,3 +48,7 @@
 ## 2024-06-29 - O(N log N) Sorting in Preact Renders
 **Learning:** Performing array cloning and sorting (`[...list].sort(...)`) directly inside a component's render path without memoization forces the expensive $O(N \log N)$ operation to re-execute on *every* component re-render, even if the underlying list hasn't changed. In `RecentAnime.jsx`, this bottleneck was triggered by any parent update or signal change unrelated to the `animeList.value` state.
 **Action:** Always wrap expensive list transformations (like `.sort()` or `.filter()`) on large arrays in `useMemo` hooks, ensuring they only recompute when their explicit dependency array changes.
+
+## 2026-06-25 - Prevent Redundant Constant Reallocation
+**Learning:** Hardcoding static arrays or objects (like configuration mappings or valid value lists) inside utility functions or component render scopes forces the JavaScript engine to reallocate and garbage collect those structures on every single invocation. When these functions are executed within large array iterations (like `.filter` or `.map`), the memory churn becomes highly noticeable.
+**Action:** Always extract static, stateless arrays and objects to module-level constants to ensure they are allocated exactly once in memory.

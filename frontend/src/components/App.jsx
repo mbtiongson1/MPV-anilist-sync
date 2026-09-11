@@ -21,6 +21,8 @@ import { CleanupModal } from './modals/Cleanup';
 import { UpcomingOverlay } from './modals/Upcoming';
 import { MiniWindow } from './MiniWindow';
 
+const seasonRanks = { WINTER: 1, SPRING: 2, SUMMER: 3, FALL: 4 };
+
 export function App() {
     // Local UI state
     const [filterName, setFilterName] = useState('');
@@ -195,7 +197,6 @@ export function App() {
         });
 
         // Sort
-        const seasonRanks = { WINTER: 1, SPRING: 2, SUMMER: 3, FALL: 4 };
 
         // Pre-compute expensive values for sorting to avoid O(N log N) string operations
         const sortCache = new Map();

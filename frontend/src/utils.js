@@ -108,12 +108,13 @@ export function getTimeRemaining(endDate) {
     return `ends in ${weeks} week${weeks !== 1 ? 's' : ''}`;
 }
 
+const SEASONS = ["WINTER", "SPRING", "SUMMER", "FALL"];
+
 export function getAnimeSeasons(anime) {
     const startSeason = (anime.season || "").toUpperCase();
-    if (!["WINTER", "SPRING", "SUMMER", "FALL"].includes(startSeason)) return [];
+    if (!SEASONS.includes(startSeason)) return [];
 
-    const seasonsOrder = ["WINTER", "SPRING", "SUMMER", "FALL"];
-    const startIndex = seasonsOrder.indexOf(startSeason);
+    const startIndex = SEASONS.indexOf(startSeason);
 
     let cours = 1;
     const totalEps = anime.episodes || 0;
@@ -124,7 +125,7 @@ export function getAnimeSeasons(anime) {
 
     const seasons = [];
     for (let i = 0; i < cours; i++) {
-        seasons.push(seasonsOrder[(startIndex + i) % 4]);
+        seasons.push(SEASONS[(startIndex + i) % 4]);
     }
     return seasons;
 }
