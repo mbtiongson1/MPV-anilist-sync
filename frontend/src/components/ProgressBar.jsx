@@ -17,7 +17,14 @@ export function ProgressBar({ progress, total, nextAiringEpisode, mediaId, showB
     const pAvailable = Math.min(((available - progress) / validTotal) * 100, 100);
 
     const bar = (
-        <div class="progress-bar-container">
+        <div
+            class="progress-bar-container"
+            role="progressbar"
+            aria-valuenow={progress || 0}
+            aria-valuemin={0}
+            aria-valuemax={total && total > 0 ? total : undefined}
+            aria-label={`Progress: ${progress || 0} of ${total && total > 0 ? total : 'unknown'} episodes`}
+        >
             <div class="progress-bar-watched" style={{ width: `${pWatched}%` }} />
             <div class="progress-bar-available" style={{ width: `${pAvailable}%` }} />
         </div>

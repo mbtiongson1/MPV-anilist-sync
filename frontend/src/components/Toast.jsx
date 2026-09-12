@@ -7,7 +7,7 @@ export function Toast() {
     if (items.length === 0) return null;
 
     return (
-        <div class="toast-container">
+        <div class="toast-container" aria-live="polite" aria-atomic="true">
             {items.map(t => (
                 <ToastItem key={t.id} toast={t} />
             ))}
@@ -26,7 +26,7 @@ function ToastItem({ toast }) {
     }, [toast.id]);
 
     return (
-        <div id={`toast-${toast.id}`} class={`toast toast-${toast.type}`}>
+        <div id={`toast-${toast.id}`} class={`toast toast-${toast.type}`} role="status">
             {toast.message}
         </div>
     );
