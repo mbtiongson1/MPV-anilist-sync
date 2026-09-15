@@ -2,6 +2,14 @@ import { signal, computed } from '@preact/signals';
 
 // ===== Core State =====
 export const animeList = signal([]);
+export const animeListMap = computed(() => {
+    const map = new Map();
+    const list = animeList.value;
+    for (let i = 0; i < list.length; i++) {
+        map.set(String(list[i].mediaId), list[i]);
+    }
+    return map;
+});
 export const activeTab = signal('CURRENT');
 export const viewMode = signal(localStorage.getItem('mpvViewMode') || 'details');
 export const selectedAnime = signal(new Set());
