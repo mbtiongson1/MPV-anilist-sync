@@ -61,3 +61,7 @@
 **Vulnerability:** Attackers could bypass SSRF domain allowlists by exploiting parser differentials involving the `#` (fragment) character. A URL like `http://127.0.0.1#@allowed.com/` could pass an `endswith('.allowed.com')` check in `urllib.parse` while causing the backend HTTP client (e.g. `httpx` or `requests`) to request `127.0.0.1`.
 **Learning:** Checking for `@` is not sufficient to prevent parser differentials. URL fragments (`#`) can also confuse simple substring or hostname extraction logic in Python's standard `urllib.parse` when compared to actual HTTP client behavior.
 **Prevention:** Explicitly block `#` in addition to `@` and `\\` in raw URL strings before parsing them when fetching untrusted URLs.
+## 2026-09-15 - AppleScript command injection via string interpolation
+**Vulnerability:** AppleScript command injection in `src/api/router_os.py` where file paths were embedded directly into strings for `osascript`, despite rudimentary escaping.
+**Learning:** Escaping backslashes and quotes is insufficient for AppleScript as command execution can happen in varied contexts.
+**Prevention:** Always pass arguments securely through `argv` (e.g., `osascript -e 'on run argv'`) instead of relying on string interpolation when invoking `osascript` in Python via `subprocess`.
