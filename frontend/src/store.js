@@ -2,6 +2,19 @@ import { signal, computed } from '@preact/signals';
 
 // ===== Core State =====
 export const animeList = signal([]);
+
+// Optimization (Bolt): Centralize O(1) anime lookups globally to prevent redundant
+// O(N) .find() iterations and redundant Map allocations across components.
+export const animeMap = computed(() => {
+    const map = new Map();
+    for (const anime of animeList.value) {
+        if (anime.mediaId != null) {
+            map.set(anime.mediaId.toString(), anime);
+            map.set(Number(anime.mediaId), anime);
+        }
+    }
+    return map;
+});
 export const activeTab = signal('CURRENT');
 export const viewMode = signal(localStorage.getItem('mpvViewMode') || 'details');
 export const selectedAnime = signal(new Set());
