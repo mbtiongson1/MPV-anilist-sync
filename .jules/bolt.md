@@ -48,3 +48,7 @@
 ## 2024-06-29 - O(N log N) Sorting in Preact Renders
 **Learning:** Performing array cloning and sorting (`[...list].sort(...)`) directly inside a component's render path without memoization forces the expensive $O(N \log N)$ operation to re-execute on *every* component re-render, even if the underlying list hasn't changed. In `RecentAnime.jsx`, this bottleneck was triggered by any parent update or signal change unrelated to the `animeList.value` state.
 **Action:** Always wrap expensive list transformations (like `.sort()` or `.filter()`) on large arrays in `useMemo` hooks, ensuring they only recompute when their explicit dependency array changes.
+
+## 2024-07-28 - O(N) Array.find() inside Handlers and Renders
+**Learning:** Frequent `.find()` iterations over large signals (like `animeList.value`) in component event handlers or loops (e.g., `SelectionBar.jsx` or `NowPlaying.jsx`) cause linear O(N) slowdowns, which can degrade responsiveness when the list grows to thousands of items.
+**Action:** Centralize lookups for large data arrays by maintaining a companion `Map` (e.g., `animeMap = computed(...)`) in the store, providing guaranteed O(1) constant-time access across all components.
