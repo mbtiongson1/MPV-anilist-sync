@@ -2271,6 +2271,13 @@ header {
 }
 
 .sidebar-item {
+    /* button reset (was an <a>) */
+    appearance: none;
+    background: none;
+    border: 0;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
     display: flex;
     align-items: center;
     gap: 0.75rem;

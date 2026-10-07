@@ -17,7 +17,7 @@ export function Pagination({ currentPage, totalItems, itemsPerPage, onPageChange
     const showEnd = Math.min(currentPage * itemsPerPage, totalItems);
 
     return (
-        <div id="pagination-container" class="pagination-container">
+        <nav id="pagination-container" class="pagination-container" aria-label="Pagination">
             <div class="pagination-left">
                 <span id="pagination-info" class="pagination-info">
                     Showing {showStart} - {showEnd} of {totalItems}
@@ -25,6 +25,7 @@ export function Pagination({ currentPage, totalItems, itemsPerPage, onPageChange
                 <select
                     id="items-per-page"
                     class="filter-select"
+                    aria-label="Items per page"
                     value={itemsPerPage}
                     onChange={(e) => onItemsPerPageChange(parseInt(e.target.value))}
                 >
@@ -49,6 +50,7 @@ export function Pagination({ currentPage, totalItems, itemsPerPage, onPageChange
                         <button
                             key={i}
                             class={`pagination-page-btn ${i === currentPage ? 'active' : ''}`}
+                            aria-current={i === currentPage ? 'page' : undefined}
                             onClick={() => { onPageChange(i); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                         >
                             {i}
@@ -65,6 +67,6 @@ export function Pagination({ currentPage, totalItems, itemsPerPage, onPageChange
                     <ChevronIcon size={14} />
                 </button>
             </div>
-        </div>
+        </nav>
     );
 }
