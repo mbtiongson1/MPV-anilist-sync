@@ -35,7 +35,6 @@ export const genreColors = {
 // Used heavily in rendering lists (AnimeGrid, RecentAnime, etc.)
 const matchHtmlRegExp = /["'&<>]/;
 export function escapeHtml(string) {
-    if (!string) return '';
     const str = "" + string;
     const match = matchHtmlRegExp.exec(str);
     if (!match) return str;
