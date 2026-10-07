@@ -2,6 +2,19 @@ import { signal, computed } from '@preact/signals';
 
 // ===== Core State =====
 export const animeList = signal([]);
+
+// Optimization (Bolt): Centralize O(N) list to O(1) Map conversion
+// Reduces anime lookup time in components performing heavy or frequent checks
+// Impact: O(N) -> O(1) for item lookup, preventing redundant Map allocations per-component
+export const animeMap = computed(() => {
+    const map = new Map();
+    const list = animeList.value;
+    for (let i = 0; i < list.length; i++) {
+        const a = list[i];
+        map.set(String(a.mediaId), a);
+    }
+    return map;
+});
 export const activeTab = signal('CURRENT');
 export const viewMode = signal(localStorage.getItem('mpvViewMode') || 'details');
 export const selectedAnime = signal(new Set());
