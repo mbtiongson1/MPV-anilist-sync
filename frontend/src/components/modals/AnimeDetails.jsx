@@ -1,10 +1,19 @@
-import { useState } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 import { escapeHtml, formatPopularity, getCachedImageUrl, getDisplayTitle, sanitizeHtml } from '../../utils';
 import { userSettings, animeList, recordApiRequest, showToast, pendingApiRequests, animeMap } from '../../store';
 import { CloseIcon } from '../../icons';
 import * as api from '../../api';
 
 export function AnimeDetailsModal({ anime, visible, onClose }) {
+    useEffect(() => {
+        if (!visible) return;
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') onClose?.();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [visible, onClose]);
+
     if (!visible || !anime) return null;
 
     const [progress, setProgress] = useState(anime.progress || 0);
@@ -79,11 +88,11 @@ export function AnimeDetailsModal({ anime, visible, onClose }) {
     ];
 
     return (
-        <div id="details-modal" class="modal">
+        <div id="details-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="details-modal-title">
             <div class="modal-overlay" onClick={onClose} />
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>Edit Anime</h2>
+                    <h2 id="details-modal-title">Edit Anime</h2>
                     <button class="modal-close-btn" aria-label="Close modal" onClick={onClose}>
                         <CloseIcon size={16} />
                     </button>

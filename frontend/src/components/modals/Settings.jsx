@@ -1,9 +1,18 @@
-import { useState } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 import { userSettings, showToast, appUpdateStatus } from '../../store';
 import * as api from '../../api';
 import { CloseIcon } from '../../icons';
 
 export function SettingsModal({ visible, onClose, onSaved }) {
+    useEffect(() => {
+        if (!visible) return;
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') onClose?.();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [visible, onClose]);
+
     if (!visible) return null;
 
     const s = userSettings.value || {};
@@ -94,11 +103,11 @@ export function SettingsModal({ visible, onClose, onSaved }) {
     };
 
     return (
-        <div id="settings-modal" class="modal">
+        <div id="settings-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
             <div class="modal-overlay" id="settings-modal-overlay" onClick={onClose} />
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>Settings</h2>
+                    <h2 id="settings-modal-title">Settings</h2>
                     <button class="modal-close-btn" id="settings-modal-close" onClick={onClose} aria-label="Close">
                         <CloseIcon size={16} />
                     </button>
