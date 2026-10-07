@@ -39,6 +39,8 @@ export function SelectionBar({ onShowReview }) {
                 </button>
                 <div class="move-to-wrapper">
                     <button id="btn-move-to" class={`primary-btn move-to-btn ${isOpen ? 'active' : ''}`}
+                        aria-expanded={isOpen}
+                        aria-haspopup="true"
                         onClick={(e) => {
                             e.stopPropagation();
                             setIsOpen(!isOpen);
@@ -47,17 +49,25 @@ export function SelectionBar({ onShowReview }) {
                         <span>Move to...</span>
                         <svg class="chevron-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </button>
-                    <div id="move-to-dropdown" class={`move-to-dropdown ${isOpen ? 'show' : ''}`}>
+                    <div id="move-to-dropdown" class={`move-to-dropdown ${isOpen ? 'show' : ''}`} role="menu" aria-label="Move to status">
                         {['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED'].map(status => (
-                            <div key={status} class="move-to-option" data-status={status}
+                            <button key={status} type="button" role="menuitem" class="move-to-option" data-status={status}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     moveSelectedTo(status);
                                     setIsOpen(false);
                                 }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        moveSelectedTo(status);
+                                        setIsOpen(false);
+                                    }
+                                }}
                             >
                                 {status === 'CURRENT' ? 'In Progress' : status.charAt(0) + status.slice(1).toLowerCase()}
-                            </div>
+                            </button>
                         ))}
                     </div>
                 </div>
