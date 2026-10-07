@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter, Request, Response, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 from typing import Optional, List
@@ -17,7 +17,7 @@ import re
 from src.library_index import (
     build_library_index,
 )
-from src.api.utils import is_safe_path
+from src.api.utils import is_safe_path, validate_configured_dir
 
 router = APIRouter()
 
@@ -75,14 +75,24 @@ async def get_settings(request: Request):
 async def save_settings(request: Request, body: SettingsRequest):
     agent = request.app.state.agent
     if agent and hasattr(agent, 'settings'):
+        # Validate everything up front so a rejected path leaves settings untouched.
+        # Empty values mean "not provided" and keep the current setting.
+        dirs = {}
+        for field in ('default_download_dir', 'base_anime_folder'):
+            value = getattr(body, field)
+            if value is not None and value.strip():
+                try:
+                    dirs[field] = validate_configured_dir(value)
+                except ValueError as e:
+                    raise HTTPException(status_code=400, detail=f"Invalid {field}: {e}")
         if body.preferred_groups is not None:
             agent.settings.preferred_groups = [g.strip() for g in body.preferred_groups.split(',') if g.strip()]
         if body.preferred_resolution is not None:
             agent.settings.preferred_resolution = body.preferred_resolution
-        if body.default_download_dir is not None:
-            agent.settings.default_download_dir = body.default_download_dir
-        if body.base_anime_folder is not None:
-            agent.settings.base_anime_folder = body.base_anime_folder
+        if 'default_download_dir' in dirs:
+            agent.settings.default_download_dir = dirs['default_download_dir']
+        if 'base_anime_folder' in dirs:
+            agent.settings.base_anime_folder = dirs['base_anime_folder']
         if body.enable_drag_drop is not None:
             agent.settings.enable_drag_drop = body.enable_drag_drop
         if body.reduce_colors is not None:
