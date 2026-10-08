@@ -76,4 +76,19 @@ def validate_configured_dir(path) -> str:
     # every file on the machine "safe".
     if os.path.dirname(real) == real or os.path.splitdrive(real)[1] in ('', '\\', '/'):
         raise ValueError("Filesystem root directories are not allowed")
+
+    if sys.platform == 'win32':
+        system_root = os.environ.get('SystemRoot', 'C:\\Windows').upper()
+        sys_drive = os.path.splitdrive(system_root)[0] + '\\'
+
+        real_upper = real.upper()
+        if real_upper == sys_drive:
+            raise ValueError("System drive root is not allowed")
+        if real_upper == system_root or real_upper.startswith(system_root + '\\'):
+            raise ValueError("Sensitive system directories are not allowed")
+    else:
+        sensitive_dirs = ['/etc', '/bin', '/sbin', '/sys', '/dev', '/boot']
+        if any(real == d or real.startswith(d + '/') for d in sensitive_dirs):
+            raise ValueError("Sensitive system directories are not allowed")
+
     return cleaned
