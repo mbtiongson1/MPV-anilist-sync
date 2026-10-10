@@ -100,7 +100,7 @@ export function AnimeDetailsModal({ anime, visible, onClose }) {
                 <div class="modal-body">
                     <div class="details-modal-grid">
                         <div class="details-modal-left">
-                            <img src={cover} alt="cover" class="details-modal-cover" />
+                            <img src={cover} alt={`Cover art for ${title}`} class="details-modal-cover" />
                         </div>
                         <div class="details-modal-right">
                             <h3>{escapeHtml(title)}</h3>
@@ -113,8 +113,9 @@ export function AnimeDetailsModal({ anime, visible, onClose }) {
                     </div>
                     <div class="modal-actions" style="flex-direction: column; align-items: flex-start; gap: 1rem; border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1rem;">
                         <div style="width: 100%;">
-                            <label style="display: block; font-weight: 600; margin-bottom: 4px;">Local Name Override (folder name):</label>
+                            <label for="title-override-input" style="display: block; font-weight: 600; margin-bottom: 4px;">Local Name Override (folder name):</label>
                             <input
+                                id="title-override-input"
                                 type="text"
                                 value={nameOverride}
                                 onInput={(e) => setNameOverride(e.target.value)}
@@ -130,6 +131,7 @@ export function AnimeDetailsModal({ anime, visible, onClose }) {
                                     <button
                                         key={s.key}
                                         class={`status-btn ${selectedStatus === s.key ? 'active' : ''}`}
+                                        aria-pressed={selectedStatus === s.key}
                                         data-status={s.key}
                                         style={`--btn-color: var(--status-${s.key.toLowerCase()})`}
                                         onClick={() => setSelectedStatus(s.key)}
@@ -141,14 +143,16 @@ export function AnimeDetailsModal({ anime, visible, onClose }) {
                         </div>
                         <div style="display: flex; gap: 1rem; align-items: center; width: 100%; justify-content: space-between;">
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <label style="font-weight: 600;">Set progress:</label>
+                                <label for="progress-input" style="font-weight: 600;">Set progress:</label>
                                 <div style="display: flex; align-items: center; gap: 4px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; padding: 2px;">
                                     <button class="icon-btn" aria-label="Decrease progress" style="width: 28px; height: 28px; padding: 0;"
                                         onClick={() => setProgress(Math.max(0, progress - 1))}>-</button>
                                     <input
+                                        id="progress-input"
                                         type="number"
                                         value={progress}
                                         min="0"
+                                        aria-label="Episode progress"
                                         onInput={(e) => setProgress(parseInt(e.target.value) || 0)}
                                         style="width: 50px; padding: 4px; border: none; background: transparent; text-align: center; color: var(--text-primary); font-family: inherit; font-weight: 600;"
                                     />
