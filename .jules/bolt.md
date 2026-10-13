@@ -51,3 +51,7 @@
 ## 2024-05-23 - Avoid O(N) Array Iteration inside O(M) Loops with Global Maps
 **Learning:** In components like `SelectionBar`, using `.find()` over a large state array (`animeList.value`) inside a `forEach` loop over selected IDs creates an O(N * M) performance bottleneck.
 **Action:** Centralize O(N) array-to-Map conversions into a globally `computed` Preact signal (e.g. `animeMap`). This allows components to achieve O(1) lookups preventing redundant Map allocations per-component and reducing overall complexity to O(M).
+
+## 2024-05-23 - Avoid replacing readable native array methods with unmeasurable nested loops
+**Learning:** Replacing readable native JavaScript array methods (like `.reduce()`, `.filter()`, or `.forEach()`) with verbose, nested `for` loops in React/Preact components violates the performance guidelines against micro-optimizations that sacrifice readability. While `for` loops avoid anonymous function call overhead, modern JS engines optimize `reduce` efficiently, and the performance gain is unmeasurable unless the dataset is massive.
+**Action:** Do not sacrifice code readability for unmeasurable micro-optimizations. Retain standard iterative methods unless there's a proven, significant bottleneck that demands loop unrolling or fusion.
