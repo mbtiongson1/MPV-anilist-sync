@@ -51,3 +51,6 @@
 ## 2024-05-23 - Avoid O(N) Array Iteration inside O(M) Loops with Global Maps
 **Learning:** In components like `SelectionBar`, using `.find()` over a large state array (`animeList.value`) inside a `forEach` loop over selected IDs creates an O(N * M) performance bottleneck.
 **Action:** Centralize O(N) array-to-Map conversions into a globally `computed` Preact signal (e.g. `animeMap`). This allows components to achieve O(1) lookups preventing redundant Map allocations per-component and reducing overall complexity to O(M).
+## 2026-06-25 - Extract static structures from iterative functions
+**Learning:** Initializing static structures (like arrays, objects, or regular expressions) inside functions that are called frequently or iteratively (like `formatBytes` or `parseSize`) causes redundant memory allocations, GC pressure, and overhead from repeated instantiation (e.g. recompiling RegEx).
+**Action:** Always extract static data arrays, configuration objects, and non-global regular expressions into module-level constants instead of instantiating them dynamically inside small utility functions.
