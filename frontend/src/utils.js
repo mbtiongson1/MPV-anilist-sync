@@ -84,12 +84,13 @@ export function formatPopularity(num) {
     return num.toString();
 }
 
+const BYTE_SIZES = ['B', 'KB', 'MB', 'GB', 'TB'];
+
 export function formatBytes(bytes) {
     if (bytes === 0) return '0 B';
     const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + BYTE_SIZES[i];
 }
 
 // ===== Time Utilities =====
@@ -147,6 +148,8 @@ export function getTimeRemaining(endDate) {
     return `ends in ${weeks} week${weeks !== 1 ? 's' : ''}`;
 }
 
+const SEASONS_ORDER = ["WINTER", "SPRING", "SUMMER", "FALL"];
+
 export function getAnimeSeasons(anime) {
     // Optimization (Bolt): Prevent array allocations and .toUpperCase() for O(1) season parsing
     const rawSeason = anime.season;
@@ -156,7 +159,7 @@ export function getAnimeSeasons(anime) {
     if (rawSeason !== "WINTER" && rawSeason !== "SPRING" && rawSeason !== "SUMMER" && rawSeason !== "FALL") {
         if (typeof rawSeason !== "string") return [];
         seasonStr = rawSeason.toUpperCase();
-        if (seasonStr !== "WINTER" && seasonStr !== "SPRING" && seasonStr !== "SUMMER" && seasonStr !== "FALL") return [];
+        if (!SEASONS_ORDER.includes(seasonStr)) return [];
     }
 
     let cours = 1;
@@ -173,10 +176,9 @@ export function getAnimeSeasons(anime) {
     else if (seasonStr === "SUMMER") startIndex = 2;
     else if (seasonStr === "FALL") startIndex = 3;
 
-    const seasonsOrder = ["WINTER", "SPRING", "SUMMER", "FALL"];
     const seasons = new Array(cours);
     for (let i = 0; i < cours; i++) {
-        seasons[i] = seasonsOrder[(startIndex + i) % 4];
+        seasons[i] = SEASONS_ORDER[(startIndex + i) % 4];
     }
     return seasons;
 }
@@ -203,20 +205,22 @@ export function getCachedImageUrl(url) {
 }
 
 // ===== Torrent Size Parsing =====
+const SIZE_REGEX = /^(\d+(\.\d+)?)\s*([KMGT]i?B)$/i;
+const SIZE_UNITS = {
+    'B': 1,
+    'KB': 1024, 'KIB': 1024,
+    'MB': 1024 ** 2, 'MIB': 1024 ** 2,
+    'GB': 1024 ** 3, 'GIB': 1024 ** 3,
+    'TB': 1024 ** 4, 'TIB': 1024 ** 4
+};
+
 export function parseSize(sizeStr) {
     if (!sizeStr) return 0;
-    const match = sizeStr.match(/^(\d+(\.\d+)?)\s*([KMGT]i?B)$/i);
+    const match = sizeStr.match(SIZE_REGEX);
     if (!match) return 0;
     const val = parseFloat(match[1]);
     const unit = match[3].toUpperCase();
-    const units = {
-        'B': 1,
-        'KB': 1024, 'KIB': 1024,
-        'MB': 1024 ** 2, 'MIB': 1024 ** 2,
-        'GB': 1024 ** 3, 'GIB': 1024 ** 3,
-        'TB': 1024 ** 4, 'TIB': 1024 ** 4
-    };
-    return val * (units[unit] || 1);
+    return val * (SIZE_UNITS[unit] || 1);
 }
 
 // ===== Capitalize =====
