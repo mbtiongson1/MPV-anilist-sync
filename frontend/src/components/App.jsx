@@ -21,6 +21,8 @@ import { CleanupModal } from './modals/Cleanup';
 import { UpcomingOverlay } from './modals/Upcoming';
 import { MiniWindow } from './MiniWindow';
 
+const SEASON_RANKS = { WINTER: 1, SPRING: 2, SUMMER: 3, FALL: 4 };
+
 export function App() {
     // Local UI state
     const [filterName, setFilterName] = useState('');
@@ -195,8 +197,6 @@ export function App() {
         });
 
         // Sort
-        const seasonRanks = { WINTER: 1, SPRING: 2, SUMMER: 3, FALL: 4 };
-
         // Pre-compute expensive values for sorting to avoid O(N log N) string operations
         const sortCache = new Map();
         if (sort === 'title' || sort === 'studio') {
@@ -220,8 +220,8 @@ export function App() {
                 case 'score': va = a.averageScore || 0; vb = b.averageScore || 0; break;
                 case 'popularity': va = a.popularity || 0; vb = b.popularity || 0; break;
                 case 'season':
-                    va = (a.seasonYear || 0) * 10 + (seasonRanks[a.season] || 0);
-                    vb = (b.seasonYear || 0) * 10 + (seasonRanks[b.season] || 0);
+                    va = (a.seasonYear || 0) * 10 + (SEASON_RANKS[a.season] || 0);
+                    vb = (b.seasonYear || 0) * 10 + (SEASON_RANKS[b.season] || 0);
                     break;
                 case 'studio':
                     va = sortCache.get(a);
