@@ -65,3 +65,8 @@
 **Vulnerability:** AppleScript command injection vulnerability in `osascript` execution where user-provided file paths were escaped and interpolated directly into the script string.
 **Learning:** String escaping is insufficient for `osascript` because AppleScript's parsing and execution contexts are complex, allowing command execution to bypass simple quote escaping.
 **Prevention:** Always pass variables to `osascript` securely through `argv` using the `on run argv` handler (e.g., `osascript -e 'on run argv' -e '...' -e 'end run' arg1`) instead of interpolating strings.
+
+## 2026-07-09 - Validation of Non-System Drive Roots
+**Vulnerability:** Weak path validation allows configuration of secondary drive roots (e.g., `D:\`) as base media directories, exposing the entire drive to path traversal vulnerabilities.
+**Learning:** Checking against a single `SystemDrive` environment variable is insufficient, as it leaves other drive letters vulnerable. In Windows `os.path.splitdrive(real)[1]` returns `\` for roots, so `os.path.splitdrive(real)[1] in ('', '\\', '/')` properly identifies *all* drive roots.
+**Prevention:** When validating directory paths to prevent over-exposure of the file system, explicitly block ALL filesystem roots (e.g., `/`, `C:\`, `D:\`) from being configured as a base directory. Do not alter validation to only block the system drive.
