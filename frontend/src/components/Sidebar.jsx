@@ -4,16 +4,16 @@ import { genreColors, getCurrentSeason, getSeasonEndDate, getTimeRemaining } fro
 import { SeasonIcon } from '../icons';
 
 const NAV_ITEMS = [
-    { tab: 'CURRENT', label: 'In Progress', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg> },
-    { tab: 'PLANNING', label: 'Planning', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg> },
-    { tab: 'COMPLETED', label: 'Completed', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg> },
-    { tab: 'DROPPED', label: 'Dropped', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg> },
+    { tab: 'CURRENT', label: 'In Progress', Icon: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg> },
+    { tab: 'PLANNING', label: 'Planning', Icon: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg> },
+    { tab: 'COMPLETED', label: 'Completed', Icon: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg> },
+    { tab: 'DROPPED', label: 'Dropped', Icon: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg> },
 ];
 
 const EXTRA_NAV_ITEMS = [
-    { tab: 'STATS', label: 'Stats', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg> },
-    { tab: 'TORRENTS', label: 'Torrents', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg> },
-    { tab: 'LIBRARY', label: 'Library', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" /></svg> },
+    { tab: 'STATS', label: 'Stats', Icon: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg> },
+    { tab: 'TORRENTS', label: 'Torrents', Icon: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg> },
+    { tab: 'LIBRARY', label: 'Library', Icon: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" /></svg> },
 ];
 
 const SEASONS = ['WINTER', 'SPRING', 'SUMMER', 'FALL'];
@@ -119,13 +119,13 @@ export function Sidebar({ filterYear, onFilterYearChange, filterFormat, onFilter
                     <div class="sidebar-nav">
                         {NAV_ITEMS.map(n => (
                             <button type="button" key={n.tab} class={`sidebar-item ${tab === n.tab ? 'active' : ''}`} aria-current={tab === n.tab ? 'page' : undefined} data-tab={n.tab} title={n.label} onClick={() => setActiveTab(n.tab)}>
-                                {n.icon}<span>{n.label}</span>
+                                <n.Icon /><span>{n.label}</span>
                             </button>
                         ))}
                         <div class="sidebar-separator" />
                         {EXTRA_NAV_ITEMS.map(n => (
                             <button type="button" key={n.tab} class={`sidebar-item ${tab === n.tab ? 'active' : ''}`} aria-current={tab === n.tab ? 'page' : undefined} data-tab={n.tab} title={n.label} onClick={() => setActiveTab(n.tab)}>
-                                {n.icon}<span>{n.label}</span>
+                                <n.Icon /><span>{n.label}</span>
                             </button>
                         ))}
                     </div>
