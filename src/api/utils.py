@@ -81,14 +81,19 @@ def validate_configured_dir(path) -> str:
         system_root = os.environ.get('SystemRoot', 'C:\\Windows').upper()
         sys_drive = os.path.splitdrive(system_root)[0] + '\\'
 
-        real_upper = real.upper()
-        if real_upper == sys_drive:
-            raise ValueError("System drive root is not allowed")
-        if real_upper == system_root or real_upper.startswith(system_root + '\\'):
-            raise ValueError("Sensitive system directories are not allowed")
+        for target in {os.path.normpath(cleaned).upper(), real.upper()}:
+            if target == sys_drive:
+                raise ValueError("System drive root is not allowed")
+            if target == system_root or target.startswith(system_root + '\\'):
+                raise ValueError("Sensitive system directories are not allowed")
     else:
-        sensitive_dirs = ['/etc', '/bin', '/sbin', '/sys', '/dev', '/boot']
-        if any(real == d or real.startswith(d + '/') for d in sensitive_dirs):
-            raise ValueError("Sensitive system directories are not allowed")
+        sensitive_dirs = [
+            '/etc', '/bin', '/sbin', '/sys', '/dev', '/boot', '/proc', '/root', '/run',
+            '/private/etc', '/system'
+        ]
+        targets = {os.path.normpath(cleaned), real}
+        for target in targets:
+            if any(target == d or target.startswith(d + '/') for d in sensitive_dirs):
+                raise ValueError("Sensitive system directories are not allowed")
 
     return cleaned
