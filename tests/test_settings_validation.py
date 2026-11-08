@@ -47,12 +47,26 @@ class TestValidateConfiguredDir(unittest.TestCase):
             with self.assertRaises(ValueError, msg=repr(p)):
                 validate_configured_dir(p)
 
+    @unittest.skipIf(sys.platform == "win32", "Unix semantics")
+    def test_rejects_sensitive_unix_dirs(self):
+        for p in ("/etc", "/etc/passwd", "/bin", "/sbin", "/proc", "/sys", "/dev", "/boot", "/root", "/run"):
+            with self.assertRaises(ValueError, msg=p):
+                validate_configured_dir(p)
+
     @unittest.skipUnless(sys.platform == "win32", "Windows semantics")
     def test_windows_drive_roots(self):
-        for p in ("C:\\", "C:/", "C:", "c:\\\\"):
+        for p in ("C:\\", "C:/", "C:", "c:\\\\", "D:\\", "D:/", "D:"):
             with self.assertRaises(ValueError, msg=p):
                 validate_configured_dir(p)
         self.assertEqual(validate_configured_dir("C:\\Videos\\Anime"), "C:\\Videos\\Anime")
+        self.assertEqual(validate_configured_dir("D:\\Videos\\Anime"), "D:\\Videos\\Anime")
+
+    @unittest.skipUnless(sys.platform == "win32", "Windows semantics")
+    def test_rejects_windows_sensitive_dirs(self):
+        system_root = os.environ.get("SystemRoot", "C:\\Windows")
+        for p in (system_root, os.path.join(system_root, "System32"), "c:\\windows", "C:\\WINDOWS\\system32"):
+            with self.assertRaises(ValueError, msg=p):
+                validate_configured_dir(p)
 
 
 class TestSaveSettingsEndpoint(unittest.TestCase):
