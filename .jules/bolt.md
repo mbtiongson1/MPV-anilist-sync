@@ -54,3 +54,7 @@
 ## 2024-05-18 - Fast HTML Escaping
 **Learning:** Using DOM manipulation (`document.createElement('div')` and `.innerHTML`) to escape HTML strings is an extreme performance bottleneck, especially in list rendering contexts.
 **Action:** Use a regex-based string manipulation pattern (with a switch case or map) for escaping HTML to prevent costly DOM access and speed up processing by 15x-20x.
+
+## 2026-06-25 - Extract static structures from iterative functions
+**Learning:** Initializing static structures (like arrays, objects, or regular expressions) inside functions that are called frequently or iteratively (like `formatBytes` or `parseSize`) causes redundant memory allocations, GC pressure, and overhead from repeated instantiation (e.g. recompiling RegEx).
+**Action:** Always extract static data arrays, configuration objects, and non-global regular expressions into module-level constants instead of instantiating them dynamically inside small utility functions.
