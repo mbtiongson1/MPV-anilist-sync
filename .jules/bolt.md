@@ -58,3 +58,6 @@
 ## 2026-06-25 - Extract static structures from iterative functions
 **Learning:** Initializing static structures (like arrays, objects, or regular expressions) inside functions that are called frequently or iteratively (like `formatBytes` or `parseSize`) causes redundant memory allocations, GC pressure, and overhead from repeated instantiation (e.g. recompiling RegEx).
 **Action:** Always extract static data arrays, configuration objects, and non-global regular expressions into module-level constants instead of instantiating them dynamically inside small utility functions.
+## 2024-05-16 - Extract static arrays to constants
+**Learning:** Instantiating new arrays inside functions called iteratively (like filter loops) causes memory allocations and GC overhead.
+**Action:** Extract these to module-level constants returning cached arrays when possible.

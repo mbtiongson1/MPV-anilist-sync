@@ -149,17 +149,24 @@ export function getTimeRemaining(endDate) {
 }
 
 const SEASONS_ORDER = ["WINTER", "SPRING", "SUMMER", "FALL"];
+const SEASON_ARRAYS = {
+    1: { WINTER: ["WINTER"], SPRING: ["SPRING"], SUMMER: ["SUMMER"], FALL: ["FALL"] },
+    2: { WINTER: ["WINTER", "SPRING"], SPRING: ["SPRING", "SUMMER"], SUMMER: ["SUMMER", "FALL"], FALL: ["FALL", "WINTER"] },
+    3: { WINTER: ["WINTER", "SPRING", "SUMMER"], SPRING: ["SPRING", "SUMMER", "FALL"], SUMMER: ["SUMMER", "FALL", "WINTER"], FALL: ["FALL", "WINTER", "SPRING"] },
+    4: { WINTER: ["WINTER", "SPRING", "SUMMER", "FALL"], SPRING: ["SPRING", "SUMMER", "FALL", "WINTER"], SUMMER: ["SUMMER", "FALL", "WINTER", "SPRING"], FALL: ["FALL", "WINTER", "SPRING", "SUMMER"] }
+};
+const EMPTY_ARRAY = [];
 
 export function getAnimeSeasons(anime) {
     // Optimization (Bolt): Prevent array allocations and .toUpperCase() for O(1) season parsing
     const rawSeason = anime.season;
-    if (!rawSeason) return [];
+    if (!rawSeason) return EMPTY_ARRAY;
 
     let seasonStr = rawSeason;
     if (rawSeason !== "WINTER" && rawSeason !== "SPRING" && rawSeason !== "SUMMER" && rawSeason !== "FALL") {
-        if (typeof rawSeason !== "string") return [];
+        if (typeof rawSeason !== "string") return EMPTY_ARRAY;
         seasonStr = rawSeason.toUpperCase();
-        if (!SEASONS_ORDER.includes(seasonStr)) return [];
+        if (seasonStr !== "WINTER" && seasonStr !== "SPRING" && seasonStr !== "SUMMER" && seasonStr !== "FALL") return EMPTY_ARRAY;
     }
 
     let cours = 1;
@@ -169,18 +176,7 @@ export function getAnimeSeasons(anime) {
     else if (totalEps > 13) cours = 2;
     else if (totalEps === 0 && anime.mediaStatus === 'RELEASING') cours = 2;
 
-    if (cours === 1) return [seasonStr];
-
-    let startIndex = 0;
-    if (seasonStr === "SPRING") startIndex = 1;
-    else if (seasonStr === "SUMMER") startIndex = 2;
-    else if (seasonStr === "FALL") startIndex = 3;
-
-    const seasons = new Array(cours);
-    for (let i = 0; i < cours; i++) {
-        seasons[i] = SEASONS_ORDER[(startIndex + i) % 4];
-    }
-    return seasons;
+    return SEASON_ARRAYS[cours][seasonStr];
 }
 
 // ===== Search =====
